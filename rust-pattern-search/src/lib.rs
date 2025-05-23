@@ -7,8 +7,9 @@ pub mod errors;
 pub mod sgf_traversal;
 
 use cfg_if::cfg_if;
-use sgf_parse::{go, go::Point, SgfNode, go::Prop::W, go::Move::Move};
+use sgf_parse::{go, go::Move::Move, go::Point, go::Prop::W, SgfNode};
 use std::collections::HashMap;
+use std::path::Path;
 use wasm_bindgen::prelude::*;
 
 cfg_if! {
@@ -48,11 +49,11 @@ pub fn position_in_game(sgf_nodes: Vec<SgfNode<go::Prop>>, position: BoardPositi
 mod tests {
     use super::*;
 
-    fn load_sgfs() -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    fn load_sgfs() -> Result<HashMap<String, String>, Box<dyn std::error::Error>> {
         let mut sgf_folder = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         sgf_folder.push("badukmovies-pro-collection");
 
-        let mut all_data = Vec::new();
+        let mut all_data = HashMap::new();
         //let entry = walkdir::WalkDir::new(sgf_folder)
         //    .into_iter()
         //    .filter_map(|e| e.ok())
@@ -69,19 +70,20 @@ mod tests {
             .filter_map(|e| e.ok())
             .filter(|e| e.path().extension().map_or(false, |ext| ext == "sgf"))
         {
-            let file_data = std::fs::read_to_string(entry.path())?;
-            all_data.push(file_data);
+            let path = entry.path();
+            let file_data = std::fs::read_to_string(path)?;
+            all_data.insert(path.to_string_lossy().into_owned(), file_data);
         }
 
         Ok(all_data)
     }
 
-    fn parse_games(sgfs: Vec<String>) -> Vec<Vec<SgfNode<go::Prop>>> {
-        let mut games: Vec<Vec<SgfNode<go::Prop>>> = Vec::new();
+    fn parse_games(sgfs: &mut HashMap<String, String>) -> HashMap<String, Vec<SgfNode<go::Prop>>> {
+        let mut games: HashMap<String, Vec<SgfNode<go::Prop>>> = HashMap::new();
 
-        for sgf in sgfs {
-            if let Ok(nodes) = go::parse(&sgf) {
-                games.push(nodes);
+        for (path, sgf) in sgfs.into_iter() {
+            if let Ok(game) = go::parse(&sgf) {
+                games.insert(path.to_owned(), game);
             }
         }
 
@@ -90,15 +92,16 @@ mod tests {
 
     #[test]
     fn test_load_sgf() {
-        let sgfs = load_sgfs().unwrap();
-        let games = parse_games(sgfs);
-        let point = Point{x: 3, y: 3};
+        let mut sgfs = load_sgfs().unwrap();
+        let games = parse_games(&mut sgfs);
+        let point = Point { x: 3, y: 3 };
         //let color = Color::Black;
-        for game in games {
+        for (path, game) in games {
             for node in sgf_traversal::variation_nodes(&game[0], 0).unwrap() {
                 match node.sgf_node {
                     SgfNode { properties, .. } if properties.contains(&W(Move(point))) => {
-                        println!("White move at {:?}", point);
+                        println!("{:?}", path);
+                        break;
                     }
                     _ => {}
                 }
