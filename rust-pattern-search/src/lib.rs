@@ -29,24 +29,37 @@ extern "C" {
 }
 
 #[wasm_bindgen]
-pub fn search(point: Point) {
-    log("search");
-    let data = include_bytes!("games.pack");
-    let mut de = Deserializer::new(&data[..]);
-    let games: HashMap<String, Vec<Move>> = Deserialize::deserialize(&mut de).unwrap();
-    log("Loaded games");
-    let point = Point { x: 3, y: 3 };
-    let color = Color::White;
-    for (path, moves) in games {
-        for move_ in moves {
-            if move_.point == point && move_.color == color {
-                break;
-            }
-        }
-    }
-    log("x");
+pub struct Games {
+    game_data: HashMap<String, Vec<Move>>,
 }
 
+#[wasm_bindgen]
+impl Games {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Games {
+        let data = include_bytes!("games.pack");
+        let mut de = Deserializer::new(&data[..]);
+        let game_data: HashMap<String, Vec<Move>> = Deserialize::deserialize(&mut de).unwrap();
+        Self { game_data }
+    }
+
+    #[wasm_bindgen]
+    pub fn search_point(&self, point: Point, color: Color) -> Vec<String> {
+        let mut result = Vec::new();
+        for (path, moves) in &self.game_data {
+            for move_ in moves {
+                if move_.point == point && move_.color == color {
+                    result.push(path.clone());
+                    break;
+                }
+            }
+        }
+        result
+    }
+}
+
+
+#[wasm_bindgen]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Color {
     Black,
