@@ -9,7 +9,7 @@ pub mod sgf_traversal;
 use cfg_if::cfg_if;
 use rmp_serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
-use sgf_parse::{go, go::Point, SgfNode};
+use sgf_parse::{go, SgfNode};
 use std::collections::HashMap;
 use wasm_bindgen::prelude::*;
 
@@ -29,8 +29,8 @@ extern "C" {
 }
 
 #[wasm_bindgen]
-pub fn greet(name: &str) {
-    log("greet");
+pub fn search(point: Point) {
+    log("search");
     let data = include_bytes!("games.pack");
     let mut de = Deserializer::new(&data[..]);
     let games: HashMap<String, Vec<Move>> = Deserialize::deserialize(&mut de).unwrap();
@@ -53,17 +53,32 @@ pub enum Color {
     White,
 }
 
-#[derive(Serialize, Deserialize)]
-#[serde(remote = "Point")]
-struct PointDef {
+//#[derive(Serialize, Deserialize)]
+//#[serde(remote = "Point")]
+//struct PointDef {
+//    x: u8,
+//    y: u8,
+//}
+//
+#[wasm_bindgen]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct Point {
     x: u8,
     y: u8,
+}
+
+#[wasm_bindgen]
+impl Point {
+    #[wasm_bindgen(constructor)]
+    pub fn new(x: u8, y: u8) -> Self {
+        Self { x, y }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Move {
     color: Color,
-    #[serde(with = "PointDef")]
+    //#[serde(with = "PointDef")]
     point: Point,
 }
 
