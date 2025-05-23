@@ -36,7 +36,6 @@ pub enum Color {
     White,
 }
 
-
 type BoardPosition = HashMap<Point, Color>;
 
 pub struct Move {
@@ -62,38 +61,36 @@ mod tests {
 
         let mut games = HashMap::new();
 
-        for entry in walkdir::WalkDir::new(sgf_folder)
-            .into_iter()
-            .filter_map(|e| e.ok())
-            .filter(|e| e.path().extension().map_or(false, |ext| ext == "sgf"))
-        {
-            let path = entry.path();
-            let file_data = std::fs::read_to_string(path)?;
-            if let Ok(game) = go::parse(&file_data) {
-                let mut moves = Vec::new();
-                for node in sgf_traversal::variation_nodes(&game[0], 0).unwrap() {
-                    for props in &node.sgf_node.properties {
-                        match props {
-                            go::Prop::W(go::Move::Move(point)) => {
-                                moves.push(Move {
-                                    color: Color::White,
-                                    point: point.clone(),
-                                });
-                                break;
+        for entry in jwalk::WalkDir::new(sgf_folder) {
+            let path = entry?.path();
+            if path.extension().map_or(false, |ext| ext == "sgf") {
+                let file_data = std::fs::read_to_string(path.clone())?;
+                if let Ok(game) = go::parse(&file_data) {
+                    let mut moves = Vec::new();
+                    for node in sgf_traversal::variation_nodes(&game[0], 0).unwrap() {
+                        for props in &node.sgf_node.properties {
+                            match props {
+                                go::Prop::W(go::Move::Move(point)) => {
+                                    moves.push(Move {
+                                        color: Color::White,
+                                        point: point.clone(),
+                                    });
+                                    break;
+                                }
+                                go::Prop::B(go::Move::Move(point)) => {
+                                    moves.push(Move {
+                                        color: Color::Black,
+                                        point: point.clone(),
+                                    });
+                                    break;
+                                }
+                                _ => {}
                             }
-                            go::Prop::B(go::Move::Move(point)) => {
-                                moves.push(Move {
-                                    color: Color::Black,
-                                    point: point.clone(),
-                                });
-                                break;
-                            }
-                            _ => {}
                         }
                     }
-                }
 
-                games.insert(path.to_string_lossy().to_string(), moves);
+                    games.insert(path.to_string_lossy().into_owned(), moves);
+                }
             }
         }
 
