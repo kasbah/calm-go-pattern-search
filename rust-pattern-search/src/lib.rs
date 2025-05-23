@@ -7,7 +7,7 @@ pub mod errors;
 pub mod sgf_traversal;
 
 use cfg_if::cfg_if;
-use sgf_parse::{go, go::Move::Move, go::Point, go::Prop::W, SgfNode};
+use sgf_parse::{go, go::Point, SgfNode};
 use std::collections::HashMap;
 use std::path::Path;
 use wasm_bindgen::prelude::*;
@@ -30,12 +30,19 @@ pub fn greet(name: &str) {
     alert(&format!("Hello,{}!", name));
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Color {
     Black,
     White,
 }
 
+
 type BoardPosition = HashMap<Point, Color>;
+
+pub struct Move {
+    color: Color,
+    point: Point,
+}
 
 pub fn point_in_game(sgf_nodes: Vec<SgfNode<go::Prop>>, point: Point) -> bool {
     false
@@ -49,21 +56,11 @@ pub fn position_in_game(sgf_nodes: Vec<SgfNode<go::Prop>>, position: BoardPositi
 mod tests {
     use super::*;
 
-    fn load_sgfs() -> Result<HashMap<String, String>, Box<dyn std::error::Error>> {
+    fn load_sgfs() -> Result<HashMap<String, Vec<Move>>, Box<dyn std::error::Error>> {
         let mut sgf_folder = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         sgf_folder.push("badukmovies-pro-collection");
 
-        let mut all_data = HashMap::new();
-        //let entry = walkdir::WalkDir::new(sgf_folder)
-        //    .into_iter()
-        //    .filter_map(|e| e.ok())
-        //    .filter(|e| e.path().extension().map_or(false, |ext| ext == "sgf"))
-        //    .next()
-        //    .ok_or_else(|| {
-        //        std::io::Error::new(std::io::ErrorKind::NotFound, "No SGF files found")
-        //    })?;
-        //let file_data = std::fs::read_to_string(entry.path())?;
-        //all_data.push(file_data);
+        let mut games = HashMap::new();
 
         for entry in walkdir::WalkDir::new(sgf_folder)
             .into_iter()
@@ -72,10 +69,35 @@ mod tests {
         {
             let path = entry.path();
             let file_data = std::fs::read_to_string(path)?;
-            all_data.insert(path.to_string_lossy().into_owned(), file_data);
+            if let Ok(game) = go::parse(&file_data) {
+                let mut moves = Vec::new();
+                for node in sgf_traversal::variation_nodes(&game[0], 0).unwrap() {
+                    for props in &node.sgf_node.properties {
+                        match props {
+                            go::Prop::W(go::Move::Move(point)) => {
+                                moves.push(Move {
+                                    color: Color::White,
+                                    point: point.clone(),
+                                });
+                                break;
+                            }
+                            go::Prop::B(go::Move::Move(point)) => {
+                                moves.push(Move {
+                                    color: Color::Black,
+                                    point: point.clone(),
+                                });
+                                break;
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+
+                games.insert(path.to_string_lossy().to_string(), moves);
+            }
         }
 
-        Ok(all_data)
+        Ok(games)
     }
 
     fn parse_games(sgfs: &mut HashMap<String, String>) -> HashMap<String, Vec<SgfNode<go::Prop>>> {
@@ -92,18 +114,14 @@ mod tests {
 
     #[test]
     fn test_load_sgf() {
-        let mut sgfs = load_sgfs().unwrap();
-        let games = parse_games(&mut sgfs);
+        let games = load_sgfs().unwrap();
         let point = Point { x: 3, y: 3 };
-        //let color = Color::Black;
-        for (path, game) in games {
-            for node in sgf_traversal::variation_nodes(&game[0], 0).unwrap() {
-                match node.sgf_node {
-                    SgfNode { properties, .. } if properties.contains(&W(Move(point))) => {
-                        println!("{:?}", path);
-                        break;
-                    }
-                    _ => {}
+        let color = Color::White;
+        for (path, moves) in games {
+            for move_ in moves {
+                if move_.point == point && move_.color == color {
+                    println!("{:?}", path);
+                    break;
                 }
             }
         }
