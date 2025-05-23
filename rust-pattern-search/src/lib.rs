@@ -3,9 +3,13 @@ extern crate wasm_bindgen;
 
 mod utils;
 
+pub mod errors;
+pub mod sgf_traversal;
+
 use cfg_if::cfg_if;
+use sgf_parse::{go, go::Point, SgfNode, go::Prop::W, go::Move::Move};
+use std::collections::HashMap;
 use wasm_bindgen::prelude::*;
-use sgf_parse::{SgfNode, go};
 
 cfg_if! {
     if #[cfg(feature = "wee_alloc")] {
@@ -25,37 +29,80 @@ pub fn greet(name: &str) {
     alert(&format!("Hello,{}!", name));
 }
 
+pub enum Color {
+    Black,
+    White,
+}
+
+type BoardPosition = HashMap<Point, Color>;
+
+pub fn point_in_game(sgf_nodes: Vec<SgfNode<go::Prop>>, point: Point) -> bool {
+    false
+}
+
+pub fn position_in_game(sgf_nodes: Vec<SgfNode<go::Prop>>, position: BoardPosition) -> bool {
+    false
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    fn load_test_sgf() -> Result<String, Box<dyn std::error::Error>> {
-        // See https://www.red-bean.com/sgf/examples/
-        let mut sgf_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        sgf_path.push("badukmovies-pro-collection/1062/12/-1.sgf");
-        let data = std::fs::read_to_string(sgf_path)?;
+    fn load_sgfs() -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut sgf_folder = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        sgf_folder.push("badukmovies-pro-collection");
 
-        Ok(data)
-    }
+        let mut all_data = Vec::new();
+        //let entry = walkdir::WalkDir::new(sgf_folder)
+        //    .into_iter()
+        //    .filter_map(|e| e.ok())
+        //    .filter(|e| e.path().extension().map_or(false, |ext| ext == "sgf"))
+        //    .next()
+        //    .ok_or_else(|| {
+        //        std::io::Error::new(std::io::ErrorKind::NotFound, "No SGF files found")
+        //    })?;
+        //let file_data = std::fs::read_to_string(entry.path())?;
+        //all_data.push(file_data);
 
-    fn get_go_nodes() -> Result<Vec<SgfNode<go::Prop>>, Box<dyn std::error::Error>> {
-        let data = load_test_sgf()?;
-
-        Ok(go::parse(&data)?)
-    }
-
-    fn node_depth(mut sgf_node: &sgf_parse::SgfNode<go::Prop>) -> u64 {
-        let mut depth = 1;
-        while sgf_node.children().count() > 0 {
-            depth += 1;
-            sgf_node = sgf_node.children().next().unwrap();
+        for entry in walkdir::WalkDir::new(sgf_folder)
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .filter(|e| e.path().extension().map_or(false, |ext| ext == "sgf"))
+        {
+            let file_data = std::fs::read_to_string(entry.path())?;
+            all_data.push(file_data);
         }
-        depth
+
+        Ok(all_data)
+    }
+
+    fn parse_games(sgfs: Vec<String>) -> Vec<Vec<SgfNode<go::Prop>>> {
+        let mut games: Vec<Vec<SgfNode<go::Prop>>> = Vec::new();
+
+        for sgf in sgfs {
+            if let Ok(nodes) = go::parse(&sgf) {
+                games.push(nodes);
+            }
+        }
+
+        games
     }
 
     #[test]
     fn test_load_sgf() {
-        let sgf_nodes = get_go_nodes().unwrap();
-        println!("{:?}", sgf_nodes);
+        let sgfs = load_sgfs().unwrap();
+        let games = parse_games(sgfs);
+        let point = Point{x: 3, y: 3};
+        //let color = Color::Black;
+        for game in games {
+            for node in sgf_traversal::variation_nodes(&game[0], 0).unwrap() {
+                match node.sgf_node {
+                    SgfNode { properties, .. } if properties.contains(&W(Move(point))) => {
+                        println!("White move at {:?}", point);
+                    }
+                    _ => {}
+                }
+            }
+        }
     }
 }
