@@ -26,8 +26,10 @@ export default function App() {
             }
           });
         });
-        const result = await window.wasm_search.search(position);
-        console.log(result);
+        let results = await window.wasm_search.search(position);
+        results.sort((r1, r2) => r2.score - r1.score);
+        results = results.map((r) => [r.score, r.path]);
+        console.log(results);
       })();
     }
   }, [board]);

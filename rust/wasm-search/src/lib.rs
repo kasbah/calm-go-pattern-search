@@ -112,48 +112,88 @@ impl WasmSearch {
             .collect()
     }
 
-    fn match_game(&self, position: &Vec<Placement>, moves: &Vec<Placement>) -> bool {
+    fn match_game(&self, position: &Vec<Placement>, moves: &Vec<Placement>) -> isize {
         for placement in position {
             if !moves.contains(placement) {
-                return false;
+                return -1;
             }
         }
-        true
+        let last_placement = position.last().expect("No placements");
+        return moves
+            .iter()
+            .position(|&m| m == *last_placement)
+            .expect("Placement not found") as isize;
     }
 
     #[wasm_bindgen]
-    pub async fn search(&self, position: Vec<Placement>) -> Vec<String> {
+    pub async fn search(&self, position: Vec<Placement>) -> Vec<SearchResult> {
+        if position.is_empty() {
+            return Vec::new();
+        }
         let mut result = Vec::new();
         let rotations = self.get_rotations(&position);
         let inverse = self.switch_colors(&position);
         let inverse_rotations = self.get_rotations(&inverse);
         for (path, moves) in &self.game_data {
-            if self.match_game(&position, moves) {
-                result.push(path.clone());
+            let mut last_move_matched = self.match_game(&position, moves);
+            if last_move_matched != -1 {
+                result.push(SearchResult {
+                    path: path.clone(),
+                    score: 10,
+                });
                 continue;
             }
-            let mut matched = false;
             for rotation in &rotations {
-                if self.match_game(rotation, moves) {
-                    result.push(path.clone());
-                    matched = true;
+                last_move_matched = self.match_game(rotation, moves);
+                if last_move_matched != -1 {
+                    result.push(SearchResult {
+                        path: path.clone(),
+                        score: 10,
+                    });
                     break;
                 }
             }
-            if !matched {
-                if self.match_game(&inverse, moves) {
-                    result.push(path.clone());
+            if last_move_matched == -1 {
+                last_move_matched = self.match_game(&inverse, moves);
+                if last_move_matched != -1 {
+                    result.push(SearchResult {
+                        path: path.clone(),
+                        score: 9,
+                    });
                     continue;
                 }
                 for rotation in &inverse_rotations {
-                    if self.match_game(rotation, moves) {
-                        result.push(path.clone());
+                    last_move_matched = self.match_game(rotation, moves);
+                    if last_move_matched != -1 {
+                        result.push(SearchResult {
+                            path: path.clone(),
+                            score: 9,
+                        });
                         break;
                     }
                 }
             }
         }
         result
+    }
+}
+
+#[wasm_bindgen]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct SearchResult {
+    path: String,
+    score: i8,
+}
+
+#[wasm_bindgen]
+impl SearchResult {
+    #[wasm_bindgen(getter)]
+    pub fn path(&self) -> String {
+        self.path.clone()
+    }
+    #[wasm_bindgen(getter)]
+    pub fn score(&self) -> i8 {
+        self.score
     }
 }
 
