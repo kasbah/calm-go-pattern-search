@@ -1,10 +1,10 @@
 //@ts-ignore
-import React, { useState, useEffect } from "react";
-import { useWindowSize } from "@reach/window-size";
-import { BoundedGoban, Vertex } from "@sabaki/shudan";
+import React, {useState, useEffect} from "react";
+import {useWindowSize} from "@reach/window-size";
+import {BoundedGoban, Vertex} from "@sabaki/shudan";
 import "@sabaki/shudan/css/goban.css";
 import "./Goban.css";
-import SabakiGoBoard, { Sign } from "@sabaki/go-board";
+import SabakiGoBoard, {Sign} from "@sabaki/go-board";
 
 export const SabakiColor = Object.freeze({
   Black: 1,
@@ -78,7 +78,7 @@ function getNextColor(
   }
 }
 
-export default function Goban({ brushMode, onUpdateBoard, board }: GobanProps) {
+export default function Goban({brushMode, onUpdateBoard, board}: GobanProps) {
   const windowSize = useWindowSize();
   const [displayBoard, setDisplayBoard] = useState(emptyBoard);
   const [hoverVertex, setHoverVertex] = useState<Vertex | null>(null);

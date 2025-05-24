@@ -1,11 +1,34 @@
 import React, { useState, useEffect } from "react";
-import Goban, { BrushMode, BoardPosition, emptyBoard } from "./Goban";
+import Goban, {
+  BrushMode,
+  BoardPosition,
+  emptyBoard,
+  SabakiColor,
+} from "./Goban";
 //@ts-ignore
-import { Point, Color } from "rust-pattern-search";
+import { Point, Color, Placement } from "rust-pattern-search";
 
 export default function App() {
   const [brushMode, setBrushMode] = useState<BrushMode>(BrushMode.Alternate);
   const [board, setBoard] = useState<BoardPosition>(emptyBoard);
+
+  useEffect(() => {
+    if (window.games !== undefined) {
+      const position: Array<Placement> = [];
+      board.forEach((row, y) => {
+        row.forEach((stone, x) => {
+          if (stone !== SabakiColor.Empty) {
+            const color =
+              stone === SabakiColor.Black ? Color.Black : Color.White;
+            const point = new Point(x, y);
+            position.push(new Placement(color, point));
+          }
+        });
+      });
+      const result = window.games.search(position);
+      console.log(result);
+    }
+  }, [board]);
 
   return (
     <div style={{ display: "flex" }}>

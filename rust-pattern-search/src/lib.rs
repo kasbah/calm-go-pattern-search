@@ -7,9 +7,8 @@ pub mod errors;
 pub mod sgf_traversal;
 
 use cfg_if::cfg_if;
-use rmp_serde::{Deserializer, Serializer};
+use rmp_serde::Deserializer;
 use serde::{Deserialize, Serialize};
-use sgf_parse::{go, SgfNode};
 use std::collections::HashMap;
 use wasm_bindgen::prelude::*;
 
@@ -30,7 +29,7 @@ extern "C" {
 
 #[wasm_bindgen]
 pub struct Games {
-    game_data: HashMap<String, Vec<Move>>,
+    game_data: HashMap<String, Vec<Placement>>,
 }
 
 #[wasm_bindgen]
@@ -39,25 +38,34 @@ impl Games {
     pub fn new() -> Games {
         let data = include_bytes!("games.pack");
         let mut de = Deserializer::new(&data[..]);
-        let game_data: HashMap<String, Vec<Move>> = Deserialize::deserialize(&mut de).unwrap();
+        let game_data: HashMap<String, Vec<Placement>> = Deserialize::deserialize(&mut de).unwrap();
         Self { game_data }
     }
 
-    #[wasm_bindgen]
-    pub fn search_point(&self, point: Point, color: Color) -> Vec<String> {
+    fn search_placement(&self, paths: &Vec<String>, placement: &Placement) -> Vec<String> {
         let mut result = Vec::new();
         for (path, moves) in &self.game_data {
-            for move_ in moves {
-                if move_.point == point && move_.color == color {
-                    result.push(path.clone());
-                    break;
+            if paths.contains(path) {
+                for move_ in moves {
+                    if move_.point == placement.point && move_.color == placement.color {
+                        result.push(path.clone());
+                        break;
+                    }
                 }
             }
         }
         result
     }
-}
 
+    #[wasm_bindgen]
+    pub fn search(&self, position: Vec<Placement>) -> Vec<String> {
+        let mut paths = self.game_data.keys().cloned().collect::<Vec<String>>();
+        for placement in position {
+            paths = self.search_placement(&paths, &placement);
+        }
+        paths
+    }
+}
 
 #[wasm_bindgen]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -66,13 +74,6 @@ pub enum Color {
     White,
 }
 
-//#[derive(Serialize, Deserialize)]
-//#[serde(remote = "Point")]
-//struct PointDef {
-//    x: u8,
-//    y: u8,
-//}
-//
 #[wasm_bindgen]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Point {
@@ -88,11 +89,19 @@ impl Point {
     }
 }
 
+#[wasm_bindgen]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct Move {
+pub struct Placement {
     color: Color,
-    //#[serde(with = "PointDef")]
     point: Point,
+}
+
+#[wasm_bindgen]
+impl Placement {
+    #[wasm_bindgen(constructor)]
+    pub fn new(color: Color, point: Point) -> Self {
+        Self { color, point }
+    }
 }
 
 //#[cfg(test)]
