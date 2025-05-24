@@ -56,13 +56,25 @@ export type GobanProps = {
   board: BoardPosition;
 };
 
-function getNextColor(stone: SabakiColor, brushColor: SabakiColor) {
-  if (stone === SabakiColor.Empty) {
-    return brushColor;
-  } else if (stone === SabakiColor.Black) {
+function getNextColor(
+  stone: SabakiColor,
+  brushColor: SabakiColor,
+  brushMode: BrushMode,
+) {
+  if (brushMode === BrushMode.Alternate) {
+    if (stone === SabakiColor.Empty) {
+      return brushColor;
+    } else if (stone === SabakiColor.Black) {
+      return SabakiColor.White;
+    }
+    return SabakiColor.Black;
+  } else if (brushMode === BrushMode.Black) {
+    return SabakiColor.Black;
+  } else if (brushMode === BrushMode.White) {
     return SabakiColor.White;
+  } else if (brushMode === BrushMode.Delete) {
+    return SabakiColor.Empty;
   }
-  return SabakiColor.Empty;
 }
 
 export default function Goban({ brushMode, onUpdateBoard, board }: GobanProps) {
@@ -70,24 +82,36 @@ export default function Goban({ brushMode, onUpdateBoard, board }: GobanProps) {
   const [displayBoard, setDisplayBoard] = useState(emptyBoard);
   const [hoverVertex, setHoverVertex] = useState<Vertex | null>(null);
   const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
-  const [brushColor, setBrushColor] = useState<SabakiColor>(SabakiColor.Black);
+  const [alternateBrushColor, setAlternateBrushColor] = useState<SabakiColor>(
+    SabakiColor.Black,
+  );
 
   useEffect(() => {
-    onUpdateBoard(board);
+    if (board.every((row) => row.every((c) => c === SabakiColor.Empty))) {
+      setAlternateBrushColor(SabakiColor.Black);
+    }
   }, [board]);
 
   useEffect(() => {
     if (hoverVertex == null) {
       setDimmedVertices([]);
     } else {
-      setDimmedVertices([[...hoverVertex]]);
+      const x = hoverVertex[0];
+      const y = hoverVertex[1];
+      const stone = board[y][x];
+      const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
+      if (nextColor !== stone) {
+        setDimmedVertices([[...hoverVertex]]);
+      } else {
+        setDimmedVertices([]);
+      }
     }
   }, [hoverVertex]);
 
   useEffect(() => {
-    const b = board.map((row, y) =>
+    const b: BoardPosition = board.map((row, y) =>
       row.map((stone, x) => {
-        const nextColor = getNextColor(stone, brushColor);
+        const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
         if (nextColor === SabakiColor.Empty) {
           return stone;
         }
@@ -102,7 +126,7 @@ export default function Goban({ brushMode, onUpdateBoard, board }: GobanProps) {
       }),
     );
     setDisplayBoard(b);
-  }, [board, hoverVertex]);
+  }, [board, hoverVertex, brushMode]);
 
   return (
     <BoundedGoban
@@ -118,12 +142,7 @@ export default function Goban({ brushMode, onUpdateBoard, board }: GobanProps) {
         const x = vertex[0];
         const y = vertex[1];
         const stone = board[y][x];
-        const nextColor = getNextColor(stone, brushColor);
-        if (stone === SabakiColor.Empty && brushMode === BrushMode.Alternate) {
-          setBrushColor((c) =>
-            c === SabakiColor.Black ? SabakiColor.White : SabakiColor.Black,
-          );
-        }
+        const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
         const b = board.map((row, y) =>
           row.map((c, x) => {
             if (y === vertex[1] && x === vertex[0]) {
@@ -133,17 +152,19 @@ export default function Goban({ brushMode, onUpdateBoard, board }: GobanProps) {
           }),
         );
         onUpdateBoard(b);
+        if (nextColor !== SabakiColor.Empty) {
+          setAlternateBrushColor(
+            nextColor === SabakiColor.Black
+              ? SabakiColor.White
+              : SabakiColor.Black,
+          );
+        }
       }}
       onVertexMouseEnter={(e, vertex) => {
         setHoverVertex(vertex);
       }}
       onVertexMouseLeave={(e, vertex) => {
-        setHoverVertex((v) => {
-          if (v != null && v[0] === vertex[0] && v[1] === vertex[1]) {
-            return null;
-          }
-          return v;
-        });
+        setHoverVertex(null);
       }}
     />
   );
