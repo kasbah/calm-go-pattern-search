@@ -2,11 +2,19 @@
 import { Point, Color } from "rust-pattern-search";
 import React, { useState, useEffect } from "react";
 import { useWindowSize } from "@reach/window-size";
-import { BoundedGoban } from "@sabaki/shudan";
+import { BoundedGoban, Vertex } from "@sabaki/shudan";
 import "@sabaki/shudan/css/goban.css";
 import "./Goban.css";
 
 export type BoardPosition = Array<Array<Color>>;
+
+const SabakiColor = Object.freeze({
+  Black: 1,
+  White: -1,
+  Empty: 0,
+});
+
+type SabakiColorT = (typeof SabakiColor)[keyof typeof SabakiColor];
 
 /*prettier-ignore*/
 const defaultSignMap = [
@@ -51,35 +59,63 @@ export default function Goban({
   onVertexClick,
   boardPosition,
 }: GobanProps) {
+  const brush =
+    brushColor === Color.Black
+      ? SabakiColor.Black
+      : brushColor === Color.White
+        ? SabakiColor.White
+        : SabakiColor.Empty;
+
+  const board = defaultSignMap.map((row, y) =>
+    row.map((_, x) =>
+      boardPosition[x]?.[y] == null
+        ? SabakiColor.Empty
+        : boardPosition[x][y] === Color.White
+          ? SabakiColor.White
+          : SabakiColor.Black,
+    ),
+  );
+
   const windowSize = useWindowSize();
-  const [hoverVertex, setHoverVertex] = useState(null);
+  const [hoverVertex, setHoverVertex] = useState<Vertex | null>(null);
   const [signMap, setSignMap] = useState(defaultSignMap);
   const [ghostStoneMap, setGhostStoneMap] = useState([]);
+  const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
+  const [hoverSignMap, setHoverSignMap] = useState(defaultSignMap);
 
   useEffect(() => {
-    const ghostStone = { sign: brushColor == Color.White ? -1 : 1 };
-    const g = signMap.map((row, y) =>
-      row.map((_, x) =>
-        hoverVertex != null && hoverVertex[0] === x && hoverVertex[1] === y
-          ? ghostStone
-          : null,
-      ),
-    );
-    setGhostStoneMap(g);
-  }, [hoverVertex, signMap, brushColor]);
+    if (hoverVertex == null) {
+      setDimmedVertices([]);
+    } else {
+      setDimmedVertices([[...hoverVertex]]);
+    }
+  }, [hoverVertex]);
+
+  useEffect(() => {}, [dimmedVertices]);
 
   useEffect(() => {
-    const g = signMap.map((row, y) =>
-      row.map((_, x) =>
-        boardPosition[x]?.[y] != null
-          ? boardPosition[x][y] === Color.White
-            ? -1
-            : 1
-          : 0,
-      ),
+    const g = board.map((row, y) =>
+      row.map((currentColor, x) => {
+        let nextColor: SabakiColorT = currentColor;
+        if (
+          hoverVertex != null &&
+          hoverVertex[0] === x &&
+          hoverVertex[1] === y
+        ) {
+          if (currentColor !== SabakiColor.Empty) {
+            nextColor =
+              currentColor === SabakiColor.Black
+                ? SabakiColor.White
+                : SabakiColor.Black;
+          } else {
+            nextColor = brush;
+          }
+        }
+        return nextColor;
+      }),
     );
     setSignMap(g);
-  }, [boardPosition]);
+  }, [board, hoverVertex]);
 
   return (
     <BoundedGoban
@@ -90,7 +126,11 @@ export default function Goban({
       maxWidth={windowSize.width * 0.8}
       showCoordinates={true}
       signMap={signMap}
-      onVertexClick={onVertexClick}
+      dimmedVertices={dimmedVertices}
+      onVertexClick={(e, vertex) => {
+        setHoverVertex(null);
+        onVertexClick(e, vertex);
+      }}
       onVertexMouseEnter={(e, vertex) => {
         setHoverVertex(vertex);
       }}

@@ -31,7 +31,9 @@ export default function App() {
           brushColor={brushColor}
           onVertexClick={(e, vertex) => {
             if (brushMode === BrushMode.Alternate) {
-              setBrushColor((c) => (c === Color.Black ? Color.White : Color.Black));
+              setBrushColor((c) =>
+                c === Color.Black ? Color.White : Color.Black,
+              );
             }
             setBoardPosition((b) => {
               const x = vertex[0];
