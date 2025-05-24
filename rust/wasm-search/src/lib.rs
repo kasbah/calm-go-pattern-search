@@ -27,13 +27,6 @@ extern "C" {
     fn log(s: &str);
 }
 
-#[wasm_bindgen]
-pub struct Games {
-    board_size: u8,
-    game_data: HashMap<String, Vec<Placement>>,
-}
-
-#[wasm_bindgen]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Rotation {
     R90,
@@ -42,9 +35,15 @@ pub enum Rotation {
 }
 
 #[wasm_bindgen]
-impl Games {
+pub struct WasmSearch {
+    board_size: u8,
+    game_data: HashMap<String, Vec<Placement>>,
+}
+
+#[wasm_bindgen]
+impl WasmSearch {
     #[wasm_bindgen(constructor)]
-    pub fn new() -> Games {
+    pub fn new() -> WasmSearch {
         let data = include_bytes!("games.pack");
         let mut de = Deserializer::new(&data[..]);
         let game_data: HashMap<String, Vec<Placement>> = Deserialize::deserialize(&mut de).unwrap();

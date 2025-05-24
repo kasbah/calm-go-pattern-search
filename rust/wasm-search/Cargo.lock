@@ -252,23 +252,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust-pattern-search"
-version = "0.1.0"
-dependencies = [
- "cfg-if 1.0.0",
- "console_error_panic_hook",
- "jwalk",
- "rmp-serde",
- "serde",
- "sgf-parse",
- "tsify",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "wasm-bindgen-test",
- "wee_alloc",
-]
-
-[[package]]
 name = "rustversion"
 version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -470,6 +453,23 @@ checksum = "dd4543fc6cf3541ef0d98bf720104cc6bd856d7eba449fd2aa365ef4fed0e782"
 dependencies = [
  "proc-macro2",
  "quote",
+]
+
+[[package]]
+name = "wasm-search"
+version = "0.1.0"
+dependencies = [
+ "cfg-if 1.0.0",
+ "console_error_panic_hook",
+ "jwalk",
+ "rmp-serde",
+ "serde",
+ "sgf-parse",
+ "tsify",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "wasm-bindgen-test",
+ "wee_alloc",
 ]
 
 [[package]]

@@ -6,14 +6,14 @@ import Goban, {
   SabakiColor,
 } from "./Goban";
 //@ts-ignore
-import { Point, Color, Placement } from "rust-pattern-search";
+import { Point, Color, Placement } from "wasm-search";
 
 export default function App() {
   const [brushMode, setBrushMode] = useState<BrushMode>(BrushMode.Alternate);
   const [board, setBoard] = useState<BoardPosition>(emptyBoard);
 
   useEffect(() => {
-    if (window.games !== undefined) {
+    if (window.wasm_search !== undefined) {
       (async () => {
         const position: Array<Placement> = [];
         board.forEach((row, y) => {
@@ -26,7 +26,7 @@ export default function App() {
             }
           });
         });
-        const result = await window.games.search(position);
+        const result = await window.wasm_search.search(position);
         console.log(result);
       })();
     }

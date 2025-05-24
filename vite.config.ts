@@ -6,7 +6,7 @@ export default defineConfig({
   build: {
     minify: false,
   },
-  plugins: [wasmPack(["./rust-pattern-search"]), react()],
+  plugins: [wasmPack(["./rust/wasm-search"]), react()],
   resolve: {
     alias: [
       {find: 'preact/hooks', replacement: 'react'},

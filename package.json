@@ -14,8 +14,8 @@
     "vite": "^6.3.5"
   },
   "scripts": {
-    "wasm": "wasm-pack build ./my-crate --target web",
-    "dev": "vite",
+    "wasm": "wasm-pack build ./rust/wasm-search --target web",
+    "dev": "yarn wasm && vite",
     "build": "vite build"
   },
   "dependencies": {
