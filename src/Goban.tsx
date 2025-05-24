@@ -1,87 +1,80 @@
 //@ts-ignore
-import { Point, Color } from "rust-pattern-search";
 import React, { useState, useEffect } from "react";
 import { useWindowSize } from "@reach/window-size";
 import { BoundedGoban, Vertex } from "@sabaki/shudan";
 import "@sabaki/shudan/css/goban.css";
 import "./Goban.css";
 
-export type BoardPosition = Array<Array<Color>>;
-
-const SabakiColor = Object.freeze({
+export const SabakiColor = Object.freeze({
   Black: 1,
   White: -1,
   Empty: 0,
 });
 
-type SabakiColorT = (typeof SabakiColor)[keyof typeof SabakiColor];
+export type SabakiColor = (typeof SabakiColor)[keyof typeof SabakiColor];
 
-/*prettier-ignore*/
-const defaultSignMap = [
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
+export const BrushMode = Object.freeze({
+  Alternate: 2,
+  Black: 1,
+  White: -1,
+  Delete: 0,
+});
 
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
+export type BrushMode = (typeof BrushMode)[keyof typeof BrushMode];
 
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
+export type BoardPosition = Array<Array<SabakiColor>>;
 
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
+/* prettier-ignore */
+const emptyBoard: BoardPosition = [
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
 
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
 
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
 
-  [0, 0, 0, /* */ 0, 0, 0, /* */ 0, 0, 0, /*, */ 0, 0, 0, /*, */ 0, 0, 0, /* */ 0, 0, 0, /* */ 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
 ];
 
 export type GobanProps = {
-  brushColor: Color;
-  onVertexClick: (
-    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    vertex: [number, number],
-  ) => void;
-  boardPosition: BoardPosition;
+  brushMode: BrushMode;
+  onUpdateBoard: (board: BoardPosition) => void;
 };
 
-export default function Goban({
-  brushColor,
-  onVertexClick,
-  boardPosition,
-}: GobanProps) {
-  const brush =
-    brushColor === Color.Black
-      ? SabakiColor.Black
-      : brushColor === Color.White
-        ? SabakiColor.White
-        : SabakiColor.Empty;
+function getNextColor(stone: SabakiColor, brushColor: SabakiColor) {
+  if (stone === SabakiColor.Empty) {
+    return brushColor;
+  } else if (stone === SabakiColor.Black) {
+    return SabakiColor.White;
+  }
+  return SabakiColor.Empty;
+}
 
-  const board = defaultSignMap.map((row, y) =>
-    row.map((_, x) =>
-      boardPosition[x]?.[y] == null
-        ? SabakiColor.Empty
-        : boardPosition[x][y] === Color.White
-          ? SabakiColor.White
-          : SabakiColor.Black,
-    ),
-  );
-
+export default function Goban({ brushMode, onUpdateBoard }: GobanProps) {
   const windowSize = useWindowSize();
+  const [board, setBoard] = useState(emptyBoard);
+  const [displayBoard, setDisplayBoard] = useState(emptyBoard);
   const [hoverVertex, setHoverVertex] = useState<Vertex | null>(null);
-  const [signMap, setSignMap] = useState(defaultSignMap);
-  const [ghostStoneMap, setGhostStoneMap] = useState([]);
   const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
-  const [hoverSignMap, setHoverSignMap] = useState(defaultSignMap);
+  const [brushColor, setBrushColor] = useState<SabakiColor>(SabakiColor.Black);
+
+  useEffect(() => {
+    onUpdateBoard(board);
+  }, [board]);
 
   useEffect(() => {
     if (hoverVertex == null) {
@@ -91,45 +84,50 @@ export default function Goban({
     }
   }, [hoverVertex]);
 
-  useEffect(() => {}, [dimmedVertices]);
-
   useEffect(() => {
-    const g = board.map((row, y) =>
-      row.map((currentColor, x) => {
-        let nextColor: SabakiColorT = currentColor;
+    const b = board.map((row, y) =>
+      row.map((stone, x) => {
+        const nextColor = getNextColor(stone, brushColor);
+        if (nextColor === SabakiColor.Empty) {
+          return stone;
+        }
         if (
           hoverVertex != null &&
           hoverVertex[0] === x &&
           hoverVertex[1] === y
         ) {
-          if (currentColor !== SabakiColor.Empty) {
-            nextColor =
-              currentColor === SabakiColor.Black
-                ? SabakiColor.White
-                : SabakiColor.Black;
-          } else {
-            nextColor = brush;
-          }
+          return nextColor;
         }
-        return nextColor;
+        return stone;
       }),
     );
-    setSignMap(g);
+    setDisplayBoard(b);
   }, [board, hoverVertex]);
 
   return (
     <BoundedGoban
       animateStonePlacement={false}
       fuzzyStonePlacement={false}
-      ghostStoneMap={ghostStoneMap}
       maxHeight={windowSize.height - 20}
       maxWidth={windowSize.width * 0.8}
       showCoordinates={true}
-      signMap={signMap}
+      signMap={displayBoard}
       dimmedVertices={dimmedVertices}
       onVertexClick={(e, vertex) => {
         setHoverVertex(null);
-        onVertexClick(e, vertex);
+        const x = vertex[0];
+        const y = vertex[1];
+        const stone = board[y][x];
+        const nextColor = getNextColor(stone, brushColor);
+        if (stone === SabakiColor.Empty && brushMode === BrushMode.Alternate) {
+          setBrushColor((c) =>
+            c === SabakiColor.Black ? SabakiColor.White : SabakiColor.Black,
+          );
+        }
+        setBoard((b) => {
+          b[y][x] = nextColor;
+          return [...b];
+        });
       }}
       onVertexMouseEnter={(e, vertex) => {
         setHoverVertex(vertex);
