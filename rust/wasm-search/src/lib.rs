@@ -51,7 +51,7 @@ impl WasmSearch {
         Self { game_data }
     }
 
-    fn get_rotation(&self, position: Vec<Placement>, rotation: Rotation) -> Vec<Placement> {
+    fn get_rotation(&self, position: &Vec<Placement>, rotation: Rotation) -> Vec<Placement> {
         match rotation {
             Rotation::Degrees90 => position
                 .iter()
@@ -93,7 +93,7 @@ impl WasmSearch {
             Rotation::Degrees180,
             Rotation::Degrees270,
         ] {
-            result.push(self.get_rotation(position.clone(), *rotation));
+            result.push(self.get_rotation(position, *rotation));
         }
         result
     }
@@ -113,16 +113,15 @@ impl WasmSearch {
     }
 
     fn match_game(&self, position: &Vec<Placement>, moves: &Vec<Placement>) -> isize {
+        let mut last_placement: isize = -1;
         for placement in position {
-            if !moves.contains(placement) {
+            let index = moves.iter().position(|&m| m == *placement);
+            if index.is_none() {
                 return -1;
             }
+            last_placement = std::cmp::max(index.unwrap() as isize, last_placement);
         }
-        let last_placement = position.last().expect("No placements");
-        return moves
-            .iter()
-            .position(|&m| m == *last_placement)
-            .expect("Placement not found") as isize;
+        last_placement
     }
 
     #[wasm_bindgen]
@@ -140,6 +139,7 @@ impl WasmSearch {
                 result.push(SearchResult {
                     path: path.clone(),
                     score: 10,
+                    last_move_matched,
                 });
                 continue;
             }
@@ -149,6 +149,7 @@ impl WasmSearch {
                     result.push(SearchResult {
                         path: path.clone(),
                         score: 10,
+                        last_move_matched,
                     });
                     break;
                 }
@@ -159,6 +160,7 @@ impl WasmSearch {
                     result.push(SearchResult {
                         path: path.clone(),
                         score: 9,
+                        last_move_matched,
                     });
                     continue;
                 }
@@ -168,6 +170,7 @@ impl WasmSearch {
                         result.push(SearchResult {
                             path: path.clone(),
                             score: 9,
+                            last_move_matched,
                         });
                         break;
                     }
@@ -183,6 +186,7 @@ impl WasmSearch {
 pub struct SearchResult {
     path: String,
     score: i8,
+    last_move_matched: isize,
 }
 
 #[wasm_bindgen]
@@ -194,6 +198,10 @@ impl SearchResult {
     #[wasm_bindgen(getter)]
     pub fn score(&self) -> i8 {
         self.score
+    }
+    #[wasm_bindgen(getter)]
+    pub fn last_move_matched(&self) -> isize {
+        self.last_move_matched
     }
 }
 

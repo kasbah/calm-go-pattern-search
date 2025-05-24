@@ -28,8 +28,10 @@ export default function App() {
         });
         let results = await window.wasm_search.search(position);
         results.sort((r1, r2) => r2.score - r1.score);
-        results = results.map((r) => [r.score, r.path]);
-        console.log(results);
+        for (const r of results.slice(0, 5)) {
+          console.log(r.score, r.path, r.last_move_matched);
+        }
+        console.log(results.length - 5, "more");
       })();
     }
   }, [board]);
