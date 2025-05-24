@@ -21,12 +21,27 @@ const defaultSignMap = [
 export default function Goban() {
   const windowSize = useWindowSize();
   const [hoverVertex, setHoverVertex] = useState(null);
+  const [signMap, setSignMap] = useState(defaultSignMap);
+  const [ghostStoneMap, setGhostStoneMap] = useState([]);
+
+  useEffect(() => {
+    // appears as a grey dot when we use sign = 1
+    const ghostStone = { sign: 1 };
+    const g = signMap.map((row, y) =>
+      row.map((_, x) =>
+        hoverVertex != null && hoverVertex[0] === x && hoverVertex[1] === y
+          ? ghostStone
+          : null,
+      ),
+    );
+    setGhostStoneMap(g);
+  }, [hoverVertex, signMap]);
 
   return (
     <BoundedGoban
       animateStonePlacement={true}
       fuzzyStonePlacement={false}
-      //ghostStoneMap={ghostStoneMap}
+      ghostStoneMap={ghostStoneMap}
       //dimmedVertices={state?.deadStonesMap}
       //markerMap={markerMap}
       maxHeight={windowSize.height - 200}

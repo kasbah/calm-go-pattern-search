@@ -1,0 +1,4 @@
+.shudan-ghost::before {
+  width: 0.8em !important;
+  height: 0.8em !important;
+}
