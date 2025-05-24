@@ -25,7 +25,7 @@ export type BrushMode = (typeof BrushMode)[keyof typeof BrushMode];
 export type BoardPosition = Array<Array<SabakiColor>>;
 
 /* prettier-ignore */
-const emptyBoard: BoardPosition = [
+export const emptyBoard: BoardPosition = [
   [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
   [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
   [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
@@ -53,6 +53,7 @@ const emptyBoard: BoardPosition = [
 export type GobanProps = {
   brushMode: BrushMode;
   onUpdateBoard: (board: BoardPosition) => void;
+  board: BoardPosition;
 };
 
 function getNextColor(stone: SabakiColor, brushColor: SabakiColor) {
@@ -64,9 +65,8 @@ function getNextColor(stone: SabakiColor, brushColor: SabakiColor) {
   return SabakiColor.Empty;
 }
 
-export default function Goban({ brushMode, onUpdateBoard }: GobanProps) {
+export default function Goban({ brushMode, onUpdateBoard, board }: GobanProps) {
   const windowSize = useWindowSize();
-  const [board, setBoard] = useState(emptyBoard);
   const [displayBoard, setDisplayBoard] = useState(emptyBoard);
   const [hoverVertex, setHoverVertex] = useState<Vertex | null>(null);
   const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
@@ -124,10 +124,15 @@ export default function Goban({ brushMode, onUpdateBoard }: GobanProps) {
             c === SabakiColor.Black ? SabakiColor.White : SabakiColor.Black,
           );
         }
-        setBoard((b) => {
-          b[y][x] = nextColor;
-          return [...b];
-        });
+        const b = board.map((row, y) =>
+          row.map((c, x) => {
+            if (y === vertex[1] && x === vertex[0]) {
+              return nextColor;
+            }
+            return c;
+          }),
+        );
+        onUpdateBoard(b);
       }}
       onVertexMouseEnter={(e, vertex) => {
         setHoverVertex(vertex);
