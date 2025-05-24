@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import wasmPack from 'vite-plugin-wasm-pack';
+import wasmPack from './vite-plugin-wasm-pack';
 
 export default defineConfig({
   build: {
