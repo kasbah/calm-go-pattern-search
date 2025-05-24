@@ -1,9 +1,16 @@
-import { defineConfig } from 'vite';
-import wasmPack from './vite-plugin-wasm-pack';
+import {defineConfig} from "vite";
+import wasmPack from "./vite-plugin-wasm-pack";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   build: {
-    minify: false
+    minify: false,
   },
-  plugins: [wasmPack(['./rust-pattern-search'])]
+  plugins: [wasmPack(["./rust-pattern-search"]), react()],
+  resolve: {
+    alias: [
+      {find: 'preact/hooks', replacement: 'react'},
+      {find: 'preact', replacement: 'react'},
+    ],
+  },
 });

@@ -5,6 +5,7 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.5.0",
     "chalk": "^4.1.2",
     "fs-extra": "^10.0.0",
     "narrowing": "^1.4.0",
@@ -14,5 +15,11 @@
     "wasm": "wasm-pack build ./my-crate --target web",
     "dev": "vite",
     "build": "vite build"
+  },
+  "dependencies": {
+    "@reach/window-size": "^0.18.0",
+    "@sabaki/shudan": "^1.7.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   }
 }
