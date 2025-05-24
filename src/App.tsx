@@ -14,19 +14,21 @@ export default function App() {
 
   useEffect(() => {
     if (window.games !== undefined) {
-      const position: Array<Placement> = [];
-      board.forEach((row, y) => {
-        row.forEach((stone, x) => {
-          if (stone !== SabakiColor.Empty) {
-            const color =
-              stone === SabakiColor.Black ? Color.Black : Color.White;
-            const point = new Point(x, y);
-            position.push(new Placement(color, point));
-          }
+      (async () => {
+        const position: Array<Placement> = [];
+        board.forEach((row, y) => {
+          row.forEach((stone, x) => {
+            if (stone !== SabakiColor.Empty) {
+              const color =
+                stone === SabakiColor.Black ? Color.Black : Color.White;
+              const point = new Point(x, y);
+              position.push(new Placement(color, point));
+            }
+          });
         });
-      });
-      const result = window.games.search(position);
-      console.log(result);
+        const result = await window.games.search(position);
+        console.log(result);
+      })();
     }
   }, [board]);
 

@@ -58,12 +58,23 @@ impl Games {
     }
 
     #[wasm_bindgen]
-    pub fn search(&self, position: Vec<Placement>) -> Vec<String> {
-        let mut paths = self.game_data.keys().cloned().collect::<Vec<String>>();
-        for placement in position {
-            paths = self.search_placement(&paths, &placement);
+    pub async fn search(&self, position: Vec<Placement>) -> Vec<String> {
+        let mut result = Vec::new();
+        for (path, moves) in &self.game_data {
+            let mut all_found = false;
+            for placement in &position {
+                if moves.contains(&placement) {
+                    all_found = true;
+                } else {
+                    all_found = false;
+                    break;
+                }
+            }
+            if all_found {
+                result.push(path.clone());
+            }
         }
-        paths
+        result
     }
 }
 
