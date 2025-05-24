@@ -29,16 +29,17 @@ extern "C" {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Rotation {
-    R90,
-    R180,
-    R270,
+    Degrees90,
+    Degrees180,
+    Degrees270,
 }
 
 #[wasm_bindgen]
 pub struct WasmSearch {
-    board_size: u8,
     game_data: HashMap<String, Vec<Placement>>,
 }
+
+const BOARD_SIZE: u8 = 19;
 
 #[wasm_bindgen]
 impl WasmSearch {
@@ -47,41 +48,38 @@ impl WasmSearch {
         let data = include_bytes!("games.pack");
         let mut de = Deserializer::new(&data[..]);
         let game_data: HashMap<String, Vec<Placement>> = Deserialize::deserialize(&mut de).unwrap();
-        Self {
-            game_data,
-            board_size: 19,
-        }
+        Self { game_data }
     }
 
     fn get_rotation(&self, position: Vec<Placement>, rotation: Rotation) -> Vec<Placement> {
         match rotation {
-            Rotation::R90 => position
+            Rotation::Degrees90 => position
                 .iter()
                 .map(|p| Placement {
                     color: p.color,
                     point: Point {
-                        x: self.board_size - p.point.y - 1,
+                        x: BOARD_SIZE - p.point.y - 1,
                         y: p.point.x,
                     },
                 })
                 .collect(),
-            Rotation::R180 => position
+            Rotation::Degrees180 => position
                 .iter()
                 .map(|p| Placement {
                     color: p.color,
                     point: Point {
-                        x: self.board_size - p.point.x - 1,
-                        y: self.board_size - p.point.y - 1,
+                        x: BOARD_SIZE - p.point.x - 1,
+                        y: BOARD_SIZE - p.point.y - 1,
                     },
                 })
                 .collect(),
-            Rotation::R270 => position
+            Rotation::Degrees270 => position
                 .iter()
                 .map(|p| Placement {
                     color: p.color,
                     point: Point {
                         x: p.point.y,
-                        y: self.board_size - p.point.x - 1,
+                        y: BOARD_SIZE - p.point.x - 1,
                     },
                 })
                 .collect(),
@@ -90,7 +88,11 @@ impl WasmSearch {
 
     fn get_rotations(&self, position: &Vec<Placement>) -> Vec<Vec<Placement>> {
         let mut result = Vec::new();
-        for rotation in &[Rotation::R90, Rotation::R180, Rotation::R270] {
+        for rotation in &[
+            Rotation::Degrees90,
+            Rotation::Degrees180,
+            Rotation::Degrees270,
+        ] {
             result.push(self.get_rotation(position.clone(), *rotation));
         }
         result
