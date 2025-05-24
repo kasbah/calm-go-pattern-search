@@ -34,6 +34,7 @@ pub struct Games {
 }
 
 #[wasm_bindgen]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Rotation {
     R90,
     R180,
@@ -47,11 +48,13 @@ impl Games {
         let data = include_bytes!("games.pack");
         let mut de = Deserializer::new(&data[..]);
         let game_data: HashMap<String, Vec<Placement>> = Deserialize::deserialize(&mut de).unwrap();
-        Self { game_data, board_size: 19 }
+        Self {
+            game_data,
+            board_size: 19,
+        }
     }
 
-    #[wasm_bindgen]
-    pub fn get_rotation(&self, position: Vec<Placement>, rotation: Rotation) -> Vec<Placement> {
+    fn get_rotation(&self, position: Vec<Placement>, rotation: Rotation) -> Vec<Placement> {
         match rotation {
             Rotation::R90 => position
                 .iter()
@@ -86,21 +89,37 @@ impl Games {
         }
     }
 
+    fn get_rotations(&self, position: &Vec<Placement>) -> Vec<Vec<Placement>> {
+        let mut result = Vec::new();
+        for rotation in &[Rotation::R90, Rotation::R180, Rotation::R270] {
+            result.push(self.get_rotation(position.clone(), *rotation));
+        }
+        result
+    }
+
+    fn match_game(&self, position: &Vec<Placement>, moves: &Vec<Placement>) -> bool {
+        for placement in position {
+            if !moves.contains(placement) {
+                return false;
+            }
+        }
+        true
+    }
+
     #[wasm_bindgen]
     pub async fn search(&self, position: Vec<Placement>) -> Vec<String> {
         let mut result = Vec::new();
+        let rotations = self.get_rotations(&position);
         for (path, moves) in &self.game_data {
-            let mut all_found = false;
-            for placement in &position {
-                if moves.contains(&placement) {
-                    all_found = true;
-                } else {
-                    all_found = false;
+            if self.match_game(&position, moves) {
+                result.push(path.clone());
+                continue;
+            }
+            for rotation in &rotations {
+                if self.match_game(rotation, moves) {
+                    result.push(path.clone());
                     break;
                 }
-            }
-            if all_found {
-                result.push(path.clone());
             }
         }
         result
