@@ -98,6 +98,20 @@ impl WasmSearch {
         result
     }
 
+    fn switch_colors(&self, position: &Vec<Placement>) -> Vec<Placement> {
+        position
+            .iter()
+            .map(|p| Placement {
+                color: if p.color == Color::White {
+                    Color::Black
+                } else {
+                    Color::White
+                },
+                point: p.point,
+            })
+            .collect()
+    }
+
     fn match_game(&self, position: &Vec<Placement>, moves: &Vec<Placement>) -> bool {
         for placement in position {
             if !moves.contains(placement) {
@@ -111,15 +125,31 @@ impl WasmSearch {
     pub async fn search(&self, position: Vec<Placement>) -> Vec<String> {
         let mut result = Vec::new();
         let rotations = self.get_rotations(&position);
+        let inverse = self.switch_colors(&position);
+        let inverse_rotations = self.get_rotations(&inverse);
         for (path, moves) in &self.game_data {
             if self.match_game(&position, moves) {
                 result.push(path.clone());
                 continue;
             }
+            let mut matched = false;
             for rotation in &rotations {
                 if self.match_game(rotation, moves) {
                     result.push(path.clone());
+                    matched = true;
                     break;
+                }
+            }
+            if !matched {
+                if self.match_game(&inverse, moves) {
+                    result.push(path.clone());
+                    continue;
+                }
+                for rotation in &inverse_rotations {
+                    if self.match_game(rotation, moves) {
+                        result.push(path.clone());
+                        break;
+                    }
                 }
             }
         }
