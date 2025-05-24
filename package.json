@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@reach/window-size": "^0.18.0",
+    "@sabaki/go-board": "^1.4.3",
     "@sabaki/shudan": "^1.7.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

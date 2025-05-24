@@ -437,6 +437,11 @@
   resolved "https://registry.yarnpkg.com/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.41.1.tgz#848f99b0d9936d92221bb6070baeff4db6947a30"
   integrity sha512-Wq2zpapRYLfi4aKxf2Xff0tN+7slj2d4R87WEzqw7ZLsVvO5zwYCIuEGSZYiK41+GlwUo1HiR+GdkLEJnCKTCw==
 
+"@sabaki/go-board@^1.4.3":
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/@sabaki/go-board/-/go-board-1.4.3.tgz#04304bdc3fc10d1258b7db23dca292c1e87f4b60"
+  integrity sha512-tXonP7vw7bYcXKSVrN1bhkb/QQi5EfTbDSflBffSp2iabbFbz4JyhEyw0ekbuwR0ntBq6iHky6BfCGF69Z4ttg==
+
 "@sabaki/shudan@^1.7.1":
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/@sabaki/shudan/-/shudan-1.7.1.tgz#cd1f247d4dce9fce294ec9a76cd87b32192c10ce"

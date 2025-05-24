@@ -4,6 +4,7 @@ import { useWindowSize } from "@reach/window-size";
 import { BoundedGoban, Vertex } from "@sabaki/shudan";
 import "@sabaki/shudan/css/goban.css";
 import "./Goban.css";
+import SabakiGoBoard, { Sign } from "@sabaki/go-board";
 
 export const SabakiColor = Object.freeze({
   Black: 1,
@@ -143,15 +144,21 @@ export default function Goban({ brushMode, onUpdateBoard, board }: GobanProps) {
         const y = vertex[1];
         const stone = board[y][x];
         const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
-        const b = board.map((row, y) =>
-          row.map((c, x) => {
-            if (y === vertex[1] && x === vertex[0]) {
-              return nextColor;
-            }
-            return c;
-          }),
-        );
-        onUpdateBoard(b);
+        if (nextColor !== SabakiColor.Empty) {
+          const sgb = new SabakiGoBoard(board);
+          const move = sgb.makeMove(nextColor as Sign, vertex);
+          onUpdateBoard(move.signMap);
+        } else {
+          const b = board.map((row, u) =>
+            row.map((c, v) => {
+              if (u === y && v === x) {
+                return SabakiColor.Empty;
+              }
+              return c;
+            }),
+          );
+          onUpdateBoard(b);
+        }
         if (nextColor !== SabakiColor.Empty) {
           setAlternateBrushColor(
             nextColor === SabakiColor.Black
