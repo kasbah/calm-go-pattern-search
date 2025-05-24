@@ -29,7 +29,15 @@ extern "C" {
 
 #[wasm_bindgen]
 pub struct Games {
+    board_size: u8,
     game_data: HashMap<String, Vec<Placement>>,
+}
+
+#[wasm_bindgen]
+pub enum Rotation {
+    R90,
+    R180,
+    R270,
 }
 
 #[wasm_bindgen]
@@ -39,22 +47,43 @@ impl Games {
         let data = include_bytes!("games.pack");
         let mut de = Deserializer::new(&data[..]);
         let game_data: HashMap<String, Vec<Placement>> = Deserialize::deserialize(&mut de).unwrap();
-        Self { game_data }
+        Self { game_data, board_size: 19 }
     }
 
-    fn search_placement(&self, paths: &Vec<String>, placement: &Placement) -> Vec<String> {
-        let mut result = Vec::new();
-        for (path, moves) in &self.game_data {
-            if paths.contains(path) {
-                for move_ in moves {
-                    if move_.point == placement.point && move_.color == placement.color {
-                        result.push(path.clone());
-                        break;
-                    }
-                }
-            }
+    #[wasm_bindgen]
+    pub fn get_rotation(&self, position: Vec<Placement>, rotation: Rotation) -> Vec<Placement> {
+        match rotation {
+            Rotation::R90 => position
+                .iter()
+                .map(|p| Placement {
+                    color: p.color,
+                    point: Point {
+                        x: self.board_size - p.point.y - 1,
+                        y: p.point.x,
+                    },
+                })
+                .collect(),
+            Rotation::R180 => position
+                .iter()
+                .map(|p| Placement {
+                    color: p.color,
+                    point: Point {
+                        x: self.board_size - p.point.x - 1,
+                        y: self.board_size - p.point.y - 1,
+                    },
+                })
+                .collect(),
+            Rotation::R270 => position
+                .iter()
+                .map(|p| Placement {
+                    color: p.color,
+                    point: Point {
+                        x: p.point.y,
+                        y: self.board_size - p.point.x - 1,
+                    },
+                })
+                .collect(),
         }
-        result
     }
 
     #[wasm_bindgen]
@@ -98,6 +127,14 @@ impl Point {
     pub fn new(x: u8, y: u8) -> Self {
         Self { x, y }
     }
+    #[wasm_bindgen(getter)]
+    pub fn x(&self) -> u8 {
+        self.x
+    }
+    #[wasm_bindgen(getter)]
+    pub fn y(&self) -> u8 {
+        self.y
+    }
 }
 
 #[wasm_bindgen]
@@ -112,6 +149,14 @@ impl Placement {
     #[wasm_bindgen(constructor)]
     pub fn new(color: Color, point: Point) -> Self {
         Self { color, point }
+    }
+    #[wasm_bindgen(getter)]
+    pub fn color(&self) -> Color {
+        self.color
+    }
+    #[wasm_bindgen(getter)]
+    pub fn point(&self) -> Point {
+        self.point
     }
 }
 
