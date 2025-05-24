@@ -17,7 +17,7 @@ export const BrushMode = Object.freeze({
   Alternate: 2,
   Black: 1,
   White: -1,
-  Delete: 0,
+  Remove: 0,
 });
 
 export type BrushMode = (typeof BrushMode)[keyof typeof BrushMode];
@@ -72,7 +72,7 @@ function getNextColor(
     return SabakiColor.Black;
   } else if (brushMode === BrushMode.White) {
     return SabakiColor.White;
-  } else if (brushMode === BrushMode.Delete) {
+  } else if (brushMode === BrushMode.Remove) {
     return SabakiColor.Empty;
   }
 }
@@ -137,7 +137,7 @@ export default function Goban({ brushMode, onUpdateBoard, board }: GobanProps) {
       showCoordinates={true}
       signMap={displayBoard}
       dimmedVertices={dimmedVertices}
-      onVertexClick={(e, vertex) => {
+      onVertexClick={(_e, vertex) => {
         setHoverVertex(null);
         const x = vertex[0];
         const y = vertex[1];
@@ -160,10 +160,10 @@ export default function Goban({ brushMode, onUpdateBoard, board }: GobanProps) {
           );
         }
       }}
-      onVertexMouseEnter={(e, vertex) => {
+      onVertexMouseEnter={(_e, vertex) => {
         setHoverVertex(vertex);
       }}
-      onVertexMouseLeave={(e, vertex) => {
+      onVertexMouseLeave={(_e, _vertex) => {
         setHoverVertex(null);
       }}
     />

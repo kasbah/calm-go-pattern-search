@@ -14,18 +14,44 @@ export default function App() {
       </div>
       <div>
         <div>
-          <button onClick={() => setBrushMode(BrushMode.Alternate)}>
-            Alternate
-          </button>
+          <input
+            type="radio"
+            id="alternate"
+            name="brushMode"
+            checked={brushMode === BrushMode.Alternate}
+            onChange={() => setBrushMode(BrushMode.Alternate)}
+          />
+          <label htmlFor="alternate">Alternate</label>
         </div>
         <div>
-          <button onClick={() => setBrushMode(BrushMode.Black)}>Black</button>
+          <input
+            type="radio"
+            id="black"
+            name="brushMode"
+            checked={brushMode === BrushMode.Black}
+            onChange={() => setBrushMode(BrushMode.Black)}
+          />
+          <label htmlFor="black">Black</label>
         </div>
         <div>
-          <button onClick={() => setBrushMode(BrushMode.White)}>White</button>
+          <input
+            type="radio"
+            id="white"
+            name="brushMode"
+            checked={brushMode === BrushMode.White}
+            onChange={() => setBrushMode(BrushMode.White)}
+          />
+          <label htmlFor="white">White</label>
         </div>
         <div>
-          <button onClick={() => setBrushMode(BrushMode.Delete)}>Delete</button>
+          <input
+            type="radio"
+            id="delete"
+            name="brushMode"
+            checked={brushMode === BrushMode.Remove}
+            onChange={() => setBrushMode(BrushMode.Remove)}
+          />
+          <label htmlFor="remove">Remove</label>
         </div>
         <div>
           <button onClick={() => setBoard(emptyBoard)}>Clear</button>
