@@ -60,7 +60,7 @@ impl WasmSearch {
             if let Some(last_move_matched) = matched {
                 results.push(SearchResult {
                     path: path.clone(),
-                    score: 10,
+                    score: 11,
                     last_move_matched,
                 });
                 continue;
@@ -91,7 +91,7 @@ impl WasmSearch {
                     if let Some(last_move_matched) = matched {
                         results.push(SearchResult {
                             path: path.clone(),
-                            score: 9,
+                            score: 8,
                             last_move_matched,
                         });
                         break;
@@ -105,14 +105,21 @@ impl WasmSearch {
                 .get(&result.path)
                 .expect("Inconsistent game data");
             let truncated_moves = &moves[..result.last_move_matched];
+            let mut checked = Vec::new();
             for placement in position.clone() {
                 for i in 1..3 {
                     let mut surrounding = get_surrounding_points(&placement.point, i);
                     surrounding = surrounding
                         .iter()
-                        .filter(|p| !moves.iter().any(|m| m.point == **p))
+                        .filter(|p| !position.iter().any(|m| m.point == **p))
                         .cloned()
                         .collect();
+                    surrounding = surrounding
+                        .iter()
+                        .filter(|p| !checked.contains(*p))
+                        .cloned()
+                        .collect();
+                    checked.extend(surrounding.iter().cloned());
                     if check_empty(&surrounding, truncated_moves) {
                         result.score += i as i16;
                     }
