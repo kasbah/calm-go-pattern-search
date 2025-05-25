@@ -3,11 +3,10 @@ extern crate wasm_bindgen;
 
 mod utils;
 
-pub mod baduk;
 pub mod errors;
 pub mod sgf_traversal;
 
-use baduk::{
+use calm_go_patterns_common::baduk::{
     Placement, check_empty, get_rotations, get_surrounding_points, match_game, switch_colors,
 };
 use cfg_if::cfg_if;

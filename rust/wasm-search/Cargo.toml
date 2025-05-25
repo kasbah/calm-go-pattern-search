@@ -1,5 +1,5 @@
 [package]
-name = "wasm-search"
+name = "calm-go-patterns-wasm-search"
 version = "0.1.0"
 edition = "2024"
 
@@ -28,6 +28,7 @@ rmp-serde = "1.3.0"
 tsify = "0.5.5"
 wasm-bindgen = "0.2.100"
 wasm-bindgen-futures = "0.4.50"
+calm-go-patterns-common = { path = "../common" }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"
