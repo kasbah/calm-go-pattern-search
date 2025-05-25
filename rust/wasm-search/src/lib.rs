@@ -3,17 +3,16 @@ extern crate wasm_bindgen;
 
 mod utils;
 
+pub mod baduk;
 pub mod errors;
 pub mod sgf_traversal;
-pub mod baduk;
 
+use baduk::{Placement, get_rotations, match_game, switch_colors};
 use cfg_if::cfg_if;
 use rmp_serde::Deserializer;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use std::collections::HashMap;
 use wasm_bindgen::prelude::*;
-use baduk::{Color, Point, Placement, BOARD_SIZE};
-
 
 cfg_if! {
     if #[cfg(feature = "wee_alloc")] {
@@ -28,13 +27,6 @@ extern "C" {
     fn alert(s: &str);
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum Rotation {
-    Degrees90,
-    Degrees180,
-    Degrees270,
 }
 
 #[wasm_bindgen]
@@ -52,90 +44,17 @@ impl WasmSearch {
         Self { game_data }
     }
 
-    fn get_rotation(&self, position: &Vec<Placement>, rotation: Rotation) -> Vec<Placement> {
-        match rotation {
-            Rotation::Degrees90 => position
-                .iter()
-                .map(|p| Placement {
-                    color: p.color,
-                    point: Point {
-                        x: BOARD_SIZE - p.point.y - 1,
-                        y: p.point.x,
-                    },
-                })
-                .collect(),
-            Rotation::Degrees180 => position
-                .iter()
-                .map(|p| Placement {
-                    color: p.color,
-                    point: Point {
-                        x: BOARD_SIZE - p.point.x - 1,
-                        y: BOARD_SIZE - p.point.y - 1,
-                    },
-                })
-                .collect(),
-            Rotation::Degrees270 => position
-                .iter()
-                .map(|p| Placement {
-                    color: p.color,
-                    point: Point {
-                        x: p.point.y,
-                        y: BOARD_SIZE - p.point.x - 1,
-                    },
-                })
-                .collect(),
-        }
-    }
-
-    fn get_rotations(&self, position: &Vec<Placement>) -> Vec<Vec<Placement>> {
-        let mut result = Vec::new();
-        for rotation in &[
-            Rotation::Degrees90,
-            Rotation::Degrees180,
-            Rotation::Degrees270,
-        ] {
-            result.push(self.get_rotation(position, *rotation));
-        }
-        result
-    }
-
-    fn switch_colors(&self, position: &Vec<Placement>) -> Vec<Placement> {
-        position
-            .iter()
-            .map(|p| Placement {
-                color: if p.color == Color::White {
-                    Color::Black
-                } else {
-                    Color::White
-                },
-                point: p.point,
-            })
-            .collect()
-    }
-
-    fn match_game(&self, position: &Vec<Placement>, moves: &Vec<Placement>) -> Option<usize> {
-        let mut last_move_matched: usize = 0;
-        for placement in position {
-            let index = moves.iter().position(|&m| m == *placement);
-            if index.is_none() {
-                return None;
-            }
-            last_move_matched = std::cmp::max(index.unwrap(), last_move_matched);
-        }
-        Some(last_move_matched)
-    }
-
     #[wasm_bindgen]
     pub async fn search(&self, position: Vec<Placement>) -> Vec<SearchResult> {
         if position.is_empty() {
             return Vec::new();
         }
         let mut result = Vec::new();
-        let rotations = self.get_rotations(&position);
-        let inverse = self.switch_colors(&position);
-        let inverse_rotations = self.get_rotations(&inverse);
+        let rotations = get_rotations(&position);
+        let inverse = switch_colors(&position);
+        let inverse_rotations = get_rotations(&inverse);
         for (path, moves) in &self.game_data {
-            let mut matched = self.match_game(&position, moves);
+            let mut matched = match_game(&position, moves);
             if let Some(last_move_matched) = matched {
                 result.push(SearchResult {
                     path: path.clone(),
@@ -145,7 +64,7 @@ impl WasmSearch {
                 continue;
             }
             for rotation in &rotations {
-                matched = self.match_game(rotation, moves);
+                matched = match_game(rotation, moves);
                 if let Some(last_move_matched) = matched {
                     result.push(SearchResult {
                         path: path.clone(),
@@ -156,7 +75,7 @@ impl WasmSearch {
                 }
             }
             if matched.is_none() {
-                matched = self.match_game(&inverse, moves);
+                matched = match_game(&inverse, moves);
                 if let Some(last_move_matched) = matched {
                     result.push(SearchResult {
                         path: path.clone(),
@@ -166,7 +85,7 @@ impl WasmSearch {
                     continue;
                 }
                 for rotation in &inverse_rotations {
-                    matched = self.match_game(rotation, moves);
+                    matched = match_game(rotation, moves);
                     if let Some(last_move_matched) = matched {
                         result.push(SearchResult {
                             path: path.clone(),
@@ -205,7 +124,6 @@ impl SearchResult {
         self.last_move_matched
     }
 }
-
 
 #[cfg(test)]
 mod tests {
