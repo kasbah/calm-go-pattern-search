@@ -1,5 +1,59 @@
+mod sgf_traversal;
+
+use rmp_serde::Serializer;
+use sgf_parse::go;
+use std::collections::HashMap;
+
+use calm_go_patterns_common::baduk::{Color, Placement, Point};
+
 fn main() {
-    println!("Hello, world!");
+    let mut sgf_folder = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    sgf_folder.push("sgfs");
+    let mut games = HashMap::new();
+    println!("Loading games...");
+    for entry in jwalk::WalkDir::new(sgf_folder) {
+        let path = entry.expect("Failed to read directory entry").path();
+        if path.extension().map_or(false, |ext| ext == "sgf") {
+            let file_data = std::fs::read_to_string(path.clone()).expect("Failed to read file");
+            if let Ok(game) = go::parse(&file_data) {
+                let mut moves = Vec::new();
+                for node in sgf_traversal::variation_nodes(&game[0], 0).unwrap() {
+                    for props in &node.sgf_node.properties {
+                        match props {
+                            go::Prop::W(go::Move::Move(point)) => {
+                                moves.push(Placement {
+                                    color: Color::White,
+                                    point: Point {
+                                        x: point.x,
+                                        y: point.y,
+                                    },
+                                });
+                                break;
+                            }
+                            go::Prop::B(go::Move::Move(point)) => {
+                                moves.push(Placement {
+                                    color: Color::Black,
+                                    point: Point {
+                                        x: point.x,
+                                        y: point.y,
+                                    },
+                                });
+                                break;
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+
+                games.insert(path.to_string_lossy().into_owned(), moves);
+            }
+        }
+    }
+    println!("Writing games.pack...");
+    let mut buf = Vec::new();
+    games.serialize(&mut Serializer::new(&mut buf)).unwrap();
+    std::fs::write("games.pack", buf).unwrap();
+    println!("Done");
 }
 
 //#[cfg(test)]

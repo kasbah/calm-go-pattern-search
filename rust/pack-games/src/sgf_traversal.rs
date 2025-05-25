@@ -1,6 +1,29 @@
-use sgf_parse::{go::Prop, SgfNode};
+// Adapted from https://github.com/julianandrews/sgf-render/blob/29e72708d9629da08c26aa0dadad03dd0f742b36/src/lib/sgf_traversal.rs
+/*
+ MIT License
 
-use crate::errors::GobanError;
+Copyright (c) 2020 Julian Andrews
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+use sgf_parse::{SgfNode, go::Prop};
 
 /// Returns an iterator over SgfTraversalNode values at the root of each variation.
 pub fn variation_roots(node: &SgfNode<Prop>) -> impl Iterator<Item = SgfTraversalNode<'_>> {
@@ -11,7 +34,7 @@ pub fn variation_roots(node: &SgfNode<Prop>) -> impl Iterator<Item = SgfTraversa
 pub fn variation_nodes(
     root: &SgfNode<Prop>,
     variation: u64,
-) -> Result<impl Iterator<Item = SgfTraversalNode<'_>>, GobanError> {
+) -> Result<impl Iterator<Item = SgfTraversalNode<'_>>, &str> {
     let mut parents = vec![0; variation as usize + 1];
     let mut starts = vec![u64::MAX; variation as usize + 1];
     let mut variation_seen = false;
@@ -24,7 +47,7 @@ pub fn variation_nodes(
         }
     }
     if !variation_seen {
-        return Err(GobanError::MissingVariation);
+        return Err("Missing variation");
     }
     let mut current_variation = variation;
     let mut variations = vec![];
