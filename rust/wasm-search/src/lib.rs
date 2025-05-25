@@ -5,12 +5,15 @@ mod utils;
 
 pub mod errors;
 pub mod sgf_traversal;
+pub mod baduk;
 
 use cfg_if::cfg_if;
 use rmp_serde::Deserializer;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use wasm_bindgen::prelude::*;
+use baduk::{Color, Point, Placement, BOARD_SIZE};
+
 
 cfg_if! {
     if #[cfg(feature = "wee_alloc")] {
@@ -38,8 +41,6 @@ pub enum Rotation {
 pub struct WasmSearch {
     game_data: HashMap<String, Vec<Placement>>,
 }
-
-const BOARD_SIZE: u8 = 19;
 
 #[wasm_bindgen]
 impl WasmSearch {
@@ -205,56 +206,15 @@ impl SearchResult {
     }
 }
 
-#[wasm_bindgen]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Color {
-    Black,
-    White,
-}
 
-#[wasm_bindgen]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct Point {
-    x: u8,
-    y: u8,
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[wasm_bindgen]
-impl Point {
-    #[wasm_bindgen(constructor)]
-    pub fn new(x: u8, y: u8) -> Self {
-        Self { x, y }
-    }
-    #[wasm_bindgen(getter)]
-    pub fn x(&self) -> u8 {
-        self.x
-    }
-    #[wasm_bindgen(getter)]
-    pub fn y(&self) -> u8 {
-        self.y
-    }
-}
-
-#[wasm_bindgen]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct Placement {
-    color: Color,
-    point: Point,
-}
-
-#[wasm_bindgen]
-impl Placement {
-    #[wasm_bindgen(constructor)]
-    pub fn new(color: Color, point: Point) -> Self {
-        Self { color, point }
-    }
-    #[wasm_bindgen(getter)]
-    pub fn color(&self) -> Color {
-        self.color
-    }
-    #[wasm_bindgen(getter)]
-    pub fn point(&self) -> Point {
-        self.point
+    #[test]
+    fn test_instantiate() {
+        let wasm_search = WasmSearch::new();
+        assert!(wasm_search.game_data.len() > 0);
     }
 }
 
