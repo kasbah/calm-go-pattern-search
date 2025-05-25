@@ -112,16 +112,16 @@ impl WasmSearch {
             .collect()
     }
 
-    fn match_game(&self, position: &Vec<Placement>, moves: &Vec<Placement>) -> isize {
-        let mut last_placement: isize = -1;
+    fn match_game(&self, position: &Vec<Placement>, moves: &Vec<Placement>) -> Option<usize> {
+        let mut last_move_matched: usize = 0;
         for placement in position {
             let index = moves.iter().position(|&m| m == *placement);
             if index.is_none() {
-                return -1;
+                return None;
             }
-            last_placement = std::cmp::max(index.unwrap() as isize, last_placement);
+            last_move_matched = std::cmp::max(index.unwrap(), last_move_matched);
         }
-        last_placement
+        Some(last_move_matched)
     }
 
     #[wasm_bindgen]
@@ -134,8 +134,8 @@ impl WasmSearch {
         let inverse = self.switch_colors(&position);
         let inverse_rotations = self.get_rotations(&inverse);
         for (path, moves) in &self.game_data {
-            let mut last_move_matched = self.match_game(&position, moves);
-            if last_move_matched != -1 {
+            let mut matched = self.match_game(&position, moves);
+            if let Some(last_move_matched) = matched {
                 result.push(SearchResult {
                     path: path.clone(),
                     score: 10,
@@ -144,8 +144,8 @@ impl WasmSearch {
                 continue;
             }
             for rotation in &rotations {
-                last_move_matched = self.match_game(rotation, moves);
-                if last_move_matched != -1 {
+                matched = self.match_game(rotation, moves);
+                if let Some(last_move_matched) = matched {
                     result.push(SearchResult {
                         path: path.clone(),
                         score: 10,
@@ -154,9 +154,9 @@ impl WasmSearch {
                     break;
                 }
             }
-            if last_move_matched == -1 {
-                last_move_matched = self.match_game(&inverse, moves);
-                if last_move_matched != -1 {
+            if matched.is_none() {
+                matched = self.match_game(&inverse, moves);
+                if let Some(last_move_matched) = matched {
                     result.push(SearchResult {
                         path: path.clone(),
                         score: 9,
@@ -165,8 +165,8 @@ impl WasmSearch {
                     continue;
                 }
                 for rotation in &inverse_rotations {
-                    last_move_matched = self.match_game(rotation, moves);
-                    if last_move_matched != -1 {
+                    matched = self.match_game(rotation, moves);
+                    if let Some(last_move_matched) = matched {
                         result.push(SearchResult {
                             path: path.clone(),
                             score: 9,
@@ -186,7 +186,7 @@ impl WasmSearch {
 pub struct SearchResult {
     path: String,
     score: i8,
-    last_move_matched: isize,
+    last_move_matched: usize,
 }
 
 #[wasm_bindgen]
@@ -200,7 +200,7 @@ impl SearchResult {
         self.score
     }
     #[wasm_bindgen(getter)]
-    pub fn last_move_matched(&self) -> isize {
+    pub fn last_move_matched(&self) -> usize {
         self.last_move_matched
     }
 }
