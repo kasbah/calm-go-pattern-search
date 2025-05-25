@@ -34,7 +34,9 @@ export default function App() {
             }
           });
         });
-        let results = await window.wasm_search.search(position);
+        const ubuf = await window.wasm_search.search(position);
+        let results = new TextDecoder().decode(ubuf);
+        results = JSON.parse(results);
         results.sort(
           (r1, r2) =>
             r1.last_move_matched - r1.score - (r2.last_move_matched - r2.score),

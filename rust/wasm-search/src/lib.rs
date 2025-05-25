@@ -8,9 +8,10 @@ use calm_go_patterns_common::baduk::{
 };
 use cfg_if::cfg_if;
 use rmp_serde::Deserializer;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use wasm_bindgen::prelude::*;
+use wasm_bindgen_futures::js_sys::Uint8Array;
 
 cfg_if! {
     if #[cfg(feature = "wee_alloc")] {
@@ -43,7 +44,13 @@ impl WasmSearch {
     }
 
     #[wasm_bindgen]
-    pub async fn search(&self, position: Vec<Placement>) -> Vec<SearchResult> {
+    pub async fn search(&self, position: Vec<Placement>) -> Uint8Array {
+        let results = self._search(&position);
+        let buf = serde_json::to_vec(&results).expect("Failed to serialize results");
+        Uint8Array::from(buf.as_slice())
+    }
+
+    fn _search(&self, position: &Vec<Placement>) -> Vec<SearchResult> {
         if position.is_empty() {
             return Vec::new();
         }
@@ -127,28 +134,11 @@ impl WasmSearch {
     }
 }
 
-#[wasm_bindgen]
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct SearchResult {
     path: String,
     score: i16,
     last_move_matched: usize,
-}
-
-#[wasm_bindgen]
-impl SearchResult {
-    #[wasm_bindgen(getter)]
-    pub fn path(&self) -> String {
-        self.path.clone()
-    }
-    #[wasm_bindgen(getter)]
-    pub fn score(&self) -> i16 {
-        self.score
-    }
-    #[wasm_bindgen(getter)]
-    pub fn last_move_matched(&self) -> usize {
-        self.last_move_matched
-    }
 }
 
 #[cfg(test)]
