@@ -1,8 +1,10 @@
-//@ts-ignore
-import init, { WasmSearch } from "wasm-search";
 import React from "react";
 import { createRoot } from "react-dom/client";
+//@ts-ignore
+import init, { WasmSearch } from "wasm-search";
 import App from "./App";
+import { Theme } from "@radix-ui/themes";
+import "@radix-ui/themes/styles.css";
 
 init().then(() => {
   window.wasm_search = new WasmSearch();
@@ -11,6 +13,8 @@ init().then(() => {
 const root = createRoot(document.getElementById("root") as HTMLElement);
 root.render(
   <React.StrictMode>
-    <App />
+    <Theme>
+      <App />
+    </Theme>
   </React.StrictMode>,
 );

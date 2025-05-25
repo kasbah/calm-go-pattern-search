@@ -7,6 +7,14 @@ import Goban, {
 } from "./Goban";
 //@ts-ignore
 import { Point, Color, Placement } from "wasm-search";
+import { RadioCards, Button, Box, Container } from "@radix-ui/themes";
+import {
+  CircleIcon,
+  Half2Icon,
+  EraserIcon,
+  Cross1Icon,
+} from "@radix-ui/react-icons";
+import circleFilledSvg from "./icons/circle_filled.svg";
 
 export default function App() {
   const [brushMode, setBrushMode] = useState<BrushMode>(BrushMode.Alternate);
@@ -41,49 +49,38 @@ export default function App() {
       <div>
         <Goban brushMode={brushMode} onUpdateBoard={setBoard} board={board} />
       </div>
-      <div>
+      <div style={{ marginLeft: "1em" }}>
         <div>
-          <input
-            type="radio"
-            id="alternate"
-            name="brushMode"
-            checked={brushMode === BrushMode.Alternate}
-            onChange={() => setBrushMode(BrushMode.Alternate)}
-          />
-          <label htmlFor="alternate">Alternate</label>
+          <RadioCards.Root
+            highContrast
+            defaultValue={`${BrushMode.Alternate}`}
+            onValueChange={(v) => setBrushMode(parseInt(v) as BrushMode)}
+          >
+            <RadioCards.Item value={`${BrushMode.Alternate}`}>
+              <Half2Icon /> Alternate
+            </RadioCards.Item>
+            <RadioCards.Item value={`${BrushMode.Black}`}>
+              <img src={circleFilledSvg} /> Black
+            </RadioCards.Item>
+            <RadioCards.Item value={`${BrushMode.White}`}>
+              <CircleIcon /> White
+            </RadioCards.Item>
+            <RadioCards.Item value={`${BrushMode.Remove}`}>
+              <EraserIcon /> Eraser
+            </RadioCards.Item>
+          </RadioCards.Root>
         </div>
-        <div>
-          <input
-            type="radio"
-            id="black"
-            name="brushMode"
-            checked={brushMode === BrushMode.Black}
-            onChange={() => setBrushMode(BrushMode.Black)}
-          />
-          <label htmlFor="black">Black</label>
-        </div>
-        <div>
-          <input
-            type="radio"
-            id="white"
-            name="brushMode"
-            checked={brushMode === BrushMode.White}
-            onChange={() => setBrushMode(BrushMode.White)}
-          />
-          <label htmlFor="white">White</label>
-        </div>
-        <div>
-          <input
-            type="radio"
-            id="delete"
-            name="brushMode"
-            checked={brushMode === BrushMode.Remove}
-            onChange={() => setBrushMode(BrushMode.Remove)}
-          />
-          <label htmlFor="remove">Remove</label>
-        </div>
-        <div>
-          <button onClick={() => setBoard(emptyBoard)}>Clear</button>
+        <div style={{ marginTop: "1em" }}>
+          <Button
+            size="3"
+            color="red"
+            variant="outline"
+            highContrast
+            onClick={() => setBoard(emptyBoard)}
+          >
+            <Cross1Icon />
+            Clear
+          </Button>
         </div>
       </div>
     </div>
