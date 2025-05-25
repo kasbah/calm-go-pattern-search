@@ -120,3 +120,80 @@ pub fn match_game(position: &Vec<Placement>, moves: &Vec<Placement>) -> Option<u
     }
     Some(last_move_matched)
 }
+
+pub fn get_surrounding_points(point: &Point, range: u8) -> Vec<Point> {
+    let mut result = Vec::new();
+    let px= point.x as i8;
+    let py= point.y as i8;
+    let board_size = BOARD_SIZE as i8;
+    let r = range as i8;
+    for x in (px - r)..=(px + r) {
+        for y in (py - r)..=(py + r) {
+            if x >= 0 && x < board_size && y >= 0 && y < board_size && (px != x || py != y) {
+                result.push(Point { x: x as u8, y: y as u8 });
+            }
+        }
+    }
+    result
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_surrounding_points_range1() {
+        let point = Point { x: 1, y: 1 };
+        let surrounding_points = get_surrounding_points(&point, 1);
+        assert_eq!(surrounding_points.len(), 8);
+        assert!(surrounding_points.contains(&Point { x: 0, y: 0 }));
+        assert!(surrounding_points.contains(&Point { x: 0, y: 1 }));
+        assert!(surrounding_points.contains(&Point { x: 1, y: 0 }));
+        assert!(surrounding_points.contains(&Point { x: 2, y: 0 }));
+        assert!(surrounding_points.contains(&Point { x: 2, y: 1 }));
+        assert!(surrounding_points.contains(&Point { x: 0, y: 2 }));
+        assert!(surrounding_points.contains(&Point { x: 1, y: 2 }));
+    }
+
+    #[test]
+    fn test_get_surrounding_points_at_corner() {
+        let point = Point { x: 0, y: 0 };
+        let surrounding_points = get_surrounding_points(&point, 1);
+        assert_eq!(surrounding_points.len(), 3);
+        assert!(surrounding_points.contains(&Point { x: 0, y: 1 }));
+        assert!(surrounding_points.contains(&Point { x: 1, y: 0 }));
+        assert!(surrounding_points.contains(&Point { x: 1, y: 1 }));
+    }
+
+    #[test]
+    fn test_get_surrounding_points_at_other_corner() {
+        let point = Point { x: BOARD_SIZE - 1, y: BOARD_SIZE - 1 };
+        let surrounding_points = get_surrounding_points(&point, 1);
+        assert_eq!(surrounding_points.len(), 3);
+        assert!(surrounding_points.contains(&Point { x: BOARD_SIZE - 2, y: BOARD_SIZE - 1 }));
+        assert!(surrounding_points.contains(&Point { x: BOARD_SIZE - 1, y: BOARD_SIZE - 2 }));
+        assert!(surrounding_points.contains(&Point { x: BOARD_SIZE - 2, y: BOARD_SIZE - 2 }));
+    }
+    
+    #[test]
+    fn test_surrounding_points_range2() {
+        let point = Point { x: 3, y: 3 };
+        let surrounding_points = get_surrounding_points(&point, 2);
+        assert_eq!(surrounding_points.len(), 24);
+    }
+
+    #[test]
+    fn test_surrounding_points_range2_at_corner() {
+        let point = Point { x: 0, y: 0 };
+        let surrounding_points = get_surrounding_points(&point, 2);
+        assert_eq!(surrounding_points.len(), 8);
+    }
+
+    #[test]
+    fn test_surrounding_points_range2_1_1_point() {
+        let point = Point { x: 1, y: 1};
+        let surrounding_points = get_surrounding_points(&point, 2);
+        assert_eq!(surrounding_points.len(), 15);
+    }
+
+}
