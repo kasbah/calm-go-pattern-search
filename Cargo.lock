@@ -41,21 +41,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "calm-go-patterns-wasm-search"
-version = "0.1.0"
-dependencies = [
- "calm-go-patterns-common",
- "cfg-if 1.0.0",
- "console_error_panic_hook",
- "rmp-serde",
- "serde",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "wasm-bindgen-test",
- "wee_alloc",
-]
-
-[[package]]
 name = "cc"
 version = "1.2.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -444,6 +429,21 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "wasm-search"
+version = "0.1.0"
+dependencies = [
+ "calm-go-patterns-common",
+ "cfg-if 1.0.0",
+ "console_error_panic_hook",
+ "rmp-serde",
+ "serde",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "wasm-bindgen-test",
+ "wee_alloc",
 ]
 
 [[package]]

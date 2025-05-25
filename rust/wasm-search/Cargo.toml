@@ -1,5 +1,5 @@
 [package]
-name = "calm-go-patterns-wasm-search"
+name = "wasm-search"
 version = "0.1.0"
 edition = "2024"
 
