@@ -35,9 +35,17 @@ export default function App() {
           });
         });
         let results = await window.wasm_search.search(position);
-        results.sort((r1, r2) => r2.score - r1.score);
+        results.sort(
+          (r1, r2) =>
+            r1.last_move_matched - r1.score - (r2.last_move_matched - r2.score),
+        );
         for (const r of results.slice(0, 5)) {
-          console.log(r.score, r.path, r.last_move_matched);
+          console.log(
+            r.last_move_matched - r.score,
+            r.path,
+            r.score,
+            r.last_move_matched,
+          );
         }
         console.log(results.length - 5, "more");
       })();

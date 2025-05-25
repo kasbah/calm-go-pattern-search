@@ -7,7 +7,9 @@ pub mod baduk;
 pub mod errors;
 pub mod sgf_traversal;
 
-use baduk::{Placement, get_rotations, match_game, switch_colors};
+use baduk::{
+    Placement, check_empty, get_rotations, get_surrounding_points, match_game, switch_colors,
+};
 use cfg_if::cfg_if;
 use rmp_serde::Deserializer;
 use serde::Deserialize;
@@ -49,14 +51,14 @@ impl WasmSearch {
         if position.is_empty() {
             return Vec::new();
         }
-        let mut result = Vec::new();
+        let mut results = Vec::new();
         let rotations = get_rotations(&position);
         let inverse = switch_colors(&position);
         let inverse_rotations = get_rotations(&inverse);
         for (path, moves) in &self.game_data {
             let mut matched = match_game(&position, moves);
             if let Some(last_move_matched) = matched {
-                result.push(SearchResult {
+                results.push(SearchResult {
                     path: path.clone(),
                     score: 10,
                     last_move_matched,
@@ -66,7 +68,7 @@ impl WasmSearch {
             for rotation in &rotations {
                 matched = match_game(rotation, moves);
                 if let Some(last_move_matched) = matched {
-                    result.push(SearchResult {
+                    results.push(SearchResult {
                         path: path.clone(),
                         score: 10,
                         last_move_matched,
@@ -77,7 +79,7 @@ impl WasmSearch {
             if matched.is_none() {
                 matched = match_game(&inverse, moves);
                 if let Some(last_move_matched) = matched {
-                    result.push(SearchResult {
+                    results.push(SearchResult {
                         path: path.clone(),
                         score: 9,
                         last_move_matched,
@@ -87,7 +89,7 @@ impl WasmSearch {
                 for rotation in &inverse_rotations {
                     matched = match_game(rotation, moves);
                     if let Some(last_move_matched) = matched {
-                        result.push(SearchResult {
+                        results.push(SearchResult {
                             path: path.clone(),
                             score: 9,
                             last_move_matched,
@@ -97,7 +99,28 @@ impl WasmSearch {
                 }
             }
         }
-        result
+        for result in &mut results {
+            let moves = self
+                .game_data
+                .get(&result.path)
+                .expect("Inconsistent game data");
+            let truncated_moves = &moves[..result.last_move_matched];
+            for placement in position.clone() {
+                for i in 1..3 {
+                    let mut surrounding = get_surrounding_points(&placement.point, i);
+                    surrounding = surrounding
+                        .iter()
+                        .filter(|p| !moves.iter().any(|m| m.point == **p))
+                        .cloned()
+                        .collect();
+                    if check_empty(&surrounding, truncated_moves) {
+                        result.score += i as i16;
+                    }
+                }
+            }
+        }
+
+        results
     }
 }
 
@@ -105,7 +128,7 @@ impl WasmSearch {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SearchResult {
     path: String,
-    score: i8,
+    score: i16,
     last_move_matched: usize,
 }
 
@@ -116,7 +139,7 @@ impl SearchResult {
         self.path.clone()
     }
     #[wasm_bindgen(getter)]
-    pub fn score(&self) -> i8 {
+    pub fn score(&self) -> i16 {
         self.score
     }
     #[wasm_bindgen(getter)]
