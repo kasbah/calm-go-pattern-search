@@ -1,10 +1,11 @@
 //@ts-ignore
-import React, {useState, useEffect} from "react";
-import {useWindowSize} from "@reach/window-size";
-import {BoundedGoban, Vertex} from "@sabaki/shudan";
+import React, { useState, useEffect } from "react";
+import { useWindowSize } from "@reach/window-size";
+import { BoundedGoban, Vertex } from "@sabaki/shudan";
 import "@sabaki/shudan/css/goban.css";
 import "./Goban.css";
-import SabakiGoBoard, {Sign} from "@sabaki/go-board";
+import SabakiGoBoard, { Sign } from "@sabaki/go-board";
+import { produce } from "immer";
 
 export const SabakiColor = Object.freeze({
   Black: 1,
@@ -61,7 +62,7 @@ function getNextColor(
   stone: SabakiColor,
   brushColor: SabakiColor,
   brushMode: BrushMode,
-) {
+): SabakiColor {
   if (brushMode === BrushMode.Alternate) {
     if (stone === SabakiColor.Empty) {
       return brushColor;
@@ -76,9 +77,10 @@ function getNextColor(
   } else if (brushMode === BrushMode.Remove) {
     return SabakiColor.Empty;
   }
+  throw new Error("Unknown brush mode");
 }
 
-export default function Goban({brushMode, onUpdateBoard, board}: GobanProps) {
+export default function Goban({ brushMode, onUpdateBoard, board }: GobanProps) {
   const windowSize = useWindowSize();
   const [displayBoard, setDisplayBoard] = useState(emptyBoard);
   const [hoverVertex, setHoverVertex] = useState<Vertex | null>(null);
@@ -110,23 +112,19 @@ export default function Goban({brushMode, onUpdateBoard, board}: GobanProps) {
   }, [hoverVertex]);
 
   useEffect(() => {
-    const b: BoardPosition = board.map((row, y) =>
-      row.map((stone, x) => {
-        const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
-        if (nextColor === SabakiColor.Empty) {
-          return stone;
+    setDisplayBoard(
+      produce(board, (draft) => {
+        if (hoverVertex != null) {
+          const x = hoverVertex[0];
+          const y = hoverVertex[1];
+          const stone = board[y][x];
+          const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
+          if (nextColor !== SabakiColor.Empty) {
+            draft[y][x] = nextColor;
+          }
         }
-        if (
-          hoverVertex != null &&
-          hoverVertex[0] === x &&
-          hoverVertex[1] === y
-        ) {
-          return nextColor;
-        }
-        return stone;
       }),
     );
-    setDisplayBoard(b);
   }, [board, hoverVertex, brushMode]);
 
   return (
