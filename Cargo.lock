@@ -25,7 +25,6 @@ name = "calm-go-patterns-common"
 version = "0.1.0"
 dependencies = [
  "serde",
- "wasm-bindgen",
 ]
 
 [[package]]

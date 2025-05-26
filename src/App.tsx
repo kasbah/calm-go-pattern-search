@@ -6,8 +6,7 @@ import Goban, {
   SabakiColor,
 } from "./Goban";
 //@ts-ignore
-import { Point, Color, Placement } from "wasm-search";
-import { RadioCards, Button, Box, Container } from "@radix-ui/themes";
+import { RadioCards, Button } from "@radix-ui/themes";
 import {
   CircleIcon,
   Half2Icon,
@@ -23,19 +22,22 @@ export default function App() {
   useEffect(() => {
     if (window.wasm_search !== undefined) {
       (async () => {
-        const position: Array<Placement> = [];
+        const position: Array<{
+          color: "Black" | "White";
+          point: { x: number; y: number };
+        }> = [];
         board.forEach((row, y) => {
           row.forEach((stone, x) => {
             if (stone !== SabakiColor.Empty) {
-              const color =
-                stone === SabakiColor.Black ? Color.Black : Color.White;
-              const point = new Point(x, y);
-              position.push(new Placement(color, point));
+              const color = stone === SabakiColor.Black ? "Black" : "White";
+              const point = { x, y };
+              position.push({ color, point });
             }
           });
         });
-        const ubuf = await window.wasm_search.search(position);
-        let results = new TextDecoder().decode(ubuf);
+        const positionBuf = new TextEncoder().encode(JSON.stringify(position));
+        const resultsBuf = await window.wasm_search.search(positionBuf);
+        let results = new TextDecoder().decode(resultsBuf);
         results = JSON.parse(results);
         results.sort(
           (r1, r2) =>

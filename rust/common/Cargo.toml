@@ -5,4 +5,3 @@ edition = "2024"
 
 [dependencies]
 serde = { version = "1.0.219", features = ["derive"] }
-wasm-bindgen = "0.2.100"

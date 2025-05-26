@@ -44,10 +44,13 @@ impl WasmSearch {
     }
 
     #[wasm_bindgen]
-    pub async fn search(&self, position: Vec<Placement>) -> Uint8Array {
-        let results = self._search(&position);
-        let buf = serde_json::to_vec(&results).expect("Failed to serialize results");
-        Uint8Array::from(buf.as_slice())
+    pub async fn search(&self, position: Uint8Array) -> Uint8Array {
+        let position_buf: Vec<u8> = position.to_vec();
+        let position_decoded: Vec<Placement> =
+            serde_json::from_slice(position_buf.as_slice()).expect("Failed to deserialize position");
+        let results = self._search(&position_decoded);
+        let results_buf: Vec<u8> = serde_json::to_vec(&results).expect("Failed to serialize results");
+        Uint8Array::from(results_buf.as_slice())
     }
 
     fn _search(&self, position: &Vec<Placement>) -> Vec<SearchResult> {
