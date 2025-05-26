@@ -1,5 +1,6 @@
 use bit_vec::BitVec;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 pub const BOARD_SIZE: u8 = 19;
 
@@ -195,6 +196,53 @@ pub fn unpack_placements(packed: &Vec<u8>) -> Vec<Placement> {
     placements
 }
 
+pub fn pack_games(games: HashMap<String, Vec<Placement>>) -> Vec<u8> {
+    let mut packed = Vec::new();
+    let num_games = games.len() as u32;
+    packed.push((num_games >> 24) as u8);
+    packed.push((num_games >> 16) as u8);
+    packed.push((num_games >> 8) as u8);
+    packed.push(num_games as u8);
+
+    for (name, placements) in games {
+        let name_bytes = name.as_bytes();
+        let name_len = name_bytes.len() as u16;
+        packed.push((name_len >> 8) as u8);
+        packed.push(name_len as u8);
+        packed.extend(name_bytes);
+        packed.extend(pack_placements(&placements));
+    }
+
+    packed
+}
+
+pub fn unpack_games(packed: &Vec<u8>) -> HashMap<String, Vec<Placement>> {
+    let mut games = HashMap::new();
+    let mut offset = 0;
+
+    let num_games = ((packed[offset] as u32) << 24)
+        | ((packed[offset + 1] as u32) << 16)
+        | ((packed[offset + 2] as u32) << 8)
+        | (packed[offset + 3] as u32);
+    offset += 4;
+
+    for _ in 0..num_games {
+        let name_len = ((packed[offset] as u16) << 8) | (packed[offset + 1] as u16);
+        offset += 2;
+
+        let name = String::from_utf8(packed[offset..offset + name_len as usize].to_vec())
+            .expect("Invalid UTF-8 in game name");
+        offset += name_len as usize;
+
+        let placements = unpack_placements(&packed[offset..].to_vec());
+        offset += 2 + (placements.len() * 9 + 7) / 8 + (placements.len() + 7) / 8;
+
+        games.insert(name, placements);
+    }
+
+    games
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -284,6 +332,74 @@ mod tests {
             let packed = pack_placements(&placements);
             let unpacked = unpack_placements(&packed);
             assert_eq!(placements, unpacked);
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn test_pack_unpack_games(games in prop::collection::hash_map(
+            "[\\p{L}\\p{N}\\p{P}\\p{Zs}]{1,20}", // Unicode letters, numbers, punctuation, spaces
+            prop::collection::vec(
+                (any::<bool>(), any::<u8>(), any::<u8>()),
+                0..100
+            ).prop_map(|v| v.into_iter().map(|(is_black, x, y)| {
+                Placement {
+                    color: if is_black { Color::Black } else { Color::White },
+                    point: Point {
+                        x: x % BOARD_SIZE,
+                        y: y % BOARD_SIZE
+                    }
+                }
+            }).collect::<Vec<_>>()),
+            0..10 // Number of games
+        )) {
+            let packed = pack_games(games.clone());
+            let unpacked = unpack_games(&packed);
+            assert_eq!(games, unpacked);
+        }
+
+        #[test]
+        fn test_pack_unpack_games_with_empty_games(games in prop::collection::hash_map(
+            "[\\p{L}\\p{N}\\p{P}\\p{Zs}]{1,20}",
+            prop::collection::vec(
+                (any::<bool>(), any::<u8>(), any::<u8>()),
+                0..=0 // Empty placements
+            ).prop_map(|v| v.into_iter().map(|(is_black, x, y)| {
+                Placement {
+                    color: if is_black { Color::Black } else { Color::White },
+                    point: Point {
+                        x: x % BOARD_SIZE,
+                        y: y % BOARD_SIZE
+                    }
+                }
+            }).collect::<Vec<_>>()),
+            0..10 // Number of games
+        )) {
+            let packed = pack_games(games.clone());
+            let unpacked = unpack_games(&packed);
+            assert_eq!(games, unpacked);
+        }
+
+        #[test]
+        fn test_pack_unpack_games_with_single_placement(games in prop::collection::hash_map(
+            "[\\p{L}\\p{N}\\p{P}\\p{Zs}]{1,20}",
+            prop::collection::vec(
+                (any::<bool>(), any::<u8>(), any::<u8>()),
+                1..=1 // Exactly one placement per game
+            ).prop_map(|v| v.into_iter().map(|(is_black, x, y)| {
+                Placement {
+                    color: if is_black { Color::Black } else { Color::White },
+                    point: Point {
+                        x: x % BOARD_SIZE,
+                        y: y % BOARD_SIZE
+                    }
+                }
+            }).collect::<Vec<_>>()),
+            0..20 // Number of games
+        )) {
+            let packed = pack_games(games.clone());
+            let unpacked = unpack_games(&packed);
+            assert_eq!(games, unpacked);
         }
     }
 }
