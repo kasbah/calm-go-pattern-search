@@ -2,6 +2,7 @@ use bit_vec::BitVec;
 use rmp_serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use serde_bytes;
 
 pub const BOARD_SIZE: u8 = 19;
 
@@ -200,6 +201,7 @@ pub fn unpack_placements(packed: &[u8]) -> Vec<Placement> {
 #[derive(Serialize, Deserialize)]
 struct PackedGame {
     name: String,
+    #[serde(with = "serde_bytes")]
     placements: Vec<u8>,
 }
 
