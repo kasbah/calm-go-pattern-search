@@ -1,3 +1,4 @@
+use bit_vec::BitVec;
 use serde::{Deserialize, Serialize};
 
 pub const BOARD_SIZE: u8 = 19;
@@ -128,9 +129,76 @@ pub fn get_surrounding_points(point: &Point, range: u8) -> Vec<Point> {
     result
 }
 
+pub fn pack_placements(placements: &Vec<Placement>) -> Vec<u8> {
+    let points: Vec<u16> = placements
+        .iter()
+        .map(|p| p.point.x as u16 * BOARD_SIZE as u16 + p.point.y as u16)
+        .collect();
+
+    let mut point_bits = BitVec::new();
+    for point in points {
+        for i in 0..=8 {
+            point_bits.push((point & (1 << (8 - i))) != 0);
+        }
+    }
+
+    let color_bools: Vec<bool> = placements.iter().map(|p| p.color == Color::Black).collect();
+    let mut color_bits = BitVec::new();
+    for color in color_bools {
+        color_bits.push(color);
+    }
+
+    let len = placements.len() as u16;
+
+    let mut packed = Vec::new();
+    packed.push((len >> 8) as u8);
+    packed.push(len as u8);
+
+    packed.extend(&point_bits.to_bytes());
+    packed.extend(&color_bits.to_bytes());
+
+    packed
+}
+
+pub fn unpack_placements(packed: &Vec<u8>) -> Vec<Placement> {
+    let len = ((packed[0] as u16) << 8) | (packed[1] as u16);
+    let point_bytes_start = 2;
+    let point_bytes_end = point_bytes_start + (len as usize * 9 + 7) / 8;
+    let color_bytes_start = point_bytes_end;
+
+    let point_bits = BitVec::from_bytes(&packed[point_bytes_start..point_bytes_end]);
+    let color_bits = BitVec::from_bytes(&packed[color_bytes_start..]);
+
+    let mut placements = Vec::new();
+    for i in 0..len as usize {
+        let mut point_value: u16 = 0;
+        for j in 0..9 {
+            if point_bits[i * 9 + j] {
+                point_value |= 1 << (8 - j);
+            }
+        }
+
+        let x = (point_value / BOARD_SIZE as u16) as u8;
+        let y = (point_value % BOARD_SIZE as u16) as u8;
+        let color = if color_bits[i] {
+            Color::Black
+        } else {
+            Color::White
+        };
+
+        placements.push(Placement {
+            point: Point { x, y },
+            color,
+        });
+    }
+
+    placements
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use proptest::prelude::*;
 
     #[test]
     fn test_get_surrounding_points_range1() {
@@ -197,5 +265,25 @@ mod tests {
         let point = Point { x: 1, y: 1 };
         let surrounding_points = get_surrounding_points(&point, 2);
         assert_eq!(surrounding_points.len(), 15);
+    }
+
+    proptest! {
+        #[test]
+        fn test_pack_unpack_placements(placements in prop::collection::vec(
+            (any::<bool>(), any::<u8>(), any::<u8>()),
+            0..500
+        ).prop_map(|v| v.into_iter().map(|(is_black, x, y)| {
+            Placement {
+                color: if is_black { Color::Black } else { Color::White },
+                point: Point {
+                    x: x % BOARD_SIZE,
+                    y: y % BOARD_SIZE
+                }
+            }
+        }).collect::<Vec<_>>())) {
+            let packed = pack_placements(&placements);
+            let unpacked = unpack_placements(&packed);
+            assert_eq!(placements, unpacked);
+        }
     }
 }
