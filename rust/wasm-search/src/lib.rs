@@ -5,9 +5,9 @@ mod utils;
 
 use calm_go_patterns_common::baduk::{
     Placement, check_empty, get_rotations, get_surrounding_points, match_game, switch_colors,
+    unpack_games,
 };
 use cfg_if::cfg_if;
-use rmp_serde::Deserializer;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use wasm_bindgen::prelude::*;
@@ -37,19 +37,19 @@ pub struct WasmSearch {
 impl WasmSearch {
     #[wasm_bindgen(constructor)]
     pub fn new() -> WasmSearch {
-        let data = include_bytes!("games.pack");
-        let mut de = Deserializer::new(&data[..]);
-        let game_data: HashMap<String, Vec<Placement>> = Deserialize::deserialize(&mut de).unwrap();
+        let packed = include_bytes!("games.pack").to_vec();
+        let game_data = unpack_games(&packed);
         Self { game_data }
     }
 
     #[wasm_bindgen]
     pub async fn search(&self, position: Uint8Array) -> Uint8Array {
         let position_buf: Vec<u8> = position.to_vec();
-        let position_decoded: Vec<Placement> =
-            serde_json::from_slice(position_buf.as_slice()).expect("Failed to deserialize position");
+        let position_decoded: Vec<Placement> = serde_json::from_slice(position_buf.as_slice())
+            .expect("Failed to deserialize position");
         let results = self._search(&position_decoded);
-        let results_buf: Vec<u8> = serde_json::to_vec(&results).expect("Failed to serialize results");
+        let results_buf: Vec<u8> =
+            serde_json::to_vec(&results).expect("Failed to serialize results");
         Uint8Array::from(results_buf.as_slice())
     }
 

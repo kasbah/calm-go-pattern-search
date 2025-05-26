@@ -196,7 +196,7 @@ pub fn unpack_placements(packed: &Vec<u8>) -> Vec<Placement> {
     placements
 }
 
-pub fn pack_games(games: HashMap<String, Vec<Placement>>) -> Vec<u8> {
+pub fn pack_games(games: &HashMap<String, Vec<Placement>>) -> Vec<u8> {
     let mut packed = Vec::new();
     let num_games = games.len() as u32;
     packed.push((num_games >> 24) as u8);
@@ -353,7 +353,7 @@ mod tests {
             }).collect::<Vec<_>>()),
             0..10 // Number of games
         )) {
-            let packed = pack_games(games.clone());
+            let packed = pack_games(&games);
             let unpacked = unpack_games(&packed);
             assert_eq!(games, unpacked);
         }
@@ -375,7 +375,7 @@ mod tests {
             }).collect::<Vec<_>>()),
             0..10 // Number of games
         )) {
-            let packed = pack_games(games.clone());
+            let packed = pack_games(&games);
             let unpacked = unpack_games(&packed);
             assert_eq!(games, unpacked);
         }
@@ -397,7 +397,7 @@ mod tests {
             }).collect::<Vec<_>>()),
             0..20 // Number of games
         )) {
-            let packed = pack_games(games.clone());
+            let packed = pack_games(&games);
             let unpacked = unpack_games(&packed);
             assert_eq!(games, unpacked);
         }

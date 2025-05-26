@@ -1,13 +1,11 @@
 mod sgf_traversal;
 
 use rayon::prelude::*;
-use rmp_serde::Serializer;
-use serde::Serialize;
 use sgf_parse::go;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use calm_go_patterns_common::baduk::{BOARD_SIZE, Color, Placement, Point, get_rotations};
+use calm_go_patterns_common::baduk::{BOARD_SIZE, Color, Placement, Point, get_rotations, pack_games};
 
 fn main() {
     let mut sgf_folder = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -31,6 +29,7 @@ fn main() {
                     let rel_path = path
                         .strip_prefix(&sgf_folder)
                         .unwrap()
+                        .with_extension("")
                         .to_string_lossy()
                         .into_owned();
                     Some((rel_path, moves))
@@ -74,10 +73,7 @@ fn main() {
     println!("Found {} unique games", unique_games.len());
 
     println!("Writing games.pack...");
-    let mut buf = Vec::new();
-    unique_games
-        .serialize(&mut Serializer::new(&mut buf))
-        .unwrap();
+    let buf = pack_games(&unique_games);
     std::fs::write("games.pack", buf).unwrap();
     println!("Done");
 }
