@@ -161,7 +161,7 @@ pub fn pack_placements(placements: &Vec<Placement>) -> Vec<u8> {
     packed
 }
 
-pub fn unpack_placements(packed: &Vec<u8>) -> Vec<Placement> {
+pub fn unpack_placements(packed: &[u8]) -> Vec<Placement> {
     let len = ((packed[0] as u16) << 8) | (packed[1] as u16);
     let point_bytes_start = 2;
     let point_bytes_end = point_bytes_start + (len as usize * 9 + 7) / 8;
@@ -216,7 +216,7 @@ pub fn pack_games(games: &HashMap<String, Vec<Placement>>) -> Vec<u8> {
     packed
 }
 
-pub fn unpack_games(packed: &Vec<u8>) -> HashMap<String, Vec<Placement>> {
+pub fn unpack_games(packed: &[u8]) -> HashMap<String, Vec<Placement>> {
     let mut games = HashMap::new();
     let mut offset = 0;
 
@@ -234,7 +234,7 @@ pub fn unpack_games(packed: &Vec<u8>) -> HashMap<String, Vec<Placement>> {
             .expect("Invalid UTF-8 in game name");
         offset += name_len as usize;
 
-        let placements = unpack_placements(&packed[offset..].to_vec());
+        let placements = unpack_placements(&packed[offset..]);
         offset += 2 + (placements.len() * 9 + 7) / 8 + (placements.len() + 7) / 8;
 
         games.insert(name, placements);

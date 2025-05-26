@@ -37,8 +37,8 @@ pub struct WasmSearch {
 impl WasmSearch {
     #[wasm_bindgen(constructor)]
     pub fn new() -> WasmSearch {
-        let packed = include_bytes!("games.pack").to_vec();
-        let game_data = unpack_games(&packed);
+        let packed = include_bytes!("games.pack");
+        let game_data = unpack_games(packed);
         Self { game_data }
     }
 
