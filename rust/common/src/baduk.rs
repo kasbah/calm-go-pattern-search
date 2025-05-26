@@ -1,4 +1,5 @@
 use bit_vec::BitVec;
+use rmp_serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -196,51 +197,37 @@ pub fn unpack_placements(packed: &[u8]) -> Vec<Placement> {
     placements
 }
 
+#[derive(Serialize, Deserialize)]
+struct PackedGame {
+    name: String,
+    placements: Vec<u8>,
+}
+
 pub fn pack_games(games: &HashMap<String, Vec<Placement>>) -> Vec<u8> {
-    let mut packed = Vec::new();
-    let num_games = games.len() as u32;
-    packed.push((num_games >> 24) as u8);
-    packed.push((num_games >> 16) as u8);
-    packed.push((num_games >> 8) as u8);
-    packed.push(num_games as u8);
+    let packed_games: Vec<PackedGame> = games
+        .iter()
+        .map(|(name, placements)| PackedGame {
+            name: name.clone(),
+            placements: pack_placements(placements),
+        })
+        .collect();
 
-    for (name, placements) in games {
-        let name_bytes = name.as_bytes();
-        let name_len = name_bytes.len() as u16;
-        packed.push((name_len >> 8) as u8);
-        packed.push(name_len as u8);
-        packed.extend(name_bytes);
-        packed.extend(pack_placements(&placements));
-    }
-
-    packed
+    let mut buf = Vec::new();
+    packed_games
+        .serialize(&mut Serializer::new(&mut buf))
+        .expect("Failed to serialize games");
+    buf
 }
 
 pub fn unpack_games(packed: &[u8]) -> HashMap<String, Vec<Placement>> {
-    let mut games = HashMap::new();
-    let mut offset = 0;
+    let mut deserializer = Deserializer::new(packed);
+    let packed_games: Vec<PackedGame> =
+        Vec::<PackedGame>::deserialize(&mut deserializer).expect("Failed to deserialize games");
 
-    let num_games = ((packed[offset] as u32) << 24)
-        | ((packed[offset + 1] as u32) << 16)
-        | ((packed[offset + 2] as u32) << 8)
-        | (packed[offset + 3] as u32);
-    offset += 4;
-
-    for _ in 0..num_games {
-        let name_len = ((packed[offset] as u16) << 8) | (packed[offset + 1] as u16);
-        offset += 2;
-
-        let name = String::from_utf8(packed[offset..offset + name_len as usize].to_vec())
-            .expect("Invalid UTF-8 in game name");
-        offset += name_len as usize;
-
-        let placements = unpack_placements(&packed[offset..]);
-        offset += 2 + (placements.len() * 9 + 7) / 8 + (placements.len() + 7) / 8;
-
-        games.insert(name, placements);
-    }
-
-    games
+    packed_games
+        .into_iter()
+        .map(|game| (game.name, unpack_placements(&game.placements)))
+        .collect()
 }
 
 #[cfg(test)]
