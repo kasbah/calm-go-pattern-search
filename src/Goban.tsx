@@ -430,21 +430,6 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
     dispatch({ type: "REDO" });
   }, []);
 
-  const handleVertexClick = useCallback(
-    (_e: any, vertex: Vertex) => {
-      dispatch({ type: "SET_HOVER_VERTEX", payload: null });
-
-      if (state.brushMode === BrushMode.Remove) {
-        dispatch({ type: "REMOVE_STONE", payload: vertex });
-      } else {
-        dispatch({ type: "PLACE_STONE", payload: vertex });
-      }
-
-      handleBoardUpdate(state.board);
-    },
-    [state.board, state.brushMode, handleBoardUpdate],
-  );
-
   const handleVertexMouseEnter = useCallback(
     (_e: any, vertex: Vertex) => {
       dispatch({ type: "SET_HOVER_VERTEX", payload: vertex });
@@ -480,9 +465,22 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
     [state.brushMode, state.board, handleBoardUpdate],
   );
 
-  const handleMouseUp = useCallback(() => {
-    dispatch({ type: "SET_DRAGGING", payload: false });
-  }, []);
+  const handleMouseUp = useCallback(
+    (_e: any, vertex: Vertex) => {
+      dispatch({ type: "SET_DRAGGING", payload: false });
+
+      dispatch({ type: "SET_HOVER_VERTEX", payload: null });
+
+      if (state.brushMode === BrushMode.Remove) {
+        dispatch({ type: "REMOVE_STONE", payload: vertex });
+      } else {
+        dispatch({ type: "PLACE_STONE", payload: vertex });
+      }
+
+      handleBoardUpdate(state.board);
+    },
+    [state.board, state.brushMode, handleBoardUpdate],
+  );
 
   const handleBoardMouseLeave = useCallback(() => {
     if (state.isDragging) {
@@ -505,7 +503,6 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
           showCoordinates={true}
           signMap={state.displayBoard}
           dimmedVertices={state.dimmedVertices}
-          onVertexClick={handleVertexClick}
           onVertexMouseEnter={handleVertexMouseEnter}
           onVertexMouseLeave={handleVertexMouseLeave}
           onVertexMouseDown={handleMouseDown}
