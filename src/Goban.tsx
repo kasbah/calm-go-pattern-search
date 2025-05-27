@@ -1,5 +1,5 @@
 //@ts-ignore
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useWindowSize } from "@reach/window-size";
 import { BoundedGoban, type Vertex } from "@sabaki/shudan";
 import "@sabaki/shudan/css/goban.css";
@@ -140,14 +140,17 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
     );
   }, [board, hoverVertex, brushMode, alternateBrushColor]);
 
-  const handleBoardUpdate = (newBoard: BoardPosition) => {
-    setBoard(newBoard);
-    setHistory((prev) => [...prev.slice(0, historyIndex + 1), newBoard]);
-    setHistoryIndex((prev) => prev + 1);
-    onUpdateBoard(newBoard);
-  };
+  const handleBoardUpdate = useCallback(
+    (newBoard: BoardPosition) => {
+      setBoard(newBoard);
+      setHistory((prev) => [...prev.slice(0, historyIndex + 1), newBoard]);
+      setHistoryIndex((prev) => prev + 1);
+      onUpdateBoard(newBoard);
+    },
+    [historyIndex, onUpdateBoard],
+  );
 
-  const handleUndo = () => {
+  const handleUndo = useCallback(() => {
     if (historyIndex > 0) {
       const newIndex = historyIndex - 1;
       setHistoryIndex(newIndex);
@@ -155,9 +158,9 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
       setBoard(newBoard);
       onUpdateBoard(newBoard);
     }
-  };
+  }, [historyIndex, history, onUpdateBoard]);
 
-  const handleRedo = () => {
+  const handleRedo = useCallback(() => {
     if (historyIndex < history.length - 1) {
       const newIndex = historyIndex + 1;
       setHistoryIndex(newIndex);
@@ -165,33 +168,50 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
       setBoard(newBoard);
       onUpdateBoard(newBoard);
     }
-  };
+  }, [historyIndex, history, onUpdateBoard]);
 
-  const handleVertexClick = (_e: any, vertex: Vertex) => {
+  const handleVertexClick = useCallback(
+    (_e: any, vertex: Vertex) => {
+      setHoverVertex(null);
+      const x = vertex[0];
+      const y = vertex[1];
+      const stone = board[y][x];
+      const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
+
+      if (nextColor !== SabakiColor.Empty) {
+        const sgb = new SabakiGoBoard(board);
+        const move = sgb.makeMove(nextColor as Sign, vertex);
+        handleBoardUpdate(move.signMap);
+      } else {
+        handleBoardUpdate(
+          produce(board, (draft) => {
+            draft[y][x] = SabakiColor.Empty;
+          }),
+        );
+      }
+
+      if (nextColor !== SabakiColor.Empty) {
+        setAlternateBrushColor(
+          nextColor === SabakiColor.Black
+            ? SabakiColor.White
+            : SabakiColor.Black,
+        );
+      }
+    },
+    [board, alternateBrushColor, brushMode, handleBoardUpdate],
+  );
+
+  const handleVertexMouseEnter = useCallback((_e: any, vertex: Vertex) => {
+    setHoverVertex(vertex);
+  }, []);
+
+  const handleVertexMouseLeave = useCallback((_e: any, _vertex: Vertex) => {
     setHoverVertex(null);
-    const x = vertex[0];
-    const y = vertex[1];
-    const stone = board[y][x];
-    const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
+  }, []);
 
-    if (nextColor !== SabakiColor.Empty) {
-      const sgb = new SabakiGoBoard(board);
-      const move = sgb.makeMove(nextColor as Sign, vertex);
-      handleBoardUpdate(move.signMap);
-    } else {
-      handleBoardUpdate(
-        produce(board, (draft) => {
-          draft[y][x] = SabakiColor.Empty;
-        }),
-      );
-    }
-
-    if (nextColor !== SabakiColor.Empty) {
-      setAlternateBrushColor(
-        nextColor === SabakiColor.Black ? SabakiColor.White : SabakiColor.Black,
-      );
-    }
-  };
+  const handleClearBoard = useCallback(() => {
+    handleBoardUpdate(emptyBoard);
+  }, [handleBoardUpdate]);
 
   return (
     <div className="flex flex-row gap-2">
@@ -205,12 +225,8 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
           signMap={displayBoard}
           dimmedVertices={dimmedVertices}
           onVertexClick={handleVertexClick}
-          onVertexMouseEnter={(_e: any, vertex: Vertex) => {
-            setHoverVertex(vertex);
-          }}
-          onVertexMouseLeave={(_e: any, _vertex: Vertex) => {
-            setHoverVertex(null);
-          }}
+          onVertexMouseEnter={handleVertexMouseEnter}
+          onVertexMouseLeave={handleVertexMouseLeave}
         />
       </div>
       <div className="mt-2 mb-2">
@@ -272,7 +288,7 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
               size="xl"
               color="red"
               variant="outline"
-              onClick={() => handleBoardUpdate(emptyBoard)}
+              onClick={handleClearBoard}
             >
               <img src={trashSvg} width={24} height={24} />
             </Button>
