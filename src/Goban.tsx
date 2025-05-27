@@ -15,6 +15,7 @@ import circleBlackSvg from "./icons/circle-black.svg";
 import circleWhiteSvg from "./icons/circle-white.svg";
 import eraserSvg from "./icons/eraser.svg";
 import xSvg from "./icons/x.svg";
+import trashSvg from "./icons/trash.svg";
 
 export const SabakiColor = Object.freeze({
   Black: 1,
@@ -173,8 +174,8 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
         <BoundedGoban
           animateStonePlacement={false}
           fuzzyStonePlacement={false}
-          maxHeight={windowSize.height - 20}
-          maxWidth={windowSize.width * 0.8}
+          maxHeight={windowSize.height}
+          maxWidth={windowSize.width * 0.5}
           showCoordinates={true}
           signMap={displayBoard}
           dimmedVertices={dimmedVertices}
@@ -187,50 +188,52 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
           }}
         />
       </div>
-      <div>
-        <div className="flex flex-col gap-1 mt-2">
-          <Toggle
-            size="xl"
-            onClick={() => setBrushMode(BrushMode.Alternate)}
-            pressed={brushMode === BrushMode.Alternate}
-          >
-            {alternateBrushColor === SabakiColor.Black ? (
-              <img src={overlappingCirclesBlackSvg} width={32} height={32} />
-            ) : (
-              <img src={overlappingCirclesWhiteSvg} width={32} height={32} />
-            )}
-          </Toggle>
-          <Toggle
-            size="xl"
-            onClick={() => setBrushMode(BrushMode.Black)}
-            pressed={brushMode === BrushMode.Black}
-          >
-            <img src={circleBlackSvg} width={32} height={32} />
-          </Toggle>
-          <Toggle
-            size="xl"
-            onClick={() => setBrushMode(BrushMode.White)}
-            pressed={brushMode === BrushMode.White}
-          >
-            <img src={circleWhiteSvg} width={32} height={32} />
-          </Toggle>
-          <Toggle
-            size="xl"
-            onClick={() => setBrushMode(BrushMode.Remove)}
-            pressed={brushMode === BrushMode.Remove}
-          >
-            <img src={eraserSvg} width={32} height={32} />
-          </Toggle>
-        </div>
-        <div style={{ marginTop: "1em" }}>
-          <Button
-            size="xl"
-            color="red"
-            variant="outline"
-            onClick={() => handleBoardUpdate(emptyBoard)}
-          >
-            <img src={xSvg} width={24} height={24} />
-          </Button>
+      <div className="mt-2 mb-2">
+        <div className="flex flex-col justify-between h-full">
+          <div className="flex flex-col gap-1">
+            <Toggle
+              size="xl"
+              onClick={() => setBrushMode(BrushMode.Alternate)}
+              pressed={brushMode === BrushMode.Alternate}
+            >
+              {alternateBrushColor === SabakiColor.Black ? (
+                <img src={overlappingCirclesBlackSvg} width={32} height={32} />
+              ) : (
+                <img src={overlappingCirclesWhiteSvg} width={32} height={32} />
+              )}
+            </Toggle>
+            <Toggle
+              size="xl"
+              onClick={() => setBrushMode(BrushMode.Black)}
+              pressed={brushMode === BrushMode.Black}
+            >
+              <img src={circleBlackSvg} width={32} height={32} />
+            </Toggle>
+            <Toggle
+              size="xl"
+              onClick={() => setBrushMode(BrushMode.White)}
+              pressed={brushMode === BrushMode.White}
+            >
+              <img src={circleWhiteSvg} width={32} height={32} />
+            </Toggle>
+            <Toggle
+              size="xl"
+              onClick={() => setBrushMode(BrushMode.Remove)}
+              pressed={brushMode === BrushMode.Remove}
+            >
+              <img src={eraserSvg} width={32} height={32} />
+            </Toggle>
+          </div>
+          <div>
+            <Button
+              size="xl"
+              color="red"
+              variant="outline"
+              onClick={() => handleBoardUpdate(emptyBoard)}
+            >
+              <img src={trashSvg} width={24} height={24} />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
