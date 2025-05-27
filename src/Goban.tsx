@@ -103,7 +103,7 @@ type GobanState = {
   brushMode: BrushMode;
   history: HistoryEntry[];
   historyIndex: number;
-  isMouseDown: boolean;
+  isDragging: boolean;
   pendingStones: Array<Vertex>;
 };
 
@@ -115,7 +115,7 @@ type GobanAction =
   | { type: "UNDO" }
   | { type: "REDO" }
   | { type: "CLEAR_BOARD" }
-  | { type: "SET_MOUSE_DOWN"; payload: boolean }
+  | { type: "SET_DRAGGING"; payload: boolean }
   | { type: "COMMIT_PENDING_STONES" };
 
 const initialState: GobanState = {
@@ -127,7 +127,7 @@ const initialState: GobanState = {
   brushMode: BrushMode.Alternate,
   history: [{ board: emptyBoard, moveColor: SabakiColor.Empty }],
   historyIndex: 0,
-  isMouseDown: false,
+  isDragging: false,
   pendingStones: [],
 };
 
@@ -255,8 +255,8 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
               ? SabakiColor.White
               : SabakiColor.Black;
 
-          // If mouse button is down, add to pending stones instead of updating history
-          if (state.isMouseDown) {
+          // If dragging, add to pending stones instead of updating history
+          if (state.isDragging) {
             return produce(state, (draft) => {
               draft.board = newBoard;
               draft.displayBoard = updateDisplayBoard(
@@ -364,13 +364,13 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
       });
     }
 
-    case "SET_MOUSE_DOWN":
+    case "SET_DRAGGING":
       return produce(state, (draft) => {
-        const wasMouseDown = state.isMouseDown;
-        const isMouseDown = action.payload;
-    
-        // If we're releasing the mouse button and have pending stones, commit them
-        if (wasMouseDown && !isMouseDown && draft.pendingStones.length > 0) {
+        const wasDragging = state.isDragging;
+        const isDragging = action.payload;
+
+        // If we're releasing the drag and have pending stones, commit them
+        if (wasDragging && !isDragging && draft.pendingStones.length > 0) {
           const newHistory = produce(state.history, (historyDraft) => {
             historyDraft.splice(state.historyIndex + 1);
             historyDraft.push({
@@ -386,7 +386,7 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
           draft.pendingStones = [];
         }
 
-        draft.isMouseDown = isMouseDown;
+        draft.isDragging = isDragging;
       });
 
     case "COMMIT_PENDING_STONES":
@@ -448,10 +448,10 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
   const handleVertexMouseEnter = useCallback(
     (_e: any, vertex: Vertex) => {
       dispatch({ type: "SET_HOVER_VERTEX", payload: vertex });
-      
-      // If mouse button is down and using black or white brush, place a stone
+
+      // If dragging and using black or white brush, place a stone
       if (
-        state.isMouseDown &&
+        state.isDragging &&
         (state.brushMode === BrushMode.Black ||
           state.brushMode === BrushMode.White)
       ) {
@@ -459,7 +459,7 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
         handleBoardUpdate(state.board);
       }
     },
-    [state.isMouseDown, state.brushMode, state.board, handleBoardUpdate],
+    [state.isDragging, state.brushMode, state.board, handleBoardUpdate],
   );
 
   const handleVertexMouseLeave = useCallback((_e: any, _vertex: Vertex) => {
@@ -472,7 +472,7 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
         state.brushMode === BrushMode.Black ||
         state.brushMode === BrushMode.White
       ) {
-        dispatch({ type: "SET_MOUSE_DOWN", payload: true });
+        dispatch({ type: "SET_DRAGGING", payload: true });
         dispatch({ type: "PLACE_STONE", payload: vertex });
         handleBoardUpdate(state.board);
       }
@@ -481,14 +481,14 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
   );
 
   const handleMouseUp = useCallback(() => {
-    dispatch({ type: "SET_MOUSE_DOWN", payload: false });
+    dispatch({ type: "SET_DRAGGING", payload: false });
   }, []);
 
   const handleBoardMouseLeave = useCallback(() => {
-    if (state.isMouseDown) {
-      dispatch({ type: "SET_MOUSE_DOWN", payload: false });
+    if (state.isDragging) {
+      dispatch({ type: "SET_DRAGGING", payload: false });
     }
-  }, [state.isMouseDown]);
+  }, [state.isDragging]);
 
   const handleClearBoard = useCallback(() => {
     dispatch({ type: "CLEAR_BOARD" });
