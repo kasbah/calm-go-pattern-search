@@ -458,7 +458,6 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
         state.brushMode === BrushMode.White
       ) {
         dispatch({ type: "SET_DRAGGING", payload: true });
-        dispatch({ type: "PLACE_STONE", payload: vertex });
         handleBoardUpdate(state.board);
       }
     },
