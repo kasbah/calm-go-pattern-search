@@ -222,13 +222,10 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
           state.alternateBrushColor,
           state.brushMode,
         );
-        // Update history using Immer
-        draft.history = produce(draft.history, (historyDraft) => {
-          historyDraft.splice(state.historyIndex + 1);
-          historyDraft.push({
-            board: newBoard,
-            moveColor: state.history[state.historyIndex].moveColor,
-          });
+        draft.history.splice(state.historyIndex + 1);
+        draft.history.push({
+          board: newBoard,
+          moveColor: state.history[state.historyIndex].moveColor,
         });
         draft.historyIndex = state.historyIndex + 1;
       });
@@ -273,14 +270,6 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
             });
           }
 
-          const newHistory = produce(state.history, (historyDraft) => {
-            historyDraft.splice(state.historyIndex + 1);
-            historyDraft.push({
-              board: newBoard,
-              moveColor: nextColor,
-            });
-          });
-
           return produce(state, (draft) => {
             draft.board = newBoard;
             draft.displayBoard = updateDisplayBoard(
@@ -289,7 +278,11 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
               newAlternateBrushColor,
               state.brushMode,
             );
-            draft.history = newHistory;
+            draft.history.splice(state.historyIndex + 1);
+            draft.history.push({
+              board: newBoard,
+              moveColor: nextColor,
+            });
             draft.historyIndex = state.historyIndex + 1;
             draft.alternateBrushColor = newAlternateBrushColor;
           });
