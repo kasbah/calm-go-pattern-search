@@ -8,13 +8,8 @@ import SabakiGoBoard, { Sign } from "@sabaki/go-board";
 import { produce } from "immer";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import {
-  CircleIcon,
-  Cross1Icon,
-  EraserIcon,
-  Half2Icon,
-} from "@radix-ui/react-icons";
-import circleFilledSvg from "./icons/circle_filled.svg";
+import { Circle, X, Eraser } from "lucide-react";
+import { FilledCircle, OverlappingCirclesBlack, OverlappingCirclesWhite } from "./icons";
 
 export const SabakiColor = Object.freeze({
   Black: 1,
@@ -193,16 +188,17 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
             onValueChange={(v) => v && setBrushMode(parseInt(v) as BrushMode)}
           >
             <ToggleGroupItem value={`${BrushMode.Alternate}`}>
-              <Half2Icon />
+              { alternateBrushColor === SabakiColor.Black ? <OverlappingCirclesBlack /> : <OverlappingCirclesWhite /> }
             </ToggleGroupItem>
             <ToggleGroupItem value={`${BrushMode.Black}`}>
-              <img src={circleFilledSvg} />
+            <FilledCircle />
             </ToggleGroupItem>
             <ToggleGroupItem value={`${BrushMode.White}`}>
-              <CircleIcon />
+
+              <Circle />
             </ToggleGroupItem>
             <ToggleGroupItem value={`${BrushMode.Remove}`}>
-              <EraserIcon />
+              <Eraser />
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
@@ -212,7 +208,7 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
             variant="outline"
             onClick={() => handleBoardUpdate(emptyBoard)}
           >
-            <Cross1Icon />
+            <X />
             Clear
           </Button>
         </div>
