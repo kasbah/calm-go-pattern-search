@@ -103,6 +103,8 @@ type GobanState = {
   brushMode: BrushMode;
   history: HistoryEntry[];
   historyIndex: number;
+  isMouseDown: boolean;
+  pendingStones: Array<Vertex>;
 };
 
 type GobanAction =
@@ -112,7 +114,9 @@ type GobanAction =
   | { type: "REMOVE_STONE"; payload: Vertex }
   | { type: "UNDO" }
   | { type: "REDO" }
-  | { type: "CLEAR_BOARD" };
+  | { type: "CLEAR_BOARD" }
+  | { type: "SET_MOUSE_DOWN"; payload: boolean }
+  | { type: "COMMIT_PENDING_STONES" };
 
 const initialState: GobanState = {
   board: emptyBoard,
@@ -123,6 +127,8 @@ const initialState: GobanState = {
   brushMode: BrushMode.Alternate,
   history: [{ board: emptyBoard, moveColor: SabakiColor.Empty }],
   historyIndex: 0,
+  isMouseDown: false,
+  pendingStones: [],
 };
 
 function updateDisplayBoard(
@@ -252,6 +258,21 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
               ? SabakiColor.White
               : SabakiColor.Black;
 
+          // If mouse button is down, add to pending stones instead of updating history
+          if (state.isMouseDown) {
+            return produce(state, (draft) => {
+              draft.board = newBoard;
+              draft.displayBoard = updateDisplayBoard(
+                newBoard,
+                state.hoverVertex,
+                newAlternateBrushColor,
+                state.brushMode,
+              );
+              draft.alternateBrushColor = newAlternateBrushColor;
+              draft.pendingStones.push(vertex);
+            });
+          }
+
           const newHistory = produce(state.history, (historyDraft) => {
             historyDraft.splice(state.historyIndex + 1);
             historyDraft.push({
@@ -350,6 +371,48 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
       });
     }
 
+    case "SET_MOUSE_DOWN":
+      return produce(state, (draft) => {
+        const wasMouseDown = state.isMouseDown;
+        const isMouseDown = action.payload;
+    
+        // If we're releasing the mouse button and have pending stones, commit them
+        if (wasMouseDown && !isMouseDown && draft.pendingStones.length > 0) {
+          const newHistory = produce(state.history, (historyDraft) => {
+            historyDraft.splice(state.historyIndex + 1);
+            historyDraft.push({
+              board: draft.board,
+              moveColor:
+                state.brushMode === BrushMode.Black
+                  ? SabakiColor.Black
+                  : SabakiColor.White,
+            });
+          });
+          draft.history = newHistory;
+          draft.historyIndex = state.historyIndex + 1;
+          draft.pendingStones = [];
+        }
+
+        draft.isMouseDown = isMouseDown;
+      });
+
+    case "COMMIT_PENDING_STONES":
+      return produce(state, (draft) => {
+        const newHistory = produce(state.history, (historyDraft) => {
+          historyDraft.splice(state.historyIndex + 1);
+          historyDraft.push({
+            board: draft.board,
+            moveColor:
+              state.brushMode === BrushMode.Black
+                ? SabakiColor.Black
+                : SabakiColor.White,
+          });
+        });
+        draft.history = newHistory;
+        draft.historyIndex = state.historyIndex + 1;
+        draft.pendingStones = [];
+      });
+
     default:
       return state;
   }
@@ -389,13 +452,50 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
     [state.board, state.brushMode, handleBoardUpdate],
   );
 
-  const handleVertexMouseEnter = useCallback((_e: any, vertex: Vertex) => {
-    dispatch({ type: "SET_HOVER_VERTEX", payload: vertex });
-  }, []);
+  const handleVertexMouseEnter = useCallback(
+    (_e: any, vertex: Vertex) => {
+      dispatch({ type: "SET_HOVER_VERTEX", payload: vertex });
+      
+      // If mouse button is down and using black or white brush, place a stone
+      if (
+        state.isMouseDown &&
+        (state.brushMode === BrushMode.Black ||
+          state.brushMode === BrushMode.White)
+      ) {
+        dispatch({ type: "PLACE_STONE", payload: vertex });
+        handleBoardUpdate(state.board);
+      }
+    },
+    [state.isMouseDown, state.brushMode, state.board, handleBoardUpdate],
+  );
 
   const handleVertexMouseLeave = useCallback((_e: any, _vertex: Vertex) => {
     dispatch({ type: "SET_HOVER_VERTEX", payload: null });
   }, []);
+
+  const handleMouseDown = useCallback(
+    (_e: any, vertex: Vertex) => {
+      if (
+        state.brushMode === BrushMode.Black ||
+        state.brushMode === BrushMode.White
+      ) {
+        dispatch({ type: "SET_MOUSE_DOWN", payload: true });
+        dispatch({ type: "PLACE_STONE", payload: vertex });
+        handleBoardUpdate(state.board);
+      }
+    },
+    [state.brushMode, state.board, handleBoardUpdate],
+  );
+
+  const handleMouseUp = useCallback(() => {
+    dispatch({ type: "SET_MOUSE_DOWN", payload: false });
+  }, []);
+
+  const handleBoardMouseLeave = useCallback(() => {
+    if (state.isMouseDown) {
+      dispatch({ type: "SET_MOUSE_DOWN", payload: false });
+    }
+  }, [state.isMouseDown]);
 
   const handleClearBoard = useCallback(() => {
     dispatch({ type: "CLEAR_BOARD" });
@@ -403,7 +503,7 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
 
   return (
     <div className="flex flex-row gap-2">
-      <div>
+      <div onMouseLeave={handleBoardMouseLeave}>
         <BoundedGoban
           animateStonePlacement={false}
           fuzzyStonePlacement={false}
@@ -415,6 +515,8 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
           onVertexClick={handleVertexClick}
           onVertexMouseEnter={handleVertexMouseEnter}
           onVertexMouseLeave={handleVertexMouseLeave}
+          onVertexMouseDown={handleMouseDown}
+          onVertexMouseUp={handleMouseUp}
         />
       </div>
       <div className="mt-2 mb-2">
