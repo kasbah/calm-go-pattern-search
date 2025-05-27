@@ -115,8 +115,7 @@ type GobanAction =
   | { type: "UNDO" }
   | { type: "REDO" }
   | { type: "CLEAR_BOARD" }
-  | { type: "SET_DRAGGING"; payload: boolean }
-  | { type: "COMMIT_PENDING_STONES" };
+  | { type: "SET_DRAGGING"; payload: boolean };
 
 const initialState: GobanState = {
   board: emptyBoard,
@@ -387,23 +386,6 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
         }
 
         draft.isDragging = isDragging;
-      });
-
-    case "COMMIT_PENDING_STONES":
-      return produce(state, (draft) => {
-        const newHistory = produce(state.history, (historyDraft) => {
-          historyDraft.splice(state.historyIndex + 1);
-          historyDraft.push({
-            board: draft.board,
-            moveColor:
-              state.brushMode === BrushMode.Black
-                ? SabakiColor.Black
-                : SabakiColor.White,
-          });
-        });
-        draft.history = newHistory;
-        draft.historyIndex = state.historyIndex + 1;
-        draft.pendingStones = [];
       });
 
     default:
