@@ -370,17 +370,14 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
 
         // If we're releasing the drag and have pending stones, commit them
         if (wasDragging && !isDragging && draft.pendingStones.length > 0) {
-          const newHistory = produce(state.history, (historyDraft) => {
-            historyDraft.splice(state.historyIndex + 1);
-            historyDraft.push({
-              board: draft.board,
-              moveColor:
-                state.brushMode === BrushMode.Black
-                  ? SabakiColor.Black
-                  : SabakiColor.White,
-            });
+          draft.history.splice(state.historyIndex + 1);
+          draft.history.push({
+            board: draft.board,
+            moveColor:
+              state.brushMode === BrushMode.Black
+                ? SabakiColor.Black
+                : SabakiColor.White,
           });
-          draft.history = newHistory;
           draft.historyIndex = state.historyIndex + 1;
           draft.pendingStones = [];
         }
