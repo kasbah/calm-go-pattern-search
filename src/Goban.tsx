@@ -176,31 +176,29 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
         state.brushMode,
       );
 
-      return {
-        ...state,
-        hoverVertex: newHoverVertex,
-        displayBoard: newDisplayBoard,
-        dimmedVertices: newDimmedVertices,
-      };
+      return produce(state, (draft) => {
+        draft.hoverVertex = newHoverVertex;
+        draft.displayBoard = newDisplayBoard;
+        draft.dimmedVertices = newDimmedVertices;
+      });
     }
 
     case "SET_BRUSH_MODE":
-      return {
-        ...state,
-        brushMode: action.payload,
-        displayBoard: updateDisplayBoard(
+      return produce(state, (draft) => {
+        draft.brushMode = action.payload;
+        draft.displayBoard = updateDisplayBoard(
           state.board,
           state.hoverVertex,
           state.alternateBrushColor,
           action.payload,
-        ),
-        dimmedVertices: getDimmedVertices(
+        );
+        draft.dimmedVertices = getDimmedVertices(
           state.hoverVertex,
           state.board,
           state.alternateBrushColor,
           action.payload,
-        ),
-      };
+        );
+      });
 
     case "REMOVE_STONE": {
       const vertex = action.payload;
@@ -209,27 +207,25 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
       const newBoard = produce(state.board, (draft) => {
         draft[y][x] = SabakiColor.Empty;
       });
-      const newHistory = [
-        ...state.history.slice(0, state.historyIndex + 1),
-        {
-          board: newBoard,
-          moveColor: state.history[state.historyIndex].moveColor,
-        },
-      ];
-      const newHistoryIndex = state.historyIndex + 1;
 
-      return {
-        ...state,
-        board: newBoard,
-        displayBoard: updateDisplayBoard(
+      return produce(state, (draft) => {
+        draft.board = newBoard;
+        draft.displayBoard = updateDisplayBoard(
           newBoard,
           state.hoverVertex,
           state.alternateBrushColor,
           state.brushMode,
-        ),
-        history: newHistory,
-        historyIndex: newHistoryIndex,
-      };
+        );
+        // Update history using Immer
+        draft.history = produce(draft.history, (historyDraft) => {
+          historyDraft.splice(state.historyIndex + 1);
+          historyDraft.push({
+            board: newBoard,
+            moveColor: state.history[state.historyIndex].moveColor,
+          });
+        });
+        draft.historyIndex = state.historyIndex + 1;
+      });
     }
 
     case "PLACE_STONE": {
@@ -251,29 +247,31 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
         // If move is valid, update the board
         if (move) {
           const newBoard = move.signMap;
-          const newHistory = [
-            ...state.history.slice(0, state.historyIndex + 1),
-            { board: newBoard, moveColor: nextColor },
-          ];
-          const newHistoryIndex = state.historyIndex + 1;
           const newAlternateBrushColor =
             nextColor === SabakiColor.Black
               ? SabakiColor.White
               : SabakiColor.Black;
 
-          return {
-            ...state,
-            board: newBoard,
-            displayBoard: updateDisplayBoard(
+          const newHistory = produce(state.history, (historyDraft) => {
+            historyDraft.splice(state.historyIndex + 1);
+            historyDraft.push({
+              board: newBoard,
+              moveColor: nextColor,
+            });
+          });
+
+          return produce(state, (draft) => {
+            draft.board = newBoard;
+            draft.displayBoard = updateDisplayBoard(
               newBoard,
               state.hoverVertex,
               newAlternateBrushColor,
               state.brushMode,
-            ),
-            history: newHistory,
-            historyIndex: newHistoryIndex,
-            alternateBrushColor: newAlternateBrushColor,
-          };
+            );
+            draft.history = newHistory;
+            draft.historyIndex = state.historyIndex + 1;
+            draft.alternateBrushColor = newAlternateBrushColor;
+          });
         }
       }
 
@@ -291,18 +289,17 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
             ? state.alternateBrushColor
             : moveColor;
 
-        return {
-          ...state,
-          board: newBoard,
-          displayBoard: updateDisplayBoard(
+        return produce(state, (draft) => {
+          draft.board = newBoard;
+          draft.displayBoard = updateDisplayBoard(
             newBoard,
             state.hoverVertex,
             newAlternateBrushColor,
             state.brushMode,
-          ),
-          historyIndex: newIndex,
-          alternateBrushColor: newAlternateBrushColor,
-        };
+          );
+          draft.historyIndex = newIndex;
+          draft.alternateBrushColor = newAlternateBrushColor;
+        });
       }
       return state;
 
@@ -316,30 +313,33 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
             ? state.alternateBrushColor
             : moveColor;
 
-        return {
-          ...state,
-          board: newBoard,
-          displayBoard: updateDisplayBoard(
+        return produce(state, (draft) => {
+          draft.board = newBoard;
+          draft.displayBoard = updateDisplayBoard(
             newBoard,
             state.hoverVertex,
             newAlternateBrushColor,
             state.brushMode,
-          ),
-          historyIndex: newIndex,
-          alternateBrushColor: newAlternateBrushColor,
-        };
+          );
+          draft.historyIndex = newIndex;
+          draft.alternateBrushColor = newAlternateBrushColor;
+        });
       }
       return state;
 
     case "CLEAR_BOARD":
-      return {
-        ...state,
-        board: emptyBoard,
-        displayBoard: emptyBoard,
-        history: [{ board: emptyBoard, moveColor: SabakiColor.Empty }],
-        historyIndex: 0,
-        alternateBrushColor: SabakiColor.Black,
-      };
+      return produce(state, (draft) => {
+        draft.board = emptyBoard;
+        draft.displayBoard = emptyBoard;
+        draft.history = produce([] as HistoryEntry[], (historyDraft) => {
+          historyDraft.push({
+            board: emptyBoard,
+            moveColor: SabakiColor.Empty,
+          });
+        });
+        draft.historyIndex = 0;
+        draft.alternateBrushColor = SabakiColor.Black;
+      });
 
     default:
       return state;
