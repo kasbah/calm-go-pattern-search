@@ -89,129 +89,286 @@ function getNextColor(
   throw new Error("Unknown brush mode");
 }
 
-export default function Goban({ onUpdateBoard }: GobanProps) {
-  const windowSize = useWindowSize();
-  const [board, setBoard] = useState<BoardPosition>(emptyBoard);
-  const [displayBoard, setDisplayBoard] = useState(emptyBoard);
-  const [hoverVertex, setHoverVertex] = useState<Vertex | null>(null);
-  const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
-  const [alternateBrushColor, setAlternateBrushColor] = useState<SabakiColor>(
-    SabakiColor.Black,
-  );
-  const [brushMode, setBrushMode] = useState<BrushMode>(BrushMode.Alternate);
-  const [history, setHistory] = useState<BoardPosition[]>([emptyBoard]);
-  const [historyIndex, setHistoryIndex] = useState(0);
+type GobanState = {
+  board: BoardPosition;
+  displayBoard: BoardPosition;
+  hoverVertex: Vertex | null;
+  dimmedVertices: Array<Vertex>;
+  alternateBrushColor: SabakiColor;
+  brushMode: BrushMode;
+  history: BoardPosition[];
+  historyIndex: number;
+};
 
-  useEffect(() => {
-    if (board.every((row) => row.every((c) => c === SabakiColor.Empty))) {
-      setAlternateBrushColor(SabakiColor.Black);
-    }
-  }, [board]);
+type GobanAction =
+  | { type: "SET_HOVER_VERTEX"; payload: Vertex | null }
+  | { type: "SET_BRUSH_MODE"; payload: BrushMode }
+  | { type: "PLACE_STONE"; payload: Vertex }
+  | { type: "REMOVE_STONE"; payload: Vertex }
+  | { type: "UNDO" }
+  | { type: "REDO" }
+  | { type: "CLEAR_BOARD" };
 
-  useEffect(() => {
-    if (hoverVertex == null) {
-      setDimmedVertices([]);
-    } else {
+const initialState: GobanState = {
+  board: emptyBoard,
+  displayBoard: emptyBoard,
+  hoverVertex: null,
+  dimmedVertices: [],
+  alternateBrushColor: SabakiColor.Black,
+  brushMode: BrushMode.Alternate,
+  history: [emptyBoard],
+  historyIndex: 0,
+};
+
+function updateDisplayBoard(
+  board: BoardPosition,
+  hoverVertex: Vertex | null,
+  alternateBrushColor: SabakiColor,
+  brushMode: BrushMode,
+): BoardPosition {
+  return produce(board, (draft) => {
+    if (hoverVertex != null) {
       const x = hoverVertex[0];
       const y = hoverVertex[1];
       const stone = board[y][x];
       const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
-      if (nextColor !== stone) {
-        setDimmedVertices([[...hoverVertex]]);
-      } else {
-        setDimmedVertices([]);
+      if (nextColor !== SabakiColor.Empty) {
+        draft[y][x] = nextColor;
       }
     }
-  }, [hoverVertex, board, alternateBrushColor, brushMode]);
+  });
+}
 
-  useEffect(() => {
-    setDisplayBoard(
-      produce(board, (draft) => {
-        if (hoverVertex != null) {
-          const x = hoverVertex[0];
-          const y = hoverVertex[1];
-          const stone = board[y][x];
-          const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
-          if (nextColor !== SabakiColor.Empty) {
-            draft[y][x] = nextColor;
-          }
+function getDimmedVertices(
+  hoverVertex: Vertex | null,
+  board: BoardPosition,
+  alternateBrushColor: SabakiColor,
+  brushMode: BrushMode,
+): Array<Vertex> {
+  if (hoverVertex == null) return [];
+
+  const x = hoverVertex[0];
+  const y = hoverVertex[1];
+  const stone = board[y][x];
+  const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
+  return nextColor !== stone ? [hoverVertex] : [];
+}
+
+function gobanReducer(state: GobanState, action: GobanAction): GobanState {
+  switch (action.type) {
+    case "SET_HOVER_VERTEX": {
+      const newHoverVertex = action.payload;
+      const newDisplayBoard = updateDisplayBoard(
+        state.board,
+        newHoverVertex,
+        state.alternateBrushColor,
+        state.brushMode,
+      );
+      const newDimmedVertices = getDimmedVertices(
+        newHoverVertex,
+        state.board,
+        state.alternateBrushColor,
+        state.brushMode,
+      );
+
+      return {
+        ...state,
+        hoverVertex: newHoverVertex,
+        displayBoard: newDisplayBoard,
+        dimmedVertices: newDimmedVertices,
+      };
+    }
+
+    case "SET_BRUSH_MODE":
+      return {
+        ...state,
+        brushMode: action.payload,
+        displayBoard: updateDisplayBoard(
+          state.board,
+          state.hoverVertex,
+          state.alternateBrushColor,
+          action.payload,
+        ),
+        dimmedVertices: getDimmedVertices(
+          state.hoverVertex,
+          state.board,
+          state.alternateBrushColor,
+          action.payload,
+        ),
+      };
+
+    case "REMOVE_STONE": {
+      const vertex = action.payload;
+      const x = vertex[0];
+      const y = vertex[1];
+      const newBoard = produce(state.board, (draft) => {
+        draft[y][x] = SabakiColor.Empty;
+      });
+      const newHistory = [
+        ...state.history.slice(0, state.historyIndex + 1),
+        newBoard,
+      ];
+      const newHistoryIndex = state.historyIndex + 1;
+
+      return {
+        ...state,
+        board: newBoard,
+        displayBoard: updateDisplayBoard(
+          newBoard,
+          state.hoverVertex,
+          state.alternateBrushColor,
+          state.brushMode,
+        ),
+        history: newHistory,
+        historyIndex: newHistoryIndex,
+      };
+    }
+
+    case "PLACE_STONE": {
+      const vertex = action.payload;
+      const x = vertex[0];
+      const y = vertex[1];
+      const stone = state.board[y][x];
+      const nextColor = getNextColor(
+        stone,
+        state.alternateBrushColor,
+        state.brushMode,
+      );
+
+      // Only proceed if we're placing a stone
+      if (nextColor !== SabakiColor.Empty) {
+        const sgb = new SabakiGoBoard(state.board);
+        const move = sgb.makeMove(nextColor as Sign, vertex);
+
+        // If move is valid, update the board
+        if (move) {
+          const newBoard = move.signMap;
+          const newHistory = [
+            ...state.history.slice(0, state.historyIndex + 1),
+            newBoard,
+          ];
+          const newHistoryIndex = state.historyIndex + 1;
+          const newAlternateBrushColor =
+            nextColor === SabakiColor.Black
+              ? SabakiColor.White
+              : SabakiColor.Black;
+
+          return {
+            ...state,
+            board: newBoard,
+            displayBoard: updateDisplayBoard(
+              newBoard,
+              state.hoverVertex,
+              newAlternateBrushColor,
+              state.brushMode,
+            ),
+            history: newHistory,
+            historyIndex: newHistoryIndex,
+            alternateBrushColor: newAlternateBrushColor,
+          };
         }
-      }),
-    );
-  }, [board, hoverVertex, brushMode, alternateBrushColor]);
+      }
+
+      // If move is invalid or no stone to place, return unchanged state
+      return state;
+    }
+
+    case "UNDO":
+      if (state.historyIndex > 0) {
+        const newIndex = state.historyIndex - 1;
+        const newBoard = state.history[newIndex];
+        return {
+          ...state,
+          board: newBoard,
+          displayBoard: updateDisplayBoard(
+            newBoard,
+            state.hoverVertex,
+            state.alternateBrushColor,
+            state.brushMode,
+          ),
+          historyIndex: newIndex,
+        };
+      }
+      return state;
+
+    case "REDO":
+      if (state.historyIndex < state.history.length - 1) {
+        const newIndex = state.historyIndex + 1;
+        const newBoard = state.history[newIndex];
+        return {
+          ...state,
+          board: newBoard,
+          displayBoard: updateDisplayBoard(
+            newBoard,
+            state.hoverVertex,
+            state.alternateBrushColor,
+            state.brushMode,
+          ),
+          historyIndex: newIndex,
+        };
+      }
+      return state;
+
+    case "CLEAR_BOARD":
+      return {
+        ...state,
+        board: emptyBoard,
+        displayBoard: emptyBoard,
+        history: [emptyBoard],
+        historyIndex: 0,
+        alternateBrushColor: SabakiColor.Black,
+      };
+
+    default:
+      return state;
+  }
+}
+
+export default function Goban({ onUpdateBoard }: GobanProps) {
+  const windowSize = useWindowSize();
+  const [state, dispatch] = React.useReducer(gobanReducer, initialState);
 
   const handleBoardUpdate = useCallback(
     (newBoard: BoardPosition) => {
-      setBoard(newBoard);
-      setHistory((prev) => [...prev.slice(0, historyIndex + 1), newBoard]);
-      setHistoryIndex((prev) => prev + 1);
       onUpdateBoard(newBoard);
     },
-    [historyIndex, onUpdateBoard],
+    [onUpdateBoard],
   );
 
   const handleUndo = useCallback(() => {
-    if (historyIndex > 0) {
-      const newIndex = historyIndex - 1;
-      setHistoryIndex(newIndex);
-      const newBoard = history[newIndex];
-      setBoard(newBoard);
-      onUpdateBoard(newBoard);
-    }
-  }, [historyIndex, history, onUpdateBoard]);
+    dispatch({ type: "UNDO" });
+  }, []);
 
   const handleRedo = useCallback(() => {
-    if (historyIndex < history.length - 1) {
-      const newIndex = historyIndex + 1;
-      setHistoryIndex(newIndex);
-      const newBoard = history[newIndex];
-      setBoard(newBoard);
-      onUpdateBoard(newBoard);
-    }
-  }, [historyIndex, history, onUpdateBoard]);
+    dispatch({ type: "REDO" });
+  }, []);
 
   const handleVertexClick = useCallback(
     (_e: any, vertex: Vertex) => {
-      setHoverVertex(null);
-      const x = vertex[0];
-      const y = vertex[1];
-      const stone = board[y][x];
-      const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
+      dispatch({ type: "SET_HOVER_VERTEX", payload: null });
 
-      if (nextColor !== SabakiColor.Empty) {
-        const sgb = new SabakiGoBoard(board);
-        const move = sgb.makeMove(nextColor as Sign, vertex);
-        handleBoardUpdate(move.signMap);
+      if (state.brushMode === BrushMode.Remove) {
+        dispatch({ type: "REMOVE_STONE", payload: vertex });
       } else {
-        handleBoardUpdate(
-          produce(board, (draft) => {
-            draft[y][x] = SabakiColor.Empty;
-          }),
-        );
+        dispatch({ type: "PLACE_STONE", payload: vertex });
       }
 
-      if (nextColor !== SabakiColor.Empty) {
-        setAlternateBrushColor(
-          nextColor === SabakiColor.Black
-            ? SabakiColor.White
-            : SabakiColor.Black,
-        );
-      }
+      handleBoardUpdate(state.board);
     },
-    [board, alternateBrushColor, brushMode, handleBoardUpdate],
+    [state.board, state.brushMode, handleBoardUpdate],
   );
 
   const handleVertexMouseEnter = useCallback((_e: any, vertex: Vertex) => {
-    setHoverVertex(vertex);
+    dispatch({ type: "SET_HOVER_VERTEX", payload: vertex });
   }, []);
 
   const handleVertexMouseLeave = useCallback((_e: any, _vertex: Vertex) => {
-    setHoverVertex(null);
+    dispatch({ type: "SET_HOVER_VERTEX", payload: null });
   }, []);
 
   const handleClearBoard = useCallback(() => {
-    handleBoardUpdate(emptyBoard);
-  }, [handleBoardUpdate]);
+    dispatch({ type: "CLEAR_BOARD" });
+  }, []);
 
   return (
     <div className="flex flex-row gap-2">
@@ -222,8 +379,8 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
           maxHeight={windowSize.height}
           maxWidth={windowSize.width * 0.5}
           showCoordinates={true}
-          signMap={displayBoard}
-          dimmedVertices={dimmedVertices}
+          signMap={state.displayBoard}
+          dimmedVertices={state.dimmedVertices}
           onVertexClick={handleVertexClick}
           onVertexMouseEnter={handleVertexMouseEnter}
           onVertexMouseLeave={handleVertexMouseLeave}
@@ -234,10 +391,15 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
           <div className="flex flex-col gap-1">
             <Toggle
               size="xl"
-              onClick={() => setBrushMode(BrushMode.Alternate)}
-              pressed={brushMode === BrushMode.Alternate}
+              onClick={() =>
+                dispatch({
+                  type: "SET_BRUSH_MODE",
+                  payload: BrushMode.Alternate,
+                })
+              }
+              pressed={state.brushMode === BrushMode.Alternate}
             >
-              {alternateBrushColor === SabakiColor.Black ? (
+              {state.alternateBrushColor === SabakiColor.Black ? (
                 <img src={overlappingCirclesBlackSvg} width={32} height={32} />
               ) : (
                 <img src={overlappingCirclesWhiteSvg} width={32} height={32} />
@@ -245,22 +407,28 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
             </Toggle>
             <Toggle
               size="xl"
-              onClick={() => setBrushMode(BrushMode.Black)}
-              pressed={brushMode === BrushMode.Black}
+              onClick={() =>
+                dispatch({ type: "SET_BRUSH_MODE", payload: BrushMode.Black })
+              }
+              pressed={state.brushMode === BrushMode.Black}
             >
               <img src={circleBlackSvg} width={32} height={32} />
             </Toggle>
             <Toggle
               size="xl"
-              onClick={() => setBrushMode(BrushMode.White)}
-              pressed={brushMode === BrushMode.White}
+              onClick={() =>
+                dispatch({ type: "SET_BRUSH_MODE", payload: BrushMode.White })
+              }
+              pressed={state.brushMode === BrushMode.White}
             >
               <img src={circleWhiteSvg} width={32} height={32} />
             </Toggle>
             <Toggle
               size="xl"
-              onClick={() => setBrushMode(BrushMode.Remove)}
-              pressed={brushMode === BrushMode.Remove}
+              onClick={() =>
+                dispatch({ type: "SET_BRUSH_MODE", payload: BrushMode.Remove })
+              }
+              pressed={state.brushMode === BrushMode.Remove}
             >
               <img src={eraserSvg} width={32} height={32} />
             </Toggle>
@@ -271,7 +439,7 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
                 size="xl"
                 variant="outline"
                 onClick={handleUndo}
-                disabled={historyIndex === 0}
+                disabled={state.historyIndex === 0}
               >
                 <img src={undoSvg} width={24} height={24} />
               </Button>
@@ -279,7 +447,7 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
                 size="xl"
                 variant="outline"
                 onClick={handleRedo}
-                disabled={historyIndex === history.length - 1}
+                disabled={state.historyIndex === state.history.length - 1}
               >
                 <img src={redoSvg} width={24} height={24} />
               </Button>
