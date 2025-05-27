@@ -8,8 +8,13 @@ import SabakiGoBoard, { Sign } from "@sabaki/go-board";
 import { produce } from "immer";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Circle, X, Eraser } from "lucide-react";
-import { FilledCircle, OverlappingCirclesBlack, OverlappingCirclesWhite } from "./icons";
+import { X, Eraser } from "lucide-react";
+import {
+  CircleBlack,
+  CircleWhite,
+  OverlappingCirclesBlack,
+  OverlappingCirclesWhite,
+} from "./icons";
 
 export const SabakiColor = Object.freeze({
   Black: 1,
@@ -63,7 +68,7 @@ export type GobanProps = {
 function getNextColor(
   stone: SabakiColor,
   brushColor: SabakiColor,
-  brushMode: BrushMode,
+  brushMode: BrushMode
 ): SabakiColor {
   if (brushMode === BrushMode.Alternate) {
     if (stone === SabakiColor.Empty) {
@@ -89,7 +94,7 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
   const [hoverVertex, setHoverVertex] = useState<Vertex | null>(null);
   const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
   const [alternateBrushColor, setAlternateBrushColor] = useState<SabakiColor>(
-    SabakiColor.Black,
+    SabakiColor.Black
   );
   const [brushMode, setBrushMode] = useState<BrushMode>(BrushMode.Alternate);
 
@@ -127,7 +132,7 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
             draft[y][x] = nextColor;
           }
         }
-      }),
+      })
     );
   }, [board, hoverVertex, brushMode, alternateBrushColor]);
 
@@ -151,13 +156,13 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
       handleBoardUpdate(
         produce(board, (draft) => {
           draft[y][x] = SabakiColor.Empty;
-        }),
+        })
       );
     }
 
     if (nextColor !== SabakiColor.Empty) {
       setAlternateBrushColor(
-        nextColor === SabakiColor.Black ? SabakiColor.White : SabakiColor.Black,
+        nextColor === SabakiColor.Black ? SabakiColor.White : SabakiColor.Black
       );
     }
   };
@@ -188,14 +193,17 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
             onValueChange={(v) => v && setBrushMode(parseInt(v) as BrushMode)}
           >
             <ToggleGroupItem value={`${BrushMode.Alternate}`}>
-              { alternateBrushColor === SabakiColor.Black ? <OverlappingCirclesBlack /> : <OverlappingCirclesWhite /> }
+              {alternateBrushColor === SabakiColor.Black ? (
+                <OverlappingCirclesBlack />
+              ) : (
+                <OverlappingCirclesWhite />
+              )}
             </ToggleGroupItem>
             <ToggleGroupItem value={`${BrushMode.Black}`}>
-            <FilledCircle />
+              <CircleBlack />
             </ToggleGroupItem>
             <ToggleGroupItem value={`${BrushMode.White}`}>
-
-              <Circle />
+              <CircleWhite />
             </ToggleGroupItem>
             <ToggleGroupItem value={`${BrushMode.Remove}`}>
               <Eraser />
