@@ -327,19 +327,28 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
       }
       return state;
 
-    case "CLEAR_BOARD":
+    case "CLEAR_BOARD": {
+      const newHistory = produce(state.history, (historyDraft) => {
+        historyDraft.splice(state.historyIndex + 1);
+        historyDraft.push({
+          board: emptyBoard,
+          moveColor: state.alternateBrushColor,
+        });
+      });
+
       return produce(state, (draft) => {
         draft.board = emptyBoard;
-        draft.displayBoard = emptyBoard;
-        draft.history = produce([] as HistoryEntry[], (historyDraft) => {
-          historyDraft.push({
-            board: emptyBoard,
-            moveColor: SabakiColor.Empty,
-          });
-        });
-        draft.historyIndex = 0;
+        draft.displayBoard = updateDisplayBoard(
+          emptyBoard,
+          state.hoverVertex,
+          SabakiColor.Black,
+          state.brushMode,
+        );
+        draft.history = newHistory;
+        draft.historyIndex = state.historyIndex + 1;
         draft.alternateBrushColor = SabakiColor.Black;
       });
+    }
 
     default:
       return state;
