@@ -6,6 +6,15 @@ import "@sabaki/shudan/css/goban.css";
 import "./Goban.css";
 import SabakiGoBoard, { Sign } from "@sabaki/go-board";
 import { produce } from "immer";
+import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import {
+  CircleIcon,
+  Cross1Icon,
+  EraserIcon,
+  Half2Icon,
+} from "@radix-ui/react-icons";
+import circleFilledSvg from "./icons/circle_filled.svg";
 
 export const SabakiColor = Object.freeze({
   Black: 1,
@@ -53,9 +62,7 @@ export const emptyBoard: BoardPosition = [
 ];
 
 export type GobanProps = {
-  brushMode: BrushMode;
   onUpdateBoard: (board: BoardPosition) => void;
-  board: BoardPosition;
 };
 
 function getNextColor(
@@ -80,14 +87,16 @@ function getNextColor(
   throw new Error("Unknown brush mode");
 }
 
-export default function Goban({ brushMode, onUpdateBoard, board }: GobanProps) {
+export default function Goban({ onUpdateBoard }: GobanProps) {
   const windowSize = useWindowSize();
+  const [board, setBoard] = useState<BoardPosition>(emptyBoard);
   const [displayBoard, setDisplayBoard] = useState(emptyBoard);
   const [hoverVertex, setHoverVertex] = useState<Vertex | null>(null);
   const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
   const [alternateBrushColor, setAlternateBrushColor] = useState<SabakiColor>(
     SabakiColor.Black,
   );
+  const [brushMode, setBrushMode] = useState<BrushMode>(BrushMode.Alternate);
 
   useEffect(() => {
     if (board.every((row) => row.every((c) => c === SabakiColor.Empty))) {
@@ -109,7 +118,7 @@ export default function Goban({ brushMode, onUpdateBoard, board }: GobanProps) {
         setDimmedVertices([]);
       }
     }
-  }, [hoverVertex]);
+  }, [hoverVertex, board, alternateBrushColor, brushMode]);
 
   useEffect(() => {
     setDisplayBoard(
@@ -125,52 +134,91 @@ export default function Goban({ brushMode, onUpdateBoard, board }: GobanProps) {
         }
       }),
     );
-  }, [board, hoverVertex, brushMode]);
+  }, [board, hoverVertex, brushMode, alternateBrushColor]);
+
+  const handleBoardUpdate = (newBoard: BoardPosition) => {
+    setBoard(newBoard);
+    onUpdateBoard(newBoard);
+  };
 
   return (
-    <BoundedGoban
-      animateStonePlacement={false}
-      fuzzyStonePlacement={false}
-      maxHeight={windowSize.height - 20}
-      maxWidth={windowSize.width * 0.8}
-      showCoordinates={true}
-      signMap={displayBoard}
-      dimmedVertices={dimmedVertices}
-      onVertexClick={(_e, vertex) => {
-        setHoverVertex(null);
-        const x = vertex[0];
-        const y = vertex[1];
-        const stone = board[y][x];
-        const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
-        if (nextColor !== SabakiColor.Empty) {
-          const sgb = new SabakiGoBoard(board);
-          const move = sgb.makeMove(nextColor as Sign, vertex);
-          onUpdateBoard(move.signMap);
-        } else {
-          const b = board.map((row, u) =>
-            row.map((c, v) => {
-              if (u === y && v === x) {
-                return SabakiColor.Empty;
-              }
-              return c;
-            }),
-          );
-          onUpdateBoard(b);
-        }
-        if (nextColor !== SabakiColor.Empty) {
-          setAlternateBrushColor(
-            nextColor === SabakiColor.Black
-              ? SabakiColor.White
-              : SabakiColor.Black,
-          );
-        }
-      }}
-      onVertexMouseEnter={(_e, vertex) => {
-        setHoverVertex(vertex);
-      }}
-      onVertexMouseLeave={(_e, _vertex) => {
-        setHoverVertex(null);
-      }}
-    />
+    <div style={{ display: "flex" }}>
+      <BoundedGoban
+        animateStonePlacement={false}
+        fuzzyStonePlacement={false}
+        maxHeight={windowSize.height - 20}
+        maxWidth={windowSize.width * 0.8}
+        showCoordinates={true}
+        signMap={displayBoard}
+        dimmedVertices={dimmedVertices}
+        onVertexClick={(_e, vertex) => {
+          setHoverVertex(null);
+          const x = vertex[0];
+          const y = vertex[1];
+          const stone = board[y][x];
+          const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
+          if (nextColor !== SabakiColor.Empty) {
+            const sgb = new SabakiGoBoard(board);
+            const move = sgb.makeMove(nextColor as Sign, vertex);
+            handleBoardUpdate(move.signMap);
+          } else {
+            const b = board.map((row, u) =>
+              row.map((c, v) => {
+                if (u === y && v === x) {
+                  return SabakiColor.Empty;
+                }
+                return c;
+              }),
+            );
+            handleBoardUpdate(b);
+          }
+          if (nextColor !== SabakiColor.Empty) {
+            setAlternateBrushColor(
+              nextColor === SabakiColor.Black
+                ? SabakiColor.White
+                : SabakiColor.Black,
+            );
+          }
+        }}
+        onVertexMouseEnter={(_e, vertex) => {
+          setHoverVertex(vertex);
+        }}
+        onVertexMouseLeave={(_e, _vertex) => {
+          setHoverVertex(null);
+        }}
+      />
+      <div style={{ marginLeft: "1em" }}>
+        <div>
+          <ToggleGroup
+            type="single"
+            defaultValue={`${BrushMode.Alternate}`}
+            onValueChange={(v) => v && setBrushMode(parseInt(v) as BrushMode)}
+          >
+            <ToggleGroupItem value={`${BrushMode.Alternate}`}>
+              <Half2Icon />
+            </ToggleGroupItem>
+            <ToggleGroupItem value={`${BrushMode.Black}`}>
+              <img src={circleFilledSvg} />
+            </ToggleGroupItem>
+            <ToggleGroupItem value={`${BrushMode.White}`}>
+              <CircleIcon />
+            </ToggleGroupItem>
+            <ToggleGroupItem value={`${BrushMode.Remove}`}>
+              <EraserIcon />
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+        <div style={{ marginTop: "1em" }}>
+          <Button
+            color="red"
+            variant="outline"
+            onClick={() => handleBoardUpdate(emptyBoard)}
+          >
+            <Cross1Icon />
+            Clear
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }
