@@ -6,9 +6,9 @@ import App from "./App";
 import { Theme } from "@radix-ui/themes";
 import "./index.css";
 
-init().then(() => {
-  window.wasm_search = new WasmSearch();
-});
+//init().then(() => {
+//  window.wasm_search = new WasmSearch();
+//});
 
 const root = createRoot(document.getElementById("root") as HTMLElement);
 root.render(
