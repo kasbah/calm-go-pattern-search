@@ -1,22 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import {
-  CircleIcon,
-  Cross1Icon,
-  EraserIcon,
-  Half2Icon,
-} from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
-import Goban, {
-  BrushMode,
-  emptyBoard,
-  SabakiColor,
-  type BoardPosition,
-} from "./Goban";
-import circleFilledSvg from "./icons/circle_filled.svg";
+import Goban, { emptyBoard, SabakiColor, type BoardPosition } from "./Goban";
 
 export default function App() {
-  const [brushMode, setBrushMode] = useState<BrushMode>(BrushMode.Alternate);
   const [board, setBoard] = useState<BoardPosition>(emptyBoard);
 
   useEffect(() => {
@@ -56,43 +41,5 @@ export default function App() {
     }
   }, [board]);
 
-  return (
-    <div style={{ display: "flex" }}>
-      <div>
-        <Goban brushMode={brushMode} onUpdateBoard={setBoard} board={board} />
-      </div>
-      <div style={{ marginLeft: "1em" }}>
-        <div>
-          <ToggleGroup
-            type="single"
-            defaultValue={`${BrushMode.Alternate}`}
-            onValueChange={(v) => v && setBrushMode(parseInt(v) as BrushMode)}
-          >
-            <ToggleGroupItem value={`${BrushMode.Alternate}`}>
-              <Half2Icon /> 
-            </ToggleGroupItem>
-            <ToggleGroupItem value={`${BrushMode.Black}`}>
-              <img src={circleFilledSvg} /> 
-            </ToggleGroupItem>
-            <ToggleGroupItem value={`${BrushMode.White}`}>
-              <CircleIcon />
-            </ToggleGroupItem>
-            <ToggleGroupItem value={`${BrushMode.Remove}`}>
-              <EraserIcon /> 
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-        <div style={{ marginTop: "1em" }}>
-          <Button
-            color="red"
-            variant="outline"
-            onClick={() => setBoard(emptyBoard)}
-          >
-            <Cross1Icon />
-            Clear
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
+  return <Goban onUpdateBoard={setBoard} />;
 }
