@@ -247,10 +247,6 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
         const move = sgb.makeMove(nextColor as Sign, vertex);
 
         const newBoard = move.signMap;
-        const newAlternateBrushColor =
-          nextColor === SabakiColor.Black
-            ? SabakiColor.White
-            : SabakiColor.Black;
 
         // If dragging, add to pending stones instead of updating history
         if (state.isDragging) {
@@ -259,13 +255,17 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
             draft.displayBoard = updateDisplayBoard(
               newBoard,
               state.hoverVertex,
-              newAlternateBrushColor,
+              state.alternateBrushColor,
               state.brushMode,
             );
-            draft.alternateBrushColor = newAlternateBrushColor;
             draft.pendingStones.push(vertex);
           });
         }
+
+        const newAlternateBrushColor =
+          nextColor === SabakiColor.Black
+            ? SabakiColor.White
+            : SabakiColor.Black;
 
         return produce(state, (draft) => {
           draft.board = newBoard;
