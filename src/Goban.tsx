@@ -14,8 +14,9 @@ import overlappingCirclesWhiteSvg from "./icons/overlapping-circles-white.svg";
 import circleBlackSvg from "./icons/circle-black.svg";
 import circleWhiteSvg from "./icons/circle-white.svg";
 import eraserSvg from "./icons/eraser.svg";
-import xSvg from "./icons/x.svg";
 import trashSvg from "./icons/trash.svg";
+import undoSvg from "./icons/undo.svg";
+import redoSvg from "./icons/redo.svg";
 
 export const SabakiColor = Object.freeze({
   Black: 1,
@@ -98,6 +99,8 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
     SabakiColor.Black,
   );
   const [brushMode, setBrushMode] = useState<BrushMode>(BrushMode.Alternate);
+  const [history, setHistory] = useState<BoardPosition[]>([emptyBoard]);
+  const [historyIndex, setHistoryIndex] = useState(0);
 
   useEffect(() => {
     if (board.every((row) => row.every((c) => c === SabakiColor.Empty))) {
@@ -139,7 +142,29 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
 
   const handleBoardUpdate = (newBoard: BoardPosition) => {
     setBoard(newBoard);
+    setHistory((prev) => [...prev.slice(0, historyIndex + 1), newBoard]);
+    setHistoryIndex((prev) => prev + 1);
     onUpdateBoard(newBoard);
+  };
+
+  const handleUndo = () => {
+    if (historyIndex > 0) {
+      const newIndex = historyIndex - 1;
+      setHistoryIndex(newIndex);
+      const newBoard = history[newIndex];
+      setBoard(newBoard);
+      onUpdateBoard(newBoard);
+    }
+  };
+
+  const handleRedo = () => {
+    if (historyIndex < history.length - 1) {
+      const newIndex = historyIndex + 1;
+      setHistoryIndex(newIndex);
+      const newBoard = history[newIndex];
+      setBoard(newBoard);
+      onUpdateBoard(newBoard);
+    }
   };
 
   const handleVertexClick = (_e: any, vertex: Vertex) => {
@@ -225,6 +250,24 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
             </Toggle>
           </div>
           <div>
+            <div className="flex flex-col gap-1 mb-1">
+              <Button
+                size="xl"
+                variant="outline"
+                onClick={handleUndo}
+                disabled={historyIndex === 0}
+              >
+                <img src={undoSvg} width={24} height={24} />
+              </Button>
+              <Button
+                size="xl"
+                variant="outline"
+                onClick={handleRedo}
+                disabled={historyIndex === history.length - 1}
+              >
+                <img src={redoSvg} width={24} height={24} />
+              </Button>
+            </div>
             <Button
               size="xl"
               color="red"
