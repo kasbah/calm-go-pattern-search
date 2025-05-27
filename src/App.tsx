@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
-import Goban, {
-  BrushMode,
-  BoardPosition,
-  emptyBoard,
-  SabakiColor,
-} from "./Goban";
-//@ts-ignore
-import { RadioCards, Button } from "@radix-ui/themes";
+import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   CircleIcon,
-  Half2Icon,
-  EraserIcon,
   Cross1Icon,
+  EraserIcon,
+  Half2Icon,
 } from "@radix-ui/react-icons";
+import { useEffect, useState } from "react";
+import Goban, {
+  BrushMode,
+  emptyBoard,
+  SabakiColor,
+  type BoardPosition,
+} from "./Goban";
 import circleFilledSvg from "./icons/circle_filled.svg";
 
 export default function App() {
@@ -63,31 +63,29 @@ export default function App() {
       </div>
       <div style={{ marginLeft: "1em" }}>
         <div>
-          <RadioCards.Root
-            highContrast
+          <ToggleGroup
+            type="single"
             defaultValue={`${BrushMode.Alternate}`}
-            onValueChange={(v) => setBrushMode(parseInt(v) as BrushMode)}
+            onValueChange={(v) => v && setBrushMode(parseInt(v) as BrushMode)}
           >
-            <RadioCards.Item value={`${BrushMode.Alternate}`}>
-              <Half2Icon /> Alternate
-            </RadioCards.Item>
-            <RadioCards.Item value={`${BrushMode.Black}`}>
-              <img src={circleFilledSvg} /> Black
-            </RadioCards.Item>
-            <RadioCards.Item value={`${BrushMode.White}`}>
-              <CircleIcon /> White
-            </RadioCards.Item>
-            <RadioCards.Item value={`${BrushMode.Remove}`}>
-              <EraserIcon /> Eraser
-            </RadioCards.Item>
-          </RadioCards.Root>
+            <ToggleGroupItem value={`${BrushMode.Alternate}`}>
+              <Half2Icon /> 
+            </ToggleGroupItem>
+            <ToggleGroupItem value={`${BrushMode.Black}`}>
+              <img src={circleFilledSvg} /> 
+            </ToggleGroupItem>
+            <ToggleGroupItem value={`${BrushMode.White}`}>
+              <CircleIcon />
+            </ToggleGroupItem>
+            <ToggleGroupItem value={`${BrushMode.Remove}`}>
+              <EraserIcon /> 
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
         <div style={{ marginTop: "1em" }}>
           <Button
-            size="3"
             color="red"
             variant="outline"
-            highContrast
             onClick={() => setBoard(emptyBoard)}
           >
             <Cross1Icon />

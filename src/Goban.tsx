@@ -1,7 +1,7 @@
 //@ts-ignore
 import React, { useState, useEffect } from "react";
 import { useWindowSize } from "@reach/window-size";
-import { BoundedGoban, Vertex } from "@sabaki/shudan";
+import { BoundedGoban, type Vertex } from "@sabaki/shudan";
 import "@sabaki/shudan/css/goban.css";
 import "./Goban.css";
 import SabakiGoBoard, { Sign } from "@sabaki/go-board";
