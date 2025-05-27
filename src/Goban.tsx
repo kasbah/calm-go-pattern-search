@@ -246,29 +246,14 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
         const sgb = new SabakiGoBoard(state.board);
         const move = sgb.makeMove(nextColor as Sign, vertex);
 
-        // If move is valid, update the board
-        if (move) {
-          const newBoard = move.signMap;
-          const newAlternateBrushColor =
-            nextColor === SabakiColor.Black
-              ? SabakiColor.White
-              : SabakiColor.Black;
+        const newBoard = move.signMap;
+        const newAlternateBrushColor =
+          nextColor === SabakiColor.Black
+            ? SabakiColor.White
+            : SabakiColor.Black;
 
-          // If dragging, add to pending stones instead of updating history
-          if (state.isDragging) {
-            return produce(state, (draft) => {
-              draft.board = newBoard;
-              draft.displayBoard = updateDisplayBoard(
-                newBoard,
-                state.hoverVertex,
-                newAlternateBrushColor,
-                state.brushMode,
-              );
-              draft.alternateBrushColor = newAlternateBrushColor;
-              draft.pendingStones.push(vertex);
-            });
-          }
-
+        // If dragging, add to pending stones instead of updating history
+        if (state.isDragging) {
           return produce(state, (draft) => {
             draft.board = newBoard;
             draft.displayBoard = updateDisplayBoard(
@@ -277,15 +262,27 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
               newAlternateBrushColor,
               state.brushMode,
             );
-            draft.history.splice(state.historyIndex + 1);
-            draft.history.push({
-              board: newBoard,
-              moveColor: nextColor,
-            });
-            draft.historyIndex = state.historyIndex + 1;
             draft.alternateBrushColor = newAlternateBrushColor;
+            draft.pendingStones.push(vertex);
           });
         }
+
+        return produce(state, (draft) => {
+          draft.board = newBoard;
+          draft.displayBoard = updateDisplayBoard(
+            newBoard,
+            state.hoverVertex,
+            newAlternateBrushColor,
+            state.brushMode,
+          );
+          draft.history.splice(state.historyIndex + 1);
+          draft.history.push({
+            board: newBoard,
+            moveColor: nextColor,
+          });
+          draft.historyIndex = state.historyIndex + 1;
+          draft.alternateBrushColor = newAlternateBrushColor;
+        });
       }
 
       // If move is invalid or no stone to place, return unchanged state
