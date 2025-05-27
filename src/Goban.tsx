@@ -7,14 +7,14 @@ import "./Goban.css";
 import SabakiGoBoard, { Sign } from "@sabaki/go-board";
 import { produce } from "immer";
 import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { X } from "lucide-react";
+import { Toggle } from "@/components/ui/toggle";
 
 import overlappingCirclesBlackSvg from "./icons/overlapping-circles-black.svg";
 import overlappingCirclesWhiteSvg from "./icons/overlapping-circles-white.svg";
 import circleBlackSvg from "./icons/circle-black.svg";
 import circleWhiteSvg from "./icons/circle-white.svg";
 import eraserSvg from "./icons/eraser.svg";
+import xSvg from "./icons/x.svg";
 
 export const SabakiColor = Object.freeze({
   Black: 1,
@@ -168,57 +168,68 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
   };
 
   return (
-    <div style={{ display: "flex" }}>
-      <BoundedGoban
-        animateStonePlacement={false}
-        fuzzyStonePlacement={false}
-        maxHeight={windowSize.height - 20}
-        maxWidth={windowSize.width * 0.8}
-        showCoordinates={true}
-        signMap={displayBoard}
-        dimmedVertices={dimmedVertices}
-        onVertexClick={handleVertexClick}
-        onVertexMouseEnter={(_e: any, vertex: Vertex) => {
-          setHoverVertex(vertex);
-        }}
-        onVertexMouseLeave={(_e: any, _vertex: Vertex) => {
-          setHoverVertex(null);
-        }}
-      />
-      <div style={{ marginLeft: "1em" }}>
-        <div>
-          <ToggleGroup
+    <div className="flex flex-row gap-2">
+      <div>
+        <BoundedGoban
+          animateStonePlacement={false}
+          fuzzyStonePlacement={false}
+          maxHeight={windowSize.height - 20}
+          maxWidth={windowSize.width * 0.8}
+          showCoordinates={true}
+          signMap={displayBoard}
+          dimmedVertices={dimmedVertices}
+          onVertexClick={handleVertexClick}
+          onVertexMouseEnter={(_e: any, vertex: Vertex) => {
+            setHoverVertex(vertex);
+          }}
+          onVertexMouseLeave={(_e: any, _vertex: Vertex) => {
+            setHoverVertex(null);
+          }}
+        />
+      </div>
+      <div>
+        <div className="flex flex-col gap-1 mt-2">
+          <Toggle
             size="xl"
-            type="single"
-            defaultValue={`${BrushMode.Alternate}`}
-            onValueChange={(v) => v && setBrushMode(parseInt(v) as BrushMode)}
+            onClick={() => setBrushMode(BrushMode.Alternate)}
+            pressed={brushMode === BrushMode.Alternate}
           >
-            <ToggleGroupItem value={`${BrushMode.Alternate}`}>
-              {alternateBrushColor === SabakiColor.Black ? (
-                <img src={overlappingCirclesBlackSvg} width={32} height={32} />
-              ) : (
-                <img src={overlappingCirclesWhiteSvg} width={32} height={32} />
-              )}
-            </ToggleGroupItem>
-            <ToggleGroupItem value={`${BrushMode.Black}`}>
-              <img src={circleBlackSvg} width={32} height={32} />
-            </ToggleGroupItem>
-            <ToggleGroupItem value={`${BrushMode.White}`}>
-              <img src={circleWhiteSvg} width={32} height={32} />
-            </ToggleGroupItem>
-            <ToggleGroupItem value={`${BrushMode.Remove}`}>
-              <img src={eraserSvg} width={32} height={32} />
-            </ToggleGroupItem>
-          </ToggleGroup>
+            {alternateBrushColor === SabakiColor.Black ? (
+              <img src={overlappingCirclesBlackSvg} width={32} height={32} />
+            ) : (
+              <img src={overlappingCirclesWhiteSvg} width={32} height={32} />
+            )}
+          </Toggle>
+          <Toggle
+            size="xl"
+            onClick={() => setBrushMode(BrushMode.Black)}
+            pressed={brushMode === BrushMode.Black}
+          >
+            <img src={circleBlackSvg} width={32} height={32} />
+          </Toggle>
+          <Toggle
+            size="xl"
+            onClick={() => setBrushMode(BrushMode.White)}
+            pressed={brushMode === BrushMode.White}
+          >
+            <img src={circleWhiteSvg} width={32} height={32} />
+          </Toggle>
+          <Toggle
+            size="xl"
+            onClick={() => setBrushMode(BrushMode.Remove)}
+            pressed={brushMode === BrushMode.Remove}
+          >
+            <img src={eraserSvg} width={32} height={32} />
+          </Toggle>
         </div>
         <div style={{ marginTop: "1em" }}>
           <Button
+            size="xl"
             color="red"
             variant="outline"
             onClick={() => handleBoardUpdate(emptyBoard)}
           >
-            <X />
-            Clear
+            <img src={xSvg} width={24} height={24} />
           </Button>
         </div>
       </div>
