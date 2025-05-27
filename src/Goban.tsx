@@ -89,6 +89,11 @@ function getNextColor(
   throw new Error("Unknown brush mode");
 }
 
+type HistoryEntry = {
+  board: BoardPosition;
+  moveColor: SabakiColor;
+};
+
 type GobanState = {
   board: BoardPosition;
   displayBoard: BoardPosition;
@@ -96,7 +101,7 @@ type GobanState = {
   dimmedVertices: Array<Vertex>;
   alternateBrushColor: SabakiColor;
   brushMode: BrushMode;
-  history: BoardPosition[];
+  history: HistoryEntry[];
   historyIndex: number;
 };
 
@@ -116,7 +121,7 @@ const initialState: GobanState = {
   dimmedVertices: [],
   alternateBrushColor: SabakiColor.Black,
   brushMode: BrushMode.Alternate,
-  history: [emptyBoard],
+  history: [{ board: emptyBoard, moveColor: SabakiColor.Empty }],
   historyIndex: 0,
 };
 
@@ -206,7 +211,10 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
       });
       const newHistory = [
         ...state.history.slice(0, state.historyIndex + 1),
-        newBoard,
+        {
+          board: newBoard,
+          moveColor: state.history[state.historyIndex].moveColor,
+        },
       ];
       const newHistoryIndex = state.historyIndex + 1;
 
@@ -245,7 +253,7 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
           const newBoard = move.signMap;
           const newHistory = [
             ...state.history.slice(0, state.historyIndex + 1),
-            newBoard,
+            { board: newBoard, moveColor: nextColor },
           ];
           const newHistoryIndex = state.historyIndex + 1;
           const newAlternateBrushColor =
@@ -275,36 +283,50 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
 
     case "UNDO":
       if (state.historyIndex > 0) {
+        const { moveColor } = state.history[state.historyIndex];
         const newIndex = state.historyIndex - 1;
-        const newBoard = state.history[newIndex];
+        const { board: newBoard } = state.history[newIndex];
+        const newAlternateBrushColor =
+          moveColor === SabakiColor.Empty
+            ? state.alternateBrushColor
+            : moveColor;
+
         return {
           ...state,
           board: newBoard,
           displayBoard: updateDisplayBoard(
             newBoard,
             state.hoverVertex,
-            state.alternateBrushColor,
+            newAlternateBrushColor,
             state.brushMode,
           ),
           historyIndex: newIndex,
+          alternateBrushColor: newAlternateBrushColor,
         };
       }
       return state;
 
     case "REDO":
       if (state.historyIndex < state.history.length - 1) {
+        const { moveColor } = state.history[state.historyIndex];
         const newIndex = state.historyIndex + 1;
-        const newBoard = state.history[newIndex];
+        const { board: newBoard } = state.history[newIndex];
+        const newAlternateBrushColor =
+          moveColor === SabakiColor.Empty
+            ? state.alternateBrushColor
+            : moveColor;
+
         return {
           ...state,
           board: newBoard,
           displayBoard: updateDisplayBoard(
             newBoard,
             state.hoverVertex,
-            state.alternateBrushColor,
+            newAlternateBrushColor,
             state.brushMode,
           ),
           historyIndex: newIndex,
+          alternateBrushColor: newAlternateBrushColor,
         };
       }
       return state;
@@ -314,7 +336,7 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
         ...state,
         board: emptyBoard,
         displayBoard: emptyBoard,
-        history: [emptyBoard],
+        history: [{ board: emptyBoard, moveColor: SabakiColor.Empty }],
         historyIndex: 0,
         alternateBrushColor: SabakiColor.Black,
       };
