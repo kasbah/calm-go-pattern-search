@@ -141,6 +141,32 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
     onUpdateBoard(newBoard);
   };
 
+  const handleVertexClick = (_e: any, vertex: Vertex) => {
+    setHoverVertex(null);
+    const x = vertex[0];
+    const y = vertex[1];
+    const stone = board[y][x];
+    const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
+
+    if (nextColor !== SabakiColor.Empty) {
+      const sgb = new SabakiGoBoard(board);
+      const move = sgb.makeMove(nextColor as Sign, vertex);
+      handleBoardUpdate(move.signMap);
+    } else {
+      handleBoardUpdate(
+        produce(board, (draft) => {
+          draft[y][x] = SabakiColor.Empty;
+        }),
+      );
+    }
+
+    if (nextColor !== SabakiColor.Empty) {
+      setAlternateBrushColor(
+        nextColor === SabakiColor.Black ? SabakiColor.White : SabakiColor.Black,
+      );
+    }
+  };
+
   return (
     <div style={{ display: "flex" }}>
       <BoundedGoban
@@ -151,39 +177,11 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
         showCoordinates={true}
         signMap={displayBoard}
         dimmedVertices={dimmedVertices}
-        onVertexClick={(_e, vertex) => {
-          setHoverVertex(null);
-          const x = vertex[0];
-          const y = vertex[1];
-          const stone = board[y][x];
-          const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
-          if (nextColor !== SabakiColor.Empty) {
-            const sgb = new SabakiGoBoard(board);
-            const move = sgb.makeMove(nextColor as Sign, vertex);
-            handleBoardUpdate(move.signMap);
-          } else {
-            const b = board.map((row, u) =>
-              row.map((c, v) => {
-                if (u === y && v === x) {
-                  return SabakiColor.Empty;
-                }
-                return c;
-              }),
-            );
-            handleBoardUpdate(b);
-          }
-          if (nextColor !== SabakiColor.Empty) {
-            setAlternateBrushColor(
-              nextColor === SabakiColor.Black
-                ? SabakiColor.White
-                : SabakiColor.Black,
-            );
-          }
-        }}
-        onVertexMouseEnter={(_e, vertex) => {
+        onVertexClick={handleVertexClick}
+        onVertexMouseEnter={(_e: any, vertex: Vertex) => {
           setHoverVertex(vertex);
         }}
-        onVertexMouseLeave={(_e, _vertex) => {
+        onVertexMouseLeave={(_e: any, _vertex: Vertex) => {
           setHoverVertex(null);
         }}
       />
