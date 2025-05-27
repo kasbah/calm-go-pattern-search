@@ -415,12 +415,9 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
   const windowSize = useWindowSize();
   const [state, dispatch] = React.useReducer(gobanReducer, initialState);
 
-  const handleBoardUpdate = useCallback(
-    (newBoard: BoardPosition) => {
-      onUpdateBoard(newBoard);
-    },
-    [onUpdateBoard],
-  );
+  useEffect(() => {
+    onUpdateBoard(state.board);
+  }, [state.board]);
 
   const handleUndo = useCallback(() => {
     dispatch({ type: "UNDO" });
@@ -441,10 +438,9 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
           state.brushMode === BrushMode.White)
       ) {
         dispatch({ type: "PLACE_STONE", payload: vertex });
-        handleBoardUpdate(state.board);
       }
     },
-    [state.isDragging, state.brushMode, state.board, handleBoardUpdate],
+    [state.isDragging, state.brushMode, state.board],
   );
 
   const handleVertexMouseLeave = useCallback((_e: any, _vertex: Vertex) => {
@@ -459,10 +455,9 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
       ) {
         dispatch({ type: "SET_DRAGGING", payload: true });
         dispatch({ type: "PLACE_STONE", payload: vertex });
-        handleBoardUpdate(state.board);
       }
     },
-    [state.brushMode, state.board, handleBoardUpdate],
+    [state.brushMode, state.board],
   );
 
   const handleMouseUp = useCallback(
@@ -476,10 +471,8 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
       } else {
         dispatch({ type: "PLACE_STONE", payload: vertex });
       }
-
-      handleBoardUpdate(state.board);
     },
-    [state.board, state.brushMode, handleBoardUpdate],
+    [state.board, state.brushMode],
   );
 
   const handleBoardMouseLeave = useCallback(() => {
