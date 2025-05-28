@@ -105,7 +105,6 @@ type GobanState = {
   history: HistoryEntry[];
   historyIndex: number;
   isDragging: boolean;
-  pendingStones: Array<Vertex>;
 };
 
 type GobanAction =
@@ -129,7 +128,6 @@ const initialState: GobanState = {
   history: [{ board: emptyBoard, moveColor: SabakiColor.Empty }],
   historyIndex: 0,
   isDragging: false,
-  pendingStones: [],
 };
 
 function gobanReducer(state: GobanState, action: GobanAction): void {
@@ -193,7 +191,7 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
         const newBoard = move.signMap;
         state.board = newBoard;
         state.displayBoard = newBoard;
-        state.pendingStones.push(vertex);
+        state.dimmedVertices.push([x, y]);
       }
       return;
     }
@@ -285,8 +283,9 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
       const isDragging = action.payload;
 
       // If we're releasing the drag and have pending stones, commit them
-      if (wasDragging && !isDragging && state.pendingStones.length > 0) {
+      if (wasDragging && !isDragging) {
         state.history.splice(state.historyIndex + 1);
+        state.board = state.displayBoard;
         state.history.push({
           board: state.board,
           moveColor:
@@ -295,7 +294,6 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
               : SabakiColor.White,
         });
         state.historyIndex = state.historyIndex + 1;
-        state.pendingStones = [];
       }
 
       state.isDragging = isDragging;
@@ -322,23 +320,29 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
 
   const handleVertexMouseEnter = useCallback(
     (_e: any, vertex: Vertex) => {
-      dispatch({ type: "SET_HOVER_VERTEX", payload: vertex });
-
       // If dragging and using black or white brush, place a stone
-      if (
-        state.isDragging &&
-        (state.brushMode === BrushMode.Black ||
-          state.brushMode === BrushMode.White)
-      ) {
-        dispatch({ type: "PLACE_DRAGGING_STONE", payload: vertex });
+      if (state.isDragging) {
+        if (
+          state.brushMode === BrushMode.Black ||
+          state.brushMode === BrushMode.White
+        ) {
+          dispatch({ type: "PLACE_DRAGGING_STONE", payload: vertex });
+        }
+      } else {
+        dispatch({ type: "SET_HOVER_VERTEX", payload: vertex });
       }
     },
-    [state.isDragging, state.brushMode, state.board],
+    [state.isDragging, state.brushMode],
   );
 
-  const handleVertexMouseLeave = useCallback((_e: any, _vertex: Vertex) => {
-    dispatch({ type: "SET_HOVER_VERTEX", payload: null });
-  }, []);
+  const handleVertexMouseLeave = useCallback(
+    (_e: any, _vertex: Vertex) => {
+      if (!state.isDragging) {
+        dispatch({ type: "SET_HOVER_VERTEX", payload: null });
+      }
+    },
+    [state.isDragging],
+  );
 
   const handleMouseDown = useCallback(
     (_e: any, vertex: Vertex) => {
