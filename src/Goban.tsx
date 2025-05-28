@@ -163,8 +163,9 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
         state.alternateBrushColor,
         state.brushMode,
       );
-      // we need to make a modified copy of state.board here so need this extra
-      // `produce` call
+      // we need to make a modified copy of state.board here, without modifying
+      // state.board itself, so we need this extra `produce` call even though
+      // we are using useImmerReducer
       state.stagingBoard = produce(state.board, (draft) => {
         draft[y][x] = nextColor;
       });
