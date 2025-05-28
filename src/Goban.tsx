@@ -1,5 +1,4 @@
-//@ts-ignore
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useWindowSize } from "@reach/window-size";
 import { BoundedGoban, type Vertex } from "@sabaki/shudan";
 import "@sabaki/shudan/css/goban.css";
@@ -169,10 +168,7 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
 
     case "MOUSE_LEAVE": {
       if (!state.isMouseDown) {
-        const vertex = action.payload;
-        const x = vertex[0];
-        const y = vertex[1];
-        state.stagingBoard[y][x] = state.board[y][x];
+        state.stagingBoard = state.board;
       }
       return;
     }
