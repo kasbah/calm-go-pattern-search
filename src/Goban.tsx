@@ -97,9 +97,8 @@ type HistoryEntry = {
 
 type GobanState = {
   board: BoardPosition;
-  displayBoard: BoardPosition;
+  stagingBoard: BoardPosition;
   hoverVertex: Vertex | null;
-  dimmedVertices: Array<Vertex>;
   alternateBrushColor: SabakiColor;
   brushMode: BrushMode;
   history: HistoryEntry[];
@@ -120,15 +119,29 @@ type GobanAction =
 
 const initialState: GobanState = {
   board: emptyBoard,
-  displayBoard: emptyBoard,
+  stagingBoard: emptyBoard,
   hoverVertex: null,
-  dimmedVertices: [],
   alternateBrushColor: SabakiColor.Black,
   brushMode: BrushMode.Alternate,
   history: [{ board: emptyBoard, moveColor: SabakiColor.Empty }],
   historyIndex: 0,
   isDragging: false,
 };
+
+function calculateDimmedVertices(
+  board: BoardPosition,
+  displayBoard: BoardPosition,
+): Array<Vertex> {
+  const dimmed: Array<Vertex> = [];
+  for (let y = 0; y < board.length; y++) {
+    for (let x = 0; x < board[y].length; x++) {
+      if (board[y][x] !== displayBoard[y][x]) {
+        dimmed.push([x, y]);
+      }
+    }
+  }
+  return dimmed;
+}
 
 function gobanReducer(state: GobanState, action: GobanAction): void {
   switch (action.type) {
@@ -139,8 +152,7 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
         return;
       }
       if (newHoverVertex == null) {
-        state.displayBoard = state.board;
-        state.dimmedVertices = [];
+        state.stagingBoard = state.board;
         return;
       }
       const x = newHoverVertex[0];
@@ -151,11 +163,11 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
         state.alternateBrushColor,
         state.brushMode,
       );
-      // we need to make a modified copy of state.board here so need this extra `produce` call
-      state.displayBoard = produce(state.board, (draft) => {
+      // we need to make a modified copy of state.board here so need this extra
+      // `produce` call
+      state.stagingBoard = produce(state.board, (draft) => {
         draft[y][x] = nextColor;
       });
-      state.dimmedVertices = [[x, y]];
       return;
     }
 
@@ -168,7 +180,7 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
       const x = vertex[0];
       const y = vertex[1];
       state.board[y][x] = SabakiColor.Empty;
-      state.displayBoard = state.board;
+      state.stagingBoard = state.board;
       state.history.splice(state.historyIndex + 1);
       state.history.push({
         board: state.board,
@@ -189,11 +201,10 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
         state.brushMode,
       );
 
-      const sgb = new SabakiGoBoard(state.displayBoard);
+      const sgb = new SabakiGoBoard(state.stagingBoard);
       const move = sgb.makeMove(nextColor as Sign, vertex);
 
-      state.displayBoard = move.signMap;
-      state.dimmedVertices.push([x, y]);
+      state.stagingBoard = move.signMap;
       return;
     }
 
@@ -219,7 +230,7 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
             : SabakiColor.Black;
 
         state.board = newBoard;
-        state.displayBoard = newBoard;
+        state.stagingBoard = newBoard;
         state.history.splice(state.historyIndex + 1);
         state.history.push({
           board: newBoard,
@@ -242,7 +253,7 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
             : moveColor;
 
         state.board = newBoard;
-        state.displayBoard = newBoard;
+        state.stagingBoard = newBoard;
         state.historyIndex = newIndex;
         state.alternateBrushColor = newAlternateBrushColor;
       }
@@ -259,7 +270,7 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
             : moveColor;
 
         state.board = newBoard;
-        state.displayBoard = newBoard;
+        state.stagingBoard = newBoard;
         state.historyIndex = newIndex;
         state.alternateBrushColor = newAlternateBrushColor;
       }
@@ -273,7 +284,7 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
       });
 
       state.board = emptyBoard;
-      state.displayBoard = emptyBoard;
+      state.stagingBoard = emptyBoard;
       state.historyIndex = state.historyIndex + 1;
       state.alternateBrushColor = SabakiColor.Black;
       return;
@@ -286,7 +297,7 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
       // If we're releasing the drag and have pending stones, commit them
       if (wasDragging && !isDragging) {
         state.history.splice(state.historyIndex + 1);
-        state.board = state.displayBoard;
+        state.board = state.stagingBoard;
         state.history.push({
           board: state.board,
           moveColor:
@@ -306,10 +317,33 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
 export default function Goban({ onUpdateBoard }: GobanProps) {
   const windowSize = useWindowSize();
   const [state, dispatch] = useImmerReducer(gobanReducer, initialState);
+  const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
+  const [displayBoard, setDisplayBoard] = useState<BoardPosition>(emptyBoard);
 
   useEffect(() => {
     onUpdateBoard(state.board);
   }, [state.board]);
+
+  useEffect(() => {
+    const dimmed: Array<Vertex> = [];
+    const display: BoardPosition = state.board.map((row, y) =>
+      row.map((boardStone, x) => {
+        const stagingStone = state.stagingBoard[y][x];
+        if (stagingStone !== boardStone) {
+          dimmed.push([x, y]);
+        }
+        if (stagingStone !== SabakiColor.Empty) {
+          return stagingStone;
+        }
+        if (boardStone !== SabakiColor.Empty) {
+          return boardStone;
+        }
+        return SabakiColor.Empty;
+      }),
+    );
+    setDisplayBoard(display);
+    setDimmedVertices(dimmed);
+  }, [state.board, state.stagingBoard]);
 
   const handleUndo = useCallback(() => {
     dispatch({ type: "UNDO" });
@@ -390,8 +424,8 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
           maxHeight={windowSize.height}
           maxWidth={windowSize.width * 0.5}
           showCoordinates={true}
-          signMap={state.displayBoard}
-          dimmedVertices={state.dimmedVertices}
+          signMap={displayBoard}
+          dimmedVertices={dimmedVertices}
           onVertexMouseEnter={handleVertexMouseEnter}
           onVertexMouseLeave={handleVertexMouseLeave}
           onVertexMouseDown={handleMouseDown}
