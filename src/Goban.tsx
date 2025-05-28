@@ -50,10 +50,9 @@ type GobanAction =
   | { type: "REDO" }
   | { type: "CLEAR_BOARD" }
   | { type: "MOUSE_DOWN"; payload: Vertex }
-  | { type: "MOUSE_UP"; payload: Vertex }
+  | { type: "MOUSE_UP" }
   | { type: "MOUSE_ENTER"; payload: Vertex }
-  | { type: "MOUSE_LEAVE"; payload: Vertex }
-  | { type: "MOUSE_LEAVE_BOARD" };
+  | { type: "MOUSE_LEAVE"; payload: Vertex };
 
 type GobanState = {
   board: BoardPosition;
@@ -137,8 +136,7 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
       state.isMouseDown = true;
       return;
     }
-    case "MOUSE_UP":
-    case "MOUSE_LEAVE_BOARD": {
+    case "MOUSE_UP": {
       state.isMouseDown = false;
       if (boardsEqual(state.board, state.stagingBoard)) {
         return;
@@ -230,6 +228,19 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
   }, [state.board]);
 
   useEffect(() => {
+    const handleDocumentMouseUp = () => {
+      if (state.isMouseDown) {
+        dispatch({ type: "MOUSE_UP" });
+      }
+    };
+
+    document.addEventListener("mouseup", handleDocumentMouseUp);
+    return () => {
+      document.removeEventListener("mouseup", handleDocumentMouseUp);
+    };
+  }, [state.isMouseDown]);
+
+  useEffect(() => {
     const dimmed: Array<Vertex> = [];
     const display: BoardPosition = state.board.map((row, y) =>
       row.map((boardStone, x) => {
@@ -270,14 +281,6 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
     dispatch({ type: "MOUSE_DOWN", payload: vertex });
   }, []);
 
-  const handleMouseUp = useCallback((_e: any, vertex: Vertex) => {
-    dispatch({ type: "MOUSE_UP", payload: vertex });
-  }, []);
-
-  const handleBoardMouseLeave = useCallback(() => {
-    dispatch({ type: "MOUSE_LEAVE_BOARD" });
-  }, []);
-
   const handleClearBoard = useCallback(() => {
     dispatch({ type: "CLEAR_BOARD" });
   }, []);
@@ -286,7 +289,7 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
 
   return (
     <div className="flex flex-row gap-2" style={{ maxHeight }}>
-      <div onMouseLeave={handleBoardMouseLeave}>
+      <div>
         <BoundedGoban
           animateStonePlacement={false}
           fuzzyStonePlacement={false}
@@ -298,7 +301,6 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
           onVertexMouseEnter={handleVertexMouseEnter}
           onVertexMouseLeave={handleVertexMouseLeave}
           onVertexMouseDown={handleMouseDown}
-          onVertexMouseUp={handleMouseUp}
         />
       </div>
       <div className="mt-2 mb-2">
