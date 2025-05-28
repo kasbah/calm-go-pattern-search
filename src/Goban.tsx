@@ -85,6 +85,76 @@ export type GobanProps = {
   onUpdateBoard: (board: BoardPosition) => void;
 };
 
+type HistoryEntry = {
+  board: BoardPosition;
+  moveSign: SabakiSign;
+};
+
+type GobanAction =
+  | { type: "SET_BRUSH_MODE"; payload: BrushMode }
+  | { type: "STAGE_STONE_PLACEMENT"; payload: Vertex }
+  | { type: "STAGE_STONE_REMOVAL"; payload: Vertex }
+  | { type: "COMMIT_STAGED_CHANGES" }
+  | { type: "UNDO" }
+  | { type: "REDO" }
+  | { type: "CLEAR_BOARD" }
+  | { type: "SET_DRAGGING"; payload: boolean }
+  | { type: "MOUSE_DOWN"; payload: Vertex }
+  | { type: "MOUSE_UP"; payload: Vertex }
+  | { type: "MOUSE_ENTER"; payload: Vertex }
+  | { type: "MOUSE_LEAVE"; payload: Vertex }
+  | { type: "MOUSE_LEAVE_BOARD" }
+  | { type: "PLACE_OR_SWITCH_STONE"; payload: Vertex }
+  | { type: "RESET_STAGING_VERTEX"; payload: Vertex }
+  | { type: "STAGE_CHANGE"; payload: Vertex }
+  | { type: "STAGE_CHANGE_DRAG"; payload: Vertex }
+  | { type: "STAGE_CHANGE_DRAG_END"; payload: Vertex };
+
+type GobanState = {
+  board: BoardPosition;
+  stagingBoard: BoardPosition;
+  lastStagedSign: SabakiSign;
+  alternateBrushColor: SabakiColor;
+  brushMode: BrushMode;
+  history: HistoryEntry[];
+  historyIndex: number;
+  isMouseDown: boolean;
+};
+
+const initialState: GobanState = {
+  board: emptyBoard,
+  stagingBoard: emptyBoard,
+  lastStagedSign: SabakiSign.Empty,
+  alternateBrushColor: SabakiColor.Black,
+  brushMode: BrushMode.Alternate,
+  history: [{ board: emptyBoard, moveSign: SabakiSign.Empty }],
+  historyIndex: 0,
+  isMouseDown: false,
+};
+
+function stageVertexChange(state: GobanState, vertex: Vertex) {
+  // change the vertex to the right color stone or remove it
+  // depending on the brush and the mouse state
+  const [x, y] = vertex;
+  const stone = state.board[y][x];
+  const nextSign = getNextSign(
+    stone,
+    state.alternateBrushColor,
+    state.brushMode,
+    state.isMouseDown,
+    state.lastStagedSign,
+  );
+
+  if (nextSign === SabakiSign.Empty) {
+    state.stagingBoard[y][x] = SabakiSign.Empty;
+  } else {
+    const sgb = new SabakiGoBoard(state.stagingBoard);
+    const move = sgb.makeMove(nextSign, vertex);
+    state.stagingBoard = move.signMap;
+  }
+  state.lastStagedSign = nextSign;
+}
+
 function getNextSign(
   stone: SabakiSign,
   brushColor: SabakiSign,
@@ -111,74 +181,13 @@ function getNextSign(
   throw new Error("Unknown brush mode");
 }
 
-type HistoryEntry = {
-  board: BoardPosition;
-  moveSign: SabakiSign;
-};
-
-type GobanAction =
-  | { type: "SET_BRUSH_MODE"; payload: BrushMode }
-  | { type: "STAGE_STONE_PLACEMENT"; payload: Vertex }
-  | { type: "STAGE_STONE_REMOVAL"; payload: Vertex }
-  | { type: "COMMIT_STAGED_CHANGES" }
-  | { type: "UNDO" }
-  | { type: "REDO" }
-  | { type: "CLEAR_BOARD" }
-  | { type: "SET_DRAGGING"; payload: boolean }
-  | { type: "MOUSE_DOWN"; payload: Vertex }
-  | { type: "MOUSE_UP"; payload: Vertex }
-  | { type: "MOUSE_ENTER"; payload: Vertex }
-  | { type: "MOUSE_LEAVE"; payload: Vertex }
-  | { type: "MOUSE_LEAVE_BOARD" }
-  | { type: "PLACE_OR_SWITCH_STONE"; payload: Vertex }
-  | { type: "RESET_STAGING_VERTEX"; payload: Vertex };
-
-type GobanState = {
-  board: BoardPosition;
-  stagingBoard: BoardPosition;
-  lastStagedSign: SabakiSign;
-  alternateBrushColor: SabakiColor;
-  brushMode: BrushMode;
-  history: HistoryEntry[];
-  historyIndex: number;
-  isMouseDown: boolean;
-};
-
-const initialState: GobanState = {
-  board: emptyBoard,
-  stagingBoard: emptyBoard,
-  lastStagedSign: SabakiSign.Empty,
-  alternateBrushColor: SabakiColor.Black,
-  brushMode: BrushMode.Alternate,
-  history: [{ board: emptyBoard, moveSign: SabakiSign.Empty }],
-  historyIndex: 0,
-  isMouseDown: false,
-};
-
 function gobanReducer(state: GobanState, action: GobanAction): void {
   switch (action.type) {
     case "MOUSE_DOWN": {
+      // needed because we switch color when clicking again without leaving the
+      // vertex
       if (state.brushMode === BrushMode.Alternate) {
-        const vertex = action.payload;
-        const x = vertex[0];
-        const y = vertex[1];
-        const stone = state.board[y][x];
-        const nextSign = getNextSign(
-          stone,
-          state.alternateBrushColor,
-          state.brushMode,
-          false,
-          state.lastStagedSign,
-        );
-
-        if (nextSign === SabakiSign.Empty) {
-          state.stagingBoard[y][x] = SabakiSign.Empty;
-        } else {
-          const sgb = new SabakiGoBoard(state.stagingBoard);
-          const move = sgb.makeMove(nextSign, vertex);
-          state.stagingBoard = move.signMap;
-        }
-        state.lastStagedSign = nextSign;
+        stageVertexChange(state, action.payload);
       }
       state.isMouseDown = true;
       return;
@@ -208,26 +217,7 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
     }
 
     case "MOUSE_ENTER": {
-      const vertex = action.payload;
-      const x = vertex[0];
-      const y = vertex[1];
-      const stone = state.board[y][x];
-      const nextSign = getNextSign(
-        stone,
-        state.alternateBrushColor,
-        state.brushMode,
-        state.isMouseDown,
-        state.lastStagedSign,
-      );
-
-      if (nextSign === SabakiSign.Empty) {
-        state.stagingBoard[y][x] = SabakiSign.Empty;
-      } else {
-        const sgb = new SabakiGoBoard(state.stagingBoard);
-        const move = sgb.makeMove(nextSign, vertex);
-        state.stagingBoard = move.signMap;
-      }
-      state.lastStagedSign = nextSign;
+      stageVertexChange(state, action.payload);
       return;
     }
 
@@ -282,6 +272,24 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
       state.stagingBoard = emptyBoard;
       state.historyIndex = state.historyIndex + 1;
       state.alternateBrushColor = SabakiSign.Black;
+      return;
+    }
+
+    case "STAGE_CHANGE": {
+      const vertex = action.payload;
+      stageVertexChange(state, vertex);
+      return;
+    }
+
+    case "STAGE_CHANGE_DRAG": {
+      const vertex = action.payload;
+      stageVertexChange(state, vertex);
+      return;
+    }
+
+    case "STAGE_CHANGE_DRAG_END": {
+      const vertex = action.payload;
+      stageVertexChange(state, vertex);
       return;
     }
   }
