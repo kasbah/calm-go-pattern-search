@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Goban from "./Goban";
 
 import { type BoardPosition, emptyBoard } from "./SabakiTypes";
+import GamesList from "./GamesList";
 
 export default function App() {
   const [board, setBoard] = useState<BoardPosition>(emptyBoard);
@@ -43,5 +44,10 @@ export default function App() {
   //  }
   //}, [board]);
 
-  return <Goban onUpdateBoard={setBoard} />;
+  return (
+    <div className="flex h-screen">
+      <Goban onUpdateBoard={setBoard} />
+      <GamesList />
+    </div>
+  );
 }

@@ -286,8 +286,10 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
     dispatch({ type: "CLEAR_BOARD" });
   }, []);
 
+  const maxHeight = Math.min(windowSize.height, windowSize.width * 0.5);
+
   return (
-    <div className="flex flex-row gap-2">
+    <div className="flex flex-row gap-2" style={{ maxHeight }}>
       <div onMouseLeave={handleBoardMouseLeave}>
         <BoundedGoban
           animateStonePlacement={false}
