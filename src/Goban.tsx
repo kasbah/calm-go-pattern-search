@@ -52,7 +52,8 @@ type GobanAction =
   | { type: "MOUSE_DOWN"; payload: Vertex }
   | { type: "MOUSE_UP" }
   | { type: "MOUSE_ENTER"; payload: Vertex }
-  | { type: "MOUSE_LEAVE"; payload: Vertex };
+  | { type: "MOUSE_LEAVE"; payload: Vertex }
+  | { type: "TOGGLE_ALTERNATE_COLOR" };
 
 type GobanState = {
   board: BoardPosition;
@@ -214,6 +215,13 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
       state.alternateBrushColor = SabakiSign.Black;
       return;
     }
+    case "TOGGLE_ALTERNATE_COLOR": {
+      state.alternateBrushColor =
+        state.alternateBrushColor === SabakiSign.Black
+          ? SabakiSign.White
+          : SabakiSign.Black;
+      return;
+    }
   }
 }
 
@@ -308,12 +316,18 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
           <div className="flex flex-col gap-1">
             <Toggle
               size="xl"
-              onClick={() =>
-                dispatch({
-                  type: "SET_BRUSH_MODE",
-                  payload: BrushMode.Alternate,
-                })
-              }
+              onClick={() => {
+                if (state.brushMode === BrushMode.Alternate) {
+                  dispatch({
+                    type: "TOGGLE_ALTERNATE_COLOR",
+                  });
+                } else {
+                  dispatch({
+                    type: "SET_BRUSH_MODE",
+                    payload: BrushMode.Alternate,
+                  });
+                }
+              }}
               pressed={state.brushMode === BrushMode.Alternate}
             >
               {state.alternateBrushColor === SabakiSign.Black ? (
