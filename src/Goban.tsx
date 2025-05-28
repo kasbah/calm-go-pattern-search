@@ -5,6 +5,7 @@ import { BoundedGoban, type Vertex } from "@sabaki/shudan";
 import "@sabaki/shudan/css/goban.css";
 import "./Goban.css";
 import SabakiGoBoard, { Sign } from "@sabaki/go-board";
+import { useImmerReducer } from "use-immer";
 import { produce } from "immer";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
@@ -130,15 +131,14 @@ const initialState: GobanState = {
   pendingStones: [],
 };
 
-function gobanReducer(state: GobanState, action: GobanAction): GobanState {
+function gobanReducer(state: GobanState, action: GobanAction): void {
   switch (action.type) {
     case "SET_HOVER_VERTEX": {
       const newHoverVertex = action.payload;
       if (newHoverVertex == null) {
-        return produce(state, (draft) => {
-          draft.displayBoard = draft.board;
-          draft.dimmedVertices = [];
-        });
+        state.displayBoard = state.board;
+        state.dimmedVertices = [];
+        return;
       }
       const x = newHoverVertex[0];
       const y = newHoverVertex[1];
@@ -148,33 +148,31 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
         state.alternateBrushColor,
         state.brushMode,
       );
-      return produce(state, (draft) => {
-        draft.displayBoard = produce(state.board, (board) => {
-          board[y][x] = nextColor;
-        });
-        draft.dimmedVertices = [[x, y]];
+      // we need to make a modified copy of state.board here so need this extra `produce` call
+      state.displayBoard = produce(state.board, (draft) => {
+        draft[y][x] = nextColor;
       });
+      state.dimmedVertices = [[x, y]];
+      return;
     }
 
     case "SET_BRUSH_MODE":
-      return produce(state, (draft) => {
-        draft.brushMode = action.payload;
-      });
+      state.brushMode = action.payload;
+      return;
 
     case "REMOVE_STONE": {
       const vertex = action.payload;
       const x = vertex[0];
       const y = vertex[1];
-      return produce(state, (draft) => {
-        draft.board[y][x] = SabakiColor.Empty;
-        draft.displayBoard = draft.board;
-        draft.history.splice(state.historyIndex + 1);
-        draft.history.push({
-          board: draft.board,
-          moveColor: state.history[state.historyIndex].moveColor,
-        });
-        draft.historyIndex = state.historyIndex + 1;
+      state.board[y][x] = SabakiColor.Empty;
+      state.displayBoard = state.board;
+      state.history.splice(state.historyIndex + 1);
+      state.history.push({
+        board: state.board,
+        moveColor: state.history[state.historyIndex].moveColor,
       });
+      state.historyIndex = state.historyIndex + 1;
+      return;
     }
 
     case "PLACE_STONE": {
@@ -197,11 +195,10 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
 
         // If dragging, add to pending stones instead of updating history
         if (state.isDragging) {
-          return produce(state, (draft) => {
-            draft.board = newBoard;
-            draft.displayBoard = newBoard;
-            draft.pendingStones.push(vertex);
-          });
+          state.board = newBoard;
+          state.displayBoard = newBoard;
+          state.pendingStones.push(vertex);
+          return;
         }
 
         const newAlternateBrushColor =
@@ -209,20 +206,17 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
             ? SabakiColor.White
             : SabakiColor.Black;
 
-        return produce(state, (draft) => {
-          draft.board = newBoard;
-          draft.displayBoard = newBoard;
-          draft.history.splice(state.historyIndex + 1);
-          draft.history.push({
-            board: newBoard,
-            moveColor: nextColor,
-          });
-          draft.historyIndex = state.historyIndex + 1;
-          draft.alternateBrushColor = newAlternateBrushColor;
+        state.board = newBoard;
+        state.displayBoard = newBoard;
+        state.history.splice(state.historyIndex + 1);
+        state.history.push({
+          board: newBoard,
+          moveColor: nextColor,
         });
+        state.historyIndex = state.historyIndex + 1;
+        state.alternateBrushColor = newAlternateBrushColor;
       }
-
-      return state;
+      return;
     }
 
     case "UNDO":
@@ -235,14 +229,12 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
             ? state.alternateBrushColor
             : moveColor;
 
-        return produce(state, (draft) => {
-          draft.board = newBoard;
-          draft.displayBoard = newBoard;
-          draft.historyIndex = newIndex;
-          draft.alternateBrushColor = newAlternateBrushColor;
-        });
+        state.board = newBoard;
+        state.displayBoard = newBoard;
+        state.historyIndex = newIndex;
+        state.alternateBrushColor = newAlternateBrushColor;
       }
-      return state;
+      return;
 
     case "REDO":
       if (state.historyIndex < state.history.length - 1) {
@@ -254,63 +246,54 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
             ? state.alternateBrushColor
             : moveColor;
 
-        return produce(state, (draft) => {
-          draft.board = newBoard;
-          draft.displayBoard = newBoard;
-          draft.historyIndex = newIndex;
-          draft.alternateBrushColor = newAlternateBrushColor;
-        });
+        state.board = newBoard;
+        state.displayBoard = newBoard;
+        state.historyIndex = newIndex;
+        state.alternateBrushColor = newAlternateBrushColor;
       }
-      return state;
+      return;
 
     case "CLEAR_BOARD": {
-      const newHistory = produce(state.history, (historyDraft) => {
-        historyDraft.splice(state.historyIndex + 1);
-        historyDraft.push({
-          board: emptyBoard,
-          moveColor: state.alternateBrushColor,
-        });
+      state.history.splice(state.historyIndex + 1);
+      state.history.push({
+        board: emptyBoard,
+        moveColor: state.alternateBrushColor,
       });
 
-      return produce(state, (draft) => {
-        draft.board = emptyBoard;
-        draft.displayBoard = emptyBoard;
-        draft.history = newHistory;
-        draft.historyIndex = state.historyIndex + 1;
-        draft.alternateBrushColor = SabakiColor.Black;
-      });
+      state.board = emptyBoard;
+      state.displayBoard = emptyBoard;
+      state.historyIndex = state.historyIndex + 1;
+      state.alternateBrushColor = SabakiColor.Black;
+      return;
     }
 
-    case "SET_DRAGGING":
-      return produce(state, (draft) => {
-        const wasDragging = state.isDragging;
-        const isDragging = action.payload;
+    case "SET_DRAGGING": {
+      const wasDragging = state.isDragging;
+      const isDragging = action.payload;
 
-        // If we're releasing the drag and have pending stones, commit them
-        if (wasDragging && !isDragging && draft.pendingStones.length > 0) {
-          draft.history.splice(state.historyIndex + 1);
-          draft.history.push({
-            board: draft.board,
-            moveColor:
-              state.brushMode === BrushMode.Black
-                ? SabakiColor.Black
-                : SabakiColor.White,
-          });
-          draft.historyIndex = state.historyIndex + 1;
-          draft.pendingStones = [];
-        }
+      // If we're releasing the drag and have pending stones, commit them
+      if (wasDragging && !isDragging && state.pendingStones.length > 0) {
+        state.history.splice(state.historyIndex + 1);
+        state.history.push({
+          board: state.board,
+          moveColor:
+            state.brushMode === BrushMode.Black
+              ? SabakiColor.Black
+              : SabakiColor.White,
+        });
+        state.historyIndex = state.historyIndex + 1;
+        state.pendingStones = [];
+      }
 
-        draft.isDragging = isDragging;
-      });
-
-    default:
-      return state;
+      state.isDragging = isDragging;
+      return;
+    }
   }
 }
 
 export default function Goban({ onUpdateBoard }: GobanProps) {
   const windowSize = useWindowSize();
-  const [state, dispatch] = React.useReducer(gobanReducer, initialState);
+  const [state, dispatch] = useImmerReducer(gobanReducer, initialState);
 
   useEffect(() => {
     onUpdateBoard(state.board);
