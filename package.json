@@ -19,9 +19,9 @@
     "vite": "^6.3.5"
   },
   "scripts": {
-    "wasm": "wasm-pack build ./rust/wasm-search --target no-modules && yarn",
+    "wasm": "wasm-pack build ./rust/wasm-search --target web",
     "dev": "yarn wasm && vite",
-    "build": "vite build",
+    "build": "yarn wasm && vite build",
     "serve": "vite preview",
     "fmt": "prettier --write ."
   },
@@ -40,7 +40,6 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tailwind-merge": "^3.3.0",
-    "use-immer": "^0.11.0",
-    "wasm-search": "file:./rust/wasm-search/pkg/"
+    "use-immer": "^0.11.0"
   }
 }
