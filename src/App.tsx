@@ -4,6 +4,12 @@ import Goban from "./Goban";
 import { type BoardPosition, emptyBoard } from "./SabakiTypes";
 import GamesList from "./GamesList";
 
+import Worker from "./worker?worker";
+
+const worker = new Worker();
+
+console.log({worker});
+
 export default function App() {
   const [board, setBoard] = useState<BoardPosition>(emptyBoard);
 
