@@ -17,32 +17,13 @@ import eraserSvg from "./icons/eraser.svg";
 import trashSvg from "./icons/trash.svg";
 import undoSvg from "./icons/undo.svg";
 import redoSvg from "./icons/redo.svg";
-
-export const SabakiSign = Object.freeze({
-  Black: 1,
-  White: -1,
-  Empty: 0,
-});
-
-export type SabakiSign = (typeof SabakiSign)[keyof typeof SabakiSign];
-
-export const SabakiColor = Object.freeze({
-  Black: 1,
-  White: -1,
-});
-
-export type SabakiColor = (typeof SabakiSign)[keyof typeof SabakiSign];
-
-export const BrushMode = Object.freeze({
-  Alternate: 2,
-  Black: 1,
-  White: -1,
-  Remove: 0,
-});
-
-export type BrushMode = (typeof BrushMode)[keyof typeof BrushMode];
-
-export type BoardPosition = Array<Array<SabakiSign>>;
+import {
+  BrushMode,
+  emptyBoard,
+  SabakiColor,
+  SabakiSign,
+  type BoardPosition,
+} from "./SabakiTypes";
 
 function boardsEqual(a: BoardPosition, b: BoardPosition): boolean {
   for (const [y, row] of a.entries()) {
@@ -54,32 +35,6 @@ function boardsEqual(a: BoardPosition, b: BoardPosition): boolean {
   }
   return true;
 }
-
-/* prettier-ignore */
-export const emptyBoard: BoardPosition = [
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
-];
 
 export type GobanProps = {
   onUpdateBoard: (board: BoardPosition) => void;
@@ -175,7 +130,7 @@ function getNextSign(
 function gobanReducer(state: GobanState, action: GobanAction): void {
   switch (action.type) {
     case "MOUSE_DOWN": {
-      // needed because we switch color when clicking again without leaving the
+      // needed because we switch color when clicked again without leaving the
       // vertex
       if (state.brushMode === BrushMode.Alternate) {
         stageVertexChange(state, action.payload);
