@@ -1,3 +1,9 @@
+import("wasm-search").then((wasmSearch) => {
+  console.log("Worker: wasm-search loaded");
+});
+
+console.log("Worker: Initializing wasm-search");
+
 onmessage = (e) => {
   console.log("Worker: Message received from main script");
 
