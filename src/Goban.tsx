@@ -4,7 +4,7 @@ import { useWindowSize } from "@reach/window-size";
 import { BoundedGoban, type Vertex } from "@sabaki/shudan";
 import "@sabaki/shudan/css/goban.css";
 import "./Goban.css";
-import SabakiGoBoard, { Sign } from "@sabaki/go-board";
+import SabakiGoBoard, { type Sign } from "@sabaki/go-board";
 import { useImmerReducer } from "use-immer";
 import { produce } from "immer";
 import { Button } from "@/components/ui/button";
