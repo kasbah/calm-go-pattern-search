@@ -130,100 +130,47 @@ const initialState: GobanState = {
   pendingStones: [],
 };
 
-function updateDisplayBoard(
-  board: BoardPosition,
-  hoverVertex: Vertex | null,
-  alternateBrushColor: SabakiColor,
-  brushMode: BrushMode,
-): BoardPosition {
-  return produce(board, (draft) => {
-    if (hoverVertex != null) {
-      const x = hoverVertex[0];
-      const y = hoverVertex[1];
-      const stone = board[y][x];
-      const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
-      if (nextColor !== SabakiColor.Empty) {
-        draft[y][x] = nextColor;
-      }
-    }
-  });
-}
-
-function getDimmedVertices(
-  hoverVertex: Vertex | null,
-  board: BoardPosition,
-  alternateBrushColor: SabakiColor,
-  brushMode: BrushMode,
-): Array<Vertex> {
-  if (hoverVertex == null) return [];
-
-  const x = hoverVertex[0];
-  const y = hoverVertex[1];
-  const stone = board[y][x];
-  const nextColor = getNextColor(stone, alternateBrushColor, brushMode);
-  return nextColor !== stone ? [hoverVertex] : [];
-}
-
 function gobanReducer(state: GobanState, action: GobanAction): GobanState {
   switch (action.type) {
     case "SET_HOVER_VERTEX": {
       const newHoverVertex = action.payload;
-      const newDisplayBoard = updateDisplayBoard(
-        state.board,
-        newHoverVertex,
+      if (newHoverVertex == null) {
+        return produce(state, (draft) => {
+          draft.displayBoard = draft.board;
+          draft.dimmedVertices = [];
+        });
+      }
+      const x = newHoverVertex[0];
+      const y = newHoverVertex[1];
+      const stone = state.board[y][x];
+      const nextColor = getNextColor(
+        stone,
         state.alternateBrushColor,
         state.brushMode,
       );
-      const newDimmedVertices = getDimmedVertices(
-        newHoverVertex,
-        state.board,
-        state.alternateBrushColor,
-        state.brushMode,
-      );
-
       return produce(state, (draft) => {
-        draft.hoverVertex = newHoverVertex;
-        draft.displayBoard = newDisplayBoard;
-        draft.dimmedVertices = newDimmedVertices;
+        draft.displayBoard = produce(state.board, (board) => {
+          board[y][x] = nextColor;
+        });
+        draft.dimmedVertices = [[x, y]];
       });
     }
 
     case "SET_BRUSH_MODE":
       return produce(state, (draft) => {
         draft.brushMode = action.payload;
-        draft.displayBoard = updateDisplayBoard(
-          state.board,
-          state.hoverVertex,
-          state.alternateBrushColor,
-          action.payload,
-        );
-        draft.dimmedVertices = getDimmedVertices(
-          state.hoverVertex,
-          state.board,
-          state.alternateBrushColor,
-          action.payload,
-        );
       });
 
     case "REMOVE_STONE": {
       const vertex = action.payload;
       const x = vertex[0];
       const y = vertex[1];
-      const newBoard = produce(state.board, (draft) => {
-        draft[y][x] = SabakiColor.Empty;
-      });
-
       return produce(state, (draft) => {
-        draft.board = newBoard;
-        draft.displayBoard = updateDisplayBoard(
-          newBoard,
-          state.hoverVertex,
-          state.alternateBrushColor,
-          state.brushMode,
-        );
+        draft.board[y][x] = SabakiColor.Empty;
+        draft.displayBoard = draft.board;
         draft.history.splice(state.historyIndex + 1);
         draft.history.push({
-          board: newBoard,
+          board: draft.board,
           moveColor: state.history[state.historyIndex].moveColor,
         });
         draft.historyIndex = state.historyIndex + 1;
@@ -252,12 +199,7 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
         if (state.isDragging) {
           return produce(state, (draft) => {
             draft.board = newBoard;
-            draft.displayBoard = updateDisplayBoard(
-              newBoard,
-              state.hoverVertex,
-              state.alternateBrushColor,
-              state.brushMode,
-            );
+            draft.displayBoard = newBoard;
             draft.pendingStones.push(vertex);
           });
         }
@@ -269,12 +211,7 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
 
         return produce(state, (draft) => {
           draft.board = newBoard;
-          draft.displayBoard = updateDisplayBoard(
-            newBoard,
-            state.hoverVertex,
-            newAlternateBrushColor,
-            state.brushMode,
-          );
+          draft.displayBoard = newBoard;
           draft.history.splice(state.historyIndex + 1);
           draft.history.push({
             board: newBoard,
@@ -285,7 +222,6 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
         });
       }
 
-      // If move is invalid or no stone to place, return unchanged state
       return state;
     }
 
@@ -301,12 +237,7 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
 
         return produce(state, (draft) => {
           draft.board = newBoard;
-          draft.displayBoard = updateDisplayBoard(
-            newBoard,
-            state.hoverVertex,
-            newAlternateBrushColor,
-            state.brushMode,
-          );
+          draft.displayBoard = newBoard;
           draft.historyIndex = newIndex;
           draft.alternateBrushColor = newAlternateBrushColor;
         });
@@ -325,12 +256,7 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
 
         return produce(state, (draft) => {
           draft.board = newBoard;
-          draft.displayBoard = updateDisplayBoard(
-            newBoard,
-            state.hoverVertex,
-            newAlternateBrushColor,
-            state.brushMode,
-          );
+          draft.displayBoard = newBoard;
           draft.historyIndex = newIndex;
           draft.alternateBrushColor = newAlternateBrushColor;
         });
@@ -348,12 +274,7 @@ function gobanReducer(state: GobanState, action: GobanAction): GobanState {
 
       return produce(state, (draft) => {
         draft.board = emptyBoard;
-        draft.displayBoard = updateDisplayBoard(
-          emptyBoard,
-          state.hoverVertex,
-          SabakiColor.Black,
-          state.brushMode,
-        );
+        draft.displayBoard = emptyBoard;
         draft.history = newHistory;
         draft.historyIndex = state.historyIndex + 1;
         draft.alternateBrushColor = SabakiColor.Black;
