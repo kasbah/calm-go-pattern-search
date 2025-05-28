@@ -92,23 +92,14 @@ type HistoryEntry = {
 
 type GobanAction =
   | { type: "SET_BRUSH_MODE"; payload: BrushMode }
-  | { type: "STAGE_STONE_PLACEMENT"; payload: Vertex }
-  | { type: "STAGE_STONE_REMOVAL"; payload: Vertex }
-  | { type: "COMMIT_STAGED_CHANGES" }
   | { type: "UNDO" }
   | { type: "REDO" }
   | { type: "CLEAR_BOARD" }
-  | { type: "SET_DRAGGING"; payload: boolean }
   | { type: "MOUSE_DOWN"; payload: Vertex }
   | { type: "MOUSE_UP"; payload: Vertex }
   | { type: "MOUSE_ENTER"; payload: Vertex }
   | { type: "MOUSE_LEAVE"; payload: Vertex }
-  | { type: "MOUSE_LEAVE_BOARD" }
-  | { type: "PLACE_OR_SWITCH_STONE"; payload: Vertex }
-  | { type: "RESET_STAGING_VERTEX"; payload: Vertex }
-  | { type: "STAGE_CHANGE"; payload: Vertex }
-  | { type: "STAGE_CHANGE_DRAG"; payload: Vertex }
-  | { type: "STAGE_CHANGE_DRAG_END"; payload: Vertex };
+  | { type: "MOUSE_LEAVE_BOARD" };
 
 type GobanState = {
   board: BoardPosition;
@@ -272,24 +263,6 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
       state.stagingBoard = emptyBoard;
       state.historyIndex = state.historyIndex + 1;
       state.alternateBrushColor = SabakiSign.Black;
-      return;
-    }
-
-    case "STAGE_CHANGE": {
-      const vertex = action.payload;
-      stageVertexChange(state, vertex);
-      return;
-    }
-
-    case "STAGE_CHANGE_DRAG": {
-      const vertex = action.payload;
-      stageVertexChange(state, vertex);
-      return;
-    }
-
-    case "STAGE_CHANGE_DRAG_END": {
-      const vertex = action.payload;
-      stageVertexChange(state, vertex);
       return;
     }
   }
