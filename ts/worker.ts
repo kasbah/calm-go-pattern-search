@@ -1,21 +1,20 @@
-import { WasmSearch } from "wasm-search";
+import initWasm, { WasmSearch } from "../rust/wasm-search/pkg/wasm_search.js";
 
-console.log("Worker: wasm-search loaded");
+console.log("Worker: Initializing wasm");
 
-console.log({ WasmSearch });
+await initWasm();
 
-console.log("Worker: Initializing wasm-search");
+const wasmSearch = new WasmSearch();
 
-onmessage = (e) => {
+onmessage = async (e) => {
   console.log("Worker: Message received from main script");
 
-  const result = e.data[0] * e.data[1];
+  const { type, payload } = e.data;
 
-  if (isNaN(result)) {
-    postMessage("Please write two numbers");
-  } else {
-    const workerResult = "Result: " + result;
-    console.log("Worker: Posting message back to main script");
-    postMessage(workerResult);
+  if (type === "search") {
+    const resultsBuf = await wasmSearch.search(payload);
+    postMessage({ type: "result", payload: resultsBuf }, [resultsBuf.buffer]);
   }
 };
+
+console.log("Worker: wasm initialized");
