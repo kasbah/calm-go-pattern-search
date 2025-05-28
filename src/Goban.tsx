@@ -44,6 +44,17 @@ export type BrushMode = (typeof BrushMode)[keyof typeof BrushMode];
 
 export type BoardPosition = Array<Array<SabakiSign>>;
 
+function boardsEqual(a: BoardPosition, b: BoardPosition): boolean {
+  for (const [y, row] of a.entries()) {
+    for (const [x, cell] of row.entries()) {
+      if (cell !== b[y][x]) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 /* prettier-ignore */
 export const emptyBoard: BoardPosition = [
   [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
@@ -114,8 +125,11 @@ type GobanAction =
   | { type: "REDO" }
   | { type: "CLEAR_BOARD" }
   | { type: "SET_DRAGGING"; payload: boolean }
-  | { type: "MOUSE_DOWN" }
-  | { type: "MOUSE_UP" }
+  | { type: "MOUSE_DOWN"; payload: Vertex }
+  | { type: "MOUSE_UP"; payload: Vertex }
+  | { type: "MOUSE_ENTER"; payload: Vertex }
+  | { type: "MOUSE_LEAVE"; payload: Vertex }
+  | { type: "MOUSE_LEAVE_BOARD" }
   | { type: "PLACE_OR_SWITCH_STONE"; payload: Vertex }
   | { type: "RESET_STAGING_VERTEX"; payload: Vertex };
 
@@ -127,7 +141,6 @@ type GobanState = {
   brushMode: BrushMode;
   history: HistoryEntry[];
   historyIndex: number;
-  isDragging: boolean;
   isMouseDown: boolean;
 };
 
@@ -139,64 +152,44 @@ const initialState: GobanState = {
   brushMode: BrushMode.Alternate,
   history: [{ board: emptyBoard, moveSign: SabakiSign.Empty }],
   historyIndex: 0,
-  isDragging: false,
   isMouseDown: false,
 };
 
 function gobanReducer(state: GobanState, action: GobanAction): void {
   switch (action.type) {
-    case "MOUSE_DOWN":
+    case "MOUSE_DOWN": {
+      if (state.brushMode === BrushMode.Alternate) {
+        const vertex = action.payload;
+        const x = vertex[0];
+        const y = vertex[1];
+        const stone = state.board[y][x];
+        const nextSign = getNextSign(
+          stone,
+          state.alternateBrushColor,
+          state.brushMode,
+          false,
+          state.lastStagedSign,
+        );
+
+        if (nextSign === SabakiSign.Empty) {
+          state.stagingBoard[y][x] = SabakiSign.Empty;
+        } else {
+          const sgb = new SabakiGoBoard(state.stagingBoard);
+          const move = sgb.makeMove(nextSign, vertex);
+          state.stagingBoard = move.signMap;
+        }
+        state.lastStagedSign = nextSign;
+      }
       state.isMouseDown = true;
       return;
-
+    }
     case "MOUSE_UP":
-      state.isDragging = false;
+    case "MOUSE_LEAVE_BOARD": {
       state.isMouseDown = false;
-      return;
-
-    case "SET_BRUSH_MODE":
-      state.brushMode = action.payload;
-      return;
-
-    case "STAGE_STONE_PLACEMENT": {
-      const vertex = action.payload;
-      const x = vertex[0];
-      const y = vertex[1];
-      const stone = state.board[y][x];
-      const nextColor = getNextSign(
-        stone,
-        state.alternateBrushColor,
-        state.brushMode,
-        state.isDragging,
-        state.lastStagedSign,
-      );
-
-      const sgb = new SabakiGoBoard(state.stagingBoard);
-      const move = sgb.makeMove(nextColor, vertex);
-
-      state.stagingBoard = move.signMap;
-      state.lastStagedSign = nextColor;
-      return;
-    }
-
-    case "STAGE_STONE_REMOVAL": {
-      const vertex = action.payload;
-      const x = vertex[0];
-      const y = vertex[1];
-      state.stagingBoard[y][x] = SabakiSign.Empty;
-      state.lastStagedSign = SabakiSign.Empty;
-      return;
-    }
-
-    case "RESET_STAGING_VERTEX": {
-      const vertex = action.payload;
-      const x = vertex[0];
-      const y = vertex[1];
-      state.stagingBoard[y][x] = state.board[y][x];
-      return;
-    }
-
-    case "COMMIT_STAGED_CHANGES": {
+      if (boardsEqual(state.board, state.stagingBoard)) {
+        return;
+      }
+      // commit staging board
       state.history.splice(state.historyIndex + 1);
       state.board = state.stagingBoard;
       const moveSign = state.lastStagedSign;
@@ -214,25 +207,43 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
       return;
     }
 
-    case "PLACE_OR_SWITCH_STONE": {
+    case "MOUSE_ENTER": {
       const vertex = action.payload;
       const x = vertex[0];
       const y = vertex[1];
       const stone = state.board[y][x];
-      let newStone;
-      if (stone === SabakiSign.Empty) {
-        newStone = state.alternateBrushColor;
+      const nextSign = getNextSign(
+        stone,
+        state.alternateBrushColor,
+        state.brushMode,
+        state.isMouseDown,
+        state.lastStagedSign,
+      );
+
+      if (nextSign === SabakiSign.Empty) {
+        state.stagingBoard[y][x] = SabakiSign.Empty;
       } else {
-        newStone =
-          stone === SabakiSign.Black ? SabakiSign.White : SabakiSign.Black;
+        const sgb = new SabakiGoBoard(state.stagingBoard);
+        const move = sgb.makeMove(nextSign, vertex);
+        state.stagingBoard = move.signMap;
       }
-      state.alternateBrushColor =
-        newStone === SabakiSign.Black ? SabakiColor.White : SabakiColor.Black;
-      state.lastStagedSign = newStone;
-      state.board[y][x] = newStone;
-      state.stagingBoard = state.board;
+      state.lastStagedSign = nextSign;
       return;
     }
+
+    case "MOUSE_LEAVE": {
+      if (!state.isMouseDown) {
+        const vertex = action.payload;
+        const x = vertex[0];
+        const y = vertex[1];
+        state.stagingBoard[y][x] = state.board[y][x];
+      }
+      return;
+    }
+
+    case "SET_BRUSH_MODE":
+      state.brushMode = action.payload;
+      return;
 
     case "UNDO":
       if (state.historyIndex > 0) {
@@ -271,11 +282,6 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
       state.stagingBoard = emptyBoard;
       state.historyIndex = state.historyIndex + 1;
       state.alternateBrushColor = SabakiSign.Black;
-      return;
-    }
-
-    case "SET_DRAGGING": {
-      state.isDragging = action.payload;
       return;
     }
   }
@@ -320,49 +326,25 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
     dispatch({ type: "REDO" });
   }, []);
 
-  const handleVertexMouseEnter = useCallback(
-    (_e: any, vertex: Vertex) => {
-      if (state.brushMode === BrushMode.Remove) {
-        dispatch({ type: "STAGE_STONE_REMOVAL", payload: vertex });
-      } else {
-        dispatch({ type: "STAGE_STONE_PLACEMENT", payload: vertex });
-      }
-    },
-    [state.brushMode],
-  );
-
-  const handleVertexMouseLeave = useCallback(
-    (_e: any, vertex: Vertex) => {
-      if (state.isMouseDown) {
-        dispatch({ type: "SET_DRAGGING", payload: true });
-      } else {
-        dispatch({ type: "RESET_STAGING_VERTEX", payload: vertex });
-      }
-    },
-    [state.isMouseDown],
-  );
-
-  const handleMouseDown = useCallback((_e: any, _vertex: Vertex) => {
-    dispatch({ type: "MOUSE_DOWN" });
+  const handleVertexMouseEnter = useCallback((_e: any, vertex: Vertex) => {
+    dispatch({ type: "MOUSE_ENTER", payload: vertex });
   }, []);
 
-  const handleMouseUp = useCallback(
-    (_e: any, vertex: Vertex) => {
-      if (!state.isDragging && state.brushMode === BrushMode.Alternate) {
-        dispatch({ type: "PLACE_OR_SWITCH_STONE", payload: vertex });
-      }
-      dispatch({ type: "COMMIT_STAGED_CHANGES" });
-      dispatch({ type: "MOUSE_UP" });
-    },
-    [state.isDragging, state.brushMode],
-  );
+  const handleVertexMouseLeave = useCallback((_e: any, vertex: Vertex) => {
+    dispatch({ type: "MOUSE_LEAVE", payload: vertex });
+  }, []);
+
+  const handleMouseDown = useCallback((_e: any, vertex: Vertex) => {
+    dispatch({ type: "MOUSE_DOWN", payload: vertex });
+  }, []);
+
+  const handleMouseUp = useCallback((_e: any, vertex: Vertex) => {
+    dispatch({ type: "MOUSE_UP", payload: vertex });
+  }, []);
 
   const handleBoardMouseLeave = useCallback(() => {
-    if (state.isDragging) {
-      dispatch({ type: "COMMIT_STAGED_CHANGES" });
-      dispatch({ type: "MOUSE_UP" });
-    }
-  }, [state.isDragging]);
+    dispatch({ type: "MOUSE_LEAVE_BOARD" });
+  }, []);
 
   const handleClearBoard = useCallback(() => {
     dispatch({ type: "CLEAR_BOARD" });
