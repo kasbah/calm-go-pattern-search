@@ -1,14 +1,19 @@
 import path from "node:path";
 import { defineConfig } from "vite";
-import wasmPack from "./vite-plugin-wasm-pack";
+import topLevelAwait from "vite-plugin-top-level-await";
+import wasm from "vite-plugin-wasm";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  build: {
-    minify: false,
+  optimizeDeps: {
+    exclude: ["wasm-search"],
   },
-  plugins: [wasmPack(["./rust/wasm-search"]), react(), tailwindcss()],
+  plugins: [react(), wasm(), topLevelAwait(), tailwindcss()],
+  worker: {
+    plugins: () => [wasm(), topLevelAwait()],
+    format: "es",
+  },
   resolve: {
     alias: [
       { find: "preact/hooks", replacement: "react" },
