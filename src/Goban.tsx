@@ -128,20 +128,6 @@ const initialState: GobanState = {
   isDragging: false,
 };
 
-function calculateDimmedVertices(
-  board: BoardPosition,
-  displayBoard: BoardPosition,
-): Array<Vertex> {
-  const dimmed: Array<Vertex> = [];
-  for (let y = 0; y < board.length; y++) {
-    for (let x = 0; x < board[y].length; x++) {
-      if (board[y][x] !== displayBoard[y][x]) {
-        dimmed.push([x, y]);
-      }
-    }
-  }
-  return dimmed;
-}
 
 function gobanReducer(state: GobanState, action: GobanAction): void {
   switch (action.type) {
