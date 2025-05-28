@@ -112,6 +112,7 @@ type GobanAction =
   | { type: "SET_HOVER_VERTEX"; payload: Vertex | null }
   | { type: "SET_BRUSH_MODE"; payload: BrushMode }
   | { type: "PLACE_STONE"; payload: Vertex }
+  | { type: "PLACE_DRAGGING_STONE"; payload: Vertex }
   | { type: "REMOVE_STONE"; payload: Vertex }
   | { type: "UNDO" }
   | { type: "REDO" }
@@ -175,6 +176,28 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
       return;
     }
 
+    case "PLACE_DRAGGING_STONE": {
+      const vertex = action.payload;
+      const x = vertex[0];
+      const y = vertex[1];
+      const stone = state.board[y][x];
+      const nextColor = getNextColor(
+        stone,
+        state.alternateBrushColor,
+        state.brushMode,
+      );
+
+      if (nextColor !== SabakiColor.Empty) {
+        const sgb = new SabakiGoBoard(state.board);
+        const move = sgb.makeMove(nextColor as Sign, vertex);
+        const newBoard = move.signMap;
+        state.board = newBoard;
+        state.displayBoard = newBoard;
+        state.pendingStones.push(vertex);
+      }
+      return;
+    }
+
     case "PLACE_STONE": {
       const vertex = action.payload;
       const x = vertex[0];
@@ -186,20 +209,10 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
         state.brushMode,
       );
 
-      // Only proceed if we're placing a stone
       if (nextColor !== SabakiColor.Empty) {
         const sgb = new SabakiGoBoard(state.board);
         const move = sgb.makeMove(nextColor as Sign, vertex);
-
         const newBoard = move.signMap;
-
-        // If dragging, add to pending stones instead of updating history
-        if (state.isDragging) {
-          state.board = newBoard;
-          state.displayBoard = newBoard;
-          state.pendingStones.push(vertex);
-          return;
-        }
 
         const newAlternateBrushColor =
           nextColor === SabakiColor.Black
@@ -317,7 +330,7 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
         (state.brushMode === BrushMode.Black ||
           state.brushMode === BrushMode.White)
       ) {
-        dispatch({ type: "PLACE_STONE", payload: vertex });
+        dispatch({ type: "PLACE_DRAGGING_STONE", payload: vertex });
       }
     },
     [state.isDragging, state.brushMode, state.board],
@@ -334,7 +347,7 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
         state.brushMode === BrushMode.White
       ) {
         dispatch({ type: "SET_DRAGGING", payload: true });
-        dispatch({ type: "PLACE_STONE", payload: vertex });
+        dispatch({ type: "PLACE_DRAGGING_STONE", payload: vertex });
       }
     },
     [state.brushMode, state.board],
@@ -342,15 +355,13 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
 
   const handleMouseUp = useCallback(
     (_e: any, vertex: Vertex) => {
-      dispatch({ type: "SET_DRAGGING", payload: false });
-
-      dispatch({ type: "SET_HOVER_VERTEX", payload: null });
-
       if (state.brushMode === BrushMode.Remove) {
         dispatch({ type: "REMOVE_STONE", payload: vertex });
-      } else {
+      } else if (!state.isDragging) {
         dispatch({ type: "PLACE_STONE", payload: vertex });
       }
+      dispatch({ type: "SET_DRAGGING", payload: false });
+      dispatch({ type: "SET_HOVER_VERTEX", payload: null });
     },
     [state.board, state.brushMode],
   );
