@@ -1,6 +1,8 @@
-import("wasm-search").then((wasmSearch) => {
-  console.log("Worker: wasm-search loaded");
-});
+import { WasmSearch } from "wasm-search";
+
+console.log("Worker: wasm-search loaded");
+
+console.log({ WasmSearch });
 
 console.log("Worker: Initializing wasm-search");
 
