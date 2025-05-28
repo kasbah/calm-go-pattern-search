@@ -4,7 +4,7 @@ import { useWindowSize } from "@reach/window-size";
 import { BoundedGoban, type Vertex } from "@sabaki/shudan";
 import "@sabaki/shudan/css/goban.css";
 import "./Goban.css";
-import SabakiGoBoard, { type Sign } from "@sabaki/go-board";
+import SabakiGoBoard from "@sabaki/go-board";
 import { useImmerReducer } from "use-immer";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
@@ -116,6 +116,7 @@ type GobanAction =
   | { type: "SET_DRAGGING"; payload: boolean }
   | { type: "MOUSE_DOWN" }
   | { type: "MOUSE_UP" }
+  | { type: "PLACE_OR_SWITCH_STONE"; payload: Vertex }
   | { type: "RESET_STAGING_VERTEX"; payload: Vertex };
 
 type GobanState = {
@@ -210,6 +211,26 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
             ? SabakiColor.White
             : SabakiColor.Black;
       }
+      return;
+    }
+
+    case "PLACE_OR_SWITCH_STONE": {
+      const vertex = action.payload;
+      const x = vertex[0];
+      const y = vertex[1];
+      const stone = state.board[y][x];
+      let newStone;
+      if (stone === SabakiSign.Empty) {
+        newStone = state.alternateBrushColor;
+      } else {
+        newStone =
+          stone === SabakiSign.Black ? SabakiSign.White : SabakiSign.Black;
+      }
+      state.alternateBrushColor =
+        newStone === SabakiSign.Black ? SabakiColor.White : SabakiColor.Black;
+      state.lastStagedSign = newStone;
+      state.board[y][x] = newStone;
+      state.stagingBoard = state.board;
       return;
     }
 
@@ -325,10 +346,16 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
     dispatch({ type: "MOUSE_DOWN" });
   }, []);
 
-  const handleMouseUp = useCallback((_e: any, _vertex: Vertex) => {
-    dispatch({ type: "COMMIT_STAGED_CHANGES" });
-    dispatch({ type: "MOUSE_UP" });
-  }, []);
+  const handleMouseUp = useCallback(
+    (_e: any, vertex: Vertex) => {
+      if (!state.isDragging && state.brushMode === BrushMode.Alternate) {
+        dispatch({ type: "PLACE_OR_SWITCH_STONE", payload: vertex });
+      }
+      dispatch({ type: "COMMIT_STAGED_CHANGES" });
+      dispatch({ type: "MOUSE_UP" });
+    },
+    [state.isDragging, state.brushMode],
+  );
 
   const handleBoardMouseLeave = useCallback(() => {
     if (state.isDragging) {
