@@ -114,6 +114,8 @@ type GobanAction =
   | { type: "REDO" }
   | { type: "CLEAR_BOARD" }
   | { type: "SET_DRAGGING"; payload: boolean }
+  | { type: "MOUSE_DOWN" }
+  | { type: "MOUSE_UP" }
   | { type: "RESET_STAGING_VERTEX"; payload: Vertex };
 
 type GobanState = {
@@ -125,6 +127,7 @@ type GobanState = {
   history: HistoryEntry[];
   historyIndex: number;
   isDragging: boolean;
+  isMouseDown: boolean;
 };
 
 const initialState: GobanState = {
@@ -136,10 +139,20 @@ const initialState: GobanState = {
   history: [{ board: emptyBoard, moveSign: SabakiSign.Empty }],
   historyIndex: 0,
   isDragging: false,
+  isMouseDown: false,
 };
 
 function gobanReducer(state: GobanState, action: GobanAction): void {
   switch (action.type) {
+    case "MOUSE_DOWN":
+      state.isMouseDown = true;
+      return;
+
+    case "MOUSE_UP":
+      state.isDragging = false;
+      state.isMouseDown = false;
+      return;
+
     case "SET_BRUSH_MODE":
       state.brushMode = action.payload;
       return;
@@ -299,28 +312,30 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
 
   const handleVertexMouseLeave = useCallback(
     (_e: any, vertex: Vertex) => {
-      if (!state.isDragging) {
+      if (state.isMouseDown) {
+        dispatch({ type: "SET_DRAGGING", payload: true });
+      } else {
         dispatch({ type: "RESET_STAGING_VERTEX", payload: vertex });
       }
     },
-    [state.isDragging],
+    [state.isMouseDown],
   );
 
   const handleMouseDown = useCallback((_e: any, _vertex: Vertex) => {
-    dispatch({ type: "SET_DRAGGING", payload: true });
+    dispatch({ type: "MOUSE_DOWN" });
   }, []);
 
   const handleMouseUp = useCallback((_e: any, _vertex: Vertex) => {
     dispatch({ type: "COMMIT_STAGED_CHANGES" });
-    dispatch({ type: "SET_DRAGGING", payload: false });
+    dispatch({ type: "MOUSE_UP" });
   }, []);
 
   const handleBoardMouseLeave = useCallback(() => {
     if (state.isDragging) {
       dispatch({ type: "COMMIT_STAGED_CHANGES" });
-      dispatch({ type: "SET_DRAGGING", payload: false });
+      dispatch({ type: "MOUSE_UP" });
     }
-  }, []);
+  }, [state.isDragging]);
 
   const handleClearBoard = useCallback(() => {
     dispatch({ type: "CLEAR_BOARD" });
