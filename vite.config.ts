@@ -18,7 +18,7 @@ export default defineConfig({
     alias: [
       { find: "preact/hooks", replacement: "react" },
       { find: "preact", replacement: "react" },
-      { find: "@", replacement: path.resolve(__dirname, "./src") },
+      { find: "@", replacement: path.resolve(__dirname, "./ts") },
     ],
   },
 });
