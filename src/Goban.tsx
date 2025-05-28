@@ -6,7 +6,6 @@ import "@sabaki/shudan/css/goban.css";
 import "./Goban.css";
 import SabakiGoBoard, { type Sign } from "@sabaki/go-board";
 import { useImmerReducer } from "use-immer";
-import { produce } from "immer";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 
@@ -19,13 +18,20 @@ import trashSvg from "./icons/trash.svg";
 import undoSvg from "./icons/undo.svg";
 import redoSvg from "./icons/redo.svg";
 
-export const SabakiColor = Object.freeze({
+export const SabakiSign = Object.freeze({
   Black: 1,
   White: -1,
   Empty: 0,
 });
 
-export type SabakiColor = (typeof SabakiColor)[keyof typeof SabakiColor];
+export type SabakiSign = (typeof SabakiSign)[keyof typeof SabakiSign];
+
+export const SabakiColor = Object.freeze({
+  Black: 1,
+  White: -1,
+});
+
+export type SabakiColor = (typeof SabakiSign)[keyof typeof SabakiSign];
 
 export const BrushMode = Object.freeze({
   Alternate: 2,
@@ -36,7 +42,7 @@ export const BrushMode = Object.freeze({
 
 export type BrushMode = (typeof BrushMode)[keyof typeof BrushMode];
 
-export type BoardPosition = Array<Array<SabakiColor>>;
+export type BoardPosition = Array<Array<SabakiSign>>;
 
 /* prettier-ignore */
 export const emptyBoard: BoardPosition = [
@@ -69,36 +75,47 @@ export type GobanProps = {
 };
 
 function getNextColor(
-  stone: SabakiColor,
-  brushColor: SabakiColor,
+  stone: SabakiSign,
+  brushColor: SabakiSign,
   brushMode: BrushMode,
-): SabakiColor {
+): SabakiSign {
   if (brushMode === BrushMode.Alternate) {
-    if (stone === SabakiColor.Empty) {
+    if (stone === SabakiSign.Empty) {
       return brushColor;
-    } else if (stone === SabakiColor.Black) {
-      return SabakiColor.White;
+    } else if (stone === SabakiSign.Black) {
+      return SabakiSign.White;
     }
-    return SabakiColor.Black;
+    return SabakiSign.Black;
   } else if (brushMode === BrushMode.Black) {
-    return SabakiColor.Black;
+    return SabakiSign.Black;
   } else if (brushMode === BrushMode.White) {
-    return SabakiColor.White;
+    return SabakiSign.White;
   } else if (brushMode === BrushMode.Remove) {
-    return SabakiColor.Empty;
+    return SabakiSign.Empty;
   }
   throw new Error("Unknown brush mode");
 }
 
 type HistoryEntry = {
   board: BoardPosition;
-  moveColor: SabakiColor;
+  moveSign: SabakiSign;
 };
+
+type GobanAction =
+  | { type: "SET_BRUSH_MODE"; payload: BrushMode }
+  | { type: "STAGE_STONE_PLACEMENT"; payload: Vertex }
+  | { type: "STAGE_STONE_REMOVAL"; payload: Vertex }
+  | { type: "COMMIT_STAGED_CHANGES" }
+  | { type: "UNDO" }
+  | { type: "REDO" }
+  | { type: "CLEAR_BOARD" }
+  | { type: "SET_DRAGGING"; payload: boolean }
+  | { type: "RESET_STAGING_VERTEX"; payload: Vertex };
 
 type GobanState = {
   board: BoardPosition;
   stagingBoard: BoardPosition;
-  hoverVertex: Vertex | null;
+  lastStagedSign: SabakiSign;
   alternateBrushColor: SabakiColor;
   brushMode: BrushMode;
   history: HistoryEntry[];
@@ -106,78 +123,24 @@ type GobanState = {
   isDragging: boolean;
 };
 
-type GobanAction =
-  | { type: "SET_HOVER_VERTEX"; payload: Vertex | null }
-  | { type: "SET_BRUSH_MODE"; payload: BrushMode }
-  | { type: "PLACE_STONE"; payload: Vertex }
-  | { type: "PLACE_DRAGGING_STONE"; payload: Vertex }
-  | { type: "REMOVE_STONE"; payload: Vertex }
-  | { type: "UNDO" }
-  | { type: "REDO" }
-  | { type: "CLEAR_BOARD" }
-  | { type: "SET_DRAGGING"; payload: boolean };
-
 const initialState: GobanState = {
   board: emptyBoard,
   stagingBoard: emptyBoard,
-  hoverVertex: null,
+  lastStagedSign: SabakiSign.Empty,
   alternateBrushColor: SabakiColor.Black,
   brushMode: BrushMode.Alternate,
-  history: [{ board: emptyBoard, moveColor: SabakiColor.Empty }],
+  history: [{ board: emptyBoard, moveSign: SabakiSign.Empty }],
   historyIndex: 0,
   isDragging: false,
 };
 
-
 function gobanReducer(state: GobanState, action: GobanAction): void {
   switch (action.type) {
-    case "SET_HOVER_VERTEX": {
-      const newHoverVertex = action.payload;
-      state.hoverVertex = newHoverVertex;
-      if (state.isDragging) {
-        return;
-      }
-      if (newHoverVertex == null) {
-        state.stagingBoard = state.board;
-        return;
-      }
-      const x = newHoverVertex[0];
-      const y = newHoverVertex[1];
-      const stone = state.board[y][x];
-      const nextColor = getNextColor(
-        stone,
-        state.alternateBrushColor,
-        state.brushMode,
-      );
-      // we need to make a modified copy of state.board here, without modifying
-      // state.board itself, so we need this extra `produce` call even though
-      // we are using useImmerReducer
-      state.stagingBoard = produce(state.board, (draft) => {
-        draft[y][x] = nextColor;
-      });
-      return;
-    }
-
     case "SET_BRUSH_MODE":
       state.brushMode = action.payload;
       return;
 
-    case "REMOVE_STONE": {
-      const vertex = action.payload;
-      const x = vertex[0];
-      const y = vertex[1];
-      state.board[y][x] = SabakiColor.Empty;
-      state.stagingBoard = state.board;
-      state.history.splice(state.historyIndex + 1);
-      state.history.push({
-        board: state.board,
-        moveColor: state.history[state.historyIndex].moveColor,
-      });
-      state.historyIndex = state.historyIndex + 1;
-      return;
-    }
-
-    case "PLACE_DRAGGING_STONE": {
+    case "STAGE_STONE_PLACEMENT": {
       const vertex = action.payload;
       const x = vertex[0];
       const y = vertex[1];
@@ -192,74 +155,69 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
       const move = sgb.makeMove(nextColor as Sign, vertex);
 
       state.stagingBoard = move.signMap;
+      state.lastStagedSign = nextColor;
       return;
     }
 
-    case "PLACE_STONE": {
+    case "STAGE_STONE_REMOVAL": {
       const vertex = action.payload;
       const x = vertex[0];
       const y = vertex[1];
-      const stone = state.board[y][x];
-      const nextColor = getNextColor(
-        stone,
-        state.alternateBrushColor,
-        state.brushMode,
-      );
+      state.stagingBoard[y][x] = SabakiSign.Empty;
+      state.lastStagedSign = SabakiSign.Empty;
+      return;
+    }
 
-      if (nextColor !== SabakiColor.Empty) {
-        const sgb = new SabakiGoBoard(state.board);
-        const move = sgb.makeMove(nextColor as Sign, vertex);
-        const newBoard = move.signMap;
+    case "RESET_STAGING_VERTEX": {
+      const vertex = action.payload;
+      const x = vertex[0];
+      const y = vertex[1];
+      state.stagingBoard[y][x] = state.board[y][x];
+      return;
+    }
 
-        const newAlternateBrushColor =
-          nextColor === SabakiColor.Black
+    case "COMMIT_STAGED_CHANGES": {
+      state.history.splice(state.historyIndex + 1);
+      state.board = state.stagingBoard;
+      const moveSign = state.lastStagedSign;
+      state.history.push({
+        board: state.board,
+        moveSign,
+      });
+      state.historyIndex = state.historyIndex + 1;
+      if (moveSign !== SabakiSign.Empty) {
+        state.alternateBrushColor =
+          moveSign === SabakiColor.Black
             ? SabakiColor.White
             : SabakiColor.Black;
-
-        state.board = newBoard;
-        state.stagingBoard = newBoard;
-        state.history.splice(state.historyIndex + 1);
-        state.history.push({
-          board: newBoard,
-          moveColor: nextColor,
-        });
-        state.historyIndex = state.historyIndex + 1;
-        state.alternateBrushColor = newAlternateBrushColor;
       }
       return;
     }
 
     case "UNDO":
       if (state.historyIndex > 0) {
-        const { moveColor } = state.history[state.historyIndex];
-        const newIndex = state.historyIndex - 1;
-        const { board: newBoard } = state.history[newIndex];
-        const newAlternateBrushColor =
-          moveColor === SabakiColor.Empty
-            ? state.alternateBrushColor
-            : moveColor;
-
+        const { moveSign } = state.history[state.historyIndex];
+        state.historyIndex -= 1;
+        const { board: newBoard } = state.history[state.historyIndex];
+        state.alternateBrushColor =
+          moveSign === SabakiSign.Empty ? state.alternateBrushColor : moveSign;
         state.board = newBoard;
         state.stagingBoard = newBoard;
-        state.historyIndex = newIndex;
-        state.alternateBrushColor = newAlternateBrushColor;
       }
       return;
 
     case "REDO":
       if (state.historyIndex < state.history.length - 1) {
-        const { moveColor } = state.history[state.historyIndex];
-        const newIndex = state.historyIndex + 1;
-        const { board: newBoard } = state.history[newIndex];
-        const newAlternateBrushColor =
-          moveColor === SabakiColor.Empty
-            ? state.alternateBrushColor
-            : moveColor;
-
+        state.historyIndex += 1;
+        const { board: newBoard, moveSign } = state.history[state.historyIndex];
+        if (moveSign !== SabakiSign.Empty) {
+          state.alternateBrushColor =
+            moveSign === SabakiSign.Black
+              ? SabakiColor.White
+              : SabakiColor.Black;
+        }
         state.board = newBoard;
         state.stagingBoard = newBoard;
-        state.historyIndex = newIndex;
-        state.alternateBrushColor = newAlternateBrushColor;
       }
       return;
 
@@ -267,35 +225,17 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
       state.history.splice(state.historyIndex + 1);
       state.history.push({
         board: emptyBoard,
-        moveColor: state.alternateBrushColor,
+        moveSign: state.alternateBrushColor,
       });
-
       state.board = emptyBoard;
       state.stagingBoard = emptyBoard;
       state.historyIndex = state.historyIndex + 1;
-      state.alternateBrushColor = SabakiColor.Black;
+      state.alternateBrushColor = SabakiSign.Black;
       return;
     }
 
     case "SET_DRAGGING": {
-      const wasDragging = state.isDragging;
-      const isDragging = action.payload;
-
-      // If we're releasing the drag and have pending stones, commit them
-      if (wasDragging && !isDragging) {
-        state.history.splice(state.historyIndex + 1);
-        state.board = state.stagingBoard;
-        state.history.push({
-          board: state.board,
-          moveColor:
-            state.brushMode === BrushMode.Black
-              ? SabakiColor.Black
-              : SabakiColor.White,
-        });
-        state.historyIndex = state.historyIndex + 1;
-      }
-
-      state.isDragging = isDragging;
+      state.isDragging = action.payload;
       return;
     }
   }
@@ -319,13 +259,13 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
         if (stagingStone !== boardStone) {
           dimmed.push([x, y]);
         }
-        if (stagingStone !== SabakiColor.Empty) {
+        if (stagingStone !== SabakiSign.Empty) {
           return stagingStone;
         }
-        if (boardStone !== SabakiColor.Empty) {
+        if (boardStone !== SabakiSign.Empty) {
           return boardStone;
         }
-        return SabakiColor.Empty;
+        return SabakiSign.Empty;
       }),
     );
     setDisplayBoard(display);
@@ -342,61 +282,39 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
 
   const handleVertexMouseEnter = useCallback(
     (_e: any, vertex: Vertex) => {
-      // If dragging and using black or white brush, place a stone
-      if (state.isDragging) {
-        if (
-          state.brushMode === BrushMode.Black ||
-          state.brushMode === BrushMode.White
-        ) {
-          dispatch({ type: "PLACE_DRAGGING_STONE", payload: vertex });
-        }
+      if (state.brushMode === BrushMode.Remove) {
+        dispatch({ type: "STAGE_STONE_REMOVAL", payload: vertex });
       } else {
-        dispatch({ type: "SET_HOVER_VERTEX", payload: vertex });
+        dispatch({ type: "STAGE_STONE_PLACEMENT", payload: vertex });
       }
     },
-    [state.isDragging, state.brushMode],
+    [state.brushMode],
   );
 
   const handleVertexMouseLeave = useCallback(
-    (_e: any, _vertex: Vertex) => {
+    (_e: any, vertex: Vertex) => {
       if (!state.isDragging) {
-        dispatch({ type: "SET_HOVER_VERTEX", payload: null });
+        dispatch({ type: "RESET_STAGING_VERTEX", payload: vertex });
       }
     },
     [state.isDragging],
   );
 
-  const handleMouseDown = useCallback(
-    (_e: any, vertex: Vertex) => {
-      if (
-        state.brushMode === BrushMode.Black ||
-        state.brushMode === BrushMode.White
-      ) {
-        dispatch({ type: "SET_DRAGGING", payload: true });
-        dispatch({ type: "PLACE_DRAGGING_STONE", payload: vertex });
-      }
-    },
-    [state.brushMode, state.board],
-  );
+  const handleMouseDown = useCallback((_e: any, _vertex: Vertex) => {
+    dispatch({ type: "SET_DRAGGING", payload: true });
+  }, []);
 
-  const handleMouseUp = useCallback(
-    (_e: any, vertex: Vertex) => {
-      if (state.brushMode === BrushMode.Remove) {
-        dispatch({ type: "REMOVE_STONE", payload: vertex });
-      } else if (!state.isDragging && state.brushMode === BrushMode.Alternate) {
-        dispatch({ type: "PLACE_STONE", payload: vertex });
-      }
-      dispatch({ type: "SET_DRAGGING", payload: false });
-      dispatch({ type: "SET_HOVER_VERTEX", payload: null });
-    },
-    [state.board, state.brushMode],
-  );
+  const handleMouseUp = useCallback((_e: any, _vertex: Vertex) => {
+    dispatch({ type: "COMMIT_STAGED_CHANGES" });
+    dispatch({ type: "SET_DRAGGING", payload: false });
+  }, []);
 
   const handleBoardMouseLeave = useCallback(() => {
     if (state.isDragging) {
+      dispatch({ type: "COMMIT_STAGED_CHANGES" });
       dispatch({ type: "SET_DRAGGING", payload: false });
     }
-  }, [state.isDragging]);
+  }, []);
 
   const handleClearBoard = useCallback(() => {
     dispatch({ type: "CLEAR_BOARD" });
@@ -432,7 +350,7 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
               }
               pressed={state.brushMode === BrushMode.Alternate}
             >
-              {state.alternateBrushColor === SabakiColor.Black ? (
+              {state.alternateBrushColor === SabakiSign.Black ? (
                 <img src={overlappingCirclesBlackSvg} width={32} height={32} />
               ) : (
                 <img src={overlappingCirclesWhiteSvg} width={32} height={32} />
