@@ -134,6 +134,10 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
   switch (action.type) {
     case "SET_HOVER_VERTEX": {
       const newHoverVertex = action.payload;
+      state.hoverVertex = newHoverVertex;
+      if (state.isDragging) {
+        return;
+      }
       if (newHoverVertex == null) {
         state.displayBoard = state.board;
         state.dimmedVertices = [];
@@ -185,14 +189,11 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
         state.brushMode,
       );
 
-      if (nextColor !== SabakiColor.Empty) {
-        const sgb = new SabakiGoBoard(state.board);
-        const move = sgb.makeMove(nextColor as Sign, vertex);
-        const newBoard = move.signMap;
-        state.board = newBoard;
-        state.displayBoard = newBoard;
-        state.dimmedVertices.push([x, y]);
-      }
+      const sgb = new SabakiGoBoard(state.displayBoard);
+      const move = sgb.makeMove(nextColor as Sign, vertex);
+
+      state.displayBoard = move.signMap;
+      state.dimmedVertices.push([x, y]);
       return;
     }
 
@@ -361,7 +362,7 @@ export default function Goban({ onUpdateBoard }: GobanProps) {
     (_e: any, vertex: Vertex) => {
       if (state.brushMode === BrushMode.Remove) {
         dispatch({ type: "REMOVE_STONE", payload: vertex });
-      } else if (!state.isDragging) {
+      } else if (!state.isDragging && state.brushMode === BrushMode.Alternate) {
         dispatch({ type: "PLACE_STONE", payload: vertex });
       }
       dispatch({ type: "SET_DRAGGING", payload: false });
