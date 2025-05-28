@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import Goban, { emptyBoard, SabakiColor, type BoardPosition } from "./Goban";
+import Goban from "./Goban";
+
+import { type BoardPosition, emptyBoard } from "./SabakiTypes";
 
 export default function App() {
   const [board, setBoard] = useState<BoardPosition>(emptyBoard);
