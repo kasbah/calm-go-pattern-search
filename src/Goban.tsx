@@ -74,18 +74,22 @@ export type GobanProps = {
   onUpdateBoard: (board: BoardPosition) => void;
 };
 
-function getNextColor(
+function getNextSign(
   stone: SabakiSign,
   brushColor: SabakiSign,
   brushMode: BrushMode,
+  isDragging: boolean,
+  lastStagedSign: SabakiSign,
 ): SabakiSign {
-  if (brushMode === BrushMode.Alternate) {
+  if (brushMode === BrushMode.Alternate && !isDragging) {
     if (stone === SabakiSign.Empty) {
       return brushColor;
     } else if (stone === SabakiSign.Black) {
       return SabakiSign.White;
     }
     return SabakiSign.Black;
+  } else if (brushMode === BrushMode.Alternate && isDragging) {
+    return lastStagedSign;
   } else if (brushMode === BrushMode.Black) {
     return SabakiSign.Black;
   } else if (brushMode === BrushMode.White) {
@@ -145,14 +149,16 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
       const x = vertex[0];
       const y = vertex[1];
       const stone = state.board[y][x];
-      const nextColor = getNextColor(
+      const nextColor = getNextSign(
         stone,
         state.alternateBrushColor,
         state.brushMode,
+        state.isDragging,
+        state.lastStagedSign,
       );
 
       const sgb = new SabakiGoBoard(state.stagingBoard);
-      const move = sgb.makeMove(nextColor as Sign, vertex);
+      const move = sgb.makeMove(nextColor, vertex);
 
       state.stagingBoard = move.signMap;
       state.lastStagedSign = nextColor;
