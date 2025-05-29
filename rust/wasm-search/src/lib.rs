@@ -31,6 +31,7 @@ extern "C" {
 #[wasm_bindgen]
 pub struct WasmSearch {
     game_data: HashMap<String, Vec<Placement>>,
+    position_cache: HashMap<Vec<Placement>, Vec<SearchResult>>,
 }
 
 #[wasm_bindgen]
@@ -39,11 +40,12 @@ impl WasmSearch {
     pub fn new() -> WasmSearch {
         let packed = include_bytes!("games.pack");
         let game_data = unpack_games(packed);
-        Self { game_data }
+        let position_cache = HashMap::new();
+        Self { game_data, position_cache }
     }
 
     #[wasm_bindgen]
-    pub async fn search(&self, position: Uint8Array) -> Uint8Array {
+    pub async fn search(&mut self, position: Uint8Array) -> Uint8Array {
         let position_buf: Vec<u8> = position.to_vec();
         let position_decoded: Vec<Placement> = serde_json::from_slice(position_buf.as_slice())
             .expect("Failed to deserialize position");
@@ -53,9 +55,12 @@ impl WasmSearch {
         Uint8Array::from(results_buf.as_slice())
     }
 
-    fn _search(&self, position: &Vec<Placement>) -> Vec<SearchResult> {
+    fn _search(&mut self, position: &Vec<Placement>) -> Vec<SearchResult> {
         if position.is_empty() {
             return Vec::new();
+        }
+        if let Some(results) = self.position_cache.get(position) {
+            return results.clone();
         }
         let mut results = Vec::new();
         let rotations = get_rotations(&position);
@@ -132,6 +137,9 @@ impl WasmSearch {
                 }
             }
         }
+
+
+        self.position_cache.insert(position.clone(), results.clone());
 
         results
     }
