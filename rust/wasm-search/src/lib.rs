@@ -41,7 +41,10 @@ impl WasmSearch {
         let packed = include_bytes!("games.pack");
         let game_data = unpack_games(packed);
         let position_cache = HashMap::new();
-        Self { game_data, position_cache }
+        Self {
+            game_data,
+            position_cache,
+        }
     }
 
     #[wasm_bindgen]
@@ -138,8 +141,8 @@ impl WasmSearch {
             }
         }
 
-
-        self.position_cache.insert(position.clone(), results.clone());
+        self.position_cache
+            .insert(position.clone(), results.clone());
 
         results
     }

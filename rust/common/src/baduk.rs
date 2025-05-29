@@ -1,8 +1,8 @@
 use bit_vec::BitVec;
 use rmp_serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use serde_bytes;
+use std::collections::HashMap;
 
 pub const BOARD_SIZE: u8 = 19;
 

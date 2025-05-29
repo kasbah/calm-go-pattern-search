@@ -5,7 +5,9 @@ use sgf_parse::go;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use calm_go_patterns_common::baduk::{BOARD_SIZE, Color, Placement, Point, get_rotations, pack_games};
+use calm_go_patterns_common::baduk::{
+    BOARD_SIZE, Color, Placement, Point, get_rotations, pack_games,
+};
 
 fn main() {
     let mut sgf_folder = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
