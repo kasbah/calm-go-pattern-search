@@ -52,17 +52,17 @@ impl WasmSearch {
         let position_buf: Vec<u8> = position.to_vec();
         let position_decoded: Vec<Placement> = serde_json::from_slice(position_buf.as_slice())
             .expect("Failed to deserialize position");
-        let results = self._search(&position_decoded);
+        let results = self._search(position_decoded);
         let results_buf: Vec<u8> =
             serde_json::to_vec(&results).expect("Failed to serialize results");
         Uint8Array::from(results_buf.as_slice())
     }
 
-    fn _search(&mut self, position: &Vec<Placement>) -> Vec<SearchResult> {
+    fn _search(&mut self, position: Vec<Placement>) -> Vec<SearchResult> {
         if position.is_empty() {
             return Vec::new();
         }
-        if let Some(results) = self.position_cache.get(position) {
+        if let Some(results) = self.position_cache.get(&position) {
             return results.clone();
         }
         let mut results = Vec::new();
@@ -141,8 +141,7 @@ impl WasmSearch {
             }
         }
 
-        self.position_cache
-            .insert(position.clone(), results.clone());
+        self.position_cache.insert(position, results.clone());
 
         results
     }
