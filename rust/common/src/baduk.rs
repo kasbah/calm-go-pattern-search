@@ -78,6 +78,19 @@ pub fn get_rotations(position: &Vec<Placement>) -> Vec<Vec<Placement>> {
     result
 }
 
+pub fn get_mirrored(position: &Vec<Placement>) -> Vec<Placement> {
+    position
+        .iter()
+        .map(|p| Placement {
+            color: p.color,
+            point: Point {
+                x: BOARD_SIZE - p.point.x - 1,
+                y: p.point.y,
+            },
+        })
+        .collect()
+}
+
 pub fn switch_colors(position: &Vec<Placement>) -> Vec<Placement> {
     position
         .iter()
@@ -304,6 +317,40 @@ mod tests {
         assert_eq!(surrounding_points.len(), 15);
     }
 
+    #[test]
+    fn test_get_mirrored() {
+        let position = vec![
+            Placement {
+                color: Color::Black,
+                point: Point { x: 0, y: 0 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 18, y: 5 },
+            },
+            Placement {
+                color: Color::Black,
+                point: Point { x: 9, y: 9 },
+            },
+        ];
+
+        let mirrored = get_mirrored(&position);
+        assert_eq!(mirrored.len(), 3);
+        assert!(mirrored.contains(&Placement {
+            color: Color::Black,
+            point: Point { x: 18, y: 0 },
+        }));
+        assert!(mirrored.contains(&Placement {
+            color: Color::White,
+            point: Point { x: 0, y: 5 },
+        }));
+        assert!(mirrored.contains(&Placement {
+            color: Color::Black,
+            point: Point { x: 9, y: 9 },
+        }));
+    }
+
+    #[test]
     proptest! {
         #[test]
         fn test_pack_unpack_placements(placements in prop::collection::vec(
@@ -389,6 +436,26 @@ mod tests {
             let packed = pack_games(&games);
             let unpacked = unpack_games(&packed);
             assert_eq!(games, unpacked);
+        }
+    }
+
+    proptest! {
+        #[test]
+        fn test_get_mirrored_property(position in prop::collection::vec(
+            (any::<bool>(), any::<u8>(), any::<u8>()),
+            0..100
+        ).prop_map(|v| v.into_iter().map(|(is_black, x, y)| {
+            Placement {
+                color: if is_black { Color::Black } else { Color::White },
+                point: Point {
+                    x: x % BOARD_SIZE,
+                    y: y % BOARD_SIZE
+                }
+            }
+        }).collect::<Vec<_>>())) {
+            let mirrored = get_mirrored(&position);
+            let double_mirrored = get_mirrored(&mirrored);
+            assert_eq!(position, double_mirrored);
         }
     }
 }

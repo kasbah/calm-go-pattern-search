@@ -4,8 +4,8 @@ extern crate wasm_bindgen;
 mod utils;
 
 use calm_go_patterns_common::baduk::{
-    Placement, check_empty, get_rotations, get_surrounding_points, match_game, switch_colors,
-    unpack_games,
+    Placement, check_empty, get_mirrored, get_rotations, get_surrounding_points, match_game,
+    switch_colors, unpack_games,
 };
 use cfg_if::cfg_if;
 use lru::LruCache;
@@ -80,7 +80,13 @@ impl WasmSearch {
         let rotations = get_rotations(&position);
         let inverse = switch_colors(&position);
         let inverse_rotations = get_rotations(&inverse);
+        let mirrored = get_mirrored(&position);
+        let mirrored_rotations = get_rotations(&mirrored);
+        let mirrored_inverse = get_mirrored(&inverse);
+        let mirrored_inverse_rotations = get_rotations(&mirrored_inverse);
+
         for (path, moves) in &self.game_data {
+            // Original position
             let mut matched = match_game(&position, moves);
             if let Some(last_move_matched) = matched {
                 results.push(SearchResult {
@@ -88,10 +94,13 @@ impl WasmSearch {
                     score: 11,
                     last_move_matched,
                     rotation: 0,
-                    inverted: false,
+                    is_inverted: false,
+                    is_mirrored: false,
                 });
                 continue;
             }
+
+            // Original rotations
             for (i, rotation) in rotations.iter().enumerate() {
                 matched = match_game(rotation, moves);
                 if let Some(last_move_matched) = matched {
@@ -100,11 +109,48 @@ impl WasmSearch {
                         score: 10,
                         last_move_matched,
                         rotation: (i + 1) as u8,
-                        inverted: false,
+                        is_inverted: false,
+                        is_mirrored: false,
                     });
                     break;
                 }
             }
+
+            // Mirrored position
+            if matched.is_none() {
+                matched = match_game(&mirrored, moves);
+                if let Some(last_move_matched) = matched {
+                    results.push(SearchResult {
+                        path: path.clone(),
+                        score: 10,
+                        last_move_matched,
+                        rotation: 0,
+                        is_inverted: false,
+                        is_mirrored: true,
+                    });
+                    continue;
+                }
+            }
+
+            // Mirrored rotations
+            if matched.is_none() {
+                for (i, rotation) in mirrored_rotations.iter().enumerate() {
+                    matched = match_game(rotation, moves);
+                    if let Some(last_move_matched) = matched {
+                        results.push(SearchResult {
+                            path: path.clone(),
+                            score: 9,
+                            last_move_matched,
+                            rotation: (i + 1) as u8,
+                            is_inverted: false,
+                            is_mirrored: true,
+                        });
+                        break;
+                    }
+                }
+            }
+
+            // Inverse position
             if matched.is_none() {
                 matched = match_game(&inverse, moves);
                 if let Some(last_move_matched) = matched {
@@ -113,10 +159,15 @@ impl WasmSearch {
                         score: 9,
                         last_move_matched,
                         rotation: 0,
-                        inverted: true,
+                        is_inverted: true,
+                        is_mirrored: false,
                     });
                     continue;
                 }
+            }
+
+            // Inverse rotations
+            if matched.is_none() {
                 for (i, rotation) in inverse_rotations.iter().enumerate() {
                     matched = match_game(rotation, moves);
                     if let Some(last_move_matched) = matched {
@@ -125,7 +176,42 @@ impl WasmSearch {
                             score: 8,
                             last_move_matched,
                             rotation: (i + 1) as u8,
-                            inverted: true,
+                            is_inverted: true,
+                            is_mirrored: false,
+                        });
+                        break;
+                    }
+                }
+            }
+
+            // Mirrored inverse position
+            if matched.is_none() {
+                matched = match_game(&mirrored_inverse, moves);
+                if let Some(last_move_matched) = matched {
+                    results.push(SearchResult {
+                        path: path.clone(),
+                        score: 8,
+                        last_move_matched,
+                        rotation: 0,
+                        is_inverted: true,
+                        is_mirrored: true,
+                    });
+                    continue;
+                }
+            }
+
+            // Mirrored inverse rotations
+            if matched.is_none() {
+                for (i, rotation) in mirrored_inverse_rotations.iter().enumerate() {
+                    matched = match_game(rotation, moves);
+                    if let Some(last_move_matched) = matched {
+                        results.push(SearchResult {
+                            path: path.clone(),
+                            score: 7,
+                            last_move_matched,
+                            rotation: (i + 1) as u8,
+                            is_inverted: true,
+                            is_mirrored: true,
                         });
                         break;
                     }
@@ -177,8 +263,9 @@ pub struct SearchResult {
     path: String,
     score: i16,
     last_move_matched: usize,
-    rotation: u8,   // 0: no rotation, 1-3: rotation index
-    inverted: bool, // whether the colors were inverted
+    rotation: u8,      // 0: no rotation, 1-3: rotation index
+    is_inverted: bool, // whether the colors were inverted
+    is_mirrored: bool, // whether the position was mirrored
 }
 
 #[cfg(test)]
