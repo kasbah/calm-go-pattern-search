@@ -23,7 +23,7 @@
     "dev": "yarn wasm && vite",
     "build": "yarn wasm && vite build",
     "serve": "vite preview",
-    "fmt": "prettier --write ."
+    "fmt": "cargo fmt && prettier --write ."
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",

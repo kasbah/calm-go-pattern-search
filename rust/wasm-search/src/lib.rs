@@ -87,16 +87,20 @@ impl WasmSearch {
                     path: path.clone(),
                     score: 11,
                     last_move_matched,
+                    rotation: 0,
+                    inverted: false,
                 });
                 continue;
             }
-            for rotation in &rotations {
+            for (i, rotation) in rotations.iter().enumerate() {
                 matched = match_game(rotation, moves);
                 if let Some(last_move_matched) = matched {
                     results.push(SearchResult {
                         path: path.clone(),
                         score: 10,
                         last_move_matched,
+                        rotation: (i + 1) as u8,
+                        inverted: false,
                     });
                     break;
                 }
@@ -108,16 +112,20 @@ impl WasmSearch {
                         path: path.clone(),
                         score: 9,
                         last_move_matched,
+                        rotation: 0,
+                        inverted: true,
                     });
                     continue;
                 }
-                for rotation in &inverse_rotations {
+                for (i, rotation) in inverse_rotations.iter().enumerate() {
                     matched = match_game(rotation, moves);
                     if let Some(last_move_matched) = matched {
                         results.push(SearchResult {
                             path: path.clone(),
                             score: 8,
                             last_move_matched,
+                            rotation: (i + 1) as u8,
+                            inverted: true,
                         });
                         break;
                     }
@@ -169,6 +177,8 @@ pub struct SearchResult {
     path: String,
     score: i16,
     last_move_matched: usize,
+    rotation: u8,   // 0: no rotation, 1-3: rotation index
+    inverted: bool, // whether the colors were inverted
 }
 
 #[cfg(test)]

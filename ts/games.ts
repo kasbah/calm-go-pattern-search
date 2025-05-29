@@ -1,5 +1,7 @@
 export type Game = {
+  path: string;
   score: number;
   last_move_matched: number;
-  path: string;
+  rotation: number; // 0: no rotation, 1-3: rotation index
+  inverted: boolean; // whether the pattern colors were inverted
 };
