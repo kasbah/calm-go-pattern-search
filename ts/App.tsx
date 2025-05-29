@@ -3,9 +3,11 @@ import Goban from "./Goban";
 
 import { type BoardPosition, emptyBoard, SabakiSign } from "./SabakiTypes";
 import GamesList from "./GamesList";
+import type { Game } from "./games";
 
 export default function App() {
   const [board, setBoard] = useState<BoardPosition>(emptyBoard);
+  const [games, setGames] = useState<Array<Game>>([]);
 
   useEffect(() => {
     if (window.wasmSearchWorker !== undefined) {
@@ -34,24 +36,11 @@ export default function App() {
 
   useEffect(() => {
     window.wasmSearchWorker.onmessage = (e) => {
-      console.log("Message received from wasm");
       const { type, payload } = e.data;
       if (type === "result") {
-        let results = new TextDecoder().decode(payload);
-        results = JSON.parse(results);
-        results.sort(
-          (r1, r2) =>
-            r1.last_move_matched - r1.score - (r2.last_move_matched - r2.score),
-        );
-        for (const r of results.slice(0, 5)) {
-          console.log(
-            r.last_move_matched - r.score,
-            r.path,
-            r.score,
-            r.last_move_matched,
-          );
-        }
-        console.log(results.length - 5, "more");
+        let jsonText = new TextDecoder().decode(payload);
+        const rs: Array<Game> = JSON.parse(jsonText);
+        setGames(rs);
       }
     };
   }, []);
@@ -59,7 +48,7 @@ export default function App() {
   return (
     <div className="flex h-screen">
       <Goban onUpdateBoard={setBoard} />
-      <GamesList />
+      <GamesList games={games} />
     </div>
   );
 }
