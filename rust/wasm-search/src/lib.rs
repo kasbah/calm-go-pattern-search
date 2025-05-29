@@ -35,6 +35,12 @@ pub struct WasmSearch {
     position_cache: LruCache<Vec<Placement>, Vec<SearchResult>>,
 }
 
+#[derive(Serialize, Deserialize)]
+struct WasmSearchReturn {
+    num_results: usize,
+    results: Vec<SearchResult>,
+}
+
 #[wasm_bindgen]
 impl WasmSearch {
     #[wasm_bindgen(constructor)]
@@ -53,13 +59,17 @@ impl WasmSearch {
         let position_buf: Vec<u8> = position.to_vec();
         let position_decoded: Vec<Placement> = serde_json::from_slice(position_buf.as_slice())
             .expect("Failed to deserialize position");
-        let results = self._search(position_decoded);
-        let results_buf: Vec<u8> =
-            serde_json::to_vec(&results).expect("Failed to serialize results");
+        let results = self.match_position(position_decoded);
+        let num_results = results.len();
+        let ret = WasmSearchReturn {
+            num_results,
+            results: results[0..num_results.min(100)].to_vec(),
+        };
+        let results_buf: Vec<u8> = serde_json::to_vec(&ret).expect("Failed to serialize results");
         Uint8Array::from(results_buf.as_slice())
     }
 
-    fn _search(&mut self, position: Vec<Placement>) -> Vec<SearchResult> {
+    fn match_position(&mut self, position: Vec<Placement>) -> Vec<SearchResult> {
         if position.is_empty() {
             return Vec::new();
         }
@@ -141,6 +151,12 @@ impl WasmSearch {
                 }
             }
         }
+
+        results.sort_by(|a, b| {
+            let a_score: isize = a.last_move_matched as isize - a.score as isize;
+            let b_score: isize = b.last_move_matched as isize - b.score as isize;
+            a_score.cmp(&b_score)
+        });
 
         self.position_cache.put(position, results.clone());
 

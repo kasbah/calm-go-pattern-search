@@ -8,29 +8,28 @@ import type { Game } from "./games";
 export default function App() {
   const [board, setBoard] = useState<BoardPosition>(emptyBoard);
   const [games, setGames] = useState<Array<Game>>([]);
+  const [totalNumberOfGames, setTotalNumberOfGames] = useState(0);
 
   useEffect(() => {
     if (window.wasmSearchWorker !== undefined) {
-      (async () => {
-        const position: Array<{
-          color: "Black" | "White";
-          point: { x: number; y: number };
-        }> = [];
-        board.forEach((row, y) => {
-          row.forEach((stone, x) => {
-            if (stone !== SabakiSign.Empty) {
-              const color = stone === SabakiSign.Black ? "Black" : "White";
-              const point = { x, y };
-              position.push({ color, point });
-            }
-          });
+      const position: Array<{
+        color: "Black" | "White";
+        point: { x: number; y: number };
+      }> = [];
+      board.forEach((row, y) => {
+        row.forEach((stone, x) => {
+          if (stone !== SabakiSign.Empty) {
+            const color = stone === SabakiSign.Black ? "Black" : "White";
+            const point = { x, y };
+            position.push({ color, point });
+          }
         });
-        const positionBuf = new TextEncoder().encode(JSON.stringify(position));
-        window.wasmSearchWorker.postMessage(
-          { type: "search", payload: positionBuf },
-          [positionBuf.buffer],
-        );
-      })();
+      });
+      const positionBuf = new TextEncoder().encode(JSON.stringify(position));
+      window.wasmSearchWorker.postMessage(
+        { type: "search", payload: positionBuf },
+        [positionBuf.buffer],
+      );
     }
   }, [board]);
 
@@ -39,8 +38,9 @@ export default function App() {
       const { type, payload } = e.data;
       if (type === "result") {
         let jsonText = new TextDecoder().decode(payload);
-        const rs: Array<Game> = JSON.parse(jsonText);
-        setGames(rs);
+        const { num_results, results } = JSON.parse(jsonText);
+        setGames(results);
+        setTotalNumberOfGames(num_results);
       }
     };
   }, []);
@@ -48,7 +48,7 @@ export default function App() {
   return (
     <div className="flex h-screen">
       <Goban onUpdateBoard={setBoard} />
-      <GamesList games={games} />
+      <GamesList games={games} totalNumberOfGames={totalNumberOfGames} />
     </div>
   );
 }
