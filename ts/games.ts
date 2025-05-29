@@ -3,5 +3,6 @@ export type Game = {
   score: number;
   last_move_matched: number;
   rotation: number; // 0: no rotation, 1-3: rotation index
-  inverted: boolean; // whether the pattern colors were inverted
+  is_inverted: boolean; // whether the pattern colors were inverted
+  is_mirrored: boolean; // whether the pattern was mirrored
 };
