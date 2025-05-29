@@ -8,28 +8,33 @@ const wasmSearch = new WasmSearch();
 
 let queue: Uint8Array[] = [];
 
+let isSearching = false;
+
 onmessage = (e) => {
   const { type, payload } = e.data;
   if (type === "search") {
     queue.push(payload);
+    handleQueue();
   }
 };
 
-setInterval(async () => {
-  if (queue.length > 0) {
+async function handleQueue() {
+  if (queue.length > 0 && !isSearching) {
+    isSearching = true;
     // take the latest query and discard the rest
     const query = queue.pop()!!;
     queue = [];
-    const resultsBuf = await wasmSearch.search(query);
-    // give the JS event loop a chance to fill the queue
+    const results = await wasmSearch.search(query);
+    // give the JS event loop a chance to add queries to the queue
     await new Promise((resolve) => setTimeout(resolve, 0));
     // if there are no new queries, send this result
     if (queue.length === 0) {
-      self.postMessage({ type: "result", payload: resultsBuf }, [
-        resultsBuf.buffer,
-      ]);
+      self.postMessage({ type: "result", payload: results }, [results.buffer]);
     }
+    isSearching = false;
   }
-}, 100);
+}
+
+setInterval(handleQueue, 10);
 
 console.log("Worker: wasm initialized");
