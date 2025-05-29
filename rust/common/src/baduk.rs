@@ -245,6 +245,40 @@ pub fn unpack_games(packed: &[u8]) -> HashMap<String, Vec<Placement>> {
         .collect()
 }
 
+pub fn check_within_one_quadrant(position: &Vec<Placement>) -> bool {
+    if position.is_empty() {
+        return true;
+    }
+
+    let mid = BOARD_SIZE / 2;
+    let mut quadrant = None;
+
+    for placement in position {
+        let x = placement.point.x;
+        let y = placement.point.y;
+
+        // Return false if point is on middle lines
+        if x == mid || y == mid {
+            return false;
+        }
+
+        let current_quadrant = match (x < mid, y < mid) {
+            (true, true) => 0,   // Top-left
+            (false, true) => 1,  // Top-right
+            (true, false) => 2,  // Bottom-left
+            (false, false) => 3, // Bottom-right
+        };
+
+        match quadrant {
+            None => quadrant = Some(current_quadrant),
+            Some(q) if q != current_quadrant => return false,
+            _ => continue,
+        }
+    }
+
+    true
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -350,7 +384,6 @@ mod tests {
         }));
     }
 
-    #[test]
     proptest! {
         #[test]
         fn test_pack_unpack_placements(placements in prop::collection::vec(
@@ -457,5 +490,55 @@ mod tests {
             let double_mirrored = get_mirrored(&mirrored);
             assert_eq!(position, double_mirrored);
         }
+    }
+
+    #[test]
+    fn test_check_within_one_quadrant() {
+        // Empty position
+        assert!(check_within_one_quadrant(&vec![]));
+
+        // Single placement in top-left quadrant
+        assert!(check_within_one_quadrant(&vec![Placement {
+            color: Color::Black,
+            point: Point { x: 5, y: 5 },
+        }]));
+
+        // Multiple placements in top-left quadrant
+        assert!(check_within_one_quadrant(&vec![
+            Placement {
+                color: Color::Black,
+                point: Point { x: 5, y: 5 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 7, y: 3 },
+            }
+        ]));
+
+        // Placements in different quadrants
+        assert!(!check_within_one_quadrant(&vec![
+            Placement {
+                color: Color::Black,
+                point: Point { x: 5, y: 5 }, // Top-left
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 15, y: 15 }, // Bottom-right
+            }
+        ]));
+
+        // Placements on middle lines
+        assert!(!check_within_one_quadrant(&vec![Placement {
+            color: Color::Black,
+            point: Point { x: 9, y: 5 }, // On vertical middle line
+        }]));
+        assert!(!check_within_one_quadrant(&vec![Placement {
+            color: Color::Black,
+            point: Point { x: 5, y: 9 }, // On horizontal middle line
+        }]));
+        assert!(!check_within_one_quadrant(&vec![Placement {
+            color: Color::Black,
+            point: Point { x: 9, y: 9 }, // On both middle lines
+        }]));
     }
 }
