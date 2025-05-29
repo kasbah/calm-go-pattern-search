@@ -8,6 +8,7 @@ use calm_go_patterns_common::baduk::{
     unpack_games,
 };
 use cfg_if::cfg_if;
+use lru::LruCache;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use wasm_bindgen::prelude::*;
@@ -31,7 +32,7 @@ extern "C" {
 #[wasm_bindgen]
 pub struct WasmSearch {
     game_data: HashMap<String, Vec<Placement>>,
-    position_cache: HashMap<Vec<Placement>, Vec<SearchResult>>,
+    position_cache: LruCache<Vec<Placement>, Vec<SearchResult>>,
 }
 
 #[wasm_bindgen]
@@ -40,7 +41,7 @@ impl WasmSearch {
     pub fn new() -> WasmSearch {
         let packed = include_bytes!("games.pack");
         let game_data = unpack_games(packed);
-        let position_cache = HashMap::new();
+        let position_cache = LruCache::new(std::num::NonZeroUsize::new(1000).unwrap());
         Self {
             game_data,
             position_cache,
@@ -141,7 +142,7 @@ impl WasmSearch {
             }
         }
 
-        self.position_cache.insert(position, results.clone());
+        self.position_cache.put(position, results.clone());
 
         results
     }
