@@ -231,7 +231,7 @@ export default function GobanEditor({ onUpdateBoard }: GobanEditorProps) {
 
   useEffect(() => {
     onUpdateBoard(state.board);
-  }, [state.board]);
+  }, [state.board, onUpdateBoard]);
 
   useEffect(() => {
     const handleDocumentMouseUp = () => {
@@ -244,7 +244,7 @@ export default function GobanEditor({ onUpdateBoard }: GobanEditorProps) {
     return () => {
       document.removeEventListener("mouseup", handleDocumentMouseUp);
     };
-  }, [state.isMouseDown]);
+  }, [state.isMouseDown, dispatch]);
 
   useEffect(() => {
     const dimmed: Array<Vertex> = [];
@@ -269,27 +269,36 @@ export default function GobanEditor({ onUpdateBoard }: GobanEditorProps) {
 
   const handleUndo = useCallback(() => {
     dispatch({ type: "UNDO" });
-  }, []);
+  }, [dispatch]);
 
   const handleRedo = useCallback(() => {
     dispatch({ type: "REDO" });
-  }, []);
+  }, [dispatch]);
 
-  const handleVertexMouseEnter = useCallback((_e: any, vertex: Vertex) => {
-    dispatch({ type: "MOUSE_ENTER", payload: vertex });
-  }, []);
+  const handleVertexMouseEnter = useCallback(
+    (_e: React.MouseEvent, vertex: Vertex) => {
+      dispatch({ type: "MOUSE_ENTER", payload: vertex });
+    },
+    [dispatch],
+  );
 
-  const handleVertexMouseLeave = useCallback((_e: any, vertex: Vertex) => {
-    dispatch({ type: "MOUSE_LEAVE", payload: vertex });
-  }, []);
+  const handleVertexMouseLeave = useCallback(
+    (_e: React.MouseEvent, vertex: Vertex) => {
+      dispatch({ type: "MOUSE_LEAVE", payload: vertex });
+    },
+    [dispatch],
+  );
 
-  const handleMouseDown = useCallback((_e: any, vertex: Vertex) => {
-    dispatch({ type: "MOUSE_DOWN", payload: vertex });
-  }, []);
+  const handleMouseDown = useCallback(
+    (_e: React.MouseEvent, vertex: Vertex) => {
+      dispatch({ type: "MOUSE_DOWN", payload: vertex });
+    },
+    [dispatch],
+  );
 
   const handleClearBoard = useCallback(() => {
     dispatch({ type: "CLEAR_BOARD" });
-  }, []);
+  }, [dispatch]);
 
   const maxHeight = Math.min(windowSize.height, windowSize.width * 0.5);
 
