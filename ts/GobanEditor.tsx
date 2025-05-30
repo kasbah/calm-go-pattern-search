@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 import { useWindowSize } from "@reach/window-size";
 import SabakiGoBoard from "@sabaki/go-board";
-import { BoundedGoban, type Vertex } from "@sabaki/shudan";
+import { Goban, type Vertex } from "@sabaki/shudan";
 import "@sabaki/shudan/css/goban.css";
 import { useCallback, useEffect, useState } from "react";
 import { useImmerReducer } from "use-immer";
@@ -296,11 +296,10 @@ export default function GobanEditor({ onUpdateBoard }: GobanEditorProps) {
   return (
     <div className="flex flex-row gap-2 GobanEditor" style={{ maxHeight }}>
       <div>
-        <BoundedGoban
+        <Goban
           animateStonePlacement={false}
           fuzzyStonePlacement={false}
-          maxHeight={windowSize.height}
-          maxWidth={windowSize.width * 0.5}
+          vertexSize={windowSize.width * 0.02}
           showCoordinates={true}
           signMap={displayBoard}
           dimmedVertices={dimmedVertices}

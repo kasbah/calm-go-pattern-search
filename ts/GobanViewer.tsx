@@ -1,5 +1,5 @@
 import { useWindowSize } from "@reach/window-size";
-import { BoundedGoban } from "@sabaki/shudan";
+import { Goban } from "@sabaki/shudan";
 import GoBoard from "@sabaki/go-board";
 import { useEffect, useState } from "react";
 import { Button } from "./components/ui/button";
@@ -67,11 +67,10 @@ export default function GobanViewer({ game }: GobanViewerProps) {
   return (
     <div className="flex flex-row gap-2 GobanViewer" style={{ maxHeight }}>
       <div>
-        <BoundedGoban
+        <Goban
           animateStonePlacement={false}
           fuzzyStonePlacement={false}
-          maxHeight={windowSize.height}
-          maxWidth={windowSize.width * 0.5}
+          vertexSize={windowSize.width * 0.02}
           showCoordinates={true}
           signMap={board}
         />
