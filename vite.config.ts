@@ -15,7 +15,7 @@ export default defineConfig({
     tailwindcss(),
     wasm(),
     topLevelAwait(),
-    checker({ typescript: true}),
+    checker({ typescript: true }),
   ],
   worker: {
     format: "es",

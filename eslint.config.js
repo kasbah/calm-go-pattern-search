@@ -25,4 +25,10 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    files: ["**/ui/**/*.ts", "**/ui/**/*.tsx", "**/tools/theme-provider.tsx"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+    },
+  },
 );

@@ -27,7 +27,7 @@ export default function App() {
     window.wasmSearchWorker.onmessage = (e) => {
       const { type, payload } = e.data;
       if (type === "result") {
-        let jsonText = new TextDecoder().decode(payload);
+        const jsonText = new TextDecoder().decode(payload);
         const { num_results, results } = JSON.parse(jsonText);
         setGames(results);
         setTotalNumberOfGames(num_results);

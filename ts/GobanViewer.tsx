@@ -1,7 +1,7 @@
 import { useWindowSize } from "@reach/window-size";
 import { Goban } from "@sabaki/shudan";
 import GoBoard from "@sabaki/go-board";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Toggle } from "./components/ui/toggle";
@@ -46,23 +46,26 @@ export default function GobanViewer({ game }: GobanViewerProps) {
     calculateBoardPosition(moves, moveNumber),
   );
 
+  const setMoveNumber = useCallback(
+    (moveNumber: number) => {
+      if (moveNumber < 0) {
+        moveNumber = 0;
+      } else if (moveNumber >= game.moves.length) {
+        moveNumber = game.moves.length - 1;
+      }
+      setMoveNumberState(moveNumber);
+    },
+    [setMoveNumberState, game.moves.length],
+  );
+
   useEffect(() => {
     setMoveNumber(game.last_move_matched);
     setMoves(game.moves.map(toSabakiMove));
-  }, [game]);
+  }, [game, setMoveNumber, setMoves]);
 
   useEffect(() => {
     setBoard(calculateBoardPosition(moves, moveNumber));
   }, [moves, moveNumber]);
-
-  const setMoveNumber = (moveNumber: number) => {
-    if (moveNumber < 0) {
-      moveNumber = 0;
-    } else if (moveNumber >= game.moves.length) {
-      moveNumber = game.moves.length - 1;
-    }
-    setMoveNumberState(moveNumber);
-  };
 
   return (
     <div className="flex flex-row gap-2 GobanViewer" style={{ maxHeight }}>
