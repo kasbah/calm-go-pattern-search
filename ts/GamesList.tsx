@@ -1,6 +1,7 @@
-import type { Game } from "./wasm-search-types";
+import arrowLeftSvg from "@/icons/arrow-left.svg";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import type { Game } from "./wasm-search-types";
 
 export type GamesListProps = {
   games: Array<Game>;
@@ -18,7 +19,16 @@ export default function GamesList({
   const tenGames = games.slice(0, 10);
   return (
     <div className="h-screen ml-4 w-[45%]">
-      <div style={{ cursor: "pointer" }} onClick={() => onSelectGame(null)}>
+      <div
+        className="flex"
+        style={{ cursor: selectedGame != null ? "pointer" : "default" }}
+        onClick={() => onSelectGame(null)}
+      >
+        {selectedGame != null && (
+          <div>
+            <img src={arrowLeftSvg} />
+          </div>
+        )}
         {totalNumberOfGames} games
       </div>
       <ScrollArea className="h-[96.5%] rounded-md border">
