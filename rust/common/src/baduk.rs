@@ -31,7 +31,7 @@ pub enum Rotation {
     Degrees270,
 }
 
-pub fn get_rotation(position: &Vec<Placement>, rotation: &Rotation) -> Vec<Placement> {
+pub fn get_rotation(position: &[Placement], rotation: &Rotation) -> Vec<Placement> {
     match rotation {
         Rotation::Degrees90 => position
             .iter()
@@ -66,7 +66,7 @@ pub fn get_rotation(position: &Vec<Placement>, rotation: &Rotation) -> Vec<Place
     }
 }
 
-pub fn get_rotations(position: &Vec<Placement>) -> Vec<Vec<Placement>> {
+pub fn get_rotations(position: &[Placement]) -> Vec<Vec<Placement>> {
     let mut result = Vec::new();
     for rotation in [
         Rotation::Degrees90,
@@ -78,7 +78,7 @@ pub fn get_rotations(position: &Vec<Placement>) -> Vec<Vec<Placement>> {
     result
 }
 
-pub fn get_mirrored(position: &Vec<Placement>) -> Vec<Placement> {
+pub fn get_mirrored(position: &[Placement]) -> Vec<Placement> {
     position
         .iter()
         .map(|p| Placement {
@@ -91,7 +91,7 @@ pub fn get_mirrored(position: &Vec<Placement>) -> Vec<Placement> {
         .collect()
 }
 
-pub fn switch_colors(position: &Vec<Placement>) -> Vec<Placement> {
+pub fn switch_colors(position: &[Placement]) -> Vec<Placement> {
     position
         .iter()
         .map(|p| Placement {
@@ -105,19 +105,16 @@ pub fn switch_colors(position: &Vec<Placement>) -> Vec<Placement> {
         .collect()
 }
 
-pub fn match_game(position: &Vec<Placement>, moves: &Vec<Placement>) -> Option<usize> {
+pub fn match_game(position: &[Placement], moves: &[Placement]) -> Option<usize> {
     let mut last_move_matched: usize = 0;
     for placement in position {
-        let index = moves.iter().position(|&m| m == *placement);
-        if index.is_none() {
-            return None;
-        }
-        last_move_matched = std::cmp::max(index.unwrap(), last_move_matched);
+        let index = moves.iter().position(|&m| m == *placement)?;
+        last_move_matched = std::cmp::max(index, last_move_matched);
     }
     Some(last_move_matched)
 }
 
-pub fn check_empty(empty: &Vec<Point>, moves: &[Placement]) -> bool {
+pub fn check_empty(empty: &[Point], moves: &[Placement]) -> bool {
     for placement in moves {
         if empty.contains(&placement.point) {
             return false;
@@ -145,7 +142,7 @@ pub fn get_surrounding_points(point: &Point, range: u8) -> Vec<Point> {
     result
 }
 
-pub fn pack_placements(placements: &Vec<Placement>) -> Vec<u8> {
+pub fn pack_placements(placements: &[Placement]) -> Vec<u8> {
     let points: Vec<u16> = placements
         .iter()
         .map(|p| p.point.x as u16 * BOARD_SIZE as u16 + p.point.y as u16)
@@ -179,7 +176,7 @@ pub fn pack_placements(placements: &Vec<Placement>) -> Vec<u8> {
 pub fn unpack_placements(packed: &[u8]) -> Vec<Placement> {
     let len = ((packed[0] as u16) << 8) | (packed[1] as u16);
     let point_bytes_start = 2;
-    let point_bytes_end = point_bytes_start + (len as usize * 9 + 7) / 8;
+    let point_bytes_end = point_bytes_start + (len as usize * 9).div_ceil(8);
     let color_bytes_start = point_bytes_end;
 
     let point_bits = BitVec::from_bytes(&packed[point_bytes_start..point_bytes_end]);

@@ -17,7 +17,7 @@ fn main() {
     println!("Loading games...");
     for entry in jwalk::WalkDir::new(&sgf_folder) {
         let path = entry.expect("Failed to read directory entry").path();
-        if path.extension().map_or(false, |ext| ext == "sgf") {
+        if path.extension().is_some_and(|ext| ext == "sgf") {
             paths.push(path.clone());
         }
     }
@@ -37,12 +37,12 @@ fn main() {
                     Some((rel_path, moves))
                 }
                 Err(e) => {
-                    println!("Skipping {:?}: {}", path, e);
+                    println!("Skipping {path:?}: {e}");
                     None
                 }
             },
             Err(e) => {
-                println!("Skipping {:?}: {}", path, e);
+                println!("Skipping {path:?}: {e}");
                 None
             }
         })
@@ -68,7 +68,7 @@ fn main() {
             seen_moves.insert(moves.clone(), true);
             unique_games.insert(path, moves);
         } else {
-            println!("Removing duplicate game: {}", path);
+            println!("Removing duplicate game: {path}");
         }
     }
 
@@ -80,22 +80,19 @@ fn main() {
     println!("Done");
 }
 
-fn load_sgf(
-    path: &PathBuf,
-    file_data: &String,
-) -> Result<Vec<Placement>, Box<dyn std::error::Error>> {
+fn load_sgf(path: &PathBuf, file_data: &str) -> Result<Vec<Placement>, Box<dyn std::error::Error>> {
     let game = go::parse(file_data)?;
     let mut moves = Vec::new();
 
-    if let Some(sz) = game[0]
+    if let Some(go::Prop::SZ(size)) = game[0]
         .properties
         .iter()
         .find(|p| matches!(p, go::Prop::SZ(_)))
     {
-        if let go::Prop::SZ(size) = sz {
-            if *size != (BOARD_SIZE, BOARD_SIZE) {
-                return Err(format!("Got non-19x19 board size {:?}", size).into());
-            }
+        if *size != (BOARD_SIZE, BOARD_SIZE) {
+            return Err(
+                format!("Got non-{BOARD_SIZE:?}x{BOARD_SIZE:?} board size: {size:?}").into(),
+            );
         }
     }
 
@@ -105,8 +102,7 @@ fn load_sgf(
                 go::Prop::W(go::Move::Move(point)) => {
                     if point.x >= BOARD_SIZE || point.y >= BOARD_SIZE {
                         println!(
-                            "Skipping move greater than board size {:?}x{:?}, {:?} in file: {:?}",
-                            BOARD_SIZE, BOARD_SIZE, point, path
+                            "Skipping move greater than board size {BOARD_SIZE:?}x{BOARD_SIZE:?}, {point:?} in file: {path:?}"
                         );
                         break;
                     }
@@ -122,8 +118,7 @@ fn load_sgf(
                 go::Prop::B(go::Move::Move(point)) => {
                     if point.x >= BOARD_SIZE || point.y >= BOARD_SIZE {
                         println!(
-                            "Skipping move greater than board size {:?}x{:?}, {:?} in file: {:?}",
-                            BOARD_SIZE, BOARD_SIZE, point, path
+                            "Skipping move greater than board size {BOARD_SIZE:?}x{BOARD_SIZE:?}, {point:?} in file: {path:?}"
                         );
                         break;
                     }

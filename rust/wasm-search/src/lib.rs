@@ -277,7 +277,7 @@ impl WasmSearch {
         }
 
         for result in &mut results {
-            result.score = result.score - result.last_move_matched as i16;
+            result.score -= result.last_move_matched as i16;
         }
 
         results.sort_by(|a, b| b.score.cmp(&a.score));
@@ -285,6 +285,12 @@ impl WasmSearch {
         self.position_cache.put(position, results.clone());
 
         results
+    }
+}
+
+impl Default for WasmSearch {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -307,6 +313,6 @@ mod tests {
     #[test]
     fn test_instantiate() {
         let wasm_search = WasmSearch::new();
-        assert!(wasm_search.game_data.len() > 0);
+        assert!(!wasm_search.game_data.is_empty());
     }
 }
