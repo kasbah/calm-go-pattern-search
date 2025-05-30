@@ -46,7 +46,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex flex-gap-100 h-screen">
       <GobanEditor onUpdateBoard={setBoard} />
       <GamesList games={games} totalNumberOfGames={totalNumberOfGames} />
     </div>
