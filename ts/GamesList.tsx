@@ -35,21 +35,12 @@ export default function GamesList({
         {tenGames.map((game) => (
           <div
             key={game.path}
-            style={{
-              backgroundColor:
-                selectedGame?.path === game.path
-                  ? "rgba(0, 0, 0, 0.1)"
-                  : "transparent",
-            }}
+            data-selected={selectedGame?.path === game.path}
+            className="bg-white hover:bg-secondary data-[selected=true]:bg-accent cursor-default"
+            onClick={() => onSelectGame(game)}
           >
             <div className="text-sm p-2">
-              <h2
-                onClick={() => onSelectGame(game)}
-                style={{ cursor: "pointer" }}
-                className="text-xl font-medium mb-2"
-              >
-                {game.path}
-              </h2>
+              <h2 className="text-xl font-medium mb-2">{game.path}</h2>
               <div className="grid grid-cols-2 gap-2">
                 <div>Score: {game.score}</div>
                 <div>Matched Within Move: {game.last_move_matched + 1}</div>
