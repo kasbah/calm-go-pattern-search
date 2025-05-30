@@ -97,6 +97,7 @@ impl WasmSearch {
                     rotation: 0,
                     is_inverted: false,
                     is_mirrored: false,
+                    all_empty_correctly_within: 0,
                 });
                 continue;
             }
@@ -112,6 +113,7 @@ impl WasmSearch {
                         rotation: (i + 1) as u8,
                         is_inverted: false,
                         is_mirrored: false,
+                        all_empty_correctly_within: 0,
                     });
                     break;
                 }
@@ -130,6 +132,7 @@ impl WasmSearch {
                             rotation: 0,
                             is_inverted: false,
                             is_mirrored: true,
+                            all_empty_correctly_within: 0,
                         });
                         continue;
                     }
@@ -147,6 +150,7 @@ impl WasmSearch {
                                 rotation: (i + 1) as u8,
                                 is_inverted: false,
                                 is_mirrored: true,
+                                all_empty_correctly_within: 0,
                             });
                             break;
                         }
@@ -165,6 +169,7 @@ impl WasmSearch {
                         rotation: 0,
                         is_inverted: true,
                         is_mirrored: false,
+                        all_empty_correctly_within: 0,
                     });
                     continue;
                 }
@@ -182,6 +187,7 @@ impl WasmSearch {
                             rotation: (i + 1) as u8,
                             is_inverted: true,
                             is_mirrored: false,
+                            all_empty_correctly_within: 0,
                         });
                         break;
                     }
@@ -201,6 +207,7 @@ impl WasmSearch {
                             rotation: 0,
                             is_inverted: true,
                             is_mirrored: true,
+                            all_empty_correctly_within: 0,
                         });
                         continue;
                     }
@@ -218,6 +225,7 @@ impl WasmSearch {
                                 rotation: (i + 1) as u8,
                                 is_inverted: true,
                                 is_mirrored: true,
+                                all_empty_correctly_within: 0,
                             });
                             break;
                         }
@@ -232,25 +240,32 @@ impl WasmSearch {
                 .expect("Inconsistent game data");
             let truncated_moves = &moves[..result.last_move_matched];
             let mut checked = Vec::new();
-            for placement in position.clone() {
-                for i in 1..3 {
+            let mut all_empty_correctly_within = 0;
+            for i in 1..=3 {
+                let mut all_empty = true;
+                for placement in position.clone() {
                     let mut surrounding = get_surrounding_points(&placement.point, i);
                     surrounding = surrounding
                         .iter()
                         .filter(|p| !position.iter().any(|m| m.point == **p))
-                        .cloned()
-                        .collect();
-                    surrounding = surrounding
-                        .iter()
                         .filter(|p| !checked.contains(*p))
                         .cloned()
                         .collect();
                     checked.extend(surrounding.iter().cloned());
                     if check_empty(&surrounding, truncated_moves) {
-                        result.score += i as i16;
+                        result.score += i as i16 * 3;
+                    } else {
+                        all_empty = false;
+                        break;
                     }
                 }
+                if all_empty && (all_empty_correctly_within == i - 1) {
+                    all_empty_correctly_within += 1;
+                }
             }
+            result.all_empty_correctly_within = all_empty_correctly_within;
+            // all being empty around the position we are searching is very important, hence we multiply the score
+            result.score *= 1 + all_empty_correctly_within as i16;
         }
 
         results.sort_by(|a, b| {
@@ -270,9 +285,10 @@ pub struct SearchResult {
     path: String,
     score: i16,
     last_move_matched: usize,
-    rotation: u8,      // 0: no rotation, 1-3: rotation index
-    is_inverted: bool, // whether the colors were inverted
-    is_mirrored: bool, // whether the position was mirrored
+    rotation: u8,                   // 0: no rotation, 1-3: rotation index
+    is_inverted: bool,              // whether the colors were inverted
+    is_mirrored: bool,              // whether the position was mirrored
+    all_empty_correctly_within: u8, // distance from moves where all surrounding points are correctly empty
 }
 
 #[cfg(test)]
