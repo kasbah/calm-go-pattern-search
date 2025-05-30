@@ -1,7 +1,7 @@
 import { useWindowSize } from "@reach/window-size";
 import { BoundedGoban } from "@sabaki/shudan";
-
-import { useState } from "react";
+import GoBoard from "@sabaki/go-board";
+import { useEffect, useState } from "react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Toggle } from "./components/ui/toggle";
@@ -12,18 +12,54 @@ import chevronLastSvg from "./icons/chevron-last.svg";
 import chevronLeftSvg from "./icons/chevron-left.svg";
 import chevronRightSvg from "./icons/chevron-right.svg";
 import mousePointerClick from "./icons/mouse-pointer-click.svg";
-import { emptyBoard } from "./sabaki-types";
+import {
+  emptyBoard,
+  type BoardPosition,
+  type SabakiMove,
+} from "./sabaki-types";
+import { toSabakiMove, type Game } from "./wasm-search-types";
 
-export default function GobanViewer() {
+function calculateBoardPosition(
+  moves: Array<SabakiMove>,
+  moveNumber: number,
+): BoardPosition {
+  let sgb = new GoBoard(emptyBoard);
+  for (let i = 0; i <= moveNumber; i++) {
+    const move = moves[i];
+    sgb = sgb.makeMove(move.color, [move.point.x, move.point.y]);
+  }
+  return sgb.signMap;
+}
+
+export type GobanViewerProps = {
+  game: Game;
+};
+
+export default function GobanViewer({ game }: GobanViewerProps) {
   const windowSize = useWindowSize();
-  const [moveNumber, setMoveNumberState] = useState(1);
+  const [moveNumber, setMoveNumberState] = useState(game.last_move_matched);
   const maxHeight = Math.min(windowSize.height, windowSize.width * 0.5);
+  const [moves, setMoves] = useState<Array<SabakiMove>>(
+    game.moves.map(toSabakiMove),
+  );
+  const [board, setBoard] = useState<BoardPosition>(
+    calculateBoardPosition(moves, moveNumber),
+  );
+
+  useEffect(() => {
+    setMoveNumber(game.last_move_matched + 1);
+    setMoves(game.moves.map(toSabakiMove));
+  }, [game]);
+
+  useEffect(() => {
+    setBoard(calculateBoardPosition(moves, moveNumber));
+  }, [moves, moveNumber]);
 
   const setMoveNumber = (moveNumber: number) => {
-    if (moveNumber < 1) {
-      moveNumber = 1;
-    } else if (moveNumber > 999) {
-      moveNumber = 999;
+    if (moveNumber < 0) {
+      moveNumber = 0;
+    } else if (moveNumber >= game.moves.length) {
+      moveNumber = game.moves.length - 1;
     }
     setMoveNumberState(moveNumber);
   };
@@ -37,7 +73,7 @@ export default function GobanViewer() {
           maxHeight={windowSize.height}
           maxWidth={windowSize.width * 0.5}
           showCoordinates={true}
-          signMap={emptyBoard}
+          signMap={board}
         />
       </div>
       <div className="mt-2 mb-2">
@@ -54,23 +90,23 @@ export default function GobanViewer() {
                 min={1}
                 max={999}
                 step={1}
-                value={moveNumber}
-                onChange={(e) => setMoveNumber(parseInt(e.target.value))}
+                value={moveNumber + 1}
+                onChange={(e) => setMoveNumber(parseInt(e.target.value) - 1)}
               />
             </div>
             <div className="flex flex-col gap-1 mb-1">
               <Button
                 size="xl"
                 variant="outline"
-                disabled={moveNumber === 1}
-                onClick={() => setMoveNumber(1)}
+                disabled={moveNumber === 0}
+                onClick={() => setMoveNumber(0)}
               >
                 <img src={chevronFirstSvg} width={24} height={24} />
               </Button>
               <Button
                 size="xl"
                 variant="outline"
-                disabled={moveNumber === 1}
+                disabled={moveNumber === 0}
                 onClick={() => setMoveNumber(moveNumber - 1)}
               >
                 <img src={chevronLeftSvg} width={24} height={24} />
@@ -78,7 +114,7 @@ export default function GobanViewer() {
               <Button
                 size="xl"
                 variant="outline"
-                disabled={moveNumber === 999}
+                disabled={moveNumber === game.num_moves}
                 onClick={() => setMoveNumber(moveNumber + 1)}
               >
                 <img src={chevronRightSvg} width={24} height={24} />

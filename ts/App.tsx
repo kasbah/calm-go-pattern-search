@@ -4,10 +4,12 @@ import GobanEditor from "./GobanEditor";
 import GamesList from "./GamesList";
 import { emptyBoard, type BoardPosition } from "./sabaki-types";
 import { toWasmSearch, type Game } from "./wasm-search-types";
+import GobanViewer from "./GobanViewer";
 
 export default function App() {
   const [board, setBoard] = useState<BoardPosition>(emptyBoard);
   const [games, setGames] = useState<Array<Game>>([]);
+  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [totalNumberOfGames, setTotalNumberOfGames] = useState(0);
 
   useEffect(() => {
@@ -35,8 +37,20 @@ export default function App() {
 
   return (
     <div className="flex flex-gap-100 h-screen">
-      <GobanEditor onUpdateBoard={setBoard} />
-      <GamesList games={games} totalNumberOfGames={totalNumberOfGames} />
+      <div style={{ display: selectedGame != null ? "none" : "block" }}>
+        <GobanEditor onUpdateBoard={setBoard} />
+      </div>
+      {selectedGame != null && (
+        <div style={{ display: "block" }}>
+          <GobanViewer game={selectedGame} />
+        </div>
+      )}
+      <GamesList
+        games={games}
+        totalNumberOfGames={totalNumberOfGames}
+        onSelectGame={setSelectedGame}
+        selectedGame={selectedGame}
+      />
     </div>
   );
 }
