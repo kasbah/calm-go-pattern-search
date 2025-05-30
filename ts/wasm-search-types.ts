@@ -29,3 +29,9 @@ export function toWasmSearch(board: BoardPosition): Array<Placement> {
   });
   return position;
 }
+
+declare global {
+  interface Window {
+    wasmSearchWorker: Worker;
+  }
+}
