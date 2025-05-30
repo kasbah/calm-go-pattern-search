@@ -276,11 +276,11 @@ impl WasmSearch {
             result.score *= 1 + all_empty_correctly_within as i16;
         }
 
-        results.sort_by(|a, b| {
-            let a_score: isize = a.last_move_matched as isize - a.score as isize;
-            let b_score: isize = b.last_move_matched as isize - b.score as isize;
-            a_score.cmp(&b_score)
-        });
+        for result in &mut results {
+            result.score = result.score - result.last_move_matched as i16;
+        }
+
+        results.sort_by(|a, b| b.score.cmp(&a.score));
 
         self.position_cache.put(position, results.clone());
 
