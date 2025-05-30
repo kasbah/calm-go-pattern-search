@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Goban from "./Goban";
+import GobanEditor from "./GobanEditor";
 
 import { type BoardPosition, emptyBoard, SabakiSign } from "./SabakiTypes";
 import GamesList from "./GamesList";
@@ -47,7 +47,7 @@ export default function App() {
 
   return (
     <div className="flex h-screen">
-      <Goban onUpdateBoard={setBoard} />
+      <GobanEditor onUpdateBoard={setBoard} />
       <GamesList games={games} totalNumberOfGames={totalNumberOfGames} />
     </div>
   );
