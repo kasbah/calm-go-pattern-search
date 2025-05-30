@@ -31,7 +31,8 @@
     "dev": "yarn wasm && vite",
     "build": "yarn wasm && vite build",
     "serve": "vite preview",
-    "fmt": "cargo fmt && prettier --write ."
+    "fmt": "cargo fmt && prettier --write .",
+    "fmt:check": "cargo fmt --check && prettier --check ."
   },
   "dependencies": {
     "@radix-ui/react-scroll-area": "^1.2.9",
