@@ -17,6 +17,7 @@ import redoSvg from "./icons/redo.svg";
 import trashSvg from "./icons/trash.svg";
 import undoSvg from "./icons/undo.svg";
 import {
+  boardsEqual,
   BrushMode,
   emptyBoard,
   SabakiColor,
@@ -24,27 +25,12 @@ import {
   type BoardPosition,
 } from "./SabakiTypes";
 
-function boardsEqual(a: BoardPosition, b: BoardPosition): boolean {
-  for (const [y, row] of a.entries()) {
-    for (const [x, cell] of row.entries()) {
-      if (cell !== b[y][x]) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-export type GobanProps = {
-  onUpdateBoard: (board: BoardPosition) => void;
-};
-
 type HistoryEntry = {
   board: BoardPosition;
   moveSign: SabakiSign;
 };
 
-type GobanAction =
+type GobanEditorAction =
   | { type: "SET_BRUSH_MODE"; payload: BrushMode }
   | { type: "UNDO" }
   | { type: "REDO" }
@@ -55,7 +41,7 @@ type GobanAction =
   | { type: "MOUSE_LEAVE"; payload: Vertex }
   | { type: "TOGGLE_ALTERNATE_COLOR" };
 
-type GobanState = {
+type GobanEditorState = {
   board: BoardPosition;
   stagingBoard: BoardPosition;
   lastStagedSign: SabakiSign;
@@ -66,7 +52,7 @@ type GobanState = {
   isMouseDown: boolean;
 };
 
-const initialState: GobanState = {
+const initialState: GobanEditorState = {
   board: emptyBoard,
   stagingBoard: emptyBoard,
   lastStagedSign: SabakiSign.Empty,
@@ -77,7 +63,7 @@ const initialState: GobanState = {
   isMouseDown: false,
 };
 
-function stageVertexChange(state: GobanState, vertex: Vertex) {
+function stageVertexChange(state: GobanEditorState, vertex: Vertex) {
   // change the vertex to the right color stone or remove it
   // depending on the brush and the mouse state
   const [x, y] = vertex;
@@ -126,17 +112,20 @@ function getNextSign(
   throw new Error("Unknown brush mode");
 }
 
-function gobanReducer(state: GobanState, action: GobanAction): void {
+function gobanEditorReducer(
+  state: GobanEditorState,
+  action: GobanEditorAction,
+): void {
   switch (action.type) {
     case "MOUSE_DOWN": {
-      // needed because we switch color when clicked again without leaving the
-      // vertex
+      // needed because we switch color when clicking on a stone again
       if (state.brushMode === BrushMode.Alternate) {
         stageVertexChange(state, action.payload);
       }
       state.isMouseDown = true;
       return;
     }
+
     case "MOUSE_UP": {
       state.isMouseDown = false;
       if (boardsEqual(state.board, state.stagingBoard)) {
@@ -172,11 +161,12 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
       return;
     }
 
-    case "SET_BRUSH_MODE":
+    case "SET_BRUSH_MODE": {
       state.brushMode = action.payload;
       return;
+    }
 
-    case "UNDO":
+    case "UNDO": {
       if (state.historyIndex > 0) {
         const { moveSign } = state.history[state.historyIndex];
         state.historyIndex -= 1;
@@ -187,8 +177,9 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
         state.stagingBoard = newBoard;
       }
       return;
+    }
 
-    case "REDO":
+    case "REDO": {
       if (state.historyIndex < state.history.length - 1) {
         state.historyIndex += 1;
         const { board: newBoard, moveSign } = state.history[state.historyIndex];
@@ -202,6 +193,7 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
         state.stagingBoard = newBoard;
       }
       return;
+    }
 
     case "CLEAR_BOARD": {
       state.history.splice(state.historyIndex + 1);
@@ -215,6 +207,7 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
       state.alternateBrushColor = SabakiSign.Black;
       return;
     }
+
     case "TOGGLE_ALTERNATE_COLOR": {
       state.alternateBrushColor =
         state.alternateBrushColor === SabakiSign.Black
@@ -225,9 +218,13 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
   }
 }
 
-export default function GobanEditor({ onUpdateBoard }: GobanProps) {
+export type GobanEditorProps = {
+  onUpdateBoard: (board: BoardPosition) => void;
+};
+
+export default function GobanEditor({ onUpdateBoard }: GobanEditorProps) {
   const windowSize = useWindowSize();
-  const [state, dispatch] = useImmerReducer(gobanReducer, initialState);
+  const [state, dispatch] = useImmerReducer(gobanEditorReducer, initialState);
   const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
   const [displayBoard, setDisplayBoard] = useState<BoardPosition>(emptyBoard);
 
