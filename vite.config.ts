@@ -2,14 +2,17 @@ import path from "node:path";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
 
 export default defineConfig({
   optimizeDeps: {
     exclude: ["wasm-search"],
   },
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), wasm(), topLevelAwait()],
   worker: {
-    format: "iife",
+    format: "es",
+    plugins: () => [wasm(), topLevelAwait()],
   },
   resolve: {
     alias: [
