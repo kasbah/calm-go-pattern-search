@@ -3,6 +3,18 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import type { Game } from "./wasm-search-types";
 
+function rotationToString(rotation: number) {
+  if (rotation === 0) {
+    return "None";
+  } else if (rotation === 1) {
+    return "90°";
+  } else if (rotation === 2) {
+    return "180°";
+  } else {
+    return "-90°";
+  }
+}
+
 export type GamesListProps = {
   games: Array<Game>;
   totalNumberOfGames: number;
@@ -44,9 +56,9 @@ export default function GamesList({
               <div className="grid grid-cols-2 gap-2">
                 <div>Score: {game.score}</div>
                 <div>Matched Within Move: {game.last_move_matched + 1}</div>
-                <div>Rotation: {game.rotation}</div>
-                <div>Inverted: {game.is_inverted ? "Yes" : "No"}</div>
+                <div>Rotation: {rotationToString(game.rotation)}</div>
                 <div>Mirrored: {game.is_mirrored ? "Yes" : "No"}</div>
+                <div>Colors Inverted: {game.is_inverted ? "Yes" : "No"}</div>
                 <div>Correct Area Size: {game.all_empty_correctly_within}</div>
                 <div>Moves: {game.moves.length}</div>
               </div>
