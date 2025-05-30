@@ -47,7 +47,7 @@ export default function GobanViewer({ game }: GobanViewerProps) {
   );
 
   useEffect(() => {
-    setMoveNumber(game.last_move_matched + 1);
+    setMoveNumber(game.last_move_matched);
     setMoves(game.moves.map(toSabakiMove));
   }, [game]);
 
@@ -113,7 +113,7 @@ export default function GobanViewer({ game }: GobanViewerProps) {
               <Button
                 size="xl"
                 variant="outline"
-                disabled={moveNumber === game.num_moves}
+                disabled={moveNumber === game.moves.length - 1}
                 onClick={() => setMoveNumber(moveNumber + 1)}
               >
                 <img src={chevronRightSvg} width={24} height={24} />
