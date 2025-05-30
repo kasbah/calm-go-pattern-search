@@ -65,7 +65,7 @@ export default function GobanViewer({ game }: GobanViewerProps) {
   };
 
   return (
-    <div className="flex flex-row gap-2" style={{ maxHeight }}>
+    <div className="flex flex-row gap-2 GobanViewer" style={{ maxHeight }}>
       <div>
         <BoundedGoban
           animateStonePlacement={false}

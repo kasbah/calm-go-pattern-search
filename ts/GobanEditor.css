@@ -1,0 +1,34 @@
+.GobanEditor {
+  .shudan-goban-image {
+    background-image: none;
+  }
+  .shudan-goban-image::after {
+    background: none;
+  }
+
+  .shudan-stone-image.shudan-sign_-1 {
+    background-image: url("./custom_white_stone.svg");
+  }
+
+  .shudan-stone-image.shudan-sign_1 {
+    background-image: url("./custom_black_stone.svg");
+  }
+
+  .shudan-goban {
+    --shudan-board-border-width: 0em;
+    --shudan-board-border-color: white;
+
+    --shudan-board-background-color: whitesmoke;
+    --shudan-board-foreground-color: #333;
+
+    --shudan-black-background-color: whitesmoke;
+    --shudan-black-foreground-color: whitesmoke;
+
+    --shudan-white-background-color: black;
+    --shudan-white-foreground-color: black;
+  }
+
+  .shudan-shadow {
+    display: none;
+  }
+}
