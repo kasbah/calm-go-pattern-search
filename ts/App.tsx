@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import GobanEditor from "./GobanEditor";
 
-import { type BoardPosition, emptyBoard, SabakiSign } from "./SabakiTypes";
 import GamesList from "./GamesList";
-import type { Game } from "./games";
+import { emptyBoard, type BoardPosition } from "./sabaki-types";
+import { toWasmSearch, type Game } from "./wasm-search-types";
 
 export default function App() {
   const [board, setBoard] = useState<BoardPosition>(emptyBoard);
@@ -12,19 +12,7 @@ export default function App() {
 
   useEffect(() => {
     if (window.wasmSearchWorker !== undefined) {
-      const position: Array<{
-        color: "Black" | "White";
-        point: { x: number; y: number };
-      }> = [];
-      board.forEach((row, y) => {
-        row.forEach((stone, x) => {
-          if (stone !== SabakiSign.Empty) {
-            const color = stone === SabakiSign.Black ? "Black" : "White";
-            const point = { x, y };
-            position.push({ color, point });
-          }
-        });
-      });
+      const position = toWasmSearch(board);
       const positionBuf = new TextEncoder().encode(JSON.stringify(position));
       window.wasmSearchWorker.postMessage(
         { type: "search", payload: positionBuf },

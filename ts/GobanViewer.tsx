@@ -12,7 +12,7 @@ import chevronLastSvg from "./icons/chevron-last.svg";
 import chevronLeftSvg from "./icons/chevron-left.svg";
 import chevronRightSvg from "./icons/chevron-right.svg";
 import mousePointerClick from "./icons/mouse-pointer-click.svg";
-import { emptyBoard } from "./SabakiTypes";
+import { emptyBoard } from "./sabaki-types";
 
 export default function GobanViewer() {
   const windowSize = useWindowSize();

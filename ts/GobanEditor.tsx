@@ -23,7 +23,7 @@ import {
   SabakiColor,
   SabakiSign,
   type BoardPosition,
-} from "./SabakiTypes";
+} from "./sabaki-types";
 
 type HistoryEntry = {
   board: BoardPosition;
