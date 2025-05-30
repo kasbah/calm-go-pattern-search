@@ -63,7 +63,7 @@ impl WasmSearch {
         let num_results = results.len();
         let ret = WasmSearchReturn {
             num_results,
-            results: results[0..num_results.min(100)].to_vec(),
+            results: results[0..num_results.min(10)].to_vec(),
         };
         let results_buf: Vec<u8> = serde_json::to_vec(&ret).expect("Failed to serialize results");
         Uint8Array::from(results_buf.as_slice())
@@ -98,6 +98,7 @@ impl WasmSearch {
                     is_inverted: false,
                     is_mirrored: false,
                     all_empty_correctly_within: 0,
+                    moves: moves.clone(),
                 });
                 continue;
             }
@@ -114,6 +115,7 @@ impl WasmSearch {
                         is_inverted: false,
                         is_mirrored: false,
                         all_empty_correctly_within: 0,
+                        moves: moves.clone(),
                     });
                     break;
                 }
@@ -133,6 +135,7 @@ impl WasmSearch {
                             is_inverted: false,
                             is_mirrored: true,
                             all_empty_correctly_within: 0,
+                            moves: moves.clone(),
                         });
                         continue;
                     }
@@ -151,6 +154,7 @@ impl WasmSearch {
                                 is_inverted: false,
                                 is_mirrored: true,
                                 all_empty_correctly_within: 0,
+                                moves: moves.clone(),
                             });
                             break;
                         }
@@ -170,6 +174,7 @@ impl WasmSearch {
                         is_inverted: true,
                         is_mirrored: false,
                         all_empty_correctly_within: 0,
+                        moves: moves.clone(),
                     });
                     continue;
                 }
@@ -188,6 +193,7 @@ impl WasmSearch {
                             is_inverted: true,
                             is_mirrored: false,
                             all_empty_correctly_within: 0,
+                            moves: moves.clone(),
                         });
                         break;
                     }
@@ -208,6 +214,7 @@ impl WasmSearch {
                             is_inverted: true,
                             is_mirrored: true,
                             all_empty_correctly_within: 0,
+                            moves: moves.clone(),
                         });
                         continue;
                     }
@@ -226,6 +233,7 @@ impl WasmSearch {
                                 is_inverted: true,
                                 is_mirrored: true,
                                 all_empty_correctly_within: 0,
+                                moves: moves.clone(),
                             });
                             break;
                         }
@@ -289,6 +297,7 @@ pub struct SearchResult {
     is_inverted: bool,              // whether the colors were inverted
     is_mirrored: bool,              // whether the position was mirrored
     all_empty_correctly_within: u8, // distance from moves where all surrounding points are correctly empty
+    moves: Vec<Placement>,          // the actual game moves
 }
 
 #[cfg(test)]

@@ -22,11 +22,12 @@ export default function GamesList({
               <h2 className="text-xl font-medium mb-2">{game.path}</h2>
               <div className="grid grid-cols-2 gap-2">
                 <div>Score: {game.score}</div>
-                <div>Last Move Matched: {game.last_move_matched + 1}</div>
+                <div>Matched Within Move: {game.last_move_matched + 1}</div>
                 <div>Rotation: {game.rotation}</div>
                 <div>Inverted: {game.is_inverted ? "Yes" : "No"}</div>
                 <div>Mirrored: {game.is_mirrored ? "Yes" : "No"}</div>
-                <div>Empty Within: {game.all_empty_correctly_within}</div>
+                <div>Correct Area Size: {game.all_empty_correctly_within}</div>
+                <div>Moves: {game.moves.length}</div>
               </div>
             </div>
             <Separator className="my-2" />
