@@ -1,21 +1,21 @@
-import { useState, useEffect, useCallback } from "react";
-import { useWindowSize } from "@reach/window-size";
-import { BoundedGoban, type Vertex } from "@sabaki/shudan";
-import "@sabaki/shudan/css/goban.css";
-import "./Goban.css";
-import SabakiGoBoard from "@sabaki/go-board";
-import { useImmerReducer } from "use-immer";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
+import { useWindowSize } from "@reach/window-size";
+import SabakiGoBoard from "@sabaki/go-board";
+import { BoundedGoban, type Vertex } from "@sabaki/shudan";
+import "@sabaki/shudan/css/goban.css";
+import { useCallback, useEffect, useState } from "react";
+import { useImmerReducer } from "use-immer";
+import "./GobanCommon.css";
 
-import overlappingCirclesBlackSvg from "./icons/overlapping-circles-black.svg";
-import overlappingCirclesWhiteSvg from "./icons/overlapping-circles-white.svg";
 import circleBlackSvg from "./icons/circle-black.svg";
 import circleWhiteSvg from "./icons/circle-white.svg";
 import eraserSvg from "./icons/eraser.svg";
+import overlappingCirclesBlackSvg from "./icons/overlapping-circles-black.svg";
+import overlappingCirclesWhiteSvg from "./icons/overlapping-circles-white.svg";
+import redoSvg from "./icons/redo.svg";
 import trashSvg from "./icons/trash.svg";
 import undoSvg from "./icons/undo.svg";
-import redoSvg from "./icons/redo.svg";
 import {
   BrushMode,
   emptyBoard,
@@ -225,7 +225,7 @@ function gobanReducer(state: GobanState, action: GobanAction): void {
   }
 }
 
-export default function Goban({ onUpdateBoard }: GobanProps) {
+export default function GobanEditor({ onUpdateBoard }: GobanProps) {
   const windowSize = useWindowSize();
   const [state, dispatch] = useImmerReducer(gobanReducer, initialState);
   const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
