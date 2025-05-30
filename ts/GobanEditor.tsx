@@ -7,6 +7,7 @@ import "@sabaki/shudan/css/goban.css";
 import { useCallback, useEffect, useState } from "react";
 import { useImmerReducer } from "use-immer";
 import "./GobanCommon.css";
+import "./GobanEditor.css";
 
 import circleBlackSvg from "./icons/circle-black.svg";
 import circleWhiteSvg from "./icons/circle-white.svg";
@@ -293,7 +294,7 @@ export default function GobanEditor({ onUpdateBoard }: GobanEditorProps) {
   const maxHeight = Math.min(windowSize.height, windowSize.width * 0.5);
 
   return (
-    <div className="flex flex-row gap-2" style={{ maxHeight }}>
+    <div className="flex flex-row gap-2 GobanEditor" style={{ maxHeight }}>
       <div>
         <BoundedGoban
           animateStonePlacement={false}
