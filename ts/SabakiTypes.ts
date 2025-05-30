@@ -49,3 +49,14 @@ export const emptyBoard: BoardPosition = [
   [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
   [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
 ];
+
+export function boardsEqual(a: BoardPosition, b: BoardPosition): boolean {
+  for (const [y, row] of a.entries()) {
+    for (const [x, cell] of row.entries()) {
+      if (cell !== b[y][x]) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
