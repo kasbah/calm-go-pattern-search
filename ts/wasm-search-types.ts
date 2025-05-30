@@ -1,4 +1,8 @@
-import { SabakiSign, type BoardPosition } from "./sabaki-types";
+import {
+  SabakiSign,
+  type BoardPosition,
+  type SabakiMove,
+} from "./sabaki-types";
 
 export type Placement = {
   color: "Black" | "White";
@@ -28,6 +32,13 @@ export function toWasmSearch(board: BoardPosition): Array<Placement> {
     });
   });
   return position;
+}
+
+export function toSabakiMove(move: Placement): SabakiMove {
+  return {
+    color: move.color === "Black" ? SabakiSign.Black : SabakiSign.White,
+    point: move.point,
+  };
 }
 
 declare global {

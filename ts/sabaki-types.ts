@@ -24,6 +24,11 @@ export type BrushMode = (typeof BrushMode)[keyof typeof BrushMode];
 
 export type BoardPosition = Array<Array<SabakiSign>>;
 
+export type SabakiMove = {
+  color: SabakiColor;
+  point: { x: number; y: number };
+};
+
 /* prettier-ignore */
 export const emptyBoard: BoardPosition = [
   [0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0, 0, /* */ 0, 0, 0, 0],
