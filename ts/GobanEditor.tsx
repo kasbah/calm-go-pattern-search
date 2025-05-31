@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
-import { useWindowSize } from "@reach/window-size";
 import SabakiGoBoard from "@sabaki/go-board";
 import { Goban, type Vertex } from "@sabaki/shudan";
 import "@sabaki/shudan/css/goban.css";
@@ -221,10 +220,13 @@ function gobanEditorReducer(
 
 export type GobanEditorProps = {
   onUpdateBoard: (board: BoardPosition) => void;
+  windowSize: { width: number; height: number };
 };
 
-export default function GobanEditor({ onUpdateBoard }: GobanEditorProps) {
-  const windowSize = useWindowSize();
+export default function GobanEditor({
+  onUpdateBoard,
+  windowSize,
+}: GobanEditorProps) {
   const [state, dispatch] = useImmerReducer(gobanEditorReducer, initialState);
   const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
   const [displayBoard, setDisplayBoard] = useState<BoardPosition>(emptyBoard);

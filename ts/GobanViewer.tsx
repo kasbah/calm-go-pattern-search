@@ -1,4 +1,3 @@
-import { useWindowSize } from "@reach/window-size";
 import { Goban } from "@sabaki/shudan";
 import GoBoard from "@sabaki/go-board";
 import { useCallback, useEffect, useState } from "react";
@@ -33,10 +32,10 @@ function calculateBoardPosition(
 
 export type GobanViewerProps = {
   game: Game;
+  windowSize: { width: number; height: number };
 };
 
-export default function GobanViewer({ game }: GobanViewerProps) {
-  const windowSize = useWindowSize();
+export default function GobanViewer({ game, windowSize }: GobanViewerProps) {
   const [moveNumber, setMoveNumberState] = useState(game.last_move_matched);
   const maxHeight = Math.min(windowSize.height, windowSize.width * 0.5);
   const [moves, setMoves] = useState<Array<SabakiMove>>(
