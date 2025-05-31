@@ -3,7 +3,13 @@ import { Toggle } from "@/components/ui/toggle";
 import SabakiGoBoard from "@sabaki/go-board";
 import { Goban, type Vertex } from "@sabaki/shudan";
 import "@sabaki/shudan/css/goban.css";
-import { useCallback, useEffect, useState } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useState,
+  useImperativeHandle,
+} from "react";
 import { useImmerReducer } from "use-immer";
 import "./GobanCommon.css";
 import "./GobanEditor.css";
@@ -220,188 +226,214 @@ function gobanEditorReducer(
 
 export type GobanEditorProps = {
   onUpdateBoard: (board: BoardPosition) => void;
-  windowSize: { width: number; height: number };
+  vertexSize: number;
 };
 
-export default function GobanEditor({
-  onUpdateBoard,
-  windowSize,
-}: GobanEditorProps) {
-  const [state, dispatch] = useImmerReducer(gobanEditorReducer, initialState);
-  const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
-  const [displayBoard, setDisplayBoard] = useState<BoardPosition>(emptyBoard);
+export type GobanEditorRef = {
+  handleUndo: () => void;
+  handleRedo: () => void;
+};
 
-  useEffect(() => {
-    onUpdateBoard(state.board);
-  }, [state.board, onUpdateBoard]);
+const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
+  ({ onUpdateBoard, vertexSize }, ref) => {
+    const [state, dispatch] = useImmerReducer(gobanEditorReducer, initialState);
+    const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
+    const [displayBoard, setDisplayBoard] = useState<BoardPosition>(emptyBoard);
 
-  useEffect(() => {
-    const handleDocumentMouseUp = () => {
-      if (state.isMouseDown) {
-        dispatch({ type: "MOUSE_UP" });
-      }
-    };
+    const handleUndo = useCallback(() => {
+      dispatch({ type: "UNDO" });
+    }, [dispatch]);
 
-    document.addEventListener("mouseup", handleDocumentMouseUp);
-    return () => {
-      document.removeEventListener("mouseup", handleDocumentMouseUp);
-    };
-  }, [state.isMouseDown, dispatch]);
+    const handleRedo = useCallback(() => {
+      dispatch({ type: "REDO" });
+    }, [dispatch]);
 
-  useEffect(() => {
-    const dimmed: Array<Vertex> = [];
-    const display: BoardPosition = state.board.map((row, y) =>
-      row.map((boardStone, x) => {
-        const stagingStone = state.stagingBoard[y][x];
-        if (stagingStone !== boardStone) {
-          dimmed.push([x, y]);
-        }
-        if (stagingStone !== SabakiSign.Empty) {
-          return stagingStone;
-        }
-        if (boardStone !== SabakiSign.Empty) {
-          return boardStone;
-        }
-        return SabakiSign.Empty;
+    useImperativeHandle(
+      ref,
+      () => ({
+        handleUndo,
+        handleRedo,
       }),
+      [handleUndo, handleRedo],
     );
-    setDisplayBoard(display);
-    setDimmedVertices(dimmed);
-  }, [state.board, state.stagingBoard]);
 
-  const handleUndo = useCallback(() => {
-    dispatch({ type: "UNDO" });
-  }, [dispatch]);
+    useEffect(() => {
+      onUpdateBoard(state.board);
+    }, [state.board, onUpdateBoard]);
 
-  const handleRedo = useCallback(() => {
-    dispatch({ type: "REDO" });
-  }, [dispatch]);
+    useEffect(() => {
+      const handleDocumentMouseUp = () => {
+        if (state.isMouseDown) {
+          dispatch({ type: "MOUSE_UP" });
+        }
+      };
 
-  const handleVertexMouseEnter = useCallback(
-    (_e: React.MouseEvent, vertex: Vertex) => {
-      dispatch({ type: "MOUSE_ENTER", payload: vertex });
-    },
-    [dispatch],
-  );
+      document.addEventListener("mouseup", handleDocumentMouseUp);
+      return () => {
+        document.removeEventListener("mouseup", handleDocumentMouseUp);
+      };
+    }, [state.isMouseDown, dispatch]);
 
-  const handleVertexMouseLeave = useCallback(
-    (_e: React.MouseEvent, vertex: Vertex) => {
-      dispatch({ type: "MOUSE_LEAVE", payload: vertex });
-    },
-    [dispatch],
-  );
+    useEffect(() => {
+      const dimmed: Array<Vertex> = [];
+      const display: BoardPosition = state.board.map((row, y) =>
+        row.map((boardStone, x) => {
+          const stagingStone = state.stagingBoard[y][x];
+          if (stagingStone !== boardStone) {
+            dimmed.push([x, y]);
+          }
+          if (stagingStone !== SabakiSign.Empty) {
+            return stagingStone;
+          }
+          if (boardStone !== SabakiSign.Empty) {
+            return boardStone;
+          }
+          return SabakiSign.Empty;
+        }),
+      );
+      setDisplayBoard(display);
+      setDimmedVertices(dimmed);
+    }, [state.board, state.stagingBoard]);
 
-  const handleMouseDown = useCallback(
-    (_e: React.MouseEvent, vertex: Vertex) => {
-      dispatch({ type: "MOUSE_DOWN", payload: vertex });
-    },
-    [dispatch],
-  );
+    const handleVertexMouseEnter = useCallback(
+      (_e: React.MouseEvent, vertex: Vertex) => {
+        dispatch({ type: "MOUSE_ENTER", payload: vertex });
+      },
+      [dispatch],
+    );
 
-  const handleClearBoard = useCallback(() => {
-    dispatch({ type: "CLEAR_BOARD" });
-  }, [dispatch]);
+    const handleVertexMouseLeave = useCallback(
+      (_e: React.MouseEvent, vertex: Vertex) => {
+        dispatch({ type: "MOUSE_LEAVE", payload: vertex });
+      },
+      [dispatch],
+    );
 
-  const maxHeight = Math.min(windowSize.height, windowSize.width * 0.5);
+    const handleMouseDown = useCallback(
+      (_e: React.MouseEvent, vertex: Vertex) => {
+        dispatch({ type: "MOUSE_DOWN", payload: vertex });
+      },
+      [dispatch],
+    );
 
-  return (
-    <div className="flex flex-row gap-2 GobanEditor" style={{ maxHeight }}>
-      <div>
-        <Goban
-          animateStonePlacement={false}
-          fuzzyStonePlacement={false}
-          vertexSize={windowSize.width * 0.02}
-          showCoordinates={true}
-          signMap={displayBoard}
-          dimmedVertices={dimmedVertices}
-          onVertexMouseEnter={handleVertexMouseEnter}
-          onVertexMouseLeave={handleVertexMouseLeave}
-          onVertexMouseDown={handleMouseDown}
-        />
-      </div>
-      <div className="mt-2 mb-2">
-        <div className="flex flex-col justify-between h-full">
-          <div className="flex flex-col gap-1">
-            <Toggle
-              size="xl"
-              onClick={() => {
-                if (state.brushMode === BrushMode.Alternate) {
-                  dispatch({
-                    type: "TOGGLE_ALTERNATE_COLOR",
-                  });
-                } else {
+    const handleClearBoard = useCallback(() => {
+      dispatch({ type: "CLEAR_BOARD" });
+    }, [dispatch]);
+
+    const maxHeight = Math.min(window.innerHeight, window.innerWidth * 0.5);
+
+    return (
+      <div className="flex flex-row gap-2 GobanEditor" style={{ maxHeight }}>
+        <div>
+          <Goban
+            animateStonePlacement={false}
+            fuzzyStonePlacement={false}
+            vertexSize={vertexSize}
+            showCoordinates={true}
+            signMap={displayBoard}
+            dimmedVertices={dimmedVertices}
+            onVertexMouseEnter={handleVertexMouseEnter}
+            onVertexMouseLeave={handleVertexMouseLeave}
+            onVertexMouseDown={handleMouseDown}
+          />
+        </div>
+        <div className="mt-2 mb-2">
+          <div className="flex flex-col justify-between h-full">
+            <div className="flex flex-col gap-1">
+              <Toggle
+                size="xl"
+                onClick={() => {
+                  if (state.brushMode === BrushMode.Alternate) {
+                    dispatch({
+                      type: "TOGGLE_ALTERNATE_COLOR",
+                    });
+                  } else {
+                    dispatch({
+                      type: "SET_BRUSH_MODE",
+                      payload: BrushMode.Alternate,
+                    });
+                  }
+                }}
+                pressed={state.brushMode === BrushMode.Alternate}
+              >
+                {state.alternateBrushColor === SabakiSign.Black ? (
+                  <img
+                    src={overlappingCirclesBlackSvg}
+                    width={32}
+                    height={32}
+                  />
+                ) : (
+                  <img
+                    src={overlappingCirclesWhiteSvg}
+                    width={32}
+                    height={32}
+                  />
+                )}
+              </Toggle>
+              <Toggle
+                size="xl"
+                onClick={() =>
+                  dispatch({ type: "SET_BRUSH_MODE", payload: BrushMode.Black })
+                }
+                pressed={state.brushMode === BrushMode.Black}
+              >
+                <img src={circleBlackSvg} width={32} height={32} />
+              </Toggle>
+              <Toggle
+                size="xl"
+                onClick={() =>
+                  dispatch({ type: "SET_BRUSH_MODE", payload: BrushMode.White })
+                }
+                pressed={state.brushMode === BrushMode.White}
+              >
+                <img src={circleWhiteSvg} width={32} height={32} />
+              </Toggle>
+              <Toggle
+                size="xl"
+                onClick={() =>
                   dispatch({
                     type: "SET_BRUSH_MODE",
-                    payload: BrushMode.Alternate,
-                  });
+                    payload: BrushMode.Remove,
+                  })
                 }
-              }}
-              pressed={state.brushMode === BrushMode.Alternate}
-            >
-              {state.alternateBrushColor === SabakiSign.Black ? (
-                <img src={overlappingCirclesBlackSvg} width={32} height={32} />
-              ) : (
-                <img src={overlappingCirclesWhiteSvg} width={32} height={32} />
-              )}
-            </Toggle>
-            <Toggle
-              size="xl"
-              onClick={() =>
-                dispatch({ type: "SET_BRUSH_MODE", payload: BrushMode.Black })
-              }
-              pressed={state.brushMode === BrushMode.Black}
-            >
-              <img src={circleBlackSvg} width={32} height={32} />
-            </Toggle>
-            <Toggle
-              size="xl"
-              onClick={() =>
-                dispatch({ type: "SET_BRUSH_MODE", payload: BrushMode.White })
-              }
-              pressed={state.brushMode === BrushMode.White}
-            >
-              <img src={circleWhiteSvg} width={32} height={32} />
-            </Toggle>
-            <Toggle
-              size="xl"
-              onClick={() =>
-                dispatch({ type: "SET_BRUSH_MODE", payload: BrushMode.Remove })
-              }
-              pressed={state.brushMode === BrushMode.Remove}
-            >
-              <img src={eraserSvg} width={32} height={32} />
-            </Toggle>
-          </div>
-          <div>
-            <div className="flex flex-col gap-1 mb-1">
+                pressed={state.brushMode === BrushMode.Remove}
+              >
+                <img src={eraserSvg} width={32} height={32} />
+              </Toggle>
+            </div>
+            <div>
+              <div className="flex flex-col gap-1 mb-1">
+                <Button
+                  size="xl"
+                  variant="outline"
+                  onClick={handleUndo}
+                  disabled={state.historyIndex === 0}
+                >
+                  <img src={undoSvg} width={24} height={24} />
+                </Button>
+                <Button
+                  size="xl"
+                  variant="outline"
+                  onClick={handleRedo}
+                  disabled={state.historyIndex === state.history.length - 1}
+                >
+                  <img src={redoSvg} width={24} height={24} />
+                </Button>
+              </div>
               <Button
                 size="xl"
+                color="red"
                 variant="outline"
-                onClick={handleUndo}
-                disabled={state.historyIndex === 0}
+                onClick={handleClearBoard}
               >
-                <img src={undoSvg} width={24} height={24} />
-              </Button>
-              <Button
-                size="xl"
-                variant="outline"
-                onClick={handleRedo}
-                disabled={state.historyIndex === state.history.length - 1}
-              >
-                <img src={redoSvg} width={24} height={24} />
+                <img src={trashSvg} width={24} height={24} />
               </Button>
             </div>
-            <Button
-              size="xl"
-              color="red"
-              variant="outline"
-              onClick={handleClearBoard}
-            >
-              <img src={trashSvg} width={24} height={24} />
-            </Button>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  },
+);
+
+export default GobanEditor;
