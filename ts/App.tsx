@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useWindowSize } from "@reach/window-size";
 import GobanEditor from "./GobanEditor";
 
 import GamesList from "./GamesList";
@@ -7,6 +8,7 @@ import { toWasmSearch, type Game } from "./wasm-search-types";
 import GobanViewer from "./GobanViewer";
 
 export default function App() {
+  const windowSize = useWindowSize();
   const [board, setBoard] = useState<BoardPosition>(emptyBoard);
   const [games, setGames] = useState<Array<Game>>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
@@ -38,11 +40,11 @@ export default function App() {
   return (
     <div className="flex flex-gap-100 h-screen">
       <div style={{ display: selectedGame != null ? "none" : "block" }}>
-        <GobanEditor onUpdateBoard={setBoard} />
+        <GobanEditor onUpdateBoard={setBoard} windowSize={windowSize} />
       </div>
       {selectedGame != null && (
         <div style={{ display: "block" }}>
-          <GobanViewer game={selectedGame} />
+          <GobanViewer game={selectedGame} windowSize={windowSize} />
         </div>
       )}
       <GamesList
