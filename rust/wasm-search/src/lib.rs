@@ -282,11 +282,7 @@ impl WasmSearch {
             }
         }
         for result in &mut results {
-            let moves = self
-                .game_data
-                .get(&result.path)
-                .expect("Inconsistent game data");
-            let truncated_moves = &moves[..result.last_move_matched];
+            let truncated_moves = &result.moves_transformed[..result.last_move_matched];
             let mut checked = Vec::new();
             let mut all_empty_correctly_within = 0;
             for i in 1..=3 {
