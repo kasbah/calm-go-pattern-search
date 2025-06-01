@@ -48,7 +48,7 @@ fn main() {
         })
         .collect::<Vec<_>>();
 
-    let mut seen_moves = HashMap::new();
+    let mut seen_moves = HashMap::<Vec<Placement>, bool>::new();
     let mut unique_games = HashMap::new();
 
     for (path, moves) in games_vec {
@@ -56,8 +56,8 @@ fn main() {
         if seen_moves.contains_key(&moves) {
             is_duplicate = true;
         } else {
-            for rotation in get_rotations(&moves) {
-                if seen_moves.contains_key(&rotation) {
+            for (_, rotated_moves) in get_rotations(&moves) {
+                if seen_moves.contains_key(&rotated_moves) {
                     is_duplicate = true;
                     break;
                 }

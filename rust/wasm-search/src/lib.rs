@@ -54,6 +54,23 @@ struct WasmSearchReturn {
     results: Vec<SearchResult>,
 }
 
+fn get_moves_rotation(query_rotation: &Rotation) -> Rotation {
+    // rotating the moves the opposite to the query position
+    match query_rotation {
+        Rotation::Degrees90 => Rotation::Degrees270,
+        Rotation::Degrees270 => Rotation::Degrees90,
+        _ => *query_rotation,
+    }
+}
+
+fn get_rotation_index(r: &Rotation) -> u8 {
+    match r {
+        Rotation::Degrees90 => 1,
+        Rotation::Degrees180 => 2,
+        Rotation::Degrees270 => 3,
+    }
+}
+
 #[wasm_bindgen]
 impl WasmSearch {
     #[wasm_bindgen(constructor)]
@@ -118,19 +135,20 @@ impl WasmSearch {
             }
 
             // Original rotations
-            for (i, rotation) in rotations.iter().enumerate() {
-                matched = match_game(rotation, moves);
+            for (r, rotated_position) in rotations.clone() {
+                matched = match_game(&rotated_position, moves);
                 if let Some(last_move_matched) = matched {
+                    let moves_rotation = get_moves_rotation(&r);
                     results.push(SearchResult {
                         path: path.clone(),
                         score: 99,
                         last_move_matched,
-                        rotation: (i + 1) as u8,
+                        rotation: get_rotation_index(&r),
                         is_inverted: false,
                         is_mirrored: false,
                         all_empty_correctly_within: 0,
                         moves: moves.clone(),
-                        moves_transformed: get_rotated(moves, &Rotation::from_int(i as u8)),
+                        moves_transformed: get_rotated(moves, &moves_rotation),
                     });
                     break;
                 }
@@ -159,22 +177,19 @@ impl WasmSearch {
 
                 // Mirrored rotations
                 if matched.is_none() {
-                    for (i, rotation) in mirrored_rotations.iter().enumerate() {
-                        matched = match_game(rotation, moves);
+                    for (r, rotated_position) in mirrored_rotations.clone() {
+                        matched = match_game(&rotated_position, moves);
                         if let Some(last_move_matched) = matched {
                             results.push(SearchResult {
                                 path: path.clone(),
                                 score: mirrored_score - 1,
                                 last_move_matched,
-                                rotation: (i + 1) as u8,
+                                rotation: get_rotation_index(&r),
                                 is_inverted: false,
                                 is_mirrored: true,
                                 all_empty_correctly_within: 0,
                                 moves: moves.clone(),
-                                moves_transformed: get_rotated(
-                                    &get_mirrored(moves),
-                                    &Rotation::from_int(i as u8),
-                                ),
+                                moves_transformed: get_rotated(&get_mirrored(moves), &r),
                             });
                             break;
                         }
@@ -203,19 +218,20 @@ impl WasmSearch {
 
             // Inverse rotations
             if matched.is_none() {
-                for (i, rotation) in inverse_rotations.iter().enumerate() {
-                    matched = match_game(rotation, moves);
+                for (r, rotated_position) in inverse_rotations.clone() {
+                    matched = match_game(&rotated_position, moves);
                     if let Some(last_move_matched) = matched {
+                        let moves_rotation = get_moves_rotation(&r);
                         results.push(SearchResult {
                             path: path.clone(),
                             score: 89,
                             last_move_matched,
-                            rotation: (i + 1) as u8,
+                            rotation: get_rotation_index(&r),
                             is_inverted: true,
                             is_mirrored: false,
                             all_empty_correctly_within: 0,
                             moves: moves.clone(),
-                            moves_transformed: get_rotated(moves, &Rotation::from_int(i as u8)),
+                            moves_transformed: get_rotated(moves, &moves_rotation),
                         });
                         break;
                     }
@@ -245,22 +261,19 @@ impl WasmSearch {
 
                 // Mirrored inverse rotations
                 if matched.is_none() {
-                    for (i, rotation) in mirrored_inverse_rotations.iter().enumerate() {
-                        matched = match_game(rotation, moves);
+                    for (r, rotated_position) in mirrored_inverse_rotations.clone() {
+                        matched = match_game(&rotated_position, moves);
                         if let Some(last_move_matched) = matched {
                             results.push(SearchResult {
                                 path: path.clone(),
                                 score: mirrored_score - 1,
                                 last_move_matched,
-                                rotation: (i + 1) as u8,
+                                rotation: get_rotation_index(&r),
                                 is_inverted: true,
                                 is_mirrored: true,
                                 all_empty_correctly_within: 0,
                                 moves: moves.clone(),
-                                moves_transformed: get_rotated(
-                                    &get_mirrored(moves),
-                                    &Rotation::from_int(i as u8),
-                                ),
+                                moves_transformed: get_rotated(&get_mirrored(moves), &r),
                             });
                             break;
                         }

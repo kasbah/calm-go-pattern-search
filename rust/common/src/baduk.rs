@@ -77,14 +77,14 @@ pub fn get_rotated(position: &[Placement], rotation: &Rotation) -> Vec<Placement
     }
 }
 
-pub fn get_rotations(position: &[Placement]) -> Vec<Vec<Placement>> {
-    let mut result = Vec::new();
+pub fn get_rotations(position: &[Placement]) -> HashMap<Rotation, Vec<Placement>> {
+    let mut result = HashMap::new();
     for rotation in [
         Rotation::Degrees90,
         Rotation::Degrees180,
         Rotation::Degrees270,
     ] {
-        result.push(get_rotated(position, &rotation));
+        result.insert(rotation, get_rotated(position, &rotation));
     }
     result
 }
