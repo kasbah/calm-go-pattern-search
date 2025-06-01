@@ -31,7 +31,18 @@ pub enum Rotation {
     Degrees270,
 }
 
-pub fn get_rotation(position: &[Placement], rotation: &Rotation) -> Vec<Placement> {
+impl Rotation {
+    pub fn from_int(i: u8) -> Rotation {
+        match i {
+            0 => Rotation::Degrees90,
+            1 => Rotation::Degrees180,
+            2 => Rotation::Degrees270,
+            _ => panic!("Invalid rotation index"),
+        }
+    }
+}
+
+pub fn get_rotated(position: &[Placement], rotation: &Rotation) -> Vec<Placement> {
     match rotation {
         Rotation::Degrees90 => position
             .iter()
@@ -73,7 +84,7 @@ pub fn get_rotations(position: &[Placement]) -> Vec<Vec<Placement>> {
         Rotation::Degrees180,
         Rotation::Degrees270,
     ] {
-        result.push(get_rotation(position, &rotation));
+        result.push(get_rotated(position, &rotation));
     }
     result
 }

@@ -4,8 +4,8 @@ extern crate wasm_bindgen;
 mod utils;
 
 use calm_go_patterns_common::baduk::{
-    Placement, check_empty, check_within_one_quadrant, get_mirrored, get_rotations,
-    get_surrounding_points, match_game, switch_colors, unpack_games,
+    Placement, Rotation, check_empty, check_within_one_quadrant, get_mirrored, get_rotated,
+    get_rotations, get_surrounding_points, match_game, switch_colors, unpack_games,
 };
 use cfg_if::cfg_if;
 use lru::LruCache;
@@ -27,6 +27,19 @@ extern "C" {
     fn alert(s: &str);
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct SearchResult {
+    path: String,
+    score: i16,
+    last_move_matched: usize,
+    rotation: u8,                      // 0: no rotation, 1-3: rotation index
+    is_inverted: bool,                 // whether the colors were inverted
+    is_mirrored: bool,                 // whether the position was mirrored
+    all_empty_correctly_within: u8, // distance from moves where all surrounding points are correctly empty
+    moves: Vec<Placement>,          // the actual game moves
+    moves_transformed: Vec<Placement>, // the moves rotated and/or mirrored
 }
 
 #[wasm_bindgen]
@@ -99,6 +112,7 @@ impl WasmSearch {
                     is_mirrored: false,
                     all_empty_correctly_within: 0,
                     moves: moves.clone(),
+                    moves_transformed: moves.clone(),
                 });
                 continue;
             }
@@ -116,6 +130,7 @@ impl WasmSearch {
                         is_mirrored: false,
                         all_empty_correctly_within: 0,
                         moves: moves.clone(),
+                        moves_transformed: get_rotated(moves, &Rotation::from_int(i as u8)),
                     });
                     break;
                 }
@@ -136,6 +151,7 @@ impl WasmSearch {
                             is_mirrored: true,
                             all_empty_correctly_within: 0,
                             moves: moves.clone(),
+                            moves_transformed: get_mirrored(moves),
                         });
                         continue;
                     }
@@ -155,6 +171,10 @@ impl WasmSearch {
                                 is_mirrored: true,
                                 all_empty_correctly_within: 0,
                                 moves: moves.clone(),
+                                moves_transformed: get_rotated(
+                                    &get_mirrored(moves),
+                                    &Rotation::from_int(i as u8),
+                                ),
                             });
                             break;
                         }
@@ -175,6 +195,7 @@ impl WasmSearch {
                         is_mirrored: false,
                         all_empty_correctly_within: 0,
                         moves: moves.clone(),
+                        moves_transformed: moves.clone(),
                     });
                     continue;
                 }
@@ -194,6 +215,7 @@ impl WasmSearch {
                             is_mirrored: false,
                             all_empty_correctly_within: 0,
                             moves: moves.clone(),
+                            moves_transformed: get_rotated(moves, &Rotation::from_int(i as u8)),
                         });
                         break;
                     }
@@ -215,6 +237,7 @@ impl WasmSearch {
                             is_mirrored: true,
                             all_empty_correctly_within: 0,
                             moves: moves.clone(),
+                            moves_transformed: get_mirrored(moves),
                         });
                         continue;
                     }
@@ -234,6 +257,10 @@ impl WasmSearch {
                                 is_mirrored: true,
                                 all_empty_correctly_within: 0,
                                 moves: moves.clone(),
+                                moves_transformed: get_rotated(
+                                    &get_mirrored(moves),
+                                    &Rotation::from_int(i as u8),
+                                ),
                             });
                             break;
                         }
@@ -292,18 +319,6 @@ impl Default for WasmSearch {
     fn default() -> Self {
         Self::new()
     }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct SearchResult {
-    path: String,
-    score: i16,
-    last_move_matched: usize,
-    rotation: u8,                   // 0: no rotation, 1-3: rotation index
-    is_inverted: bool,              // whether the colors were inverted
-    is_mirrored: bool,              // whether the position was mirrored
-    all_empty_correctly_within: u8, // distance from moves where all surrounding points are correctly empty
-    moves: Vec<Placement>,          // the actual game moves
 }
 
 #[cfg(test)]

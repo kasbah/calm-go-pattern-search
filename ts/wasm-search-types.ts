@@ -17,7 +17,8 @@ export type Game = {
   is_inverted: boolean; // whether the pattern colors were inverted
   is_mirrored: boolean; // whether the pattern was mirrored
   all_empty_correctly_within: number; // distance from moves where all surrounding points are correctly empty
-  moves: Array<Placement>;
+  moves: Array<Placement>; // game moves
+  moves_transformed: Array<Placement>; // games moves rotated and/or mirrored
 };
 
 export function toWasmSearch(board: BoardPosition): Array<Placement> {
