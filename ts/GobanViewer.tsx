@@ -51,7 +51,7 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
     const [moveNumber, setMoveNumberState] = useState(game.last_move_matched);
     const maxHeight = Math.min(window.innerHeight, window.innerWidth * 0.5);
     const [moves, setMoves] = useState<Array<SabakiMove>>(
-      game.moves.map(toSabakiMove),
+      game.moves_transformed.map(toSabakiMove),
     );
     const [board, setBoard] = useState<BoardPosition>(
       calculateBoardPosition(moves, moveNumber),
@@ -61,12 +61,12 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
       (moveNumber: number) => {
         if (moveNumber < 0) {
           moveNumber = 0;
-        } else if (moveNumber >= game.moves.length) {
-          moveNumber = game.moves.length - 1;
+        } else if (moveNumber >= game.moves_transformed.length) {
+          moveNumber = game.moves_transformed.length - 1;
         }
         setMoveNumberState(moveNumber);
       },
-      [setMoveNumberState, game.moves.length],
+      [setMoveNumberState, game.moves_transformed.length],
     );
 
     const handlePrevMove = useCallback(() => {
@@ -88,7 +88,7 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
 
     useEffect(() => {
       setMoveNumber(game.last_move_matched);
-      setMoves(game.moves.map(toSabakiMove));
+      setMoves(game.moves_transformed.map(toSabakiMove));
     }, [game, setMoveNumber, setMoves]);
 
     useEffect(() => {
@@ -118,7 +118,7 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
                 <Input
                   type="number"
                   min={1}
-                  max={999}
+                  max={game.moves_transformed.length}
                   step={1}
                   value={moveNumber + 1}
                   onChange={(e) => setMoveNumber(parseInt(e.target.value) - 1)}
@@ -144,7 +144,7 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
                 <Button
                   size="xl"
                   variant="outline"
-                  disabled={moveNumber === game.moves.length - 1}
+                  disabled={moveNumber === game.moves_transformed.length - 1}
                   onClick={() => setMoveNumber(moveNumber + 1)}
                 >
                   <img src={chevronRightSvg} width={24} height={24} />
