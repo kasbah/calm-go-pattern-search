@@ -390,6 +390,30 @@ pub fn get_captured_stones(position: &[Placement]) -> Vec<Placement> {
         .collect()
 }
 
+pub struct GameState {
+    pub position: Vec<Placement>,
+    pub captures: Vec<Placement>,
+    pub number_of_moves: usize,
+}
+
+pub fn calculate_position(moves: &[Placement]) -> GameState {
+    let mut position = Vec::new();
+    let mut captures = Vec::new();
+
+    for &placement in moves {
+        position.push(placement);
+        let captured = get_captured_stones(&position);
+        captures.extend(captured.clone());
+        position.retain(|p| !captured.contains(p));
+    }
+
+    GameState {
+        position,
+        captures,
+        number_of_moves: moves.len(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -872,5 +896,110 @@ mod tests {
         assert_eq!(captured[1].len(), 1);
         assert_eq!(captured[0][0].color, Color::Black);
         assert_eq!(captured[1][0].color, Color::Black);
+    }
+
+    #[test]
+    fn test_calculate_position() {
+        // Test empty game
+        let empty_game = vec![];
+        let state = calculate_position(&empty_game);
+        assert!(state.position.is_empty());
+        assert!(state.captures.is_empty());
+        assert_eq!(state.number_of_moves, 0);
+
+        // Test simple capture sequence
+        let capture_sequence = vec![
+            // Black plays at 5,5
+            Placement {
+                color: Color::Black,
+                point: Point { x: 5, y: 5 },
+            },
+            // White surrounds from below
+            Placement {
+                color: Color::White,
+                point: Point { x: 5, y: 4 },
+            },
+            // Black plays elsewhere
+            Placement {
+                color: Color::Black,
+                point: Point { x: 10, y: 10 },
+            },
+            // White completes the surround, capturing black
+            Placement {
+                color: Color::White,
+                point: Point { x: 5, y: 6 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 4, y: 5 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 6, y: 5 },
+            },
+        ];
+
+        let state = calculate_position(&capture_sequence);
+
+        // Check final state
+        assert_eq!(state.position.len(), 5); // 5 white stones
+        assert_eq!(state.captures.len(), 1); // 1 black stone captured
+        assert_eq!(state.captures[0].color, Color::Black);
+        assert_eq!(state.captures[0].point, Point { x: 5, y: 5 });
+        assert_eq!(state.number_of_moves, 6);
+
+        // Test multiple captures
+        let multiple_captures = vec![
+            // Black plays two stones
+            Placement {
+                color: Color::Black,
+                point: Point { x: 5, y: 5 },
+            },
+            Placement {
+                color: Color::Black,
+                point: Point { x: 15, y: 15 },
+            },
+            // White surrounds both
+            Placement {
+                color: Color::White,
+                point: Point { x: 5, y: 4 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 5, y: 6 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 4, y: 5 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 6, y: 5 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 15, y: 14 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 15, y: 16 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 14, y: 15 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 16, y: 15 },
+            },
+        ];
+
+        let state = calculate_position(&multiple_captures);
+
+        // Check final state
+        assert_eq!(state.position.len(), 8); // 8 white stones
+        assert_eq!(state.captures.len(), 2); // 2 black stones captured
+        assert!(state.captures.iter().all(|p| p.color == Color::Black));
+        assert_eq!(state.number_of_moves, 10);
     }
 }
