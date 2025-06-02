@@ -276,6 +276,120 @@ pub fn check_within_one_quadrant(position: &Vec<Placement>) -> bool {
     true
 }
 
+pub fn get_connected_groups(position: &[Placement]) -> Vec<Vec<Placement>> {
+    if position.is_empty() {
+        return Vec::new();
+    }
+
+    let mut groups = Vec::new();
+    let mut visited = std::collections::HashSet::new();
+
+    for placement in position {
+        if visited.contains(placement) {
+            continue;
+        }
+
+        let mut current_group = Vec::new();
+        let mut to_visit = Vec::new();
+        to_visit.push(*placement);
+        visited.insert(*placement);
+
+        while let Some(current) = to_visit.pop() {
+            current_group.push(current);
+
+            // Check all four orthogonal directions
+            let directions = [
+                (0i8, 1i8),  // up
+                (0i8, -1i8), // down
+                (1i8, 0i8),  // right
+                (-1i8, 0i8), // left
+            ];
+
+            for (dx, dy) in directions {
+                let new_x = current.point.x as i8 + dx;
+                let new_y = current.point.y as i8 + dy;
+
+                // Check if the new point is within board bounds
+                if new_x < 0 || new_x >= BOARD_SIZE as i8 || new_y < 0 || new_y >= BOARD_SIZE as i8
+                {
+                    continue;
+                }
+
+                let new_point = Point {
+                    x: new_x as u8,
+                    y: new_y as u8,
+                };
+
+                // Look for a stone of the same color at this point
+                if let Some(&neighbor) = position
+                    .iter()
+                    .find(|p| p.point == new_point && p.color == current.color)
+                {
+                    if !visited.contains(&neighbor) {
+                        to_visit.push(neighbor);
+                        visited.insert(neighbor);
+                    }
+                }
+            }
+        }
+
+        groups.push(current_group);
+    }
+
+    groups
+}
+
+pub fn get_group_liberties(group: &[Placement], position: &[Placement]) -> Vec<Point> {
+    let mut liberties = std::collections::HashSet::new();
+
+    for placement in group {
+        // Check all four orthogonal directions
+        let directions = [
+            (0i8, 1i8),  // up
+            (0i8, -1i8), // down
+            (1i8, 0i8),  // right
+            (-1i8, 0i8), // left
+        ];
+
+        for (dx, dy) in directions {
+            let new_x = placement.point.x as i8 + dx;
+            let new_y = placement.point.y as i8 + dy;
+
+            // Check if the new point is within board bounds
+            if new_x < 0 || new_x >= BOARD_SIZE as i8 || new_y < 0 || new_y >= BOARD_SIZE as i8 {
+                continue;
+            }
+
+            let new_point = Point {
+                x: new_x as u8,
+                y: new_y as u8,
+            };
+
+            // If there's no stone at this point, it's a liberty
+            if !position.iter().any(|p| p.point == new_point) {
+                liberties.insert(new_point);
+            }
+        }
+    }
+
+    liberties.into_iter().collect()
+}
+
+pub fn get_captured_groups(position: &[Placement]) -> Vec<Vec<Placement>> {
+    let groups = get_connected_groups(position);
+    groups
+        .into_iter()
+        .filter(|group| get_group_liberties(group, position).is_empty())
+        .collect()
+}
+
+pub fn get_captured_stones(position: &[Placement]) -> Vec<Placement> {
+    get_captured_groups(position)
+        .into_iter()
+        .flatten()
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -537,5 +651,226 @@ mod tests {
             color: Color::Black,
             point: Point { x: 9, y: 9 }, // On both middle lines
         }]));
+    }
+
+    #[test]
+    fn test_get_connected_groups() {
+        // Test empty position
+        assert!(get_connected_groups(&[]).is_empty());
+
+        // Test single stone
+        let single_stone = vec![Placement {
+            color: Color::Black,
+            point: Point { x: 5, y: 5 },
+        }];
+        let groups = get_connected_groups(&single_stone);
+        assert_eq!(groups.len(), 1);
+        assert_eq!(groups[0].len(), 1);
+
+        // Test two connected stones
+        let connected_stones = vec![
+            Placement {
+                color: Color::Black,
+                point: Point { x: 5, y: 5 },
+            },
+            Placement {
+                color: Color::Black,
+                point: Point { x: 5, y: 6 },
+            },
+        ];
+        let groups = get_connected_groups(&connected_stones);
+        assert_eq!(groups.len(), 1);
+        assert_eq!(groups[0].len(), 2);
+
+        // Test two separate groups
+        let separate_groups = vec![
+            Placement {
+                color: Color::Black,
+                point: Point { x: 5, y: 5 },
+            },
+            Placement {
+                color: Color::Black,
+                point: Point { x: 5, y: 6 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 10, y: 10 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 10, y: 11 },
+            },
+        ];
+        let groups = get_connected_groups(&separate_groups);
+        assert_eq!(groups.len(), 2);
+        assert_eq!(groups[0].len(), 2);
+        assert_eq!(groups[1].len(), 2);
+
+        // Test diagonal stones (should be separate groups)
+        let diagonal_stones = vec![
+            Placement {
+                color: Color::Black,
+                point: Point { x: 5, y: 5 },
+            },
+            Placement {
+                color: Color::Black,
+                point: Point { x: 6, y: 6 },
+            },
+        ];
+        let groups = get_connected_groups(&diagonal_stones);
+        assert_eq!(groups.len(), 2);
+        assert_eq!(groups[0].len(), 1);
+        assert_eq!(groups[1].len(), 1);
+    }
+
+    #[test]
+    fn test_get_group_liberties() {
+        // Test single stone liberties
+        let position = vec![Placement {
+            color: Color::Black,
+            point: Point { x: 5, y: 5 },
+        }];
+        let groups = get_connected_groups(&position);
+        let liberties = get_group_liberties(&groups[0], &position);
+        assert_eq!(liberties.len(), 4);
+
+        // Test surrounded stone (no liberties)
+        let surrounded = vec![
+            Placement {
+                color: Color::Black,
+                point: Point { x: 5, y: 5 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 5, y: 4 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 5, y: 6 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 4, y: 5 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 6, y: 5 },
+            },
+        ];
+        let groups = get_connected_groups(&surrounded);
+        let liberties = get_group_liberties(&groups[0], &surrounded);
+        assert_eq!(liberties.len(), 0);
+
+        // Test group with shared liberties
+        let group_with_shared_liberties = vec![
+            Placement {
+                color: Color::Black,
+                point: Point { x: 5, y: 5 },
+            },
+            Placement {
+                color: Color::Black,
+                point: Point { x: 5, y: 6 },
+            },
+        ];
+        let groups = get_connected_groups(&group_with_shared_liberties);
+        let liberties = get_group_liberties(&groups[0], &group_with_shared_liberties);
+        assert_eq!(liberties.len(), 6); // 2 stones × 4 liberties - 2 shared liberties
+    }
+
+    #[test]
+    fn test_get_captured_groups() {
+        // Test no captures
+        let position = vec![
+            Placement {
+                color: Color::Black,
+                point: Point { x: 5, y: 5 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 10, y: 10 },
+            },
+        ];
+        let captured = get_captured_groups(&position);
+        assert!(captured.is_empty());
+
+        // Test captured group
+        let position_with_capture = vec![
+            Placement {
+                color: Color::Black,
+                point: Point { x: 5, y: 5 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 5, y: 4 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 5, y: 6 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 4, y: 5 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 6, y: 5 },
+            },
+        ];
+        let captured = get_captured_groups(&position_with_capture);
+        assert_eq!(captured.len(), 1);
+        assert_eq!(captured[0].len(), 1);
+        assert_eq!(captured[0][0].color, Color::Black);
+
+        // Test multiple captured groups
+        let multiple_captures = vec![
+            // First captured group
+            Placement {
+                color: Color::Black,
+                point: Point { x: 5, y: 5 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 5, y: 4 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 5, y: 6 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 4, y: 5 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 6, y: 5 },
+            },
+            // Second captured group
+            Placement {
+                color: Color::Black,
+                point: Point { x: 15, y: 15 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 15, y: 14 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 15, y: 16 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 14, y: 15 },
+            },
+            Placement {
+                color: Color::White,
+                point: Point { x: 16, y: 15 },
+            },
+        ];
+        let captured = get_captured_groups(&multiple_captures);
+        assert_eq!(captured.len(), 2);
+        assert_eq!(captured[0].len(), 1);
+        assert_eq!(captured[1].len(), 1);
+        assert_eq!(captured[0][0].color, Color::Black);
+        assert_eq!(captured[1][0].color, Color::Black);
     }
 }
