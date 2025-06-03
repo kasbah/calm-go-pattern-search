@@ -48,29 +48,48 @@ fn main() {
         })
         .collect::<Vec<_>>();
 
-    let mut seen_moves = HashMap::<Vec<Placement>, bool>::new();
+    let mut seen_moves = HashMap::<Vec<Placement>, (String, String, String, String)>::new();
     let mut unique_moves = HashMap::new();
 
     for (path, game) in games_vec {
         let mut is_duplicate = false;
-        if seen_moves.contains_key(&game.moves) {
+        let mut duplicate_info = None;
+        if let Some((pb, rb, pw, rw)) = seen_moves.get(&game.moves) {
             is_duplicate = true;
+            duplicate_info = Some((pb.clone(), rb.clone(), pw.clone(), rw.clone()));
         } else {
             for (_, rotated_moves) in get_rotations(&game.moves) {
-                if seen_moves.contains_key(&rotated_moves) {
+                if let Some((pb, rb, pw, rw)) = seen_moves.get(&rotated_moves) {
                     is_duplicate = true;
+                    duplicate_info = Some((pb.clone(), rb.clone(), pw.clone(), rw.clone()));
                     break;
                 }
             }
         }
 
         if !is_duplicate {
-            seen_moves.insert(game.moves.clone(), true);
+            seen_moves.insert(
+                game.moves.clone(),
+                (
+                    game.player_black.clone(),
+                    game.rank_black.clone(),
+                    game.player_white.clone(),
+                    game.rank_white.clone(),
+                ),
+            );
             unique_moves.insert(path, game);
         } else {
+            let (pb, rb, pw, rw) = duplicate_info.unwrap();
             println!(
-                "Removing duplicate game: {} vs {}",
-                game.player_black, game.player_white
+                "Removing duplicate game: {} {} vs {} {} (duplicate of {} {} vs {} {})",
+                game.player_black,
+                game.rank_black,
+                game.player_white,
+                game.rank_white,
+                pb,
+                rb,
+                pw,
+                rw
             );
         }
     }
