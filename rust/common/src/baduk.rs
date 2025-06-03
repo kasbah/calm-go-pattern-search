@@ -249,8 +249,17 @@ pub fn unpack_captures(packed: &[u8]) -> HashMap<usize, Vec<Placement>> {
     captures
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Game {
+    pub event: String,
+    pub round: String,
+    pub place: String,
+    pub date: String,
+    pub player_black: String,
+    pub player_white: String,
+    pub rank_black: String,
+    pub rank_white: String,
+    pub result: String,
     pub moves: Vec<Placement>,
     pub captures: HashMap<usize, Vec<Placement>>,
 }
@@ -258,6 +267,15 @@ pub struct Game {
 #[derive(Serialize, Deserialize)]
 struct PackedGame {
     name: String,
+    event: String,
+    round: String,
+    place: String,
+    date: String,
+    player_black: String,
+    player_white: String,
+    rank_black: String,
+    rank_white: String,
+    result: String,
     #[serde(with = "serde_bytes")]
     moves: Vec<u8>,
     #[serde(with = "serde_bytes")]
@@ -267,10 +285,19 @@ struct PackedGame {
 pub fn pack_games(games: &HashMap<String, Game>) -> Vec<u8> {
     let packed_games: Vec<PackedGame> = games
         .iter()
-        .map(|(name, Game { moves, captures })| PackedGame {
+        .map(|(name, game)| PackedGame {
             name: name.clone(),
-            moves: pack_placements(moves),
-            captures: pack_captures(captures),
+            event: game.event.clone(),
+            round: game.round.clone(),
+            place: game.place.clone(),
+            date: game.date.clone(),
+            player_black: game.player_black.clone(),
+            player_white: game.player_white.clone(),
+            rank_black: game.rank_black.clone(),
+            rank_white: game.rank_white.clone(),
+            result: game.result.clone(),
+            moves: pack_placements(&game.moves),
+            captures: pack_captures(&game.captures),
         })
         .collect();
 
@@ -292,6 +319,15 @@ pub fn unpack_games(packed: &[u8]) -> HashMap<String, Game> {
             (
                 packed.name,
                 Game {
+                    event: packed.event,
+                    round: packed.round,
+                    place: packed.place,
+                    date: packed.date,
+                    player_black: packed.player_black,
+                    player_white: packed.player_white,
+                    rank_black: packed.rank_black,
+                    rank_white: packed.rank_white,
+                    result: packed.result,
                     moves: unpack_placements(&packed.moves).0,
                     captures: unpack_captures(&packed.captures),
                 },
@@ -777,6 +813,15 @@ mod tests {
             0..10 // Number of games
         ).prop_map(|v| v.into_iter().map(|(name, moves)| {
             (name, Game {
+                event: "Test Event".to_string(),
+                round: "Test Round".to_string(),
+                place: "Test Place".to_string(),
+                date: "2024-01-01".to_string(),
+                player_black: "Black Player".to_string(),
+                player_white: "White Player".to_string(),
+                rank_black: "9p".to_string(),
+                rank_white: "9p".to_string(),
+                result: "B+R".to_string(),
                 moves,
                 captures: HashMap::new()
             })
@@ -804,6 +849,15 @@ mod tests {
             0..10 // Number of games
         ).prop_map(|v| v.into_iter().map(|(name, moves)| {
             (name, Game {
+                event: "Test Event".to_string(),
+                round: "Test Round".to_string(),
+                place: "Test Place".to_string(),
+                date: "2024-01-01".to_string(),
+                player_black: "Black Player".to_string(),
+                player_white: "White Player".to_string(),
+                rank_black: "9p".to_string(),
+                rank_white: "9p".to_string(),
+                result: "B+R".to_string(),
                 moves,
                 captures: HashMap::new()
             })
@@ -831,6 +885,15 @@ mod tests {
             0..20 // Number of games
         ).prop_map(|v| v.into_iter().map(|(name, moves)| {
             (name, Game {
+                event: "Test Event".to_string(),
+                round: "Test Round".to_string(),
+                place: "Test Place".to_string(),
+                date: "2024-01-01".to_string(),
+                player_black: "Black Player".to_string(),
+                player_white: "White Player".to_string(),
+                rank_black: "9p".to_string(),
+                rank_white: "9p".to_string(),
+                result: "B+R".to_string(),
                 moves,
                 captures: HashMap::new()
             })

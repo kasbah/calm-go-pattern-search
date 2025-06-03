@@ -4,8 +4,8 @@ extern crate wasm_bindgen;
 mod utils;
 
 use calm_go_patterns_common::baduk::{
-    Game, Placement, Rotation, check_empty, check_within_one_quadrant, get_mirrored, get_rotated,
-    get_rotations, get_surrounding_points, match_game, switch_colors, unpack_games, Point,
+    Game, Placement, Point, Rotation, check_empty, check_within_one_quadrant, get_mirrored,
+    get_rotated, get_rotations, get_surrounding_points, match_game, switch_colors, unpack_games,
 };
 use cfg_if::cfg_if;
 use lru::LruCache;

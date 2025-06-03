@@ -27,14 +27,14 @@ fn main() {
         .par_iter()
         .filter_map(|path| match std::fs::read_to_string(path) {
             Ok(file_data) => match load_sgf(path, &file_data) {
-                Ok(moves) => {
+                Ok(game) => {
                     let rel_path = path
                         .strip_prefix(&sgf_folder)
                         .unwrap()
                         .with_extension("")
                         .to_string_lossy()
                         .into_owned();
-                    Some((rel_path, moves))
+                    Some((rel_path, game))
                 }
                 Err(e) => {
                     println!("Skipping {path:?}: {e}");
@@ -51,12 +51,12 @@ fn main() {
     let mut seen_moves = HashMap::<Vec<Placement>, bool>::new();
     let mut unique_moves = HashMap::new();
 
-    for (path, moves) in games_vec {
+    for (path, game) in games_vec {
         let mut is_duplicate = false;
-        if seen_moves.contains_key(&moves) {
+        if seen_moves.contains_key(&game.moves) {
             is_duplicate = true;
         } else {
-            for (_, rotated_moves) in get_rotations(&moves) {
+            for (_, rotated_moves) in get_rotations(&game.moves) {
                 if seen_moves.contains_key(&rotated_moves) {
                     is_duplicate = true;
                     break;
@@ -65,34 +65,32 @@ fn main() {
         }
 
         if !is_duplicate {
-            seen_moves.insert(moves.clone(), true);
-            unique_moves.insert(path, moves);
+            seen_moves.insert(game.moves.clone(), true);
+            unique_moves.insert(path, game);
         } else {
-            println!("Removing duplicate game: {path}");
+            println!(
+                "Removing duplicate game: {} vs {}",
+                game.player_black, game.player_white
+            );
         }
     }
 
     println!("Found {} unique games", unique_moves.len());
 
     let games = unique_moves
-        .par_iter()
-        .map(|(path, moves)| {
+        .into_par_iter()
+        .map(|(path, mut game)| {
             let mut captures = HashMap::new();
             let mut gb = GoBoard::new();
 
-            for (i, move_) in moves.iter().enumerate() {
+            for (i, move_) in game.moves.iter().enumerate() {
                 let cs = gb.make_move(move_);
                 if !cs.is_empty() {
                     captures.insert(i, cs);
                 }
             }
-            (
-                path.clone(),
-                Game {
-                    moves: moves.clone(),
-                    captures,
-                },
-            )
+            game.captures = captures;
+            (path, game)
         })
         .collect();
 
@@ -102,9 +100,34 @@ fn main() {
     println!("Done");
 }
 
-fn load_sgf(path: &PathBuf, file_data: &str) -> Result<Vec<Placement>, Box<dyn std::error::Error>> {
+fn load_sgf(path: &PathBuf, file_data: &str) -> Result<Game, Box<dyn std::error::Error>> {
     let game = go::parse(file_data)?;
     let mut moves = Vec::new();
+    let mut event = String::new();
+    let mut round = String::new();
+    let mut place = String::new();
+    let mut date = String::new();
+    let mut player_black = String::new();
+    let mut player_white = String::new();
+    let mut rank_black = String::new();
+    let mut rank_white = String::new();
+    let mut result = String::new();
+
+    // Extract metadata from root node
+    for prop in &game[0].properties {
+        match prop {
+            go::Prop::EV(e) => event = e.text.to_string(),
+            go::Prop::RO(r) => round = r.text.to_string(),
+            go::Prop::PC(p) => place = p.text.to_string(),
+            go::Prop::DT(d) => date = d.text.to_string(),
+            go::Prop::PB(p) => player_black = p.text.to_string(),
+            go::Prop::PW(p) => player_white = p.text.to_string(),
+            go::Prop::BR(r) => rank_black = r.text.to_string(),
+            go::Prop::WR(r) => rank_white = r.text.to_string(),
+            go::Prop::RE(r) => result = r.text.to_string(),
+            _ => {}
+        }
+    }
 
     if let Some(go::Prop::SZ(size)) = game[0]
         .properties
@@ -158,5 +181,17 @@ fn load_sgf(path: &PathBuf, file_data: &str) -> Result<Vec<Placement>, Box<dyn s
         }
     }
 
-    Ok(moves)
+    Ok(Game {
+        event,
+        round,
+        place,
+        date,
+        player_black,
+        player_white,
+        rank_black,
+        rank_white,
+        result,
+        moves,
+        captures: HashMap::new(),
+    })
 }
