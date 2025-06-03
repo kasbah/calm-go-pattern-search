@@ -270,23 +270,27 @@ impl fmt::Display for Rank {
 }
 
 pub fn parse_rank(rank_str: &str) -> Rank {
-    let len = rank_str.len();
-    if len == 0 {
+    let rank_str = rank_str.trim();
+    if rank_str.is_empty() {
         return Rank::Custom("".to_string());
     }
-    let num_str = rank_str.chars().take(len - 1).collect::<String>();
-    let split = (
-        num_str.parse::<u8>(),
-        rank_str
-            .chars()
-            .last()
-            .and_then(|c| c.to_lowercase().next()),
-    );
-    match split {
-        (Ok(num), Some('p')) => Rank::Pro(num),
-        (Ok(num), Some('d')) => Rank::Dan(num),
-        (Ok(num), Some('k')) => Rank::Kyu(num),
-        (_, _) => Rank::Custom(rank_str.to_string()),
+
+    // Find the first non-digit character
+    let num_end = rank_str.chars().position(|c| !c.is_ascii_digit());
+    if let Some(pos) = num_end {
+        if let Ok(num) = rank_str[..pos].parse::<u8>() {
+            let rest = rank_str[pos..].trim().to_lowercase();
+            match rest.as_str() {
+                "d" | "dan" => Rank::Dan(num),
+                "k" | "kyu" => Rank::Kyu(num),
+                "p" | "pro" => Rank::Pro(num),
+                _ => Rank::Custom(rank_str.to_string()),
+            }
+        } else {
+            Rank::Custom(rank_str.to_string())
+        }
+    } else {
+        Rank::Custom(rank_str.to_string())
     }
 }
 
@@ -1504,5 +1508,54 @@ mod tests {
         assert_eq!(board.position.len(), 5);
         assert_eq!(board.groups.len(), 1);
         assert_eq!(board.groups[0].len(), 5);
+    }
+
+    #[test]
+    fn test_parse_rank() {
+        // Test empty string
+        assert_eq!(parse_rank(""), Rank::Custom("".to_string()));
+        assert_eq!(parse_rank("   "), Rank::Custom("".to_string()));
+
+        // Test dan ranks
+        assert_eq!(parse_rank("1d"), Rank::Dan(1));
+        assert_eq!(parse_rank("1dan"), Rank::Dan(1));
+        assert_eq!(parse_rank("1 d"), Rank::Dan(1));
+        assert_eq!(parse_rank("1 dan"), Rank::Dan(1));
+        assert_eq!(parse_rank("1 Dan"), Rank::Dan(1));
+        assert_eq!(parse_rank("  1d  "), Rank::Dan(1));
+        assert_eq!(parse_rank("9d"), Rank::Dan(9));
+        assert_eq!(parse_rank("9dan"), Rank::Dan(9));
+
+        // Test kyu ranks
+        assert_eq!(parse_rank("1k"), Rank::Kyu(1));
+        assert_eq!(parse_rank("1kyu"), Rank::Kyu(1));
+        assert_eq!(parse_rank("1 k"), Rank::Kyu(1));
+        assert_eq!(parse_rank("1 kyu"), Rank::Kyu(1));
+        assert_eq!(parse_rank("1 Kyu"), Rank::Kyu(1));
+        assert_eq!(parse_rank("  1k  "), Rank::Kyu(1));
+        assert_eq!(parse_rank("30k"), Rank::Kyu(30));
+        assert_eq!(parse_rank("30kyu"), Rank::Kyu(30));
+
+        // Test pro ranks
+        assert_eq!(parse_rank("1p"), Rank::Pro(1));
+        assert_eq!(parse_rank("1pro"), Rank::Pro(1));
+        assert_eq!(parse_rank("1 p"), Rank::Pro(1));
+        assert_eq!(parse_rank("1 pro"), Rank::Pro(1));
+        assert_eq!(parse_rank("1 Pro"), Rank::Pro(1));
+        assert_eq!(parse_rank("  1p  "), Rank::Pro(1));
+        assert_eq!(parse_rank("9p"), Rank::Pro(9));
+        assert_eq!(parse_rank("9pro"), Rank::Pro(9));
+
+        // Test invalid formats
+        assert_eq!(parse_rank("invalid"), Rank::Custom("invalid".to_string()));
+        assert_eq!(parse_rank("1"), Rank::Custom("1".to_string()));
+        assert_eq!(parse_rank("d"), Rank::Custom("d".to_string()));
+        assert_eq!(parse_rank("1invalid"), Rank::Custom("1invalid".to_string()));
+        assert_eq!(
+            parse_rank("1 invalid"),
+            Rank::Custom("1 invalid".to_string())
+        );
+        assert_eq!(parse_rank("1d1"), Rank::Custom("1d1".to_string()));
+        assert_eq!(parse_rank("1d1d"), Rank::Custom("1d1d".to_string()));
     }
 }
