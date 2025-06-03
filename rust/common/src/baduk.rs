@@ -3,6 +3,7 @@ use rmp_serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
 use serde_bytes;
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 pub const BOARD_SIZE: u8 = 19;
 
@@ -282,7 +283,7 @@ pub fn get_connected_groups(position: &[Placement]) -> Vec<Vec<Placement>> {
     }
 
     let mut groups = Vec::new();
-    let mut visited = std::collections::HashSet::new();
+    let mut visited = HashSet::new();
 
     for placement in position {
         if visited.contains(placement) {
@@ -340,7 +341,7 @@ pub fn get_connected_groups(position: &[Placement]) -> Vec<Vec<Placement>> {
 }
 
 pub fn get_group_liberties(group: &[Placement], position: &[Placement]) -> Vec<Point> {
-    let mut liberties = std::collections::HashSet::new();
+    let mut liberties = HashSet::new();
 
     for placement in group {
         // Check all four orthogonal directions
@@ -411,6 +412,162 @@ pub fn calculate_position(moves: &[Placement]) -> GameState {
         position,
         captures,
         number_of_moves: moves.len(),
+    }
+}
+
+const DIRECTIONS: [(i8, i8); 4] = [
+    (0i8, 1i8),  // up
+    (0i8, -1i8), // down
+    (1i8, 0i8),  // right
+    (-1i8, 0i8), // left
+];
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Neighbor {
+    Stone(Placement),
+    Empty(Point),
+    Edge,
+}
+
+pub fn get_neighbors(point: &Point, position: &[Placement]) -> [Neighbor; 4] {
+    let mut result = [Neighbor::Edge; 4];
+    for (i, direction) in DIRECTIONS.iter().enumerate() {
+        let (dx, dy) = direction;
+        let new_x = point.x as i8 + dx;
+        let new_y = point.y as i8 + dy;
+
+        if new_x < 0 || new_x >= BOARD_SIZE as i8 || new_y < 0 || new_y >= BOARD_SIZE as i8 {
+            continue;
+        }
+
+        let neighbour_point = Point {
+            x: new_x as u8,
+            y: new_y as u8,
+        };
+
+        if let Some(placement) = position.iter().find(|p| p.point == neighbour_point) {
+            result[i] = Neighbor::Stone(*placement);
+        } else {
+            result[i] = Neighbor::Empty(*point);
+        }
+    }
+    result
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct GoBoard {
+    pub position: Vec<Placement>,
+    pub captures: Vec<Vec<Placement>>,
+    pub groups: Vec<Vec<Placement>>,
+}
+
+impl Default for GoBoard {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl GoBoard {
+    pub fn new() -> GoBoard {
+        GoBoard {
+            position: Vec::new(),
+            captures: Vec::new(),
+            groups: Vec::new(),
+        }
+    }
+
+    fn capture_group(&mut self, group: &[Placement]) {
+        self.groups.retain(|g| g != group);
+        self.captures.push(group.to_vec());
+        self.position.retain(|p| !group.contains(p));
+    }
+
+    fn get_groups(&self, points: &[Point]) -> HashSet<Vec<Placement>> {
+        let mut groups = HashSet::new();
+        for point in points {
+            let group = self
+                .groups
+                .iter()
+                .find(|g| g.iter().any(|p| p.point == *point))
+                .expect("Group not found");
+            groups.insert(group.clone());
+        }
+        groups
+    }
+
+    fn out_of_liberties(&self, group: &[Placement]) -> bool {
+        for placement in group {
+            for (dx, dy) in DIRECTIONS {
+                let neighbor_x = placement.point.x as i8 + dx;
+                let neighbor_y = placement.point.y as i8 + dy;
+
+                if neighbor_x < 0
+                    || neighbor_x >= BOARD_SIZE as i8
+                    || neighbor_y < 0
+                    || neighbor_y >= BOARD_SIZE as i8
+                {
+                    continue;
+                }
+
+                let neighbor_point = Point {
+                    x: neighbor_x as u8,
+                    y: neighbor_y as u8,
+                };
+
+                // if there is no stone at a neighboring point, it's a liberty
+                if !self.position.iter().any(|p| p.point == neighbor_point) {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+
+    pub fn make_move(&mut self, move_: &Placement) {
+        if self.position.iter().any(|p| p.point == move_.point) {
+            return;
+            //panic!("Position already contains a stone at the move's point");
+        }
+        self.position.push(*move_);
+        let mut same_color = Vec::new();
+        let mut other_color = Vec::new();
+        for neighbor in get_neighbors(&move_.point, &self.position) {
+            if let Neighbor::Stone(Placement { color, point }) = neighbor {
+                if color == move_.color {
+                    same_color.push(point);
+                } else {
+                    other_color.push(point);
+                }
+            }
+        }
+
+        // check the liberties of opponent's touching groups
+        for other_group in self.get_groups(&other_color) {
+            if self.out_of_liberties(&other_group) {
+                self.capture_group(&other_group);
+            }
+        }
+
+        // merge touching groups that contain the same color stones as the move
+        let mut move_group = self
+            .get_groups(&same_color)
+            .iter()
+            .flatten()
+            .cloned()
+            .collect::<Vec<Placement>>();
+
+        // remove any groups that were merged
+        self.groups
+            .retain(|g| !g.iter().any(|p| move_group.contains(p)));
+
+        move_group.push(*move_);
+
+        // suicide move
+        if self.out_of_liberties(&move_group) {
+            self.capture_group(&move_group);
+        } else {
+            self.groups.push(move_group);
+        }
     }
 }
 
@@ -1001,5 +1158,170 @@ mod tests {
         assert_eq!(state.captures.len(), 2); // 2 black stones captured
         assert!(state.captures.iter().all(|p| p.color == Color::Black));
         assert_eq!(state.number_of_moves, 10);
+    }
+
+    #[test]
+    fn test_goboard_new() {
+        let board = GoBoard::new();
+        assert!(board.position.is_empty());
+        assert!(board.captures.is_empty());
+        assert!(board.groups.is_empty());
+    }
+
+    #[test]
+    fn test_goboard_single_move() {
+        let mut board = GoBoard::new();
+        let move_ = Placement {
+            color: Color::Black,
+            point: Point { x: 5, y: 5 },
+        };
+        board.make_move(&move_);
+        assert_eq!(board.position.len(), 1, "Position should have 1 stone");
+        assert_eq!(board.groups.len(), 1, "Groups should have 1 group");
+        assert_eq!(board.groups[0].len(), 1, "Group should have 1 stone");
+        assert_eq!(board.groups[0][0], move_, "Group should contain the move");
+    }
+
+    #[test]
+    fn test_goboard_connected_group() {
+        let mut board = GoBoard::new();
+        let move1 = Placement {
+            color: Color::Black,
+            point: Point { x: 5, y: 5 },
+        };
+        let move2 = Placement {
+            color: Color::Black,
+            point: Point { x: 5, y: 6 },
+        };
+        board.make_move(&move1);
+        board.make_move(&move2);
+        assert_eq!(board.position.len(), 2);
+        assert_eq!(board.groups.len(), 1);
+        assert_eq!(board.groups[0].len(), 2);
+        assert!(board.groups[0].contains(&move1));
+        assert!(board.groups[0].contains(&move2));
+    }
+
+    #[test]
+    fn test_goboard_capture() {
+        let mut board = GoBoard::new();
+        // Place a white stone
+        board.make_move(&Placement {
+            color: Color::White,
+            point: Point { x: 5, y: 5 },
+        });
+        // Surround it with black stones
+        board.make_move(&Placement {
+            color: Color::Black,
+            point: Point { x: 5, y: 4 },
+        });
+        board.make_move(&Placement {
+            color: Color::Black,
+            point: Point { x: 5, y: 6 },
+        });
+        board.make_move(&Placement {
+            color: Color::Black,
+            point: Point { x: 4, y: 5 },
+        });
+        board.make_move(&Placement {
+            color: Color::Black,
+            point: Point { x: 6, y: 5 },
+        });
+        // White stone should be captured
+        assert_eq!(board.position.len(), 4);
+        assert_eq!(board.captures.len(), 1);
+        assert_eq!(board.captures[0].len(), 1);
+        assert_eq!(board.captures[0][0].color, Color::White);
+        assert_eq!(board.captures[0][0].point, Point { x: 5, y: 5 });
+    }
+
+    #[test]
+    fn test_goboard_suicide_move() {
+        let mut board = GoBoard::new();
+        // Place surrounding stones
+        board.make_move(&Placement {
+            color: Color::White,
+            point: Point { x: 5, y: 4 },
+        });
+        board.make_move(&Placement {
+            color: Color::White,
+            point: Point { x: 5, y: 6 },
+        });
+        board.make_move(&Placement {
+            color: Color::White,
+            point: Point { x: 4, y: 5 },
+        });
+        board.make_move(&Placement {
+            color: Color::White,
+            point: Point { x: 6, y: 5 },
+        });
+        // Try to place a black stone in the middle (suicide)
+        board.make_move(&Placement {
+            color: Color::Black,
+            point: Point { x: 5, y: 5 },
+        });
+        // Black stone should be captured immediately
+        assert_eq!(board.position.len(), 4);
+        assert_eq!(board.captures.len(), 1);
+        assert_eq!(board.captures[0].len(), 1);
+        assert_eq!(board.captures[0][0].color, Color::Black);
+        assert_eq!(board.captures[0][0].point, Point { x: 5, y: 5 });
+    }
+
+    #[test]
+    fn test_goboard_multiple_groups() {
+        let mut board = GoBoard::new();
+        // Create two separate black groups
+        board.make_move(&Placement {
+            color: Color::Black,
+            point: Point { x: 5, y: 5 },
+        });
+        board.make_move(&Placement {
+            color: Color::Black,
+            point: Point { x: 5, y: 6 },
+        });
+        board.make_move(&Placement {
+            color: Color::Black,
+            point: Point { x: 15, y: 15 },
+        });
+        board.make_move(&Placement {
+            color: Color::Black,
+            point: Point { x: 15, y: 16 },
+        });
+        assert_eq!(board.position.len(), 4);
+        assert_eq!(board.groups.len(), 2);
+        assert_eq!(board.groups[0].len(), 2);
+        assert_eq!(board.groups[1].len(), 2);
+    }
+
+    #[test]
+    fn test_goboard_merge_groups() {
+        let mut board = GoBoard::new();
+        // Create two black groups
+        board.make_move(&Placement {
+            color: Color::Black,
+            point: Point { x: 5, y: 5 },
+        });
+        board.make_move(&Placement {
+            color: Color::Black,
+            point: Point { x: 5, y: 6 },
+        });
+        board.make_move(&Placement {
+            color: Color::Black,
+            point: Point { x: 7, y: 5 },
+        });
+        board.make_move(&Placement {
+            color: Color::Black,
+            point: Point { x: 7, y: 6 },
+        });
+        // Connect the groups
+        board.make_move(&Placement {
+            color: Color::Black,
+            point: Point { x: 6, y: 5 },
+        });
+        // Groups should be merged
+        assert_eq!(board.position.len(), 5);
+        assert_eq!(board.groups.len(), 1);
+        assert_eq!(board.groups[0].len(), 5);
     }
 }
