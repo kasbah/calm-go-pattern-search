@@ -174,14 +174,35 @@ pub fn pack_placements(placements: &[Placement]) -> Vec<u8> {
     packed
 }
 
-pub fn unpack_placements(packed: &[u8]) -> Vec<Placement> {
+pub fn pack_captures(captures: &HashMap<usize, Vec<Placement>>) -> Vec<u8> {
+    let mut packed = Vec::new();
+    let len = captures.len() as u16;
+    packed.push((len >> 8) as u8);
+    packed.push(len as u8);
+
+    for (move_number, placements) in captures {
+        // Pack move number (u16)
+        packed.push((move_number >> 8) as u8);
+        packed.push(*move_number as u8);
+
+        // Pack placements
+        let packed_placements = pack_placements(placements);
+        packed.extend(packed_placements);
+    }
+
+    packed
+}
+
+pub fn unpack_placements(packed: &[u8]) -> (Vec<Placement>, usize) {
     let len = ((packed[0] as u16) << 8) | (packed[1] as u16);
     let point_bytes_start = 2;
     let point_bytes_end = point_bytes_start + (len as usize * 9).div_ceil(8);
     let color_bytes_start = point_bytes_end;
+    let color_bytes_end = color_bytes_start + (len as usize).div_ceil(8);
+    let total_bytes = color_bytes_end;
 
     let point_bits = BitVec::from_bytes(&packed[point_bytes_start..point_bytes_end]);
-    let color_bits = BitVec::from_bytes(&packed[color_bytes_start..]);
+    let color_bits = BitVec::from_bytes(&packed[color_bytes_start..color_bytes_end]);
 
     let mut placements = Vec::new();
     for i in 0..len as usize {
@@ -206,9 +227,29 @@ pub fn unpack_placements(packed: &[u8]) -> Vec<Placement> {
         });
     }
 
-    placements
+    (placements, total_bytes)
 }
 
+pub fn unpack_captures(packed: &[u8]) -> HashMap<usize, Vec<Placement>> {
+    let mut captures = HashMap::new();
+    let len = ((packed[0] as u16) << 8) | (packed[1] as u16);
+    let mut offset = 2;
+
+    for _ in 0..len {
+        // Unpack move number (u16)
+        let move_number = ((packed[offset] as usize) << 8) | (packed[offset + 1] as usize);
+        offset += 2;
+
+        // Unpack placements
+        let (placements, bytes_read) = unpack_placements(&packed[offset..]);
+        captures.insert(move_number, placements);
+        offset += bytes_read;
+    }
+
+    captures
+}
+
+#[derive(Debug, PartialEq)]
 pub struct Game {
     pub moves: Vec<Placement>,
     pub captures: HashMap<usize, Vec<Placement>>,
@@ -219,7 +260,8 @@ struct PackedGame {
     name: String,
     #[serde(with = "serde_bytes")]
     moves: Vec<u8>,
-    captures: HashMap<usize, Vec<u8>>,
+    #[serde(with = "serde_bytes")]
+    captures: Vec<u8>,
 }
 
 pub fn pack_games(games: &HashMap<String, Game>) -> Vec<u8> {
@@ -228,10 +270,7 @@ pub fn pack_games(games: &HashMap<String, Game>) -> Vec<u8> {
         .map(|(name, Game { moves, captures })| PackedGame {
             name: name.clone(),
             moves: pack_placements(moves),
-            captures: captures
-                .iter()
-                .map(|(k, v)| (*k, pack_placements(v)))
-                .collect(),
+            captures: pack_captures(captures),
         })
         .collect();
 
@@ -253,12 +292,8 @@ pub fn unpack_games(packed: &[u8]) -> HashMap<String, Game> {
             (
                 packed.name,
                 Game {
-                    moves: unpack_placements(&packed.moves),
-                    captures: packed
-                        .captures
-                        .into_iter()
-                        .map(|(k, v)| (k, unpack_placements(&v)))
-                        .collect(),
+                    moves: unpack_placements(&packed.moves).0,
+                    captures: unpack_captures(&packed.captures),
                 },
             )
         })
@@ -719,7 +754,7 @@ mod tests {
         }).collect::<Vec<_>>())) {
             let packed = pack_placements(&placements);
             let unpacked = unpack_placements(&packed);
-            assert_eq!(placements, unpacked);
+            assert_eq!(placements, unpacked.0);
         }
     }
 
@@ -740,7 +775,12 @@ mod tests {
                 }
             }).collect::<Vec<_>>()),
             0..10 // Number of games
-        )) {
+        ).prop_map(|v| v.into_iter().map(|(name, moves)| {
+            (name, Game {
+                moves,
+                captures: HashMap::new()
+            })
+        }).collect::<HashMap<_, _>>())) {
             let packed = pack_games(&games);
             let unpacked = unpack_games(&packed);
             assert_eq!(games, unpacked);
@@ -762,7 +802,12 @@ mod tests {
                 }
             }).collect::<Vec<_>>()),
             0..10 // Number of games
-        )) {
+        ).prop_map(|v| v.into_iter().map(|(name, moves)| {
+            (name, Game {
+                moves,
+                captures: HashMap::new()
+            })
+        }).collect::<HashMap<_, _>>())) {
             let packed = pack_games(&games);
             let unpacked = unpack_games(&packed);
             assert_eq!(games, unpacked);
@@ -784,7 +829,12 @@ mod tests {
                 }
             }).collect::<Vec<_>>()),
             0..20 // Number of games
-        )) {
+        ).prop_map(|v| v.into_iter().map(|(name, moves)| {
+            (name, Game {
+                moves,
+                captures: HashMap::new()
+            })
+        }).collect::<HashMap<_, _>>())) {
             let packed = pack_games(&games);
             let unpacked = unpack_games(&packed);
             assert_eq!(games, unpacked);
