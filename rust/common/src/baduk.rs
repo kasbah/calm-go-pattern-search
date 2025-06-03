@@ -209,19 +209,26 @@ pub fn unpack_placements(packed: &[u8]) -> Vec<Placement> {
     placements
 }
 
+pub struct Game {
+    pub moves: Vec<Placement>,
+    pub captures: HashMap<usize, Vec<Placement>>,
+}
+
 #[derive(Serialize, Deserialize)]
 struct PackedGame {
     name: String,
     #[serde(with = "serde_bytes")]
-    placements: Vec<u8>,
+    moves: Vec<u8>,
+    captures: HashMap<usize, Vec<Placement>>,
 }
 
-pub fn pack_games(games: &HashMap<String, Vec<Placement>>) -> Vec<u8> {
+pub fn pack_games(games: &HashMap<String, Game>) -> Vec<u8> {
     let packed_games: Vec<PackedGame> = games
         .iter()
-        .map(|(name, placements)| PackedGame {
+        .map(|(name, Game { moves, captures })| PackedGame {
             name: name.clone(),
-            placements: pack_placements(placements),
+            moves: pack_placements(moves),
+            captures: captures.clone(),
         })
         .collect();
 
@@ -232,14 +239,22 @@ pub fn pack_games(games: &HashMap<String, Vec<Placement>>) -> Vec<u8> {
     buf
 }
 
-pub fn unpack_games(packed: &[u8]) -> HashMap<String, Vec<Placement>> {
+pub fn unpack_games(packed: &[u8]) -> HashMap<String, Game> {
     let mut deserializer = Deserializer::new(packed);
     let packed_games: Vec<PackedGame> =
         Vec::<PackedGame>::deserialize(&mut deserializer).expect("Failed to deserialize games");
 
     packed_games
         .into_iter()
-        .map(|game| (game.name, unpack_placements(&game.placements)))
+        .map(|packed| {
+            (
+                packed.name,
+                Game {
+                    moves: unpack_placements(&packed.moves),
+                    captures: packed.captures,
+                },
+            )
+        })
         .collect()
 }
 
@@ -523,10 +538,10 @@ impl GoBoard {
         true
     }
 
-    pub fn make_move(&mut self, move_: &Placement) {
+    pub fn make_move(&mut self, move_: &Placement) -> Vec<Placement> {
         if self.position.iter().any(|p| p.point == move_.point) {
-            return;
-            //panic!("Position already contains a stone at the move's point");
+            // bad sgf with duplicate move, we ignore it for now
+            return Vec::new();
         }
         self.position.push(*move_);
         let mut same_color = Vec::new();
@@ -541,10 +556,13 @@ impl GoBoard {
             }
         }
 
+        let mut captures = Vec::new();
+
         // check the liberties of opponent's touching groups
         for other_group in self.get_groups(&other_color) {
             if self.out_of_liberties(&other_group) {
                 self.capture_group(&other_group);
+                captures.extend(other_group);
             }
         }
 
@@ -565,9 +583,11 @@ impl GoBoard {
         // suicide move
         if self.out_of_liberties(&move_group) {
             self.capture_group(&move_group);
+            captures.extend(move_group);
         } else {
             self.groups.push(move_group);
         }
+        captures
     }
 }
 

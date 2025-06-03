@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 use calm_go_patterns_common::baduk::{
-    BOARD_SIZE, Color, Placement, Point, get_rotations, pack_games,
+    BOARD_SIZE, Color, Game, GoBoard, Placement, Point, get_rotations, pack_games,
 };
 
 fn main() {
@@ -49,7 +49,7 @@ fn main() {
         .collect::<Vec<_>>();
 
     let mut seen_moves = HashMap::<Vec<Placement>, bool>::new();
-    let mut unique_games = HashMap::new();
+    let mut unique_moves = HashMap::new();
 
     for (path, moves) in games_vec {
         let mut is_duplicate = false;
@@ -66,16 +66,33 @@ fn main() {
 
         if !is_duplicate {
             seen_moves.insert(moves.clone(), true);
-            unique_games.insert(path, moves);
+            unique_moves.insert(path, moves);
         } else {
             println!("Removing duplicate game: {path}");
         }
     }
 
-    println!("Found {} unique games", unique_games.len());
+    println!("Found {} unique games", unique_moves.len());
+
+    let games = unique_moves
+        .par_iter()
+        .map(|(path, moves)| {
+
+            let mut captures = HashMap::new();
+            let mut gb = GoBoard::new();
+
+            for (i, move_) in moves.iter().enumerate() {
+                let cs = gb.make_move(move_);
+                if !cs.is_empty() {
+                    captures.insert(i, cs);
+                }
+            }
+            (path.clone(), Game { moves: moves.clone(), captures })
+        })
+        .collect();
 
     println!("Writing games.pack...");
-    let buf = pack_games(&unique_games);
+    let buf = pack_games(&games);
     std::fs::write("games.pack", buf).unwrap();
     println!("Done");
 }
