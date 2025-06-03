@@ -6,7 +6,8 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 use calm_go_patterns_common::baduk::{
-    BOARD_SIZE, Color, Game, GoBoard, Placement, Point, Rank, get_rotations, pack_games, parse_rank,
+    BOARD_SIZE, Color, Game, GoBoard, Placement, Point, Rank, get_rotations, pack_games,
+    parse_rank, parse_sgf_date,
 };
 
 fn main() {
@@ -125,7 +126,7 @@ fn load_sgf(path: &PathBuf, file_data: &str) -> Result<Game, Box<dyn std::error:
     let mut event = String::new();
     let mut round = String::new();
     let mut place = String::new();
-    let mut date = String::new();
+    let mut date = None;
     let mut player_black = String::new();
     let mut player_white = String::new();
     let mut rank_black = Rank::Custom("".to_string());
@@ -138,7 +139,7 @@ fn load_sgf(path: &PathBuf, file_data: &str) -> Result<Game, Box<dyn std::error:
             go::Prop::EV(e) => event = e.text.to_string(),
             go::Prop::RO(r) => round = r.text.to_string(),
             go::Prop::PC(p) => place = p.text.to_string(),
-            go::Prop::DT(d) => date = d.text.to_string(),
+            go::Prop::DT(d) => date = parse_sgf_date(&d.text),
             go::Prop::PB(p) => player_black = p.text.to_string(),
             go::Prop::PW(p) => player_white = p.text.to_string(),
             go::Prop::BR(r) => rank_black = parse_rank(&r.text),

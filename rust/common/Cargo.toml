@@ -8,6 +8,7 @@ bit-vec = "0.8.0"
 serde = { version = "1.0.219", features = ["derive"] }
 rmp-serde = "1.1.2"
 serde_bytes = "0.11.14"
+chrono = { version = "0.4", features = ["serde"] }
 
 [dev-dependencies]
 proptest = "1.4.0"

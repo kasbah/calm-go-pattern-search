@@ -1,4 +1,5 @@
 use bit_vec::BitVec;
+use chrono::NaiveDate;
 use rmp_serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
 use serde_bytes;
@@ -7,6 +8,32 @@ use std::collections::HashSet;
 use std::fmt;
 
 pub const BOARD_SIZE: u8 = 19;
+
+pub fn parse_sgf_date(date_str: &str) -> Option<NaiveDate> {
+    let date_str = date_str.trim();
+    // Split on space and take only the date portion if there's a time
+    let date_str = date_str.split_whitespace().next().unwrap_or(date_str);
+    // Split on comma and take only the first date if there's a range
+    let date_str = date_str.split(',').next().unwrap_or(date_str);
+
+    // Try different date formats
+    if let Ok(date) = NaiveDate::parse_from_str(date_str, "%Y-%m-%d") {
+        return Some(date);
+    }
+
+    if let Ok(date) = NaiveDate::parse_from_str(date_str, "%Y-%m") {
+        // If only year and month, use the first day of the month
+        return Some(date);
+    }
+    // For year-only dates, create a date for January 1st of that year
+    if let Ok(year) = date_str.parse::<i32>() {
+        return NaiveDate::from_ymd_opt(year, 1, 1);
+    }
+
+    println!("Failed to parse date: {date_str}");
+    // If parsing fails, return None
+    None
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Color {
@@ -299,7 +326,7 @@ pub struct Game {
     pub event: String,
     pub round: String,
     pub place: String,
-    pub date: String,
+    pub date: Option<NaiveDate>,
     pub player_black: String,
     pub player_white: String,
     pub rank_black: Rank,
@@ -315,7 +342,7 @@ struct PackedGame {
     event: String,
     round: String,
     place: String,
-    date: String,
+    date: Option<NaiveDate>,
     player_black: String,
     player_white: String,
     rank_black: Rank,
@@ -335,7 +362,7 @@ pub fn pack_games(games: &HashMap<String, Game>) -> Vec<u8> {
             event: game.event.clone(),
             round: game.round.clone(),
             place: game.place.clone(),
-            date: game.date.clone(),
+            date: game.date,
             player_black: game.player_black.clone(),
             player_white: game.player_white.clone(),
             rank_black: game.rank_black.clone(),
@@ -570,7 +597,7 @@ pub enum Neighbor {
 pub fn get_neighbors(point: &Point, position: &[Placement]) -> [Neighbor; 4] {
     let mut result = [Neighbor::Edge; 4];
     for (i, direction) in DIRECTIONS.iter().enumerate() {
-        let (dx, dy) = direction;
+        let (dx, dy) = *direction;
         let new_x = point.x as i8 + dx;
         let new_y = point.y as i8 + dy;
 
@@ -861,7 +888,7 @@ mod tests {
                 event: "Test Event".to_string(),
                 round: "Test Round".to_string(),
                 place: "Test Place".to_string(),
-                date: "2024-01-01".to_string(),
+                date: Some(NaiveDate::from_ymd_opt(2024, 1, 1).unwrap()),
                 player_black: "Black Player".to_string(),
                 player_white: "White Player".to_string(),
                 rank_black: Rank::Pro(9),
@@ -897,7 +924,7 @@ mod tests {
                 event: "Test Event".to_string(),
                 round: "Test Round".to_string(),
                 place: "Test Place".to_string(),
-                date: "2024-01-01".to_string(),
+                date: Some(NaiveDate::from_ymd_opt(2024, 1, 1).unwrap()),
                 player_black: "Black Player".to_string(),
                 player_white: "White Player".to_string(),
                 rank_black: Rank::Pro(9),
@@ -933,7 +960,7 @@ mod tests {
                 event: "Test Event".to_string(),
                 round: "Test Round".to_string(),
                 place: "Test Place".to_string(),
-                date: "2024-01-01".to_string(),
+                date: Some(NaiveDate::from_ymd_opt(2024, 1, 1).unwrap()),
                 player_black: "Black Player".to_string(),
                 player_white: "White Player".to_string(),
                 rank_black: Rank::Pro(9),
