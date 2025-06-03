@@ -4,8 +4,8 @@ extern crate wasm_bindgen;
 mod utils;
 
 use calm_go_patterns_common::baduk::{
-    Placement, Rotation, check_empty, check_within_one_quadrant, get_mirrored, get_rotated,
-    get_rotations, get_surrounding_points, match_game, switch_colors, unpack_games,
+    Game, Placement, Rotation, check_empty, check_within_one_quadrant, get_mirrored, get_rotated,
+    get_rotations, get_surrounding_points, match_game, switch_colors, unpack_games, Point,
 };
 use cfg_if::cfg_if;
 use lru::LruCache;
@@ -44,7 +44,7 @@ pub struct SearchResult {
 
 #[wasm_bindgen]
 pub struct WasmSearch {
-    game_data: HashMap<String, Vec<Placement>>,
+    game_data: HashMap<String, Game>,
     position_cache: LruCache<Vec<Placement>, Vec<SearchResult>>,
 }
 
@@ -116,9 +116,9 @@ impl WasmSearch {
         let mirrored_inverse_rotations = get_rotations(&mirrored_inverse);
         let is_within_one_quadrant = check_within_one_quadrant(&position);
 
-        for (path, moves) in &self.game_data {
+        for (path, game) in &self.game_data {
             // Original position
-            let mut matched = match_game(&position, moves);
+            let mut matched = match_game(&position, &game.moves);
             if let Some(last_move_matched) = matched {
                 results.push(SearchResult {
                     path: path.clone(),
@@ -128,15 +128,15 @@ impl WasmSearch {
                     is_inverted: false,
                     is_mirrored: false,
                     all_empty_correctly_within: 0,
-                    moves: moves.clone(),
-                    moves_transformed: moves.clone(),
+                    moves: game.moves.clone(),
+                    moves_transformed: game.moves.clone(),
                 });
                 continue;
             }
 
             // Original rotations
             for (r, rotated_position) in rotations.clone() {
-                matched = match_game(&rotated_position, moves);
+                matched = match_game(&rotated_position, &game.moves);
                 if let Some(last_move_matched) = matched {
                     let moves_rotation = get_moves_rotation(&r);
                     results.push(SearchResult {
@@ -147,8 +147,8 @@ impl WasmSearch {
                         is_inverted: false,
                         is_mirrored: false,
                         all_empty_correctly_within: 0,
-                        moves: moves.clone(),
-                        moves_transformed: get_rotated(moves, &moves_rotation),
+                        moves: game.moves.clone(),
+                        moves_transformed: get_rotated(&game.moves, &moves_rotation),
                     });
                     break;
                 }
@@ -158,7 +158,7 @@ impl WasmSearch {
                 let mirrored_score = if is_within_one_quadrant { 100 } else { 10 };
                 // Mirrored position
                 if matched.is_none() {
-                    matched = match_game(&mirrored, moves);
+                    matched = match_game(&mirrored, &game.moves);
                     if let Some(last_move_matched) = matched {
                         results.push(SearchResult {
                             path: path.clone(),
@@ -168,8 +168,8 @@ impl WasmSearch {
                             is_inverted: false,
                             is_mirrored: true,
                             all_empty_correctly_within: 0,
-                            moves: moves.clone(),
-                            moves_transformed: get_mirrored(moves),
+                            moves: game.moves.clone(),
+                            moves_transformed: get_mirrored(&game.moves),
                         });
                         continue;
                     }
@@ -178,7 +178,7 @@ impl WasmSearch {
                 // Mirrored rotations
                 if matched.is_none() {
                     for (r, rotated_position) in mirrored_rotations.clone() {
-                        matched = match_game(&rotated_position, moves);
+                        matched = match_game(&rotated_position, &game.moves);
                         if let Some(last_move_matched) = matched {
                             results.push(SearchResult {
                                 path: path.clone(),
@@ -188,8 +188,8 @@ impl WasmSearch {
                                 is_inverted: false,
                                 is_mirrored: true,
                                 all_empty_correctly_within: 0,
-                                moves: moves.clone(),
-                                moves_transformed: get_rotated(&get_mirrored(moves), &r),
+                                moves: game.moves.clone(),
+                                moves_transformed: get_rotated(&get_mirrored(&game.moves), &r),
                             });
                             break;
                         }
@@ -199,7 +199,7 @@ impl WasmSearch {
 
             // Inverse colors position
             if matched.is_none() {
-                matched = match_game(&inverse, moves);
+                matched = match_game(&inverse, &game.moves);
                 if let Some(last_move_matched) = matched {
                     results.push(SearchResult {
                         path: path.clone(),
@@ -209,8 +209,8 @@ impl WasmSearch {
                         is_inverted: true,
                         is_mirrored: false,
                         all_empty_correctly_within: 0,
-                        moves: moves.clone(),
-                        moves_transformed: moves.clone(),
+                        moves: game.moves.clone(),
+                        moves_transformed: game.moves.clone(),
                     });
                     continue;
                 }
@@ -219,7 +219,7 @@ impl WasmSearch {
             // Inverse rotations
             if matched.is_none() {
                 for (r, rotated_position) in inverse_rotations.clone() {
-                    matched = match_game(&rotated_position, moves);
+                    matched = match_game(&rotated_position, &game.moves);
                     if let Some(last_move_matched) = matched {
                         let moves_rotation = get_moves_rotation(&r);
                         results.push(SearchResult {
@@ -230,8 +230,8 @@ impl WasmSearch {
                             is_inverted: true,
                             is_mirrored: false,
                             all_empty_correctly_within: 0,
-                            moves: moves.clone(),
-                            moves_transformed: get_rotated(moves, &moves_rotation),
+                            moves: game.moves.clone(),
+                            moves_transformed: get_rotated(&game.moves, &moves_rotation),
                         });
                         break;
                     }
@@ -242,7 +242,7 @@ impl WasmSearch {
                 let mirrored_score = if is_within_one_quadrant { 90 } else { 9 };
                 // Mirrored inverse position
                 if matched.is_none() {
-                    matched = match_game(&mirrored_inverse, moves);
+                    matched = match_game(&mirrored_inverse, &game.moves);
                     if let Some(last_move_matched) = matched {
                         results.push(SearchResult {
                             path: path.clone(),
@@ -252,8 +252,8 @@ impl WasmSearch {
                             is_inverted: true,
                             is_mirrored: true,
                             all_empty_correctly_within: 0,
-                            moves: moves.clone(),
-                            moves_transformed: get_mirrored(moves),
+                            moves: game.moves.clone(),
+                            moves_transformed: get_mirrored(&game.moves),
                         });
                         continue;
                     }
@@ -262,7 +262,7 @@ impl WasmSearch {
                 // Mirrored inverse rotations
                 if matched.is_none() {
                     for (r, rotated_position) in mirrored_inverse_rotations.clone() {
-                        matched = match_game(&rotated_position, moves);
+                        matched = match_game(&rotated_position, &game.moves);
                         if let Some(last_move_matched) = matched {
                             results.push(SearchResult {
                                 path: path.clone(),
@@ -272,8 +272,8 @@ impl WasmSearch {
                                 is_inverted: true,
                                 is_mirrored: true,
                                 all_empty_correctly_within: 0,
-                                moves: moves.clone(),
-                                moves_transformed: get_rotated(&get_mirrored(moves), &r),
+                                moves: game.moves.clone(),
+                                moves_transformed: get_rotated(&get_mirrored(&game.moves), &r),
                             });
                             break;
                         }
@@ -285,6 +285,16 @@ impl WasmSearch {
             let truncated_moves = &result.moves_transformed[..result.last_move_matched];
             let mut checked = Vec::new();
             let mut all_empty_correctly_within = 0;
+            let captures: Vec<Point> = self
+                .game_data
+                .get(&result.path)
+                .expect("Inconsistent game data")
+                .captures
+                .iter()
+                .filter(|(move_number, _)| move_number <= &&result.last_move_matched)
+                .flat_map(|(_, cs)| cs.iter().map(|c| c.point))
+                .collect::<Vec<_>>();
+
             for i in 1..=3 {
                 let mut all_empty = true;
                 for placement in position.clone() {
@@ -293,6 +303,7 @@ impl WasmSearch {
                         .iter()
                         .filter(|p| !position.iter().any(|m| m.point == **p))
                         .filter(|p| !checked.contains(*p))
+                        .filter(|p| !captures.contains(*p))
                         .cloned()
                         .collect();
                     checked.extend(surrounding.iter().cloned());
