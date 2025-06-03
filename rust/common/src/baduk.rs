@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_bytes;
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::fmt;
 
 pub const BOARD_SIZE: u8 = 19;
 
@@ -249,6 +250,46 @@ pub fn unpack_captures(packed: &[u8]) -> HashMap<usize, Vec<Placement>> {
     captures
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Rank {
+    Kyu(u8),
+    Dan(u8),
+    Pro(u8),
+    Custom(String),
+}
+
+impl fmt::Display for Rank {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Rank::Kyu(n) => write!(f, "{}k", n),
+            Rank::Dan(n) => write!(f, "{}d", n),
+            Rank::Pro(n) => write!(f, "{}P", n),
+            Rank::Custom(s) => write!(f, "{}", s),
+        }
+    }
+}
+
+pub fn parse_rank(rank_str: &str) -> Rank {
+    let len = rank_str.len();
+    if len == 0 {
+        return Rank::Custom("".to_string());
+    }
+    let num_str = rank_str.chars().take(len - 1).collect::<String>();
+    let split = (
+        num_str.parse::<u8>(),
+        rank_str
+            .chars()
+            .last()
+            .and_then(|c| c.to_lowercase().next()),
+    );
+    match split {
+        (Ok(num), Some('p')) => Rank::Pro(num),
+        (Ok(num), Some('d')) => Rank::Dan(num),
+        (Ok(num), Some('k')) => Rank::Kyu(num),
+        (_, _) => Rank::Custom(rank_str.to_string()),
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Game {
     pub event: String,
@@ -257,8 +298,8 @@ pub struct Game {
     pub date: String,
     pub player_black: String,
     pub player_white: String,
-    pub rank_black: String,
-    pub rank_white: String,
+    pub rank_black: Rank,
+    pub rank_white: Rank,
     pub result: String,
     pub moves: Vec<Placement>,
     pub captures: HashMap<usize, Vec<Placement>>,
@@ -273,8 +314,8 @@ struct PackedGame {
     date: String,
     player_black: String,
     player_white: String,
-    rank_black: String,
-    rank_white: String,
+    rank_black: Rank,
+    rank_white: Rank,
     result: String,
     #[serde(with = "serde_bytes")]
     moves: Vec<u8>,
@@ -819,8 +860,8 @@ mod tests {
                 date: "2024-01-01".to_string(),
                 player_black: "Black Player".to_string(),
                 player_white: "White Player".to_string(),
-                rank_black: "9p".to_string(),
-                rank_white: "9p".to_string(),
+                rank_black: Rank::Pro(9),
+                rank_white: Rank::Pro(9),
                 result: "B+R".to_string(),
                 moves,
                 captures: HashMap::new()
@@ -855,8 +896,8 @@ mod tests {
                 date: "2024-01-01".to_string(),
                 player_black: "Black Player".to_string(),
                 player_white: "White Player".to_string(),
-                rank_black: "9p".to_string(),
-                rank_white: "9p".to_string(),
+                rank_black: Rank::Pro(9),
+                rank_white: Rank::Pro(9),
                 result: "B+R".to_string(),
                 moves,
                 captures: HashMap::new()
@@ -891,8 +932,8 @@ mod tests {
                 date: "2024-01-01".to_string(),
                 player_black: "Black Player".to_string(),
                 player_white: "White Player".to_string(),
-                rank_black: "9p".to_string(),
-                rank_white: "9p".to_string(),
+                rank_black: Rank::Pro(9),
+                rank_white: Rank::Pro(9),
                 result: "B+R".to_string(),
                 moves,
                 captures: HashMap::new()

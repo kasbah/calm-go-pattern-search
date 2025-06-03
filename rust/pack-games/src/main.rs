@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 use calm_go_patterns_common::baduk::{
-    BOARD_SIZE, Color, Game, GoBoard, Placement, Point, get_rotations, pack_games,
+    BOARD_SIZE, Color, Game, GoBoard, Placement, Point, Rank, get_rotations, pack_games, parse_rank,
 };
 
 fn main() {
@@ -24,7 +24,7 @@ fn main() {
     println!("Read directories");
 
     let games_vec = paths
-        .par_iter()
+        .iter()
         .filter_map(|path| match std::fs::read_to_string(path) {
             Ok(file_data) => match load_sgf(path, &file_data) {
                 Ok(game) => {
@@ -72,9 +72,9 @@ fn main() {
                 game.moves.clone(),
                 (
                     game.player_black.clone(),
-                    game.rank_black.clone(),
+                    game.rank_black.to_string(),
                     game.player_white.clone(),
-                    game.rank_white.clone(),
+                    game.rank_white.to_string(),
                 ),
             );
             unique_moves.insert(path, game);
@@ -128,8 +128,8 @@ fn load_sgf(path: &PathBuf, file_data: &str) -> Result<Game, Box<dyn std::error:
     let mut date = String::new();
     let mut player_black = String::new();
     let mut player_white = String::new();
-    let mut rank_black = String::new();
-    let mut rank_white = String::new();
+    let mut rank_black = Rank::Custom("".to_string());
+    let mut rank_white = Rank::Custom("".to_string());
     let mut result = String::new();
 
     // Extract metadata from root node
@@ -141,8 +141,8 @@ fn load_sgf(path: &PathBuf, file_data: &str) -> Result<Game, Box<dyn std::error:
             go::Prop::DT(d) => date = d.text.to_string(),
             go::Prop::PB(p) => player_black = p.text.to_string(),
             go::Prop::PW(p) => player_white = p.text.to_string(),
-            go::Prop::BR(r) => rank_black = r.text.to_string(),
-            go::Prop::WR(r) => rank_white = r.text.to_string(),
+            go::Prop::BR(r) => rank_black = parse_rank(&r.text),
+            go::Prop::WR(r) => rank_white = parse_rank(&r.text),
             go::Prop::RE(r) => result = r.text.to_string(),
             _ => {}
         }
