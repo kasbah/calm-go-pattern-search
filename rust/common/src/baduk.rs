@@ -219,7 +219,7 @@ struct PackedGame {
     name: String,
     #[serde(with = "serde_bytes")]
     moves: Vec<u8>,
-    captures: HashMap<usize, Vec<Placement>>,
+    captures: HashMap<usize, Vec<u8>>,
 }
 
 pub fn pack_games(games: &HashMap<String, Game>) -> Vec<u8> {
@@ -228,7 +228,10 @@ pub fn pack_games(games: &HashMap<String, Game>) -> Vec<u8> {
         .map(|(name, Game { moves, captures })| PackedGame {
             name: name.clone(),
             moves: pack_placements(moves),
-            captures: captures.clone(),
+            captures: captures
+                .iter()
+                .map(|(k, v)| (*k, pack_placements(v)))
+                .collect(),
         })
         .collect();
 
@@ -251,7 +254,11 @@ pub fn unpack_games(packed: &[u8]) -> HashMap<String, Game> {
                 packed.name,
                 Game {
                     moves: unpack_placements(&packed.moves),
-                    captures: packed.captures,
+                    captures: packed
+                        .captures
+                        .into_iter()
+                        .map(|(k, v)| (k, unpack_placements(&v)))
+                        .collect(),
                 },
             )
         })

@@ -77,7 +77,6 @@ fn main() {
     let games = unique_moves
         .par_iter()
         .map(|(path, moves)| {
-
             let mut captures = HashMap::new();
             let mut gb = GoBoard::new();
 
@@ -87,7 +86,13 @@ fn main() {
                     captures.insert(i, cs);
                 }
             }
-            (path.clone(), Game { moves: moves.clone(), captures })
+            (
+                path.clone(),
+                Game {
+                    moves: moves.clone(),
+                    captures,
+                },
+            )
         })
         .collect();
 
