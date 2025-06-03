@@ -97,6 +97,8 @@ fn main() {
 
     println!("Found {} unique games", unique_moves.len());
 
+    println!("Computing captures...");
+
     let games = unique_moves
         .into_par_iter()
         .map(|(path, mut game)| {
@@ -139,7 +141,7 @@ fn load_sgf(path: &PathBuf, file_data: &str) -> Result<Game, Box<dyn std::error:
             go::Prop::EV(e) => event = e.text.to_string(),
             go::Prop::RO(r) => round = r.text.to_string(),
             go::Prop::PC(p) => place = p.text.to_string(),
-            go::Prop::DT(d) => date = parse_sgf_date(&d.text),
+            go::Prop::DT(d) => date = Some(parse_sgf_date(&d.text)),
             go::Prop::PB(p) => player_black = p.text.to_string(),
             go::Prop::PW(p) => player_white = p.text.to_string(),
             go::Prop::BR(r) => rank_black = parse_rank(&r.text),
