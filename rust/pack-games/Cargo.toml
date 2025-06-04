@@ -20,6 +20,10 @@ path = "src/find_bad_komi.rs"
 name = "find-game-properties"
 path = "src/find_game_properties.rs"
 
+[[bin]]
+name = "find-custom-results"
+path = "src/find_custom_results.rs"
+
 [dependencies]
 calm-go-patterns-common = { path = "../common" }
 jwalk = "0.8.1"
