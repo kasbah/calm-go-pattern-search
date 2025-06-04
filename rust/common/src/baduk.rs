@@ -426,15 +426,24 @@ pub fn parse_sgf_result(result_str: &str) -> GameResult {
 
     match result_str.as_str() {
         // Chinese "mid-game" wins
-        "黑中盘胜" | "黑中押胜" => {
+        "黑中盘胜" | "黑中押胜" | "黑棋中盘胜" => {
             GameResult::Player(Color::Black, Some(Score::Resignation), note.clone())
         }
-        "白中盘胜" | "白中押胜" => {
+        "白中盘胜" | "白中押胜" | "白棋中盘胜" => {
             GameResult::Player(Color::White, Some(Score::Resignation), note.clone())
         }
-        // Chinese wins
+
+        // Chinese simple wins
         "黑胜" => GameResult::Player(Color::Black, None, note.clone()),
         "白胜" => GameResult::Player(Color::White, None, note.clone()),
+
+        // Chinese wins with other unknown characters
+        s if s.contains("黑") && s.contains("胜") => {
+            GameResult::Player(Color::Black, None, result_str.to_string())
+        }
+        s if s.contains("白") && s.contains("胜") => {
+            GameResult::Player(Color::White, None, result_str.to_string())
+        }
 
         // Draw variations
         "0" | "draw" | "jigo" | "和棋" => GameResult::Draw,
