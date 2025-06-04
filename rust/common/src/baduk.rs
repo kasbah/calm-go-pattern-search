@@ -60,7 +60,7 @@ pub enum Score {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum GameResult {
-    Player(Color, Option<Score>),
+    Player(Color, Option<Score>, String),
     Draw,
     Void,
     Unknown(String),
@@ -406,6 +406,17 @@ fn parse_score_str(score_str: &str) -> Option<Score> {
 }
 
 pub fn parse_sgf_result(result_str: &str) -> GameResult {
+    // Extract note from brackets if present
+    let mut note = "".to_string();
+    if let Some(start) = result_str.find('(') {
+        if let Some(end) = result_str[start + 1..].find(')') {
+            note = result_str[start + 1..start + 1 + end].trim().to_string();
+        }
+    } else if let Some(start) = result_str.find('{') {
+        if let Some(end) = result_str[start + 1..].find('}') {
+            note = result_str[start + 1..start + 1 + end].trim().to_string();
+        }
+    }
     let result_str = result_str
         .find(['(', '{'])
         .map(|pos| &result_str[..pos])
@@ -416,42 +427,38 @@ pub fn parse_sgf_result(result_str: &str) -> GameResult {
     match result_str.as_str() {
         // Chinese "mid-game" wins
         "黑中盘胜" | "黑中押胜" => {
-            GameResult::Player(Color::Black, Some(Score::Resignation))
+            GameResult::Player(Color::Black, Some(Score::Resignation), note.clone())
         }
         "白中盘胜" | "白中押胜" => {
-            GameResult::Player(Color::White, Some(Score::Resignation))
+            GameResult::Player(Color::White, Some(Score::Resignation), note.clone())
         }
         // Chinese wins
-        "黑胜" => GameResult::Player(Color::Black, None),
-        "白胜" => GameResult::Player(Color::White, None),
-
-        // Simple B/W wins
-        "b" => GameResult::Player(Color::Black, None),
-        "w" => GameResult::Player(Color::White, None),
+        "黑胜" => GameResult::Player(Color::Black, None, note.clone()),
+        "白胜" => GameResult::Player(Color::White, None, note.clone()),
 
         // Draw variations
         "0" | "draw" | "jigo" | "和棋" => GameResult::Draw,
 
         "打挂" | "打掛" | "game suspended" | "void" => GameResult::Void,
 
-        "不詳" | "?" => GameResult::Unknown("".to_string()),
+        "不詳" | "?" => GameResult::Unknown(note.clone()),
 
         // Standard SGF formats
         s if s.starts_with("b+") => {
             let score = parse_score_str(&s[2..]);
-            GameResult::Player(Color::Black, score)
-        }
-        s if s.starts_with("b") => {
-            let score = parse_score_str(&s[1..]);
-            GameResult::Player(Color::Black, score)
-        }
-        s if s.starts_with("w") => {
-            let score = parse_score_str(&s[1..]);
-            GameResult::Player(Color::White, score)
+            GameResult::Player(Color::Black, score, note.clone())
         }
         s if s.starts_with("w+") => {
             let score = parse_score_str(&s[2..]);
-            GameResult::Player(Color::White, score)
+            GameResult::Player(Color::White, score, note.clone())
+        }
+        s if s.starts_with("b") => {
+            let score = parse_score_str(&s[1..]);
+            GameResult::Player(Color::Black, score, note.clone())
+        }
+        s if s.starts_with("w") => {
+            let score = parse_score_str(&s[1..]);
+            GameResult::Player(Color::White, score, note.clone())
         }
         _ => GameResult::Unknown(result_str.to_string()),
     }
@@ -1812,37 +1819,37 @@ mod tests {
         // Test Chinese result formats
         assert_eq!(
             parse_sgf_result("黑中盘胜"),
-            GameResult::Player(Color::Black, Some(Score::Resignation))
+            GameResult::Player(Color::Black, Some(Score::Resignation), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("黑中押胜"),
-            GameResult::Player(Color::Black, Some(Score::Resignation))
+            GameResult::Player(Color::Black, Some(Score::Resignation), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("白中盘胜"),
-            GameResult::Player(Color::White, Some(Score::Resignation))
+            GameResult::Player(Color::White, Some(Score::Resignation), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("白中押胜"),
-            GameResult::Player(Color::White, Some(Score::Resignation))
+            GameResult::Player(Color::White, Some(Score::Resignation), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("黑胜"),
-            GameResult::Player(Color::Black, None)
+            GameResult::Player(Color::Black, None, "".to_string())
         );
         assert_eq!(
             parse_sgf_result("白胜"),
-            GameResult::Player(Color::White, None)
+            GameResult::Player(Color::White, None, "".to_string())
         );
 
         // Test simple B/W wins
         assert_eq!(
             parse_sgf_result("B"),
-            GameResult::Player(Color::Black, None)
+            GameResult::Player(Color::Black, None, "".to_string())
         );
         assert_eq!(
             parse_sgf_result("W"),
-            GameResult::Player(Color::White, None)
+            GameResult::Player(Color::White, None, "".to_string())
         );
 
         // Test draw variations
@@ -1856,7 +1863,7 @@ mod tests {
         // Test unknown/not recorded
         assert_eq!(
             parse_sgf_result("不詳"),
-            GameResult::Unknown("不詳".to_string())
+            GameResult::Unknown("".to_string())
         );
 
         // Test draws
@@ -1866,7 +1873,7 @@ mod tests {
         assert_eq!(parse_sgf_result(" Draw "), GameResult::Draw);
 
         // Test void results
-        assert_eq!(parse_sgf_result("?"), GameResult::Unknown("?".to_string()));
+        assert_eq!(parse_sgf_result("?"), GameResult::Unknown("".to_string()));
         assert_eq!(parse_sgf_result("Void"), GameResult::Void);
         assert_eq!(parse_sgf_result(" void "), GameResult::Void);
         assert_eq!(parse_sgf_result("VOID"), GameResult::Void);
@@ -1874,159 +1881,167 @@ mod tests {
         // Test black wins
         assert_eq!(
             parse_sgf_result("B+0.5"),
-            GameResult::Player(Color::Black, Some(Score::Points(0.5)))
+            GameResult::Player(Color::Black, Some(Score::Points(0.5)), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("b+0.5"),
-            GameResult::Player(Color::Black, Some(Score::Points(0.5)))
+            GameResult::Player(Color::Black, Some(Score::Points(0.5)), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("B+64"),
-            GameResult::Player(Color::Black, Some(Score::Points(64.0)))
+            GameResult::Player(Color::Black, Some(Score::Points(64.0)), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("b+64"),
-            GameResult::Player(Color::Black, Some(Score::Points(64.0)))
+            GameResult::Player(Color::Black, Some(Score::Points(64.0)), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("B+12.5"),
-            GameResult::Player(Color::Black, Some(Score::Points(12.5)))
+            GameResult::Player(Color::Black, Some(Score::Points(12.5)), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("b+12.5"),
-            GameResult::Player(Color::Black, Some(Score::Points(12.5)))
+            GameResult::Player(Color::Black, Some(Score::Points(12.5)), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("B+R"),
-            GameResult::Player(Color::Black, Some(Score::Resignation))
+            GameResult::Player(Color::Black, Some(Score::Resignation), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("b+r"),
-            GameResult::Player(Color::Black, Some(Score::Resignation))
+            GameResult::Player(Color::Black, Some(Score::Resignation), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("B+Resign"),
-            GameResult::Player(Color::Black, Some(Score::Resignation))
+            GameResult::Player(Color::Black, Some(Score::Resignation), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("b+resign"),
-            GameResult::Player(Color::Black, Some(Score::Resignation))
+            GameResult::Player(Color::Black, Some(Score::Resignation), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("B+T"),
-            GameResult::Player(Color::Black, Some(Score::Timeout))
+            GameResult::Player(Color::Black, Some(Score::Timeout), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("b+t"),
-            GameResult::Player(Color::Black, Some(Score::Timeout))
+            GameResult::Player(Color::Black, Some(Score::Timeout), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("B+Time"),
-            GameResult::Player(Color::Black, Some(Score::Timeout))
+            GameResult::Player(Color::Black, Some(Score::Timeout), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("b+time"),
-            GameResult::Player(Color::Black, Some(Score::Timeout))
+            GameResult::Player(Color::Black, Some(Score::Timeout), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("B+F"),
-            GameResult::Player(Color::Black, Some(Score::Forfeit))
+            GameResult::Player(Color::Black, Some(Score::Forfeit), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("b+f"),
-            GameResult::Player(Color::Black, Some(Score::Forfeit))
+            GameResult::Player(Color::Black, Some(Score::Forfeit), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("B+Forfeit"),
-            GameResult::Player(Color::Black, Some(Score::Forfeit))
+            GameResult::Player(Color::Black, Some(Score::Forfeit), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("b+forfeit"),
-            GameResult::Player(Color::Black, Some(Score::Forfeit))
+            GameResult::Player(Color::Black, Some(Score::Forfeit), "".to_string())
         );
 
         // Test white wins
         assert_eq!(
             parse_sgf_result("W+0.5"),
-            GameResult::Player(Color::White, Some(Score::Points(0.5)))
+            GameResult::Player(Color::White, Some(Score::Points(0.5)), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("w+0.5"),
-            GameResult::Player(Color::White, Some(Score::Points(0.5)))
+            GameResult::Player(Color::White, Some(Score::Points(0.5)), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("W+64"),
-            GameResult::Player(Color::White, Some(Score::Points(64.0)))
+            GameResult::Player(Color::White, Some(Score::Points(64.0)), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("w+64"),
-            GameResult::Player(Color::White, Some(Score::Points(64.0)))
+            GameResult::Player(Color::White, Some(Score::Points(64.0)), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("W+12.5"),
-            GameResult::Player(Color::White, Some(Score::Points(12.5)))
+            GameResult::Player(Color::White, Some(Score::Points(12.5)), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("w+12.5"),
-            GameResult::Player(Color::White, Some(Score::Points(12.5)))
+            GameResult::Player(Color::White, Some(Score::Points(12.5)), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("W+R"),
-            GameResult::Player(Color::White, Some(Score::Resignation))
+            GameResult::Player(Color::White, Some(Score::Resignation), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("w+r"),
-            GameResult::Player(Color::White, Some(Score::Resignation))
+            GameResult::Player(Color::White, Some(Score::Resignation), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("W+Resign"),
-            GameResult::Player(Color::White, Some(Score::Resignation))
+            GameResult::Player(Color::White, Some(Score::Resignation), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("w+resign"),
-            GameResult::Player(Color::White, Some(Score::Resignation))
+            GameResult::Player(Color::White, Some(Score::Resignation), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("W+T"),
-            GameResult::Player(Color::White, Some(Score::Timeout))
+            GameResult::Player(Color::White, Some(Score::Timeout), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("w+t"),
-            GameResult::Player(Color::White, Some(Score::Timeout))
+            GameResult::Player(Color::White, Some(Score::Timeout), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("W+Time"),
-            GameResult::Player(Color::White, Some(Score::Timeout))
+            GameResult::Player(Color::White, Some(Score::Timeout), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("w+time"),
-            GameResult::Player(Color::White, Some(Score::Timeout))
+            GameResult::Player(Color::White, Some(Score::Timeout), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("W+F"),
-            GameResult::Player(Color::White, Some(Score::Forfeit))
+            GameResult::Player(Color::White, Some(Score::Forfeit), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("w+f"),
-            GameResult::Player(Color::White, Some(Score::Forfeit))
+            GameResult::Player(Color::White, Some(Score::Forfeit), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("W+Forfeit"),
-            GameResult::Player(Color::White, Some(Score::Forfeit))
+            GameResult::Player(Color::White, Some(Score::Forfeit), "".to_string())
         );
         assert_eq!(
             parse_sgf_result("w+forfeit"),
-            GameResult::Player(Color::White, Some(Score::Forfeit))
+            GameResult::Player(Color::White, Some(Score::Forfeit), "".to_string())
         );
 
         // Test results with parentheses and curly braces
         assert_eq!(
             parse_sgf_result("W+2 {moves beyond 111 not known}"),
-            GameResult::Player(Color::White, Some(Score::Points(2.0)))
+            GameResult::Player(
+                Color::White,
+                Some(Score::Points(2.0)),
+                "moves beyond 111 not known".to_string()
+            )
         );
         assert_eq!(
             parse_sgf_result("B+8 (moves after 208 not recorded)"),
-            GameResult::Player(Color::Black, Some(Score::Points(8.0)))
+            GameResult::Player(
+                Color::Black,
+                Some(Score::Points(8.0)),
+                "moves after 208 not recorded".to_string()
+            )
         );
         assert_eq!(
             parse_sgf_result("Jigo (moves after 127 not recorded)"),
@@ -2034,11 +2049,19 @@ mod tests {
         );
         assert_eq!(
             parse_sgf_result("B+R (resignation after 150 moves)"),
-            GameResult::Player(Color::Black, Some(Score::Resignation))
+            GameResult::Player(
+                Color::Black,
+                Some(Score::Resignation),
+                "resignation after 150 moves".to_string()
+            )
         );
         assert_eq!(
             parse_sgf_result("W+T {timeout in endgame}"),
-            GameResult::Player(Color::White, Some(Score::Timeout))
+            GameResult::Player(
+                Color::White,
+                Some(Score::Timeout),
+                "timeout in endgame".to_string()
+            )
         );
         assert_eq!(
             parse_sgf_result("Draw (game ended in jigo)"),
@@ -2048,52 +2071,52 @@ mod tests {
 
         // Test special cases
         assert_eq!(parse_sgf_result("Void"), GameResult::Void);
-        assert_eq!(parse_sgf_result("?"), GameResult::Unknown("?".to_string()));
+        assert_eq!(parse_sgf_result("?"), GameResult::Unknown("".to_string()));
         assert_eq!(
             parse_sgf_result("invalid"),
             GameResult::Unknown("invalid".to_string())
         );
         assert_eq!(
             parse_sgf_result("B+invalid"),
-            GameResult::Unknown("B+invalid".to_string())
+            GameResult::Player(Color::Black, None, "".to_string())
         );
         assert_eq!(
             parse_sgf_result("b+invalid"),
-            GameResult::Unknown("b+invalid".to_string())
+            GameResult::Player(Color::Black, None, "".to_string())
         );
         assert_eq!(
             parse_sgf_result("W+invalid"),
-            GameResult::Unknown("W+invalid".to_string())
+            GameResult::Player(Color::White, None, "".to_string())
         );
         assert_eq!(
             parse_sgf_result("w+invalid"),
-            GameResult::Unknown("w+invalid".to_string())
+            GameResult::Player(Color::White, None, "".to_string())
         );
 
         // Test optional scores (just "B+" or "W+" with no score)
         assert_eq!(
             parse_sgf_result("B+"),
-            GameResult::Player(Color::Black, None)
+            GameResult::Player(Color::Black, None, "".to_string())
         );
         assert_eq!(
             parse_sgf_result("b+"),
-            GameResult::Player(Color::Black, None)
+            GameResult::Player(Color::Black, None, "".to_string())
         );
         assert_eq!(
             parse_sgf_result("W+"),
-            GameResult::Player(Color::White, None)
+            GameResult::Player(Color::White, None, "".to_string())
         );
         assert_eq!(
             parse_sgf_result("w+"),
-            GameResult::Player(Color::White, None)
+            GameResult::Player(Color::White, None, "".to_string())
         );
         assert_eq!(
             parse_sgf_result("B+ "),
-            GameResult::Player(Color::Black, None)
+            GameResult::Player(Color::Black, None, "".to_string())
         );
         assert_eq!(
             parse_sgf_result(" W+ "),
-            GameResult::Player(Color::White, None)
+            GameResult::Player(Color::White, None, "".to_string())
         );
     }
 
