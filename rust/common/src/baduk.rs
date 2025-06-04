@@ -47,6 +47,21 @@ pub fn parse_sgf_date(date_str: &str) -> SgfDate {
     SgfDate::Custom(date_str.to_string())
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum Score {
+    Resignation,
+    Timeout,
+    Forfeit,
+    Points(f32),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum GameResult {
+    Player(Color, Score),
+    Draw,
+    Void,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Color {
     Black,
@@ -308,6 +323,15 @@ impl fmt::Display for Rank {
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Rules {
+    Chinese,
+    Japanese,
+    Korean,
+    Ing,
+    Custom(String),
+}
+
 pub fn parse_rank(rank_str: &str) -> Rank {
     let rank_str = rank_str.trim();
     if rank_str.is_empty() {
@@ -333,7 +357,54 @@ pub fn parse_rank(rank_str: &str) -> Rank {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+pub fn parse_rules(rules_str: &str) -> Rules {
+    let rules_str = rules_str.trim().to_lowercase();
+
+    if rules_str.starts_with("chin") || rules_str == "cn" || rules_str == "chn" {
+        Rules::Chinese
+    } else if rules_str.starts_with("japan") || rules_str == "jp" || rules_str == "jpn" {
+        Rules::Japanese
+    } else if rules_str.starts_with("korea") || rules_str == "kr" || rules_str == "kor" {
+        Rules::Korean
+    } else if rules_str.starts_with("ing") {
+        Rules::Ing
+    } else {
+        Rules::Custom(rules_str)
+    }
+}
+
+fn parse_score_str(score_str: &str, color: Color) -> Option<GameResult> {
+    match score_str {
+        "r" | "resign" => Some(GameResult::Player(color, Score::Resignation)),
+        "t" | "time" => Some(GameResult::Player(color, Score::Timeout)),
+        "f" | "forfeit" => Some(GameResult::Player(color, Score::Forfeit)),
+        _ => score_str
+            .parse::<f32>()
+            .ok()
+            .map(|score| GameResult::Player(color, Score::Points(score))),
+    }
+}
+
+pub fn parse_sgf_result(result_str: &str) -> Option<GameResult> {
+    let result_str = result_str.trim().to_lowercase();
+
+    match result_str.as_str() {
+        "0" | "draw" | "jigo" => Some(GameResult::Draw),
+        "void" => Some(GameResult::Void),
+        "?" => None,
+        _ => {
+            if let Some(stripped) = result_str.strip_prefix("b+") {
+                parse_score_str(stripped, Color::Black)
+            } else if let Some(stripped) = result_str.strip_prefix("w+") {
+                parse_score_str(stripped, Color::White)
+            } else {
+                None
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct Game {
     pub event: String,
     pub round: String,
@@ -343,7 +414,8 @@ pub struct Game {
     pub player_white: String,
     pub rank_black: Rank,
     pub rank_white: Rank,
-    pub result: String,
+    pub rules: Option<Rules>,
+    pub result: Option<GameResult>,
     pub moves: Vec<Placement>,
     pub captures: HashMap<usize, Vec<Placement>>,
 }
@@ -359,7 +431,8 @@ struct PackedGame {
     player_white: String,
     rank_black: Rank,
     rank_white: Rank,
-    result: String,
+    rules: Option<Rules>,
+    result: Option<GameResult>,
     #[serde(with = "serde_bytes")]
     moves: Vec<u8>,
     #[serde(with = "serde_bytes")]
@@ -379,6 +452,7 @@ pub fn pack_games(games: &HashMap<String, Game>) -> Vec<u8> {
             player_white: game.player_white.clone(),
             rank_black: game.rank_black.clone(),
             rank_white: game.rank_white.clone(),
+            rules: game.rules.clone(),
             result: game.result.clone(),
             moves: pack_placements(&game.moves),
             captures: pack_captures(&game.captures),
@@ -411,6 +485,7 @@ pub fn unpack_games(packed: &[u8]) -> HashMap<String, Game> {
                     player_white: packed.player_white,
                     rank_black: packed.rank_black,
                     rank_white: packed.rank_white,
+                    rules: packed.rules,
                     result: packed.result,
                     moves: unpack_placements(&packed.moves).0,
                     captures: unpack_captures(&packed.captures),
@@ -905,7 +980,8 @@ mod tests {
                 player_white: "White Player".to_string(),
                 rank_black: Rank::Pro(9),
                 rank_white: Rank::Pro(9),
-                result: "B+R".to_string(),
+                rules: None,
+                result: parse_sgf_result("B+R"),
                 moves,
                 captures: HashMap::new()
             })
@@ -941,7 +1017,8 @@ mod tests {
                 player_white: "White Player".to_string(),
                 rank_black: Rank::Pro(9),
                 rank_white: Rank::Pro(9),
-                result: "B+R".to_string(),
+                rules: None,
+                result: parse_sgf_result("B+R"),
                 moves,
                 captures: HashMap::new()
             })
@@ -977,7 +1054,8 @@ mod tests {
                 player_white: "White Player".to_string(),
                 rank_black: Rank::Pro(9),
                 rank_white: Rank::Pro(9),
-                result: "B+R".to_string(),
+                rules: None,
+                result: parse_sgf_result("B+R"),
                 moves,
                 captures: HashMap::new()
             })
@@ -1596,5 +1674,248 @@ mod tests {
         );
         assert_eq!(parse_rank("1d1"), Rank::Custom("1d1".to_string()));
         assert_eq!(parse_rank("1d1d"), Rank::Custom("1d1d".to_string()));
+    }
+
+    #[test]
+    fn test_parse_rules() {
+        // Test Chinese variations
+        assert_eq!(parse_rules("Chinese"), Rules::Chinese);
+        assert_eq!(parse_rules("chinese"), Rules::Chinese);
+        assert_eq!(parse_rules("CHINESE"), Rules::Chinese);
+        assert_eq!(parse_rules(" Chinese "), Rules::Chinese);
+        assert_eq!(parse_rules("China"), Rules::Chinese);
+        assert_eq!(parse_rules("china"), Rules::Chinese);
+        assert_eq!(parse_rules("Chinese Rules"), Rules::Chinese);
+        assert_eq!(parse_rules("CN"), Rules::Chinese);
+        assert_eq!(parse_rules("cn"), Rules::Chinese);
+        assert_eq!(parse_rules("CHN"), Rules::Chinese);
+        assert_eq!(parse_rules("chn"), Rules::Chinese);
+
+        // Test Japanese variations
+        assert_eq!(parse_rules("Japanese"), Rules::Japanese);
+        assert_eq!(parse_rules("japanese"), Rules::Japanese);
+        assert_eq!(parse_rules("JAPANESE"), Rules::Japanese);
+        assert_eq!(parse_rules(" Japanese "), Rules::Japanese);
+        assert_eq!(parse_rules("Japan"), Rules::Japanese);
+        assert_eq!(parse_rules("japan"), Rules::Japanese);
+        assert_eq!(parse_rules("Japanese Rules"), Rules::Japanese);
+        assert_eq!(parse_rules("JP"), Rules::Japanese);
+        assert_eq!(parse_rules("jp"), Rules::Japanese);
+        assert_eq!(parse_rules("JPN"), Rules::Japanese);
+        assert_eq!(parse_rules("jpn"), Rules::Japanese);
+
+        // Test Korean variations
+        assert_eq!(parse_rules("Korean"), Rules::Korean);
+        assert_eq!(parse_rules("korean"), Rules::Korean);
+        assert_eq!(parse_rules("KOREAN"), Rules::Korean);
+        assert_eq!(parse_rules(" Korean "), Rules::Korean);
+        assert_eq!(parse_rules("Korea"), Rules::Korean);
+        assert_eq!(parse_rules("korea"), Rules::Korean);
+        assert_eq!(parse_rules("Korean Rules"), Rules::Korean);
+        assert_eq!(parse_rules("KR"), Rules::Korean);
+        assert_eq!(parse_rules("kr"), Rules::Korean);
+        assert_eq!(parse_rules("KOR"), Rules::Korean);
+        assert_eq!(parse_rules("kor"), Rules::Korean);
+
+        // Test Ing variations
+        assert_eq!(parse_rules("Ing"), Rules::Ing);
+        assert_eq!(parse_rules("ing"), Rules::Ing);
+        assert_eq!(parse_rules("ING"), Rules::Ing);
+        assert_eq!(parse_rules(" Ing "), Rules::Ing);
+        assert_eq!(parse_rules("Ing Goe"), Rules::Ing);
+        assert_eq!(parse_rules("ing goe"), Rules::Ing);
+        assert_eq!(parse_rules("Ing GOE"), Rules::Ing);
+        assert_eq!(parse_rules("Ing Goe Rules"), Rules::Ing);
+        assert_eq!(parse_rules("ing goe rules"), Rules::Ing);
+        assert_eq!(parse_rules("Ing Rules"), Rules::Ing);
+        assert_eq!(parse_rules("ing rules"), Rules::Ing);
+
+        // Test custom rules
+        assert_eq!(parse_rules("AGA"), Rules::Custom("aga".to_string()));
+        assert_eq!(
+            parse_rules("Old Chinese"),
+            Rules::Custom("old chinese".to_string())
+        );
+        assert_eq!(parse_rules("Pair go"), Rules::Custom("pair go".to_string()));
+        assert_eq!(parse_rules("GOE"), Rules::Custom("goe".to_string()));
+        assert_eq!(
+            parse_rules("Uchikomi"),
+            Rules::Custom("uchikomi".to_string())
+        );
+        assert_eq!(parse_rules("Unknown"), Rules::Custom("unknown".to_string()));
+        assert_eq!(parse_rules(""), Rules::Custom("".to_string()));
+        assert_eq!(parse_rules("  "), Rules::Custom("".to_string()));
+    }
+
+    #[test]
+    fn test_parse_sgf_result() {
+        // Test draws
+        assert_eq!(parse_sgf_result("0"), Some(GameResult::Draw));
+        assert_eq!(parse_sgf_result("Draw"), Some(GameResult::Draw));
+        assert_eq!(parse_sgf_result(" 0 "), Some(GameResult::Draw));
+        assert_eq!(parse_sgf_result(" Draw "), Some(GameResult::Draw));
+
+        // Test void results
+        assert_eq!(parse_sgf_result("?"), None);
+        assert_eq!(parse_sgf_result("Void"), Some(GameResult::Void));
+        assert_eq!(parse_sgf_result(" void "), Some(GameResult::Void));
+        assert_eq!(parse_sgf_result("VOID"), Some(GameResult::Void));
+
+        // Test black wins
+        assert_eq!(
+            parse_sgf_result("B+0.5"),
+            Some(GameResult::Player(Color::Black, Score::Points(0.5)))
+        );
+        assert_eq!(
+            parse_sgf_result("b+0.5"),
+            Some(GameResult::Player(Color::Black, Score::Points(0.5)))
+        );
+        assert_eq!(
+            parse_sgf_result("B+64"),
+            Some(GameResult::Player(Color::Black, Score::Points(64.0)))
+        );
+        assert_eq!(
+            parse_sgf_result("b+64"),
+            Some(GameResult::Player(Color::Black, Score::Points(64.0)))
+        );
+        assert_eq!(
+            parse_sgf_result("B+12.5"),
+            Some(GameResult::Player(Color::Black, Score::Points(12.5)))
+        );
+        assert_eq!(
+            parse_sgf_result("b+12.5"),
+            Some(GameResult::Player(Color::Black, Score::Points(12.5)))
+        );
+        assert_eq!(
+            parse_sgf_result("B+R"),
+            Some(GameResult::Player(Color::Black, Score::Resignation))
+        );
+        assert_eq!(
+            parse_sgf_result("b+r"),
+            Some(GameResult::Player(Color::Black, Score::Resignation))
+        );
+        assert_eq!(
+            parse_sgf_result("B+Resign"),
+            Some(GameResult::Player(Color::Black, Score::Resignation))
+        );
+        assert_eq!(
+            parse_sgf_result("b+resign"),
+            Some(GameResult::Player(Color::Black, Score::Resignation))
+        );
+        assert_eq!(
+            parse_sgf_result("B+T"),
+            Some(GameResult::Player(Color::Black, Score::Timeout))
+        );
+        assert_eq!(
+            parse_sgf_result("b+t"),
+            Some(GameResult::Player(Color::Black, Score::Timeout))
+        );
+        assert_eq!(
+            parse_sgf_result("B+Time"),
+            Some(GameResult::Player(Color::Black, Score::Timeout))
+        );
+        assert_eq!(
+            parse_sgf_result("b+time"),
+            Some(GameResult::Player(Color::Black, Score::Timeout))
+        );
+        assert_eq!(
+            parse_sgf_result("B+F"),
+            Some(GameResult::Player(Color::Black, Score::Forfeit))
+        );
+        assert_eq!(
+            parse_sgf_result("b+f"),
+            Some(GameResult::Player(Color::Black, Score::Forfeit))
+        );
+        assert_eq!(
+            parse_sgf_result("B+Forfeit"),
+            Some(GameResult::Player(Color::Black, Score::Forfeit))
+        );
+        assert_eq!(
+            parse_sgf_result("b+forfeit"),
+            Some(GameResult::Player(Color::Black, Score::Forfeit))
+        );
+
+        // Test white wins
+        assert_eq!(
+            parse_sgf_result("W+0.5"),
+            Some(GameResult::Player(Color::White, Score::Points(0.5)))
+        );
+        assert_eq!(
+            parse_sgf_result("w+0.5"),
+            Some(GameResult::Player(Color::White, Score::Points(0.5)))
+        );
+        assert_eq!(
+            parse_sgf_result("W+64"),
+            Some(GameResult::Player(Color::White, Score::Points(64.0)))
+        );
+        assert_eq!(
+            parse_sgf_result("w+64"),
+            Some(GameResult::Player(Color::White, Score::Points(64.0)))
+        );
+        assert_eq!(
+            parse_sgf_result("W+12.5"),
+            Some(GameResult::Player(Color::White, Score::Points(12.5)))
+        );
+        assert_eq!(
+            parse_sgf_result("w+12.5"),
+            Some(GameResult::Player(Color::White, Score::Points(12.5)))
+        );
+        assert_eq!(
+            parse_sgf_result("W+R"),
+            Some(GameResult::Player(Color::White, Score::Resignation))
+        );
+        assert_eq!(
+            parse_sgf_result("w+r"),
+            Some(GameResult::Player(Color::White, Score::Resignation))
+        );
+        assert_eq!(
+            parse_sgf_result("W+Resign"),
+            Some(GameResult::Player(Color::White, Score::Resignation))
+        );
+        assert_eq!(
+            parse_sgf_result("w+resign"),
+            Some(GameResult::Player(Color::White, Score::Resignation))
+        );
+        assert_eq!(
+            parse_sgf_result("W+T"),
+            Some(GameResult::Player(Color::White, Score::Timeout))
+        );
+        assert_eq!(
+            parse_sgf_result("w+t"),
+            Some(GameResult::Player(Color::White, Score::Timeout))
+        );
+        assert_eq!(
+            parse_sgf_result("W+Time"),
+            Some(GameResult::Player(Color::White, Score::Timeout))
+        );
+        assert_eq!(
+            parse_sgf_result("w+time"),
+            Some(GameResult::Player(Color::White, Score::Timeout))
+        );
+        assert_eq!(
+            parse_sgf_result("W+F"),
+            Some(GameResult::Player(Color::White, Score::Forfeit))
+        );
+        assert_eq!(
+            parse_sgf_result("w+f"),
+            Some(GameResult::Player(Color::White, Score::Forfeit))
+        );
+        assert_eq!(
+            parse_sgf_result("W+Forfeit"),
+            Some(GameResult::Player(Color::White, Score::Forfeit))
+        );
+        assert_eq!(
+            parse_sgf_result("w+forfeit"),
+            Some(GameResult::Player(Color::White, Score::Forfeit))
+        );
+
+        // Test special cases
+        assert_eq!(parse_sgf_result("Void"), Some(GameResult::Void));
+        assert_eq!(parse_sgf_result("?"), None);
+        assert_eq!(parse_sgf_result("invalid"), None);
+        assert_eq!(parse_sgf_result("B+invalid"), None);
+        assert_eq!(parse_sgf_result("b+invalid"), None);
+        assert_eq!(parse_sgf_result("W+invalid"), None);
+        assert_eq!(parse_sgf_result("w+invalid"), None);
     }
 }
