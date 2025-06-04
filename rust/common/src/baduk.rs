@@ -29,13 +29,13 @@ pub fn parse_sgf_date(date_str: &str) -> SgfDate {
             if let Some((month_str, day_str)) = rest.split_once('-') {
                 if let Ok(month) = month_str.parse::<u8>() {
                     if let Ok(day) = day_str.parse::<u8>() {
-                        if month >= 1 && month <= 12 && day >= 1 && day <= 31 {
+                        if (1..=12).contains(&month) && (1..=31).contains(&day) {
                             return SgfDate::YearMonthDay(year, month, day);
                         }
                     }
                 }
             } else if let Ok(month) = rest.parse::<u8>() {
-                if month >= 1 && month <= 12 {
+                if (1..=12).contains(&month) {
                     return SgfDate::YearMonth(year, month);
                 }
             }
