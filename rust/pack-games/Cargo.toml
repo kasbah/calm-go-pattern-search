@@ -12,6 +12,10 @@ path = "src/main.rs"
 name = "find-custom-rules"
 path = "src/find_custom_rules.rs"
 
+[[bin]]
+name = "find-bad-komi"
+path = "src/find_bad_komi.rs"
+
 [dependencies]
 calm-go-patterns-common = { path = "../common" }
 jwalk = "0.8.1"
