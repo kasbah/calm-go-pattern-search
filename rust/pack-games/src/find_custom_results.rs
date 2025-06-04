@@ -54,33 +54,39 @@ fn main() {
             || (HashMap::new(), HashMap::new()),
             |(mut result_counts, mut unparsed_results), (original_text, parsed_result)| {
                 match parsed_result {
-                    Some(GameResult::Player(Color::Black, Score::Resignation)) => {
+                    Some(GameResult::Player(Color::Black, Some(Score::Resignation))) => {
                         *result_counts
                             .entry("B+Resignation".to_string())
                             .or_insert(0) += 1;
                     }
-                    Some(GameResult::Player(Color::White, Score::Resignation)) => {
+                    Some(GameResult::Player(Color::White, Some(Score::Resignation))) => {
                         *result_counts
                             .entry("W+Resignation".to_string())
                             .or_insert(0) += 1;
                     }
-                    Some(GameResult::Player(Color::Black, Score::Timeout)) => {
+                    Some(GameResult::Player(Color::Black, Some(Score::Timeout))) => {
                         *result_counts.entry("B+Timeout".to_string()).or_insert(0) += 1;
                     }
-                    Some(GameResult::Player(Color::White, Score::Timeout)) => {
+                    Some(GameResult::Player(Color::White, Some(Score::Timeout))) => {
                         *result_counts.entry("W+Timeout".to_string()).or_insert(0) += 1;
                     }
-                    Some(GameResult::Player(Color::Black, Score::Forfeit)) => {
+                    Some(GameResult::Player(Color::Black, Some(Score::Forfeit))) => {
                         *result_counts.entry("B+Forfeit".to_string()).or_insert(0) += 1;
                     }
-                    Some(GameResult::Player(Color::White, Score::Forfeit)) => {
+                    Some(GameResult::Player(Color::White, Some(Score::Forfeit))) => {
                         *result_counts.entry("W+Forfeit".to_string()).or_insert(0) += 1;
                     }
-                    Some(GameResult::Player(Color::Black, Score::Points(_))) => {
+                    Some(GameResult::Player(Color::Black, Some(Score::Points(_)))) => {
                         *result_counts.entry("B+Points".to_string()).or_insert(0) += 1;
                     }
-                    Some(GameResult::Player(Color::White, Score::Points(_))) => {
+                    Some(GameResult::Player(Color::White, Some(Score::Points(_)))) => {
                         *result_counts.entry("W+Points".to_string()).or_insert(0) += 1;
+                    }
+                    Some(GameResult::Player(Color::Black, None)) => {
+                        *result_counts.entry("B+NoScore".to_string()).or_insert(0) += 1;
+                    }
+                    Some(GameResult::Player(Color::White, None)) => {
+                        *result_counts.entry("W+NoScore".to_string()).or_insert(0) += 1;
                     }
                     Some(GameResult::Draw) => {
                         *result_counts.entry("Draw".to_string()).or_insert(0) += 1;
