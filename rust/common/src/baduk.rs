@@ -1,5 +1,4 @@
 use bit_vec::BitVec;
-use chrono::{Month, NaiveDate};
 use rmp_serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
 use serde_bytes;
@@ -11,8 +10,8 @@ pub const BOARD_SIZE: u8 = 19;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum SgfDate {
-    YearMonthDay(NaiveDate),
-    YearMonth(u16, Month),
+    YearMonthDay(u16, u8, u8),
+    YearMonth(u16, u8),
     Year(u16),
     Custom(String),
 }
@@ -24,24 +23,28 @@ pub fn parse_sgf_date(date_str: &str) -> SgfDate {
     // Split on comma and take only the first date if there's a range
     let date_str = date_str.split(',').next().unwrap_or(date_str);
 
-    if let Ok(date) = NaiveDate::parse_from_str(date_str, "%Y-%m-%d") {
-        return SgfDate::YearMonthDay(date);
-    }
-
-    if let Ok(year) = date_str.parse::<u16>() {
-        return SgfDate::Year(year);
-    }
-
-    if let Some((year_str, month_str)) = date_str.split_once('-') {
+    // Try to parse YYYY-MM-DD or YYYY-MM format
+    if let Some((year_str, rest)) = date_str.split_once('-') {
         if let Ok(year) = year_str.parse::<u16>() {
-            if let Some(month) = month_str
-                .parse::<u8>()
-                .ok()
-                .and_then(|i| Month::try_from(i).ok())
-            {
-                return SgfDate::YearMonth(year, month);
+            if let Some((month_str, day_str)) = rest.split_once('-') {
+                if let Ok(month) = month_str.parse::<u8>() {
+                    if let Ok(day) = day_str.parse::<u8>() {
+                        if month >= 1 && month <= 12 && day >= 1 && day <= 31 {
+                            return SgfDate::YearMonthDay(year, month, day);
+                        }
+                    }
+                }
+            } else if let Ok(month) = rest.parse::<u8>() {
+                if month >= 1 && month <= 12 {
+                    return SgfDate::YearMonth(year, month);
+                }
             }
         }
+    }
+
+    // Try to parse just the year
+    if let Ok(year) = date_str.parse::<u16>() {
+        return SgfDate::Year(year);
     }
 
     SgfDate::Custom(date_str.to_string())
@@ -991,7 +994,7 @@ mod tests {
                 event: "Test Event".to_string(),
                 round: "Test Round".to_string(),
                 place: "Test Place".to_string(),
-                date: Some(SgfDate::YearMonthDay(NaiveDate::from_ymd_opt(2024, 1, 1).unwrap())),
+                date: Some(SgfDate::YearMonthDay(2024, 1, 1)),
                 player_black: "Black Player".to_string(),
                 player_white: "White Player".to_string(),
                 rank_black: Rank::Pro(9),
@@ -1029,7 +1032,7 @@ mod tests {
                 event: "Test Event".to_string(),
                 round: "Test Round".to_string(),
                 place: "Test Place".to_string(),
-                date: Some(SgfDate::YearMonthDay(NaiveDate::from_ymd_opt(2024, 1, 1).unwrap())),
+                date: Some(SgfDate::YearMonthDay(2024, 1, 1)),
                 player_black: "Black Player".to_string(),
                 player_white: "White Player".to_string(),
                 rank_black: Rank::Pro(9),
@@ -1067,7 +1070,7 @@ mod tests {
                 event: "Test Event".to_string(),
                 round: "Test Round".to_string(),
                 place: "Test Place".to_string(),
-                date: Some(SgfDate::YearMonthDay(NaiveDate::from_ymd_opt(2024, 1, 1).unwrap())),
+                date: Some(SgfDate::YearMonthDay(2024, 1, 1)),
                 player_black: "Black Player".to_string(),
                 player_white: "White Player".to_string(),
                 rank_black: Rank::Pro(9),
