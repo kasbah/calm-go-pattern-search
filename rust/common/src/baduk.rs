@@ -413,9 +413,32 @@ pub fn parse_sgf_result(result_str: &str) -> Option<GameResult> {
         .to_lowercase();
 
     match result_str.as_str() {
-        "0" | "draw" | "jigo" => Some(GameResult::Draw),
+        // Chinese "mid-game" wins
+        "黑中盘胜" | "黑中押胜" => {
+            Some(GameResult::Player(Color::Black, Some(Score::Resignation)))
+        }
+        "白中盘胜" | "白中押胜" => {
+            Some(GameResult::Player(Color::White, Some(Score::Resignation)))
+        }
+        // Chinese wins
+        "黑胜" => Some(GameResult::Player(Color::Black, None)),
+        "白胜" => Some(GameResult::Player(Color::White, None)),
+
+        // Simple B/W wins
+        "b" => Some(GameResult::Player(Color::Black, None)),
+        "w" => Some(GameResult::Player(Color::White, None)),
+
+        // Draw variations
+        "0" | "draw" | "jigo" | "和棋" => Some(GameResult::Draw),
+
+        // Suspended games
+        "打挂" | "打掛" | "game suspended" => Some(GameResult::Void),
+
+        // Unknown/not recorded
         "void" => Some(GameResult::Void),
-        "?" => None,
+        "不詳" | "?" => None,
+
+        // Standard SGF formats
         s if s.starts_with("b+") => {
             let score = parse_score_str(&s[2..]);
             Some(GameResult::Player(Color::Black, score))
@@ -1780,6 +1803,53 @@ mod tests {
 
     #[test]
     fn test_parse_sgf_result() {
+        // Test Chinese result formats
+        assert_eq!(
+            parse_sgf_result("黑中盘胜"),
+            Some(GameResult::Player(Color::Black, Some(Score::Resignation)))
+        );
+        assert_eq!(
+            parse_sgf_result("黑中押胜"),
+            Some(GameResult::Player(Color::Black, Some(Score::Resignation)))
+        );
+        assert_eq!(
+            parse_sgf_result("白中盘胜"),
+            Some(GameResult::Player(Color::White, Some(Score::Resignation)))
+        );
+        assert_eq!(
+            parse_sgf_result("白中押胜"),
+            Some(GameResult::Player(Color::White, Some(Score::Resignation)))
+        );
+        assert_eq!(
+            parse_sgf_result("黑胜"),
+            Some(GameResult::Player(Color::Black, None))
+        );
+        assert_eq!(
+            parse_sgf_result("白胜"),
+            Some(GameResult::Player(Color::White, None))
+        );
+
+        // Test simple B/W wins
+        assert_eq!(
+            parse_sgf_result("B"),
+            Some(GameResult::Player(Color::Black, None))
+        );
+        assert_eq!(
+            parse_sgf_result("W"),
+            Some(GameResult::Player(Color::White, None))
+        );
+
+        // Test draw variations
+        assert_eq!(parse_sgf_result("和棋"), Some(GameResult::Draw));
+
+        // Test suspended games
+        assert_eq!(parse_sgf_result("打挂"), Some(GameResult::Void));
+        assert_eq!(parse_sgf_result("打掛"), Some(GameResult::Void));
+        assert_eq!(parse_sgf_result("Game suspended"), Some(GameResult::Void));
+
+        // Test unknown/not recorded
+        assert_eq!(parse_sgf_result("不詳"), Some(GameResult::Void));
+
         // Test draws
         assert_eq!(parse_sgf_result("0"), Some(GameResult::Draw));
         assert_eq!(parse_sgf_result("Draw"), Some(GameResult::Draw));
