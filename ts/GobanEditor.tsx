@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 import SabakiGoBoard from "@sabaki/go-board";
-import { Goban, type Vertex } from "@sabaki/shudan";
+import { Goban, type Vertex, type Map, type Marker } from "@sabaki/shudan";
 import "@sabaki/shudan/css/goban.css";
 import {
   forwardRef,
@@ -227,6 +227,8 @@ function gobanEditorReducer(
 export type GobanEditorProps = {
   onUpdateBoard: (board: BoardPosition) => void;
   vertexSize: number;
+  nextMovesBlack: Array<{ x: number; y: number }>;
+  nextMovesWhite: Array<{ x: number; y: number }>;
 };
 
 export type GobanEditorRef = {
@@ -235,10 +237,13 @@ export type GobanEditorRef = {
 };
 
 const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
-  ({ onUpdateBoard, vertexSize }, ref) => {
+  ({ onUpdateBoard, vertexSize, nextMovesBlack, nextMovesWhite }, ref) => {
     const [state, dispatch] = useImmerReducer(gobanEditorReducer, initialState);
     const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
     const [displayBoard, setDisplayBoard] = useState<BoardPosition>(emptyBoard);
+    const [markerMap, setMarkerMap] = useState<Map<Marker | null>>(
+      emptyBoard.map((row) => row.map(() => null)),
+    );
 
     const handleUndo = useCallback(() => {
       dispatch({ type: "UNDO" });
@@ -256,6 +261,20 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
       }),
       [handleUndo, handleRedo],
     );
+
+    useEffect(() => {
+      let mm: Map<Marker | null> = emptyBoard.map((row) => row.map(() => null));
+      if (state.alternateBrushColor === SabakiSign.Black) {
+        nextMovesBlack.forEach(({ x, y }, i) => {
+          mm[y][x] = { type: "label", label: (i + 1).toString() };
+        });
+      } else {
+        nextMovesWhite.forEach(({ x, y }, i) => {
+          mm[y][x] = { type: "label", label: (i + 1).toString() };
+        });
+      }
+      setMarkerMap(mm);
+    }, [nextMovesBlack, nextMovesWhite, state.alternateBrushColor]);
 
     useEffect(() => {
       onUpdateBoard(state.board);
@@ -331,6 +350,7 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
             vertexSize={vertexSize}
             showCoordinates={true}
             signMap={displayBoard}
+            markerMap={markerMap}
             dimmedVertices={dimmedVertices}
             onVertexMouseEnter={handleVertexMouseEnter}
             onVertexMouseLeave={handleVertexMouseLeave}

@@ -4,7 +4,7 @@ extern crate wasm_bindgen;
 mod utils;
 
 use calm_go_patterns_common::baduk::{
-    Game, Placement, Point, Rotation, check_empty, check_within_one_quadrant, get_mirrored,
+    Color, Game, Placement, Point, Rotation, check_empty, check_within_one_quadrant, get_mirrored,
     get_rotated, get_rotations, get_surrounding_points, match_game, switch_colors, unpack_games,
 };
 use cfg_if::cfg_if;
@@ -51,6 +51,8 @@ pub struct WasmSearch {
 #[derive(Serialize, Deserialize)]
 struct WasmSearchReturn {
     num_results: usize,
+    next_moves_white: Vec<Point>,
+    next_moves_black: Vec<Point>,
     results: Vec<SearchResult>,
 }
 
@@ -89,12 +91,60 @@ impl WasmSearch {
         let position_buf: Vec<u8> = position.to_vec();
         let position_decoded: Vec<Placement> = serde_json::from_slice(position_buf.as_slice())
             .expect("Failed to deserialize position");
+        let position_len = position_decoded.len();
         let results = self.match_position(position_decoded);
+
+        let mut next_moves_map: HashMap<Placement, usize> = HashMap::new();
+
+        for result in &results {
+            let mut mult = if result.last_move_matched == position_len - 1 {
+                1
+            } else {
+                2
+            };
+            mult *= result.all_empty_correctly_within;
+            if mult > 0 {
+                if let Some(move_) = result.moves_transformed.get(result.last_move_matched + 1) {
+                    let mut move_ = *move_;
+                    if result.is_inverted {
+                        move_.color = if move_.color == Color::White {
+                            Color::Black
+                        } else {
+                            Color::White
+                        };
+                    }
+                    if let Some(n) = next_moves_map.get(&move_) {
+                        next_moves_map.insert(move_, n + result.score as usize * mult as usize);
+                    } else {
+                        next_moves_map.insert(move_, result.score as usize * mult as usize);
+                    }
+                }
+            }
+        }
+
+        let mut next_moves_ = next_moves_map.iter().collect::<Vec<_>>();
+        next_moves_.sort_by(|a, b| b.1.cmp(a.1));
+
+        let next_moves_white = next_moves_
+            .iter()
+            .filter(|(m, _)| m.color == Color::White)
+            .map(|(m, _)| m.point)
+            .collect::<Vec<_>>();
+        let next_moves_black = next_moves_
+            .iter()
+            .filter(|(m, _)| m.color == Color::Black)
+            .map(|(m, _)| m.point)
+            .collect::<Vec<_>>();
+
         let num_results = results.len();
+
         let ret = WasmSearchReturn {
             num_results,
+            next_moves_white: next_moves_white[0..next_moves_white.len().min(10)].to_vec(),
+            next_moves_black: next_moves_black[0..next_moves_black.len().min(10)].to_vec(),
             results: results[0..num_results.min(10)].to_vec(),
         };
+
         let results_buf: Vec<u8> = serde_json::to_vec(&ret).expect("Failed to serialize results");
         Uint8Array::from(results_buf.as_slice())
     }
@@ -319,7 +369,8 @@ impl WasmSearch {
                 }
             }
             result.all_empty_correctly_within = all_empty_correctly_within;
-            // all being empty around the position we are searching is very important, hence we multiply the score
+            // all being empty around the position we are searching is very important, hence we
+            // multiply the score
             result.score *= 1 + all_empty_correctly_within as i16;
         }
 

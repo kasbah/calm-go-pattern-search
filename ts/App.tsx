@@ -14,6 +14,9 @@ export default function App() {
   const [games, setGames] = useState<Array<Game>>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [totalNumberOfGames, setTotalNumberOfGames] = useState(0);
+  const [nextMovesBlack, setNextMovesBlack] = useState<Array<{ x: number; y: number }>>([]);
+  const [nextMovesWhite, setNextMovesWhite] = useState<Array<{ x: number; y: number }>>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const gobanEditorRef = useRef<{
     handleUndo: () => void;
     handleRedo: () => void;
@@ -31,17 +34,22 @@ export default function App() {
         { type: "search", payload: positionBuf },
         [positionBuf.buffer],
       );
+      setIsSearching(true);
     }
   }, [board]);
 
   useEffect(() => {
     window.wasmSearchWorker.onmessage = (e) => {
       const { type, payload } = e.data;
+
       if (type === "result") {
+        setIsSearching(false);
         const jsonText = new TextDecoder().decode(payload);
-        const { num_results, results } = JSON.parse(jsonText);
+        const { num_results, results, next_moves_black, next_moves_white } = JSON.parse(jsonText);
         setGames(results);
         setTotalNumberOfGames(num_results);
+        setNextMovesBlack(next_moves_black);
+        setNextMovesWhite(next_moves_white);
       }
     };
   }, []);
@@ -78,6 +86,8 @@ export default function App() {
           ref={gobanEditorRef}
           onUpdateBoard={setBoard}
           vertexSize={vertexSize}
+          nextMovesBlack={isSearching ? [] : nextMovesBlack}
+          nextMovesWhite={isSearching ? [] : nextMovesWhite}
         />
       </div>
       {selectedGame != null && (
