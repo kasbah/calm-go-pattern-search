@@ -6,8 +6,8 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 use calm_go_patterns_common::baduk::{
-    BOARD_SIZE, Color, Game, GoBoard, Placement, Point, Rank, get_rotations, pack_games,
-    parse_komi, parse_rank, parse_rules, parse_sgf_date, parse_sgf_result,
+    BOARD_SIZE, Color, Game, GameResult, GoBoard, Placement, Point, Rank, get_rotations,
+    pack_games, parse_komi, parse_rank, parse_rules, parse_sgf_date, parse_sgf_result,
 };
 
 fn main() {
@@ -134,7 +134,7 @@ fn load_sgf(path: &PathBuf, file_data: &str) -> Result<Game, Box<dyn std::error:
     let mut rank_black = Rank::Custom("".to_string());
     let mut rank_white = Rank::Custom("".to_string());
     let mut komi = None;
-    let mut result = None;
+    let mut result = GameResult::Unknown("".to_string());
     let mut rules = None;
 
     // Extract metadata from root node

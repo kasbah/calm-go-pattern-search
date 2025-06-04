@@ -35,8 +35,11 @@ fn main() {
                         if let go::Prop::RE(re) = prop {
                             files_with_re_property.fetch_add(1, Ordering::Relaxed);
                             let result = parse_sgf_result(&re.text);
-                            if result.is_some() {
-                                files_with_parsed_results.fetch_add(1, Ordering::Relaxed);
+                            match result {
+                                GameResult::Unknown(_) => {}
+                                _ => {
+                                    files_with_parsed_results.fetch_add(1, Ordering::Relaxed);
+                                }
                             }
                             return Some((re.text.clone(), result));
                         }
@@ -54,47 +57,47 @@ fn main() {
             || (HashMap::new(), HashMap::new()),
             |(mut result_counts, mut unparsed_results), (original_text, parsed_result)| {
                 match parsed_result {
-                    Some(GameResult::Player(Color::Black, Some(Score::Resignation))) => {
+                    GameResult::Player(Color::Black, Some(Score::Resignation)) => {
                         *result_counts
                             .entry("B+Resignation".to_string())
                             .or_insert(0) += 1;
                     }
-                    Some(GameResult::Player(Color::White, Some(Score::Resignation))) => {
+                    GameResult::Player(Color::White, Some(Score::Resignation)) => {
                         *result_counts
                             .entry("W+Resignation".to_string())
                             .or_insert(0) += 1;
                     }
-                    Some(GameResult::Player(Color::Black, Some(Score::Timeout))) => {
+                    GameResult::Player(Color::Black, Some(Score::Timeout)) => {
                         *result_counts.entry("B+Timeout".to_string()).or_insert(0) += 1;
                     }
-                    Some(GameResult::Player(Color::White, Some(Score::Timeout))) => {
+                    GameResult::Player(Color::White, Some(Score::Timeout)) => {
                         *result_counts.entry("W+Timeout".to_string()).or_insert(0) += 1;
                     }
-                    Some(GameResult::Player(Color::Black, Some(Score::Forfeit))) => {
+                    GameResult::Player(Color::Black, Some(Score::Forfeit)) => {
                         *result_counts.entry("B+Forfeit".to_string()).or_insert(0) += 1;
                     }
-                    Some(GameResult::Player(Color::White, Some(Score::Forfeit))) => {
+                    GameResult::Player(Color::White, Some(Score::Forfeit)) => {
                         *result_counts.entry("W+Forfeit".to_string()).or_insert(0) += 1;
                     }
-                    Some(GameResult::Player(Color::Black, Some(Score::Points(_)))) => {
+                    GameResult::Player(Color::Black, Some(Score::Points(_))) => {
                         *result_counts.entry("B+Points".to_string()).or_insert(0) += 1;
                     }
-                    Some(GameResult::Player(Color::White, Some(Score::Points(_)))) => {
+                    GameResult::Player(Color::White, Some(Score::Points(_))) => {
                         *result_counts.entry("W+Points".to_string()).or_insert(0) += 1;
                     }
-                    Some(GameResult::Player(Color::Black, None)) => {
+                    GameResult::Player(Color::Black, None) => {
                         *result_counts.entry("B+NoScore".to_string()).or_insert(0) += 1;
                     }
-                    Some(GameResult::Player(Color::White, None)) => {
+                    GameResult::Player(Color::White, None) => {
                         *result_counts.entry("W+NoScore".to_string()).or_insert(0) += 1;
                     }
-                    Some(GameResult::Draw) => {
+                    GameResult::Draw => {
                         *result_counts.entry("Draw".to_string()).or_insert(0) += 1;
                     }
-                    Some(GameResult::Void) => {
+                    GameResult::Void => {
                         *result_counts.entry("Void".to_string()).or_insert(0) += 1;
                     }
-                    None => {
+                    GameResult::Unknown(_) => {
                         // This is a custom/unparsed result
                         *unparsed_results.entry(original_text.clone()).or_insert(0) += 1;
                     }
