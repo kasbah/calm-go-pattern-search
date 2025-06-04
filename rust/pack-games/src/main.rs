@@ -49,21 +49,92 @@ fn main() {
         })
         .collect::<Vec<_>>();
 
-    let mut seen_moves = HashMap::<Vec<Placement>, (String, String, String, String)>::new();
+    let mut seen_moves =
+        HashMap::<Vec<Placement>, (String, String, String, String, GameResult)>::new();
     let mut unique_moves = HashMap::new();
 
     for (path, game) in games_vec {
         let mut is_duplicate = false;
         let mut duplicate_info = None;
-        if let Some((pb, rb, pw, rw)) = seen_moves.get(&game.moves) {
+        if let Some((pb, rb, pw, rw, existing_result)) = seen_moves.get(&game.moves) {
             is_duplicate = true;
-            duplicate_info = Some((pb.clone(), rb.clone(), pw.clone(), rw.clone()));
+            // Keep the game with better score information
+            match (&existing_result, &game.result) {
+                // If existing is Unknown and new is not, keep the new one
+                (GameResult::Unknown(_), _) => {
+                    seen_moves.insert(
+                        game.moves.clone(),
+                        (
+                            game.player_black.clone(),
+                            game.rank_black.to_string(),
+                            game.player_white.clone(),
+                            game.rank_white.to_string(),
+                            game.result.clone(),
+                        ),
+                    );
+                    unique_moves.insert(path.clone(), game.clone());
+                }
+                // If both are Player results, keep the one with Some(Score)
+                (GameResult::Player(_, None, _), GameResult::Player(_, Some(_), _)) => {
+                    seen_moves.insert(
+                        game.moves.clone(),
+                        (
+                            game.player_black.clone(),
+                            game.rank_black.to_string(),
+                            game.player_white.clone(),
+                            game.rank_white.to_string(),
+                            game.result.clone(),
+                        ),
+                    );
+                    unique_moves.insert(path.clone(), game.clone());
+                }
+                // Otherwise keep the existing one
+                _ => {
+                    duplicate_info = Some((pb.clone(), rb.clone(), pw.clone(), rw.clone()));
+                }
+            }
         } else {
             for (_, rotated_moves) in get_rotations(&game.moves) {
-                if let Some((pb, rb, pw, rw)) = seen_moves.get(&rotated_moves) {
+                if let Some((pb, rb, pw, rw, existing_result)) = seen_moves.get(&rotated_moves) {
                     is_duplicate = true;
-                    duplicate_info = Some((pb.clone(), rb.clone(), pw.clone(), rw.clone()));
-                    break;
+                    // Keep the game with better score information
+                    match (&existing_result, &game.result) {
+                        // If existing is Unknown and new is not, keep the new one
+                        (GameResult::Unknown(_), _) => {
+                            seen_moves.insert(
+                                game.moves.clone(),
+                                (
+                                    game.player_black.clone(),
+                                    game.rank_black.to_string(),
+                                    game.player_white.clone(),
+                                    game.rank_white.to_string(),
+                                    game.result.clone(),
+                                ),
+                            );
+                            unique_moves.insert(path.clone(), game.clone());
+                            break;
+                        }
+                        // If both are Player results, keep the one with Some(Score)
+                        (GameResult::Player(_, None, _), GameResult::Player(_, Some(_), _)) => {
+                            seen_moves.insert(
+                                game.moves.clone(),
+                                (
+                                    game.player_black.clone(),
+                                    game.rank_black.to_string(),
+                                    game.player_white.clone(),
+                                    game.rank_white.to_string(),
+                                    game.result.clone(),
+                                ),
+                            );
+                            unique_moves.insert(path.clone(), game.clone());
+                            break;
+                        }
+                        // Otherwise keep the existing one
+                        _ => {
+                            duplicate_info = Some((pb.clone(), rb.clone(), pw.clone(), rw.clone()));
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -76,11 +147,11 @@ fn main() {
                     game.rank_black.to_string(),
                     game.player_white.clone(),
                     game.rank_white.to_string(),
+                    game.result.clone(),
                 ),
             );
-            unique_moves.insert(path, game);
-        } else {
-            let (pb, rb, pw, rw) = duplicate_info.unwrap();
+            unique_moves.insert(path.clone(), game.clone());
+        } else if let Some((pb, rb, pw, rw)) = duplicate_info {
             println!(
                 "Removing duplicate game: {} {} vs {} {} (duplicate of {} {} vs {} {})",
                 game.player_black,
