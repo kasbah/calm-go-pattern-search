@@ -202,6 +202,40 @@ fn load_sgf(path: &PathBuf, file_data: &str) -> Result<Game, Box<dyn std::error:
                     });
                     break;
                 }
+                go::Prop::AB(points) => {
+                    for point in points {
+                        if point.x >= BOARD_SIZE || point.y >= BOARD_SIZE {
+                            println!(
+                                "Skipping handicap placement greater than board size {BOARD_SIZE:?}x{BOARD_SIZE:?}, {point:?} in file: {path:?}"
+                            );
+                            continue;
+                        }
+                        moves.push(Placement {
+                            color: Color::Black,
+                            point: Point {
+                                x: point.x,
+                                y: point.y,
+                            },
+                        });
+                    }
+                }
+                go::Prop::AW(points) => {
+                    for point in points {
+                        if point.x >= BOARD_SIZE || point.y >= BOARD_SIZE {
+                            println!(
+                                "Skipping handicap placement greater than board size {BOARD_SIZE:?}x{BOARD_SIZE:?}, {point:?} in file: {path:?}"
+                            );
+                            continue;
+                        }
+                        moves.push(Placement {
+                            color: Color::White,
+                            point: Point {
+                                x: point.x,
+                                y: point.y,
+                            },
+                        });
+                    }
+                }
                 _ => {}
             }
         }
