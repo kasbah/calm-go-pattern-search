@@ -431,17 +431,22 @@ pub fn parse_sgf_result(result_str: &str) -> Option<GameResult> {
         // Draw variations
         "0" | "draw" | "jigo" | "和棋" => Some(GameResult::Draw),
 
-        // Suspended games
-        "打挂" | "打掛" | "game suspended" => Some(GameResult::Void),
+        "打挂" | "打掛" | "game suspended" | "void" => Some(GameResult::Void),
 
-        // Unknown/not recorded
-        "void" => Some(GameResult::Void),
         "不詳" | "?" => None,
 
         // Standard SGF formats
         s if s.starts_with("b+") => {
             let score = parse_score_str(&s[2..]);
             Some(GameResult::Player(Color::Black, score))
+        }
+        s if s.starts_with("b") => {
+            let score = parse_score_str(&s[1..]);
+            Some(GameResult::Player(Color::Black, score))
+        }
+        s if s.starts_with("w") => {
+            let score = parse_score_str(&s[1..]);
+            Some(GameResult::Player(Color::White, score))
         }
         s if s.starts_with("w+") => {
             let score = parse_score_str(&s[2..]);
