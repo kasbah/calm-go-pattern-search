@@ -24,6 +24,10 @@ path = "src/find_game_properties.rs"
 name = "find-custom-results"
 path = "src/find_custom_results.rs"
 
+[[bin]]
+name = "list-players"
+path = "src/list_players.rs"
+
 [dependencies]
 calm-go-patterns-common = { path = "../common" }
 jwalk = "0.8.1"
