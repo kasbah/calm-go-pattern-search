@@ -36,7 +36,7 @@ fn main() {
                         if let go::Prop::KM(km) = prop {
                             files_with_km_property.fetch_add(1, Ordering::Relaxed);
                             let komi_str = km.to_string();
-                            
+
                             // Use parse_komi function - if it returns None, it's a bad komi
                             if parse_komi(&komi_str).is_none() {
                                 // Bad komi found
@@ -92,9 +92,12 @@ fn main() {
         }
 
         if bad_komi_vec.len() > 20 {
-            println!("... and {} more files with bad komi values", bad_komi_vec.len() - 20);
+            println!(
+                "... and {} more files with bad komi values",
+                bad_komi_vec.len() - 20
+            );
         }
     } else {
         println!("\n🎉 No bad komi values found! All komi properties parse correctly to f32.");
     }
-} 
+}
