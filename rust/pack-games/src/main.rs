@@ -7,7 +7,7 @@ use std::path::PathBuf;
 
 use calm_go_patterns_common::baduk::{
     BOARD_SIZE, Color, Game, GoBoard, Placement, Point, Rank, get_rotations, pack_games,
-    parse_rank, parse_rules, parse_sgf_date, parse_sgf_result,
+    parse_komi, parse_rank, parse_rules, parse_sgf_date, parse_sgf_result,
 };
 
 fn main() {
@@ -133,6 +133,7 @@ fn load_sgf(path: &PathBuf, file_data: &str) -> Result<Game, Box<dyn std::error:
     let mut player_white = String::new();
     let mut rank_black = Rank::Custom("".to_string());
     let mut rank_white = Rank::Custom("".to_string());
+    let mut komi = None;
     let mut result = None;
     let mut rules = None;
 
@@ -147,6 +148,7 @@ fn load_sgf(path: &PathBuf, file_data: &str) -> Result<Game, Box<dyn std::error:
             go::Prop::PW(p) => player_white = p.text.to_string(),
             go::Prop::BR(r) => rank_black = parse_rank(&r.text),
             go::Prop::WR(r) => rank_white = parse_rank(&r.text),
+            go::Prop::KM(k) => komi = parse_komi(&k.to_string()),
             go::Prop::RE(r) => result = parse_sgf_result(&r.text),
             go::Prop::RU(r) => rules = Some(parse_rules(&r.text)),
             _ => {}
@@ -214,6 +216,7 @@ fn load_sgf(path: &PathBuf, file_data: &str) -> Result<Game, Box<dyn std::error:
         player_white,
         rank_black,
         rank_white,
+        komi,
         result,
         rules,
         moves,

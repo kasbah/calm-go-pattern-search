@@ -373,6 +373,18 @@ pub fn parse_rules(rules_str: &str) -> Rules {
     }
 }
 
+pub fn parse_komi(komi_str: &str) -> Option<f32> {
+    let komi_str = komi_str.trim();
+    if komi_str.is_empty() {
+        return None;
+    }
+
+    match komi_str.parse::<f32>() {
+        Ok(value) if value.is_finite() => Some(value),
+        _ => None,
+    }
+}
+
 fn parse_score_str(score_str: &str, color: Color) -> Option<GameResult> {
     match score_str {
         "r" | "resign" => Some(GameResult::Player(color, Score::Resignation)),
@@ -414,6 +426,7 @@ pub struct Game {
     pub player_white: String,
     pub rank_black: Rank,
     pub rank_white: Rank,
+    pub komi: Option<f32>,
     pub rules: Option<Rules>,
     pub result: Option<GameResult>,
     pub moves: Vec<Placement>,
@@ -431,6 +444,7 @@ struct PackedGame {
     player_white: String,
     rank_black: Rank,
     rank_white: Rank,
+    komi: Option<f32>,
     rules: Option<Rules>,
     result: Option<GameResult>,
     #[serde(with = "serde_bytes")]
@@ -452,6 +466,7 @@ pub fn pack_games(games: &HashMap<String, Game>) -> Vec<u8> {
             player_white: game.player_white.clone(),
             rank_black: game.rank_black.clone(),
             rank_white: game.rank_white.clone(),
+            komi: game.komi,
             rules: game.rules.clone(),
             result: game.result.clone(),
             moves: pack_placements(&game.moves),
@@ -485,6 +500,7 @@ pub fn unpack_games(packed: &[u8]) -> HashMap<String, Game> {
                     player_white: packed.player_white,
                     rank_black: packed.rank_black,
                     rank_white: packed.rank_white,
+                    komi: packed.komi,
                     rules: packed.rules,
                     result: packed.result,
                     moves: unpack_placements(&packed.moves).0,
@@ -980,6 +996,7 @@ mod tests {
                 player_white: "White Player".to_string(),
                 rank_black: Rank::Pro(9),
                 rank_white: Rank::Pro(9),
+                komi: None,
                 rules: None,
                 result: parse_sgf_result("B+R"),
                 moves,
@@ -1017,6 +1034,7 @@ mod tests {
                 player_white: "White Player".to_string(),
                 rank_black: Rank::Pro(9),
                 rank_white: Rank::Pro(9),
+                komi: None,
                 rules: None,
                 result: parse_sgf_result("B+R"),
                 moves,
@@ -1054,6 +1072,7 @@ mod tests {
                 player_white: "White Player".to_string(),
                 rank_black: Rank::Pro(9),
                 rank_white: Rank::Pro(9),
+                komi: None,
                 rules: None,
                 result: parse_sgf_result("B+R"),
                 moves,
@@ -1917,5 +1936,49 @@ mod tests {
         assert_eq!(parse_sgf_result("b+invalid"), None);
         assert_eq!(parse_sgf_result("W+invalid"), None);
         assert_eq!(parse_sgf_result("w+invalid"), None);
+    }
+
+    #[test]
+    fn test_parse_komi() {
+        // Test standard komi values
+        assert_eq!(parse_komi("6.5"), Some(6.5));
+        assert_eq!(parse_komi("7.5"), Some(7.5));
+        assert_eq!(parse_komi("0.5"), Some(0.5));
+        assert_eq!(parse_komi("5.5"), Some(5.5));
+
+        // Test integer komi values
+        assert_eq!(parse_komi("6"), Some(6.0));
+        assert_eq!(parse_komi("7"), Some(7.0));
+        assert_eq!(parse_komi("0"), Some(0.0));
+
+        // Test negative komi (reverse komi)
+        assert_eq!(parse_komi("-0.5"), Some(-0.5));
+        assert_eq!(parse_komi("-6.5"), Some(-6.5));
+
+        // Test with whitespace
+        assert_eq!(parse_komi(" 6.5 "), Some(6.5));
+        assert_eq!(parse_komi("  7.5  "), Some(7.5));
+        assert_eq!(parse_komi("\t0.5\t"), Some(0.5));
+
+        // Test larger values
+        assert_eq!(parse_komi("10.5"), Some(10.5));
+        assert_eq!(parse_komi("100"), Some(100.0));
+
+        // Test decimal precision
+        assert_eq!(parse_komi("6.25"), Some(6.25));
+        assert_eq!(parse_komi("7.75"), Some(7.75));
+
+        // Test invalid inputs
+        assert_eq!(parse_komi(""), None);
+        assert_eq!(parse_komi("   "), None);
+        assert_eq!(parse_komi("invalid"), None);
+        assert_eq!(parse_komi("6.5.5"), None);
+        assert_eq!(parse_komi("6.5x"), None);
+        assert_eq!(parse_komi("x6.5"), None);
+        assert_eq!(parse_komi("6,5"), None); // Wrong decimal separator
+        assert_eq!(parse_komi("six point five"), None);
+        assert_eq!(parse_komi("NaN"), None);
+        assert_eq!(parse_komi("inf"), None);
+        assert_eq!(parse_komi("-inf"), None);
     }
 }
