@@ -2,6 +2,15 @@
 name = "calm-go-patterns-pack-games"
 version = "0.1.0"
 edition = "2024"
+default-run = "pack-games"
+
+[[bin]]
+name = "pack-games"
+path = "src/main.rs"
+
+[[bin]]
+name = "find-custom-rules"
+path = "src/find_custom_rules.rs"
 
 [dependencies]
 calm-go-patterns-common = { path = "../common" }
