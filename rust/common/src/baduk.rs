@@ -388,52 +388,43 @@ pub fn parse_komi(komi_str: &str) -> Option<f32> {
     }
 }
 
-fn parse_score_str(score_str: &str, color: Color) -> Option<GameResult> {
+fn parse_score_str(score_str: &str) -> Option<Score> {
     let score_str = score_str.trim();
 
-    // Handle empty score (just "B+" or "W+" with no score)
+    // Handle empty score
     if score_str.is_empty() {
-        return Some(GameResult::Player(color, None));
+        return None;
     }
 
     match score_str {
-        "r" | "resign" => Some(GameResult::Player(color, Some(Score::Resignation))),
-        "t" | "time" => Some(GameResult::Player(color, Some(Score::Timeout))),
-        "f" | "forfeit" => Some(GameResult::Player(color, Some(Score::Forfeit))),
-        _ => score_str
-            .parse::<f32>()
-            .ok()
-            .map(|score| GameResult::Player(color, Some(Score::Points(score)))),
+        "r" | "resign" => Some(Score::Resignation),
+        "t" | "time" => Some(Score::Timeout),
+        "f" | "forfeit" => Some(Score::Forfeit),
+        _ => score_str.parse::<f32>().ok().map(Score::Points),
     }
 }
 
 pub fn parse_sgf_result(result_str: &str) -> Option<GameResult> {
-    let result_str = result_str.trim();
-
-    // Strip away content in parentheses or curly braces
-    let cleaned_result = if let Some(paren_pos) = result_str.find('(') {
-        result_str[..paren_pos].trim()
-    } else if let Some(brace_pos) = result_str.find('{') {
-        result_str[..brace_pos].trim()
-    } else {
-        result_str
-    };
-
-    let result_str = cleaned_result.to_lowercase();
+    let result_str = result_str
+        .find(['(', '{'])
+        .map(|pos| &result_str[..pos])
+        .unwrap_or(result_str)
+        .trim()
+        .to_lowercase();
 
     match result_str.as_str() {
         "0" | "draw" | "jigo" => Some(GameResult::Draw),
         "void" => Some(GameResult::Void),
         "?" => None,
-        _ => {
-            if let Some(stripped) = result_str.strip_prefix("b+") {
-                parse_score_str(stripped, Color::Black)
-            } else if let Some(stripped) = result_str.strip_prefix("w+") {
-                parse_score_str(stripped, Color::White)
-            } else {
-                None
-            }
+        s if s.starts_with("b+") => {
+            let score = parse_score_str(&s[2..]);
+            Some(GameResult::Player(Color::Black, score))
         }
+        s if s.starts_with("w+") => {
+            let score = parse_score_str(&s[2..]);
+            Some(GameResult::Player(Color::White, score))
+        }
+        _ => None,
     }
 }
 
