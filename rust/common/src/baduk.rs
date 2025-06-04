@@ -401,7 +401,18 @@ fn parse_score_str(score_str: &str, color: Color) -> Option<GameResult> {
 }
 
 pub fn parse_sgf_result(result_str: &str) -> Option<GameResult> {
-    let result_str = result_str.trim().to_lowercase();
+    let result_str = result_str.trim();
+
+    // Strip away content in parentheses or curly braces
+    let cleaned_result = if let Some(paren_pos) = result_str.find('(') {
+        result_str[..paren_pos].trim()
+    } else if let Some(brace_pos) = result_str.find('{') {
+        result_str[..brace_pos].trim()
+    } else {
+        result_str
+    };
+
+    let result_str = cleaned_result.to_lowercase();
 
     match result_str.as_str() {
         "0" | "draw" | "jigo" => Some(GameResult::Draw),
@@ -1929,6 +1940,36 @@ mod tests {
         assert_eq!(
             parse_sgf_result("w+forfeit"),
             Some(GameResult::Player(Color::White, Score::Forfeit))
+        );
+
+        // Test results with parentheses and curly braces
+        assert_eq!(
+            parse_sgf_result("W+2 {moves beyond 111 not known}"),
+            Some(GameResult::Player(Color::White, Score::Points(2.0)))
+        );
+        assert_eq!(
+            parse_sgf_result("B+8 (moves after 208 not recorded)"),
+            Some(GameResult::Player(Color::Black, Score::Points(8.0)))
+        );
+        assert_eq!(
+            parse_sgf_result("Jigo (moves after 127 not recorded)"),
+            Some(GameResult::Draw)
+        );
+        assert_eq!(
+            parse_sgf_result("B+R (resignation after 150 moves)"),
+            Some(GameResult::Player(Color::Black, Score::Resignation))
+        );
+        assert_eq!(
+            parse_sgf_result("W+T {timeout in endgame}"),
+            Some(GameResult::Player(Color::White, Score::Timeout))
+        );
+        assert_eq!(
+            parse_sgf_result("Draw (game ended in jigo)"),
+            Some(GameResult::Draw)
+        );
+        assert_eq!(
+            parse_sgf_result("0 (no winner declared)"),
+            Some(GameResult::Draw)
         );
 
         // Test special cases
