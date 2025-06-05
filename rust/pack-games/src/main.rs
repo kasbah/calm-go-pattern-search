@@ -1,8 +1,11 @@
 mod sgf_traversal;
 
 use rayon::prelude::*;
+use serde_json::Value;
 use sgf_parse::go;
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::BufReader;
 use std::path::PathBuf;
 
 use calm_go_patterns_common::baduk::{
@@ -10,7 +13,42 @@ use calm_go_patterns_common::baduk::{
     pack_games, parse_komi, parse_rank, parse_rules, parse_sgf_date, parse_sgf_result,
 };
 
+fn load_player_aliases() -> HashMap<String, String> {
+    let mut aliases = HashMap::new();
+    let file = File::open("python-player-name-aliases/player_names.json")
+        .expect("Failed to open player names file");
+    let reader = BufReader::new(file);
+    let json: Value = serde_json::from_reader(reader).expect("Failed to parse player names JSON");
+
+    for (canonical_name, variants) in json.as_object().expect("Expected object").iter() {
+        if let Some(variants_array) = variants.as_array() {
+            for variant in variants_array {
+                if let Some(name) = variant.get("name").and_then(|n| n.as_str()) {
+                    aliases.insert(name.to_string(), canonical_name.clone());
+                }
+            }
+        }
+    }
+    aliases
+}
+
+fn find_canonical_name(name: &str, aliases: &HashMap<String, String>) -> String {
+    // First check if the name is already a canonical name
+    if aliases.values().any(|v| v == name) {
+        return name.to_string();
+    }
+
+    // Then check if it's a variant name
+    if let Some(canonical) = aliases.get(name) {
+        return canonical.clone();
+    }
+
+    // If not found, return the original name
+    name.to_string()
+}
+
 fn main() {
+    let player_aliases = load_player_aliases();
     let mut sgf_folder = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     sgf_folder.push("sgfs");
     let mut paths = Vec::new();
@@ -28,7 +66,10 @@ fn main() {
         .iter()
         .filter_map(|path| match std::fs::read_to_string(path) {
             Ok(file_data) => match load_sgf(path, &file_data) {
-                Ok(game) => {
+                Ok(mut game) => {
+                    // Replace player names with canonical names
+                    game.player_black = find_canonical_name(&game.player_black, &player_aliases);
+                    game.player_white = find_canonical_name(&game.player_white, &player_aliases);
                     let rel_path = path
                         .strip_prefix(&sgf_folder)
                         .unwrap()

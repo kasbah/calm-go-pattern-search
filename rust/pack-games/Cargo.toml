@@ -33,3 +33,4 @@ calm-go-patterns-common = { path = "../common" }
 jwalk = "0.8.1"
 rayon = "1.10.0"
 sgf-parse = "4.2.3"
+serde_json = "1.0"

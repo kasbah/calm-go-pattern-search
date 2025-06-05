@@ -71,6 +71,7 @@ dependencies = [
  "calm-go-patterns-common",
  "jwalk",
  "rayon",
+ "serde_json",
  "sgf-parse",
 ]
 
