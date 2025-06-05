@@ -4,6 +4,7 @@ use rayon::prelude::*;
 use serde_json::Value;
 use sgf_parse::go;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::PathBuf;
@@ -20,11 +21,15 @@ fn load_player_aliases() -> HashMap<String, String> {
     let reader = BufReader::new(file);
     let json: Value = serde_json::from_reader(reader).expect("Failed to parse player names JSON");
 
-    for (canonical_name, variants) in json.as_object().expect("Expected object").iter() {
-        if let Some(variants_array) = variants.as_array() {
-            for variant in variants_array {
-                if let Some(name) = variant.get("name").and_then(|n| n.as_str()) {
-                    aliases.insert(name.to_string(), canonical_name.clone());
+    for (canonical_name, data) in json.as_object().expect("Expected object").iter() {
+        // Add the canonical name itself as an alias
+        aliases.insert(canonical_name.to_lowercase(), canonical_name.clone());
+
+        // Add all aliases
+        if let Some(aliases_array) = data.get("aliases").and_then(|a| a.as_array()) {
+            for alias in aliases_array {
+                if let Some(name) = alias.get("name").and_then(|n| n.as_str()) {
+                    aliases.insert(name.to_lowercase(), canonical_name.clone());
                 }
             }
         }
@@ -32,16 +37,20 @@ fn load_player_aliases() -> HashMap<String, String> {
     aliases
 }
 
-fn find_canonical_name(name: &str, aliases: &HashMap<String, String>) -> String {
-    // First check if the name is already a canonical name
-    if aliases.values().any(|v| v == name) {
-        return name.to_string();
+fn find_canonical_name(
+    name: &str,
+    aliases: &HashMap<String, String>,
+    unknown_names: &mut HashSet<String>,
+) -> String {
+    if name.is_empty() {
+        return "".to_string();
     }
 
-    // Then check if it's a variant name
-    if let Some(canonical) = aliases.get(name) {
+    if let Some(canonical) = aliases.get(name.to_lowercase().as_str()) {
         return canonical.clone();
     }
+
+    unknown_names.insert(name.to_string());
 
     // If not found, return the original name
     name.to_string()
@@ -49,6 +58,7 @@ fn find_canonical_name(name: &str, aliases: &HashMap<String, String>) -> String 
 
 fn main() {
     let player_aliases = load_player_aliases();
+    let mut unknown_names = HashSet::new();
     let mut sgf_folder = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     sgf_folder.push("sgfs");
     let mut paths = Vec::new();
@@ -68,8 +78,18 @@ fn main() {
             Ok(file_data) => match load_sgf(path, &file_data) {
                 Ok(mut game) => {
                     // Replace player names with canonical names
-                    game.player_black = find_canonical_name(&game.player_black, &player_aliases);
-                    game.player_white = find_canonical_name(&game.player_white, &player_aliases);
+                    game.player_black = game.player_black.trim().replace(['\n'], " ").to_string();
+                    game.player_white = game.player_white.trim().replace(['\n'], " ").to_string();
+                    game.player_black = find_canonical_name(
+                        &game.player_black,
+                        &player_aliases,
+                        &mut unknown_names,
+                    );
+                    game.player_white = find_canonical_name(
+                        &game.player_white,
+                        &player_aliases,
+                        &mut unknown_names,
+                    );
                     let rel_path = path
                         .strip_prefix(&sgf_folder)
                         .unwrap()
@@ -231,6 +251,11 @@ fn main() {
     println!("Writing games.pack...");
     let buf = pack_games(&games);
     std::fs::write("games.pack", buf).unwrap();
+
+    // Write unknown names to file
+    let mut unknown_names: Vec<_> = unknown_names.into_iter().collect();
+    unknown_names.sort();
+    std::fs::write("unknown_names.txt", unknown_names.join("\n")).unwrap();
     println!("Done");
 }
 

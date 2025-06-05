@@ -27,6 +27,7 @@ PLAYERDB_FILE = "playerdb-2025-05-10.json"
 ALIASES_FILE = "name_aliases.json"
 FOREIGN_NAMES_FILE = "foreign_names.txt"
 NAMES_FILE = "names.txt"
+UNKNOWN_NAMES_FILE = "unknown_names.txt"
 OUTPUT_FILE = "player_names.json"
 
 
@@ -36,11 +37,14 @@ def combine_aliases():
     name_aliases = load_json_file(ALIASES_FILE)
     foreign_names = load_names(FOREIGN_NAMES_FILE)
     names_txt = load_names(NAMES_FILE)
+    unknown_names = load_names(UNKNOWN_NAMES_FILE)
 
     result = {}
+    generated_id_counter = -1
 
     for name, aliases in name_aliases.items():
         key_name = None
+        player_id = None
         for player in playerdb:
             names = player.get("names", [])
             name_entry = names[0] if len(names) > 0 else None
@@ -50,30 +54,36 @@ def combine_aliases():
                     simplename = simplename.get("name")
                     if simplename == name or simplename in aliases:
                         key_name = player["key_name"]
+                        player_id = player.get("id")
                         break
                 if key_name is not None:
-                    result[key_name] = []
+                    result[key_name] = {
+                        "id": player_id,
+                        "aliases": []
+                    }
                     for simplename in simplenames:
                         alias_name = simplename.get("name")
                         alias_languages = get_languages_from_simplenames([simplename])
-                        result[key_name].append({
+                        result[key_name]["aliases"].append({
                             "name": alias_name,
                             "languages": alias_languages,
                         })
                     break
 
         if key_name is None:
-            result[name] = [
-                {"name": alias_name, "languages": []} for alias_name in aliases
-            ]
+            result[name] = {
+                "id": generated_id_counter,
+                "aliases": [{"name": alias_name, "languages": []} for alias_name in aliases]
+            }
+            generated_id_counter -= 1
         else:
             for alias_name in aliases:
                 found = False
-                for alias in result[key_name]:
+                for alias in result[key_name]["aliases"]:
                     if alias["name"] == alias_name:
                         found = True
                 if not found:
-                    result[key_name].append({"name": alias_name, "languages": []})
+                    result[key_name]["aliases"].append({"name": alias_name, "languages": []})
 
     for name in foreign_names + names_txt:
         for player in playerdb:
@@ -88,14 +98,26 @@ def combine_aliases():
                         break
                 key_name = player["key_name"]
                 if found and key_name not in result:
-                    result[key_name] = []
+                    result[key_name] = {
+                        "id": player.get("id"),
+                        "aliases": []
+                    }
                     for simplename in name_entry.get("simplenames", []):
                         alias_name = simplename.get("name")
                         alias_languages = get_languages_from_simplenames([simplename])
-                        result[key_name].append({
+                        result[key_name]["aliases"].append({
                             "name": alias_name,
                             "languages": alias_languages,
                         })
+
+    # Add unknown names with negative IDs and empty aliases
+    for name in unknown_names:
+        if name not in result:
+            result[name] = {
+                "id": generated_id_counter,
+                "aliases": []
+            }
+            generated_id_counter -= 1
 
     # Write the result to a new JSON file
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
