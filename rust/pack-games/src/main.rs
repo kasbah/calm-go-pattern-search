@@ -14,7 +14,7 @@ use calm_go_patterns_common::baduk::{
     pack_games, parse_komi, parse_rank, parse_rules, parse_sgf_date, parse_sgf_result,
 };
 
-fn load_player_aliases() -> HashMap<String, String> {
+fn load_player_aliases() -> HashMap<String, i16> {
     let mut aliases = HashMap::new();
     let file = File::open("python-player-name-aliases/player_names.json")
         .expect("Failed to open player names file");
@@ -23,13 +23,18 @@ fn load_player_aliases() -> HashMap<String, String> {
 
     for (canonical_name, data) in json.as_object().expect("Expected object").iter() {
         // Add the canonical name itself as an alias
-        aliases.insert(canonical_name.to_lowercase(), canonical_name.clone());
+        let id = data
+            .get("id")
+            .expect("Missing id")
+            .as_i64()
+            .expect("Expected id to be an integer") as i16;
+        aliases.insert(canonical_name.to_lowercase(), id);
 
         // Add all aliases
         if let Some(aliases_array) = data.get("aliases").and_then(|a| a.as_array()) {
             for alias in aliases_array {
                 if let Some(name) = alias.get("name").and_then(|n| n.as_str()) {
-                    aliases.insert(name.to_lowercase(), canonical_name.clone());
+                    aliases.insert(name.to_lowercase(), id);
                 }
             }
         }
@@ -39,21 +44,21 @@ fn load_player_aliases() -> HashMap<String, String> {
 
 fn find_canonical_name(
     name: &str,
-    aliases: &HashMap<String, String>,
+    aliases: &HashMap<String, i16>,
     unknown_names: &mut HashSet<String>,
-) -> String {
+) -> Option<i16> {
+    let name = name.replace(['\n'], " ").trim().to_string();
+
     if name.is_empty() {
-        return "".to_string();
+        return None;
     }
 
-    if let Some(canonical) = aliases.get(name.to_lowercase().as_str()) {
-        return canonical.clone();
+    if let Some(id) = aliases.get(name.to_lowercase().as_str()) {
+        return Some(*id);
     }
 
     unknown_names.insert(name.to_string());
-
-    // If not found, return the original name
-    name.to_string()
+    None
 }
 
 fn main() {
@@ -76,20 +81,12 @@ fn main() {
         .iter()
         .filter_map(|path| match std::fs::read_to_string(path) {
             Ok(file_data) => match load_sgf(path, &file_data) {
-                Ok(mut game) => {
+                Ok((mut game, player_black, player_white)) => {
                     // Replace player names with canonical names
-                    game.player_black = game.player_black.trim().replace(['\n'], " ").to_string();
-                    game.player_white = game.player_white.trim().replace(['\n'], " ").to_string();
-                    game.player_black = find_canonical_name(
-                        &game.player_black,
-                        &player_aliases,
-                        &mut unknown_names,
-                    );
-                    game.player_white = find_canonical_name(
-                        &game.player_white,
-                        &player_aliases,
-                        &mut unknown_names,
-                    );
+                    game.player_black =
+                        find_canonical_name(&player_black, &player_aliases, &mut unknown_names);
+                    game.player_white =
+                        find_canonical_name(&player_white, &player_aliases, &mut unknown_names);
                     let rel_path = path
                         .strip_prefix(&sgf_folder)
                         .unwrap()
@@ -111,7 +108,7 @@ fn main() {
         .collect::<Vec<_>>();
 
     let mut seen_moves =
-        HashMap::<Vec<Placement>, (String, String, String, String, GameResult)>::new();
+        HashMap::<Vec<Placement>, (Option<i16>, String, Option<i16>, String, GameResult)>::new();
     let mut unique_moves = HashMap::new();
 
     for (path, game) in games_vec {
@@ -126,9 +123,9 @@ fn main() {
                     seen_moves.insert(
                         game.moves.clone(),
                         (
-                            game.player_black.clone(),
+                            game.player_black,
                             game.rank_black.to_string(),
-                            game.player_white.clone(),
+                            game.player_white,
                             game.rank_white.to_string(),
                             game.result.clone(),
                         ),
@@ -140,9 +137,9 @@ fn main() {
                     seen_moves.insert(
                         game.moves.clone(),
                         (
-                            game.player_black.clone(),
+                            game.player_black,
                             game.rank_black.to_string(),
-                            game.player_white.clone(),
+                            game.player_white,
                             game.rank_white.to_string(),
                             game.result.clone(),
                         ),
@@ -151,7 +148,7 @@ fn main() {
                 }
                 // Otherwise keep the existing one
                 _ => {
-                    duplicate_info = Some((pb.clone(), rb.clone(), pw.clone(), rw.clone()));
+                    duplicate_info = Some((*pb, rb.clone(), *pw, rw.clone()));
                 }
             }
         } else {
@@ -165,9 +162,9 @@ fn main() {
                             seen_moves.insert(
                                 game.moves.clone(),
                                 (
-                                    game.player_black.clone(),
+                                    game.player_black,
                                     game.rank_black.to_string(),
-                                    game.player_white.clone(),
+                                    game.player_white,
                                     game.rank_white.to_string(),
                                     game.result.clone(),
                                 ),
@@ -180,9 +177,9 @@ fn main() {
                             seen_moves.insert(
                                 game.moves.clone(),
                                 (
-                                    game.player_black.clone(),
+                                    game.player_black,
                                     game.rank_black.to_string(),
-                                    game.player_white.clone(),
+                                    game.player_white,
                                     game.rank_white.to_string(),
                                     game.result.clone(),
                                 ),
@@ -192,7 +189,7 @@ fn main() {
                         }
                         // Otherwise keep the existing one
                         _ => {
-                            duplicate_info = Some((pb.clone(), rb.clone(), pw.clone(), rw.clone()));
+                            duplicate_info = Some((*pb, rb.clone(), *pw, rw.clone()));
                             break;
                         }
                     }
@@ -204,9 +201,9 @@ fn main() {
             seen_moves.insert(
                 game.moves.clone(),
                 (
-                    game.player_black.clone(),
+                    game.player_black,
                     game.rank_black.to_string(),
-                    game.player_white.clone(),
+                    game.player_white,
                     game.rank_white.to_string(),
                     game.result.clone(),
                 ),
@@ -214,7 +211,7 @@ fn main() {
             unique_moves.insert(path.clone(), game.clone());
         } else if let Some((pb, rb, pw, rw)) = duplicate_info {
             println!(
-                "Removing duplicate game: {} {} vs {} {} (duplicate of {} {} vs {} {})",
+                "Removing duplicate game: {:?} {} vs {:?} {} (duplicate of {:?} {} vs {:?} {})",
                 game.player_black,
                 game.rank_black,
                 game.player_white,
@@ -253,13 +250,17 @@ fn main() {
     std::fs::write("games.pack", buf).unwrap();
 
     // Write unknown names to file
+    println!("Writing unknown_names.txt...");
     let mut unknown_names: Vec<_> = unknown_names.into_iter().collect();
     unknown_names.sort();
     std::fs::write("unknown_names.txt", unknown_names.join("\n")).unwrap();
     println!("Done");
 }
 
-fn load_sgf(path: &PathBuf, file_data: &str) -> Result<Game, Box<dyn std::error::Error>> {
+fn load_sgf(
+    path: &PathBuf,
+    file_data: &str,
+) -> Result<(Game, String, String), Box<dyn std::error::Error>> {
     let game = go::parse(file_data)?;
     let mut moves = Vec::new();
     let mut event = String::new();
@@ -378,19 +379,23 @@ fn load_sgf(path: &PathBuf, file_data: &str) -> Result<Game, Box<dyn std::error:
         }
     }
 
-    Ok(Game {
-        event,
-        round,
-        place,
-        date,
+    Ok((
+        Game {
+            event,
+            round,
+            place,
+            date,
+            player_black: None,
+            player_white: None,
+            rank_black,
+            rank_white,
+            komi,
+            result,
+            rules,
+            moves,
+            captures: HashMap::new(),
+        },
         player_black,
         player_white,
-        rank_black,
-        rank_white,
-        komi,
-        result,
-        rules,
-        moves,
-        captures: HashMap::new(),
-    })
+    ))
 }
