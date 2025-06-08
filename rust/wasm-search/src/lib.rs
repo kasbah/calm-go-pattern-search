@@ -74,18 +74,18 @@ fn get_rotation_index(r: &Rotation) -> u8 {
 
 fn get_next_moves(results: &[SearchResult], position_len: usize, next_color: Color) -> Vec<Point> {
     let mut next_moves_map: HashMap<Placement, usize> = HashMap::new();
-    let n = 2;
+    let moves_ahead = 2;
     for result in results {
         let mut mult: usize = if result.last_move_matched == position_len - 1 {
-            2
+            100
         } else {
             1
         };
         mult *= result.all_empty_correctly_within as usize;
         if mult > 0 {
-            for i in 1..=n {
+            for i in 1..=moves_ahead {
                 if let Some(move_) = result.moves_transformed.get(result.last_move_matched + i) {
-                    let mut move_ = *move_;
+                    let mut move_ = move_.clone();
                     if result.is_inverted {
                         move_.color = if move_.color == Color::White {
                             Color::Black
@@ -94,9 +94,13 @@ fn get_next_moves(results: &[SearchResult], position_len: usize, next_color: Col
                         };
                     }
                     if let Some(n) = next_moves_map.get(&move_) {
-                        next_moves_map.insert(move_, n + (result.score as usize * (mult + n - i)));
+                        next_moves_map.insert(
+                            move_,
+                            n + mult + moves_ahead - i,
+                        );
                     } else {
-                        next_moves_map.insert(move_, result.score as usize * (mult + n - i));
+                        next_moves_map
+                            .insert(move_, mult + moves_ahead - i);
                     }
                 }
             }
