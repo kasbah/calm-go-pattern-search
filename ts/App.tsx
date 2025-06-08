@@ -3,7 +3,7 @@ import { useWindowSize } from "@reach/window-size";
 import GobanEditor from "./GobanEditor";
 
 import GamesList from "./GamesList";
-import { emptyBoard, type BoardPosition } from "./sabaki-types";
+import { emptyBoard, SabakiColor, type BoardPosition } from "./sabaki-types";
 import { toWasmSearch, type Game } from "./wasm-search-types";
 import GobanViewer from "./GobanViewer";
 
@@ -14,9 +14,14 @@ export default function App() {
   const [games, setGames] = useState<Array<Game>>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [totalNumberOfGames, setTotalNumberOfGames] = useState(0);
-  const [nextMovesBlack, setNextMovesBlack] = useState<Array<{ x: number; y: number }>>([]);
-  const [nextMovesWhite, setNextMovesWhite] = useState<Array<{ x: number; y: number }>>([]);
+  const [nextMovesBlack, setNextMovesBlack] = useState<
+    Array<{ x: number; y: number }>
+  >([]);
+  const [nextMovesWhite, setNextMovesWhite] = useState<
+    Array<{ x: number; y: number }>
+  >([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [brushColor, setBrushColor] = useState<SabakiColor>(SabakiColor.Black);
   const gobanEditorRef = useRef<{
     handleUndo: () => void;
     handleRedo: () => void;
@@ -29,14 +34,15 @@ export default function App() {
   useEffect(() => {
     if (window.wasmSearchWorker !== undefined) {
       const position = toWasmSearch(board);
+      const nextColor = brushColor === SabakiColor.Black ? 0 : 1;
       const positionBuf = new TextEncoder().encode(JSON.stringify(position));
       window.wasmSearchWorker.postMessage(
-        { type: "search", payload: positionBuf },
+        { type: "search", payload: { positionBuf, nextColor } },
         [positionBuf.buffer],
       );
       setIsSearching(true);
     }
-  }, [board]);
+  }, [board, brushColor]);
 
   useEffect(() => {
     window.wasmSearchWorker.onmessage = (e) => {
@@ -45,7 +51,8 @@ export default function App() {
       if (type === "result") {
         setIsSearching(false);
         const jsonText = new TextDecoder().decode(payload);
-        const { num_results, results, next_moves_black, next_moves_white } = JSON.parse(jsonText);
+        const { num_results, results, next_moves_black, next_moves_white } =
+          JSON.parse(jsonText);
         setGames(results);
         setTotalNumberOfGames(num_results);
         setNextMovesBlack(next_moves_black);
@@ -85,6 +92,7 @@ export default function App() {
         <GobanEditor
           ref={gobanEditorRef}
           onUpdateBoard={setBoard}
+          onChangeBrushColor={setBrushColor}
           vertexSize={vertexSize}
           nextMovesBlack={isSearching ? [] : nextMovesBlack}
           nextMovesWhite={isSearching ? [] : nextMovesWhite}

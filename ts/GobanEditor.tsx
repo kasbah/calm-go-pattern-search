@@ -229,6 +229,7 @@ export type GobanEditorProps = {
   vertexSize: number;
   nextMovesBlack: Array<{ x: number; y: number }>;
   nextMovesWhite: Array<{ x: number; y: number }>;
+  onChangeBrushColor: (color: SabakiColor) => void;
 };
 
 export type GobanEditorRef = {
@@ -237,12 +238,24 @@ export type GobanEditorRef = {
 };
 
 const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
-  ({ onUpdateBoard, vertexSize, nextMovesBlack, nextMovesWhite }, ref) => {
+  (
+    {
+      onUpdateBoard,
+      vertexSize,
+      nextMovesBlack,
+      nextMovesWhite,
+      onChangeBrushColor,
+    },
+    ref,
+  ) => {
     const [state, dispatch] = useImmerReducer(gobanEditorReducer, initialState);
     const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
     const [displayBoard, setDisplayBoard] = useState<BoardPosition>(emptyBoard);
     const [markerMap, setMarkerMap] = useState<Map<Marker | null>>(
       emptyBoard.map((row) => row.map(() => null)),
+    );
+    const [brushColor, setBrushColor] = useState<SabakiColor>(
+      SabakiColor.Black,
     );
 
     const handleUndo = useCallback(() => {
@@ -263,8 +276,27 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
     );
 
     useEffect(() => {
+      if (
+        state.brushMode === BrushMode.Alternate ||
+        state.brushMode === BrushMode.Remove
+      ) {
+        setBrushColor(state.alternateBrushColor);
+      } else {
+        setBrushColor(
+          state.brushMode === BrushMode.Black
+            ? SabakiColor.Black
+            : SabakiColor.White,
+        );
+      }
+    }, [state.alternateBrushColor, setBrushColor, state.brushMode]);
+
+    useEffect(() => {
+      onChangeBrushColor(brushColor);
+    }, [brushColor, onChangeBrushColor]);
+
+    useEffect(() => {
       let mm: Map<Marker | null> = emptyBoard.map((row) => row.map(() => null));
-      if (state.alternateBrushColor === SabakiSign.Black) {
+      if (brushColor === SabakiSign.Black) {
         nextMovesBlack.forEach(({ x, y }, i) => {
           mm[y][x] = { type: "label", label: (i + 1).toString() };
         });

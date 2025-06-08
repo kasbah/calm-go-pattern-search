@@ -76,6 +76,22 @@ fn get_rotation_index(r: &Rotation) -> u8 {
 fn get_next_moves(
     results: &[SearchResult],
     position_len: usize,
+    next_color: Color,
+) -> (Vec<Point>, Vec<Point>) {
+    let (mut next_moves_black, mut next_moves_white) = get_next_n_moves(results, position_len, 1);
+    if next_color == Color::Black && next_moves_black.len() <= 5
+        || next_color == Color::White && next_moves_white.len() <= 5
+    {
+        (next_moves_black, next_moves_white) = get_next_n_moves(results, position_len, 2);
+    }
+
+    (next_moves_black, next_moves_white)
+}
+
+fn get_next_n_moves(
+    results: &[SearchResult],
+    position_len: usize,
+    n: usize,
 ) -> (Vec<Point>, Vec<Point>) {
     let mut next_moves_map: HashMap<Placement, usize> = HashMap::new();
     for result in results {
@@ -86,19 +102,23 @@ fn get_next_moves(
         };
         mult *= result.all_empty_correctly_within;
         if mult > 0 {
-            if let Some(move_) = result.moves_transformed.get(result.last_move_matched + 1) {
-                let mut move_ = *move_;
-                if result.is_inverted {
-                    move_.color = if move_.color == Color::White {
-                        Color::Black
+            for i in 1..=n {
+                if let Some(move_) = result.moves_transformed.get(result.last_move_matched + i) {
+                    let mut move_ = *move_;
+                    if result.is_inverted {
+                        move_.color = if move_.color == Color::White {
+                            Color::Black
+                        } else {
+                            Color::White
+                        };
+                    }
+                    if let Some(n) = next_moves_map.get(&move_) {
+                        next_moves_map
+                            .insert(move_, n + result.score as usize * (mult as usize + 1 - i));
                     } else {
-                        Color::White
-                    };
-                }
-                if let Some(n) = next_moves_map.get(&move_) {
-                    next_moves_map.insert(move_, n + result.score as usize * mult as usize);
-                } else {
-                    next_moves_map.insert(move_, result.score as usize * mult as usize);
+                        next_moves_map
+                            .insert(move_, result.score as usize * (mult as usize + 1 - i));
+                    }
                 }
             }
         }
@@ -135,21 +155,26 @@ impl WasmSearch {
     }
 
     #[wasm_bindgen]
-    pub async fn search(&mut self, position: Uint8Array) -> Uint8Array {
+    pub async fn search(&mut self, position: Uint8Array, next_color: u8) -> Uint8Array {
         let position_buf: Vec<u8> = position.to_vec();
         let position_decoded: Vec<Placement> = serde_json::from_slice(position_buf.as_slice())
             .expect("Failed to deserialize position");
         let position_len = position_decoded.len();
         let results = self.match_position(position_decoded);
 
+        let next_color = if next_color == 0 {
+            Color::Black
+        } else {
+            Color::White
+        };
         let (next_moves_black, next_moves_white) =
-            get_next_moves(&results, position_len);
+            get_next_moves(&results, position_len, next_color);
 
         let num_results = results.len();
         let ret = WasmSearchReturn {
             num_results,
-            next_moves_white: next_moves_white[0..next_moves_white.len().min(10)].to_vec(),
-            next_moves_black: next_moves_black[0..next_moves_black.len().min(10)].to_vec(),
+            next_moves_white: next_moves_white[0..next_moves_white.len().min(9)].to_vec(),
+            next_moves_black: next_moves_black[0..next_moves_black.len().min(9)].to_vec(),
             results: results[0..num_results.min(10)].to_vec(),
         };
 
