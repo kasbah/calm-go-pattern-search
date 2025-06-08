@@ -227,8 +227,7 @@ function gobanEditorReducer(
 export type GobanEditorProps = {
   onUpdateBoard: (board: BoardPosition) => void;
   vertexSize: number;
-  nextMovesBlack: Array<{ x: number; y: number }>;
-  nextMovesWhite: Array<{ x: number; y: number }>;
+  nextMoves: Array<{ x: number; y: number }>;
   onChangeBrushColor: (color: SabakiColor) => void;
 };
 
@@ -238,16 +237,7 @@ export type GobanEditorRef = {
 };
 
 const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
-  (
-    {
-      onUpdateBoard,
-      vertexSize,
-      nextMovesBlack,
-      nextMovesWhite,
-      onChangeBrushColor,
-    },
-    ref,
-  ) => {
+  ({ onUpdateBoard, vertexSize, nextMoves, onChangeBrushColor }, ref) => {
     const [state, dispatch] = useImmerReducer(gobanEditorReducer, initialState);
     const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
     const [displayBoard, setDisplayBoard] = useState<BoardPosition>(emptyBoard);
@@ -296,17 +286,11 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
 
     useEffect(() => {
       let mm: Map<Marker | null> = emptyBoard.map((row) => row.map(() => null));
-      if (brushColor === SabakiSign.Black) {
-        nextMovesBlack.forEach(({ x, y }, i) => {
-          mm[y][x] = { type: "label", label: (i + 1).toString() };
-        });
-      } else {
-        nextMovesWhite.forEach(({ x, y }, i) => {
-          mm[y][x] = { type: "label", label: (i + 1).toString() };
-        });
-      }
+      nextMoves.forEach(({ x, y }, i) => {
+        mm[y][x] = { type: "label", label: (i + 1).toString() };
+      });
       setMarkerMap(mm);
-    }, [nextMovesBlack, nextMovesWhite, state.alternateBrushColor]);
+    }, [nextMoves, state.alternateBrushColor]);
 
     useEffect(() => {
       onUpdateBoard(state.board);

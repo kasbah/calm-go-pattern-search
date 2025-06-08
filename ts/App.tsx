@@ -14,12 +14,9 @@ export default function App() {
   const [games, setGames] = useState<Array<Game>>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [totalNumberOfGames, setTotalNumberOfGames] = useState(0);
-  const [nextMovesBlack, setNextMovesBlack] = useState<
-    Array<{ x: number; y: number }>
-  >([]);
-  const [nextMovesWhite, setNextMovesWhite] = useState<
-    Array<{ x: number; y: number }>
-  >([]);
+  const [nextMoves, setNextMoves] = useState<Array<{ x: number; y: number }>>(
+    [],
+  );
   const [isSearching, setIsSearching] = useState(false);
   const [brushColor, setBrushColor] = useState<SabakiColor>(SabakiColor.Black);
   const gobanEditorRef = useRef<{
@@ -51,12 +48,10 @@ export default function App() {
       if (type === "result") {
         setIsSearching(false);
         const jsonText = new TextDecoder().decode(payload);
-        const { num_results, results, next_moves_black, next_moves_white } =
-          JSON.parse(jsonText);
+        const { num_results, results, next_moves } = JSON.parse(jsonText);
         setGames(results);
         setTotalNumberOfGames(num_results);
-        setNextMovesBlack(next_moves_black);
-        setNextMovesWhite(next_moves_white);
+        setNextMoves(next_moves);
       }
     };
   }, []);
@@ -94,8 +89,7 @@ export default function App() {
           onUpdateBoard={setBoard}
           onChangeBrushColor={setBrushColor}
           vertexSize={vertexSize}
-          nextMovesBlack={isSearching ? [] : nextMovesBlack}
-          nextMovesWhite={isSearching ? [] : nextMovesWhite}
+          nextMoves={isSearching ? [] : nextMoves}
         />
       </div>
       {selectedGame != null && (
