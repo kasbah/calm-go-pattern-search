@@ -76,18 +76,20 @@ fn get_next_moves(
         if mult > 0 {
             for i in 1..=moves_ahead {
                 if let Some(move_) = result.moves_transformed.get(result.last_move_matched + i) {
-                    let mut move_ = *move_;
-                    if result.is_inverted {
-                        move_.color = if move_.color == Color::White {
-                            Color::Black
+                    if !position.iter().any(|m| m.point == move_.point) {
+                        let mut move_ = *move_;
+                        if result.is_inverted {
+                            move_.color = if move_.color == Color::White {
+                                Color::Black
+                            } else {
+                                Color::White
+                            };
+                        }
+                        if let Some(n) = next_moves_map.get(&move_) {
+                            next_moves_map.insert(move_, n + mult + moves_ahead - i);
                         } else {
-                            Color::White
-                        };
-                    }
-                    if let Some(n) = next_moves_map.get(&move_) {
-                        next_moves_map.insert(move_, n + mult + moves_ahead - i);
-                    } else {
-                        next_moves_map.insert(move_, mult + moves_ahead - i);
+                            next_moves_map.insert(move_, mult + moves_ahead - i);
+                        }
                     }
                 }
             }
