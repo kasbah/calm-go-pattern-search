@@ -42,19 +42,6 @@ pub struct SearchResult {
     moves_transformed: Vec<Placement>, // the moves rotated and/or mirrored
 }
 
-#[wasm_bindgen]
-pub struct WasmSearch {
-    game_data: HashMap<String, Game>,
-    position_cache: LruCache<Vec<Placement>, Vec<SearchResult>>,
-}
-
-#[derive(Serialize, Deserialize)]
-struct WasmSearchReturn {
-    num_results: usize,
-    next_moves: Vec<Point>,
-    results: Vec<SearchResult>,
-}
-
 fn get_moves_rotation(query_rotation: &Rotation) -> Rotation {
     // rotating the moves the opposite to the query position
     match query_rotation {
@@ -85,7 +72,7 @@ fn get_next_moves(results: &[SearchResult], position_len: usize, next_color: Col
         if mult > 0 {
             for i in 1..=moves_ahead {
                 if let Some(move_) = result.moves_transformed.get(result.last_move_matched + i) {
-                    let mut move_ = move_.clone();
+                    let mut move_ = *move_;
                     if result.is_inverted {
                         move_.color = if move_.color == Color::White {
                             Color::Black
@@ -94,13 +81,9 @@ fn get_next_moves(results: &[SearchResult], position_len: usize, next_color: Col
                         };
                     }
                     if let Some(n) = next_moves_map.get(&move_) {
-                        next_moves_map.insert(
-                            move_,
-                            n + mult + moves_ahead - i,
-                        );
+                        next_moves_map.insert(move_, n + mult + moves_ahead - i);
                     } else {
-                        next_moves_map
-                            .insert(move_, mult + moves_ahead - i);
+                        next_moves_map.insert(move_, mult + moves_ahead - i);
                     }
                 }
             }
@@ -113,8 +96,21 @@ fn get_next_moves(results: &[SearchResult], position_len: usize, next_color: Col
         .filter(|(m, _)| m.color == next_color)
         .collect::<Vec<_>>();
 
-    next_moves.sort_by(|a, b| b.1.cmp(&a.1));
+    next_moves.sort_by(|a, b| b.1.cmp(a.1));
     next_moves.into_iter().map(|(m, _)| m.point).collect()
+}
+
+#[wasm_bindgen]
+pub struct WasmSearch {
+    game_data: HashMap<String, Game>,
+    position_cache: LruCache<Vec<Placement>, Vec<SearchResult>>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct WasmSearchReturn {
+    num_results: usize,
+    next_moves: Vec<Point>,
+    results: Vec<SearchResult>,
 }
 
 #[wasm_bindgen]
