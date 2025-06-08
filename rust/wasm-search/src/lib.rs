@@ -59,11 +59,15 @@ fn get_rotation_index(r: &Rotation) -> u8 {
     }
 }
 
-fn get_next_moves(results: &[SearchResult], position_len: usize, next_color: Color) -> Vec<Point> {
+fn get_next_moves(
+    results: &[SearchResult],
+    position: &[Placement],
+    next_color: Color,
+) -> Vec<Point> {
     let mut next_moves_map: HashMap<Placement, usize> = HashMap::new();
     let moves_ahead = 2;
     for result in results {
-        let mut mult: usize = if result.last_move_matched == position_len - 1 {
+        let mut mult: usize = if result.last_move_matched == position.len() - 1 {
             100
         } else {
             1
@@ -131,15 +135,14 @@ impl WasmSearch {
         let position_buf: Vec<u8> = position.to_vec();
         let position_decoded: Vec<Placement> = serde_json::from_slice(position_buf.as_slice())
             .expect("Failed to deserialize position");
-        let position_len = position_decoded.len();
-        let results = self.match_position(position_decoded);
+        let results = self.match_position(&position_decoded);
 
         let next_color = if next_color == 0 {
             Color::Black
         } else {
             Color::White
         };
-        let next_moves = get_next_moves(&results, position_len, next_color);
+        let next_moves = get_next_moves(&results, &position_decoded, next_color);
 
         let num_results = results.len();
         let ret = WasmSearchReturn {
@@ -152,26 +155,26 @@ impl WasmSearch {
         Uint8Array::from(results_buf.as_slice())
     }
 
-    fn match_position(&mut self, position: Vec<Placement>) -> Vec<SearchResult> {
+    fn match_position(&mut self, position: &[Placement]) -> Vec<SearchResult> {
         if position.is_empty() {
             return Vec::new();
         }
-        if let Some(results) = self.position_cache.get(&position) {
+        if let Some(results) = self.position_cache.get(&position.to_vec()) {
             return results.clone();
         }
         let mut results = Vec::new();
-        let rotations = get_rotations(&position);
-        let inverse = switch_colors(&position);
+        let rotations = get_rotations(position);
+        let inverse = switch_colors(position);
         let inverse_rotations = get_rotations(&inverse);
-        let mirrored = get_mirrored(&position);
+        let mirrored = get_mirrored(position);
         let mirrored_rotations = get_rotations(&mirrored);
         let mirrored_inverse = get_mirrored(&inverse);
         let mirrored_inverse_rotations = get_rotations(&mirrored_inverse);
-        let is_within_one_quadrant = check_within_one_quadrant(&position);
+        let is_within_one_quadrant = check_within_one_quadrant(position);
 
         for (path, game) in &self.game_data {
             // Original position
-            let mut matched = match_game(&position, &game.moves);
+            let mut matched = match_game(position, &game.moves);
             if let Some(last_move_matched) = matched {
                 results.push(SearchResult {
                     path: path.clone(),
@@ -350,7 +353,7 @@ impl WasmSearch {
 
             for i in 1..=3 {
                 let mut all_empty = true;
-                for placement in position.clone() {
+                for placement in position {
                     let mut surrounding = get_surrounding_points(&placement.point, i);
                     surrounding = surrounding
                         .iter()
@@ -383,7 +386,7 @@ impl WasmSearch {
 
         results.sort_by(|a, b| b.score.cmp(&a.score));
 
-        self.position_cache.put(position, results.clone());
+        self.position_cache.put(position.to_vec(), results.clone());
 
         results
     }

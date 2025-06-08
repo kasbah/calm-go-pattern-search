@@ -461,6 +461,7 @@ pub fn parse_sgf_result(result_str: &str) -> GameResult {
             let score = parse_score_str(&s[2..]);
             GameResult::Player(Color::White, score, note.clone())
         }
+        // missing plus sign
         s if s.starts_with("b") => {
             let score = parse_score_str(&s[1..]);
             GameResult::Player(Color::Black, score, note.clone())
@@ -568,7 +569,7 @@ pub fn unpack_games(packed: &[u8]) -> HashMap<String, Game> {
         .collect()
 }
 
-pub fn check_within_one_quadrant(position: &Vec<Placement>) -> bool {
+pub fn check_within_one_quadrant(position: &[Placement]) -> bool {
     if position.is_empty() {
         return true;
     }
@@ -1165,16 +1166,16 @@ mod tests {
     #[test]
     fn test_check_within_one_quadrant() {
         // Empty position
-        assert!(check_within_one_quadrant(&vec![]));
+        assert!(check_within_one_quadrant(&[]));
 
         // Single placement in top-left quadrant
-        assert!(check_within_one_quadrant(&vec![Placement {
+        assert!(check_within_one_quadrant(&[Placement {
             color: Color::Black,
             point: Point { x: 5, y: 5 },
         }]));
 
         // Multiple placements in top-left quadrant
-        assert!(check_within_one_quadrant(&vec![
+        assert!(check_within_one_quadrant(&[
             Placement {
                 color: Color::Black,
                 point: Point { x: 5, y: 5 },
@@ -1186,7 +1187,7 @@ mod tests {
         ]));
 
         // Placements in different quadrants
-        assert!(!check_within_one_quadrant(&vec![
+        assert!(!check_within_one_quadrant(&[
             Placement {
                 color: Color::Black,
                 point: Point { x: 5, y: 5 }, // Top-left
@@ -1198,15 +1199,15 @@ mod tests {
         ]));
 
         // Placements on middle lines
-        assert!(!check_within_one_quadrant(&vec![Placement {
+        assert!(!check_within_one_quadrant(&[Placement {
             color: Color::Black,
             point: Point { x: 9, y: 5 }, // On vertical middle line
         }]));
-        assert!(!check_within_one_quadrant(&vec![Placement {
+        assert!(!check_within_one_quadrant(&[Placement {
             color: Color::Black,
             point: Point { x: 5, y: 9 }, // On horizontal middle line
         }]));
-        assert!(!check_within_one_quadrant(&vec![Placement {
+        assert!(!check_within_one_quadrant(&[Placement {
             color: Color::Black,
             point: Point { x: 9, y: 9 }, // On both middle lines
         }]));
