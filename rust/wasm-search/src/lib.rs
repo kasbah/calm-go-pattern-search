@@ -73,6 +73,54 @@ fn get_rotation_index(r: &Rotation) -> u8 {
     }
 }
 
+fn get_next_moves(
+    results: &[SearchResult],
+    position_len: usize,
+) -> (Vec<Point>, Vec<Point>) {
+    let mut next_moves_map: HashMap<Placement, usize> = HashMap::new();
+    for result in results {
+        let mut mult = if result.last_move_matched == position_len - 1 {
+            1
+        } else {
+            2
+        };
+        mult *= result.all_empty_correctly_within;
+        if mult > 0 {
+            if let Some(move_) = result.moves_transformed.get(result.last_move_matched + 1) {
+                let mut move_ = *move_;
+                if result.is_inverted {
+                    move_.color = if move_.color == Color::White {
+                        Color::Black
+                    } else {
+                        Color::White
+                    };
+                }
+                if let Some(n) = next_moves_map.get(&move_) {
+                    next_moves_map.insert(move_, n + result.score as usize * mult as usize);
+                } else {
+                    next_moves_map.insert(move_, result.score as usize * mult as usize);
+                }
+            }
+        }
+    }
+
+    let mut next_moves_ = next_moves_map.iter().collect::<Vec<_>>();
+    next_moves_.sort_by(|a, b| b.1.cmp(a.1));
+
+    let next_moves_white = next_moves_
+        .iter()
+        .filter(|(m, _)| m.color == Color::White)
+        .map(|(m, _)| m.point)
+        .collect::<Vec<_>>();
+    let next_moves_black = next_moves_
+        .iter()
+        .filter(|(m, _)| m.color == Color::Black)
+        .map(|(m, _)| m.point)
+        .collect::<Vec<_>>();
+
+    (next_moves_black, next_moves_white)
+}
+
 #[wasm_bindgen]
 impl WasmSearch {
     #[wasm_bindgen(constructor)]
@@ -94,50 +142,10 @@ impl WasmSearch {
         let position_len = position_decoded.len();
         let results = self.match_position(position_decoded);
 
-        let mut next_moves_map: HashMap<Placement, usize> = HashMap::new();
-
-        for result in &results {
-            let mut mult = if result.last_move_matched == position_len - 1 {
-                1
-            } else {
-                2
-            };
-            mult *= result.all_empty_correctly_within;
-            if mult > 0 {
-                if let Some(move_) = result.moves_transformed.get(result.last_move_matched + 1) {
-                    let mut move_ = *move_;
-                    if result.is_inverted {
-                        move_.color = if move_.color == Color::White {
-                            Color::Black
-                        } else {
-                            Color::White
-                        };
-                    }
-                    if let Some(n) = next_moves_map.get(&move_) {
-                        next_moves_map.insert(move_, n + result.score as usize * mult as usize);
-                    } else {
-                        next_moves_map.insert(move_, result.score as usize * mult as usize);
-                    }
-                }
-            }
-        }
-
-        let mut next_moves_ = next_moves_map.iter().collect::<Vec<_>>();
-        next_moves_.sort_by(|a, b| b.1.cmp(a.1));
-
-        let next_moves_white = next_moves_
-            .iter()
-            .filter(|(m, _)| m.color == Color::White)
-            .map(|(m, _)| m.point)
-            .collect::<Vec<_>>();
-        let next_moves_black = next_moves_
-            .iter()
-            .filter(|(m, _)| m.color == Color::Black)
-            .map(|(m, _)| m.point)
-            .collect::<Vec<_>>();
+        let (next_moves_black, next_moves_white) =
+            get_next_moves(&results, position_len);
 
         let num_results = results.len();
-
         let ret = WasmSearchReturn {
             num_results,
             next_moves_white: next_moves_white[0..next_moves_white.len().min(10)].to_vec(),
