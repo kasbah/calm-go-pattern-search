@@ -28,20 +28,16 @@ export default function App() {
     handleNextMove: () => void;
   } | null>(null);
 
-  let timeoutId: NodeJS.Timeout | undefined;
   useEffect(() => {
     if (window.wasmSearchWorker !== undefined) {
-      clearTimeout(timeoutId);
       setIsSearching(true);
-      timeoutId = setTimeout(() => {
-        const position = toWasmSearch(board);
-        const nextColor = brushColor === SabakiColor.Black ? 0 : 1;
-        const positionBuf = new TextEncoder().encode(JSON.stringify(position));
-        window.wasmSearchWorker.postMessage(
-          { type: "search", payload: { positionBuf, nextColor } },
-          [positionBuf.buffer],
-        );
-      }, 350);
+      const position = toWasmSearch(board);
+      const nextColor = brushColor === SabakiColor.Black ? 0 : 1;
+      const positionBuf = new TextEncoder().encode(JSON.stringify(position));
+      window.wasmSearchWorker.postMessage(
+        { type: "search", payload: { positionBuf, nextColor } },
+        [positionBuf.buffer],
+      );
     }
   }, [board, brushColor]);
 
