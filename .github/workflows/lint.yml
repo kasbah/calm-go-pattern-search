@@ -42,7 +42,7 @@ jobs:
         run: cd frontend && yarn tsc --noEmit
 
       - name: Lint
-        run: cd frontend && yarn lint
+        run: cd frontend && yarn lint --max-warnings 0
 
       - name: Check formatting
         run: yarn fmt:check

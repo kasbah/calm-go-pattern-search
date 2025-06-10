@@ -28,12 +28,12 @@ export default function App() {
     handleNextMove: () => void;
   } | null>(null);
 
-  let timer: NodeJS.Timeout | undefined;
+  const timer = useRef<NodeJS.Timeout | undefined>(undefined);
   useEffect(() => {
     if (window.wasmSearchWorker !== undefined) {
       setIsSearching(true);
-      clearTimeout(timer);
-      timer = setTimeout(() => {
+      clearTimeout(timer.current);
+      timer.current = setTimeout(() => {
         const position = toWasmSearch(board);
         const nextColor = brushColor === SabakiColor.Black ? 0 : 1;
         const positionBuf = new TextEncoder().encode(JSON.stringify(position));

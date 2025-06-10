@@ -8,7 +8,8 @@
     "clippy": "cargo clippy --all-targets --all-features",
     "fmt": "cargo fmt && prettier --write .",
     "fmt:check": "cargo fmt --check && prettier --check .",
-    "cfx": "cargo fmt && cargo clippy --all-targets --all-features --fix --allow-dirty"
+    "cfx": "cargo fmt && cargo clippy --all-targets --all-features --fix --allow-dirty",
+    "lint": "yarn workspace frontend run lint"
   },
   "workspaces": [
     "frontend",
