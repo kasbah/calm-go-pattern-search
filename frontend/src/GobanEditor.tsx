@@ -290,7 +290,6 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
     }, [brushColor, onChangeBrushColor]);
 
     useEffect(() => {
-      console.log(brushColor);
       const mm: Map<Marker | null> = emptyBoard.map((row) =>
         row.map(() => null),
       );

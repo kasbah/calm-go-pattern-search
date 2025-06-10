@@ -2,7 +2,7 @@ import initWasm, {
   WasmSearch,
 } from "../../rust/wasm-search/pkg/wasm_search.js";
 
-console.log("Worker: Initializing wasm");
+console.info("Worker: Initializing wasm");
 
 await initWasm();
 
@@ -40,4 +40,4 @@ async function handleQueue() {
 
 setInterval(handleQueue, 10);
 
-console.log("Worker: wasm initialized");
+console.info("Worker: wasm initialized");

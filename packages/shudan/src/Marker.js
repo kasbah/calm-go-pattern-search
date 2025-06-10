@@ -10,7 +10,6 @@ export default function Marker({ sign, type, label, zIndex, color }) {
   };
 
   if (type === "circle-label") {
-    console.log(label.color);
     const svg = `
       <svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg">
         <circle 
