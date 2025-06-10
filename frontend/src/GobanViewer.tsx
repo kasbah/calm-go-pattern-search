@@ -1,4 +1,4 @@
-import { Goban } from "@calm-go/shudan";
+import { Goban, type Marker, type Map } from "@calm-go/shudan";
 import GoBoard from "@sabaki/go-board";
 import {
   forwardRef,
@@ -47,6 +47,9 @@ export type GobanViewerRef = {
 const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
   ({ game, vertexSize }, ref) => {
     const [moveNumber, setMoveNumberState] = useState(game.last_move_matched);
+    const [markerMap, setMarkerMap] = useState<Map<Marker | null>>(
+      emptyBoard.map((row) => row.map(() => null)),
+    );
     const maxHeight = Math.min(window.innerHeight, window.innerWidth * 0.5);
     const [moves, setMoves] = useState<Array<SabakiMove>>(
       game.moves_transformed.map(toSabakiMove),
@@ -54,6 +57,19 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
     const [board, setBoard] = useState<BoardPosition>(
       calculateBoardPosition(moves, moveNumber),
     );
+
+    useEffect(() => {
+      const mm: Map<Marker | null> = emptyBoard.map((row) =>
+        row.map(() => null),
+      );
+      const lastMove = game.moves_transformed[moveNumber];
+      if (lastMove !== undefined) {
+        mm[lastMove.point.y][lastMove.point.x] = {
+          type: "circle",
+        };
+        setMarkerMap(mm);
+      }
+    }, [game.moves_transformed, moveNumber]);
 
     const setMoveNumber = useCallback(
       (moveNumber: number) => {
@@ -153,6 +169,7 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
             vertexSize={vertexSize}
             showCoordinates={true}
             signMap={board}
+            markerMap={markerMap}
           />
         </div>
       </div>
