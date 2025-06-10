@@ -8,36 +8,40 @@ on:
   workflow_dispatch:
 
 jobs:
-  pack-games:
+  build-rust:
     runs-on: ubuntu-latest
     outputs:
-      pack-games-hash: ${{ steps.get-hash.outputs.hash }}
+      rust-hash: ${{ steps.get-hash.outputs.hash }}
     steps:
       - name: Checkout
         uses: nschloe/action-cached-lfs-checkout@v1
         with:
           fetch-depth: 0
 
-      - name: Get pack-games folder hash
+      - name: Get rust folder git hash
         id: get-hash
         run: |
-          HASH=$(git rev-list -1 HEAD -- rust/pack-games/)
+          HASH=$(git rev-list -1 HEAD -- rust/)
           echo "hash=$HASH" >> $GITHUB_OUTPUT
-          echo "Pack-games folder hash: $HASH"
+          echo "Rust folder hash: $HASH"
 
-      - name: Check cache for packed games
-        id: cache-packed-games
+      - name: Check cache for rust artifacts
+        id: cache-rust-artifacts
         uses: actions/cache@v4
         with:
-          path: rust/pack-games/games.pack
-          key: packed-games-${{ steps.get-hash.outputs.hash }}
+          path: rust/wasm-search/pkg
+          key: rust-artifacts-${{ steps.get-hash.outputs.hash }}
 
       - name: Setup Rust
-        if: steps.cache-packed-games.outputs.cache-hit != 'true'
+        if: steps.cache-rust-artifacts.outputs.cache-hit != 'true'
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Setup wasm-pack
+        if: steps.cache-rust-artifacts.outputs.cache-hit != 'true'
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
       - name: Pack games
-        if: steps.cache-packed-games.outputs.cache-hit != 'true'
+        if: steps.cache-rust-artifacts.outputs.cache-hit != 'true'
         run: |
           cd rust/pack-games/sgfs
           ./extract.sh
@@ -45,18 +49,20 @@ jobs:
           gzip -d *.gz
           cd ../
           cargo run --release
+          cp games.pack ../wasm-search/src/
 
-  build:
+      - name: Build wasm-search
+        if: steps.cache-rust-artifacts.outputs.cache-hit != 'true'
+        run: wasm-pack build rust/wasm-search --target web
+
+  build-frontend:
     runs-on: ubuntu-latest
-    needs: pack-games
+    needs: build-rust
     steps:
       - name: Checkout
         uses: nschloe/action-cached-lfs-checkout@v1
         with:
           fetch-depth: 0
-
-      - name: Setup wasm-pack
-        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -64,11 +70,11 @@ jobs:
           node-version: "22"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
 
-      - name: Get packed games from cache
+      - name: Get rust artifacts from cache
         uses: actions/cache@v4
         with:
-          path: rust/wasm-search/src/games.pack
-          key: packed-games-${{ needs.pack-games.outputs.pack-games-hash }}
+          path: rust/wasm-search/pkg
+          key: rust-artifacts-${{ needs.build-rust.outputs.rust-hash }}
           fail-on-cache-miss: true
 
       - name: Install dependencies
@@ -89,7 +95,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-frontend
     steps:
       - name: Download build artifacts
         uses: actions/download-artifact@v4

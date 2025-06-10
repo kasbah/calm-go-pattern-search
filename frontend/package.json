@@ -31,7 +31,7 @@
     "cfx": "cargo fmt && cargo clippy --all-targets --all-features --fix --allow-dirty",
     "lint": "eslint --ext .ts,.tsx ./src",
     "dev": "yarn wasm && vite",
-    "build": "yarn wasm && vite build",
+    "build": "vite build",
     "serve": "vite preview",
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check ."
