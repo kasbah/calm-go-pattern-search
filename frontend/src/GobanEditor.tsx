@@ -361,7 +361,7 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
 
     return (
       <div className="flex flex-row gap-2 GobanEditor" style={{ maxHeight }}>
-        <div className="mt-2 mb-2">
+        <div className="ml-2 mb-2 mt-2">
           <div className="flex flex-col justify-between h-full">
             <div className="flex flex-col gap-1">
               <Toggle
