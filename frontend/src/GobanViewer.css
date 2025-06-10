@@ -12,4 +12,39 @@
     font-size: 20px;
     text-align: center;
   }
+  .shudan-goban-image {
+    background-image: none;
+  }
+  .shudan-goban-image::after {
+    background: none;
+  }
+
+  .shudan-stone-image.shudan-sign_-1 {
+    background-image: url("./custom_white_stone.svg");
+  }
+
+  .shudan-stone-image.shudan-sign_1 {
+    background-image: url("./custom_black_stone.svg");
+  }
+
+  .shudan-goban {
+    --shudan-board-border-color: white;
+
+    --shudan-board-background-color: #fee;
+    --shudan-board-foreground-color: #333;
+
+    --shudan-black-background-color: #fee;
+    --shudan-black-foreground-color: #fee;
+
+    --shudan-white-background-color: black;
+    --shudan-white-foreground-color: black;
+  }
+
+  .shudan-stone::before {
+    box-shadow: none !important;
+  }
+
+  .shudan-shadow {
+    display: none;
+  }
 }
