@@ -18,7 +18,9 @@ import circleBlackSvg from "./icons/circle-black.svg";
 import circleWhiteSvg from "./icons/circle-white.svg";
 import eraserSvg from "./icons/eraser.svg";
 import overlappingCirclesBlackSvg from "./icons/overlapping-circles-black.svg";
+import overlappingCirclesBlackSwitchedSvg from "./icons/overlapping-circles-black-switched.svg";
 import overlappingCirclesWhiteSvg from "./icons/overlapping-circles-white.svg";
+import overlappingCirclesWhiteSwitchedSvg from "./icons/overlapping-circles-white-switched.svg";
 import redoSvg from "./icons/redo.svg";
 import trashSvg from "./icons/trash.svg";
 import undoSvg from "./icons/undo.svg";
@@ -248,6 +250,9 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
       SabakiColor.Black,
     );
 
+    const [isHoveringAlternateBrush, setHoveringAlternateBrush] =
+      useState<boolean>(false);
+
     const handleUndo = useCallback(() => {
       dispatch({ type: "UNDO" });
     }, [dispatch]);
@@ -383,22 +388,28 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
                       payload: BrushMode.Alternate,
                     });
                   }
+                  setHoveringAlternateBrush(false);
                 }}
                 pressed={state.brushMode === BrushMode.Alternate}
+                onMouseEnter={() =>
+                  state.brushMode === BrushMode.Alternate &&
+                  setHoveringAlternateBrush(true)
+                }
+                onMouseLeave={() => setHoveringAlternateBrush(false)}
               >
-                {state.alternateBrushColor === SabakiSign.Black ? (
-                  <img
-                    src={overlappingCirclesBlackSvg}
-                    width={32}
-                    height={32}
-                  />
-                ) : (
-                  <img
-                    src={overlappingCirclesWhiteSvg}
-                    width={32}
-                    height={32}
-                  />
-                )}
+                <img
+                  src={
+                    isHoveringAlternateBrush
+                      ? state.alternateBrushColor === SabakiSign.Black
+                        ? overlappingCirclesBlackSwitchedSvg
+                        : overlappingCirclesWhiteSwitchedSvg
+                      : state.alternateBrushColor === SabakiSign.Black
+                        ? overlappingCirclesBlackSvg
+                        : overlappingCirclesWhiteSvg
+                  }
+                  width={32}
+                  height={32}
+                />
               </Toggle>
               <Toggle
                 size="xl"
