@@ -285,14 +285,20 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
     }, [brushColor, onChangeBrushColor]);
 
     useEffect(() => {
+      console.log(brushColor);
       const mm: Map<Marker | null> = emptyBoard.map((row) =>
         row.map(() => null),
       );
       nextMoves.forEach(({ x, y }, i) => {
-        mm[y][x] = { type: "circle-label", label: `${i + 1}`, tooltip: "x" };
+        mm[y][x] = {
+          type: "circle-label",
+          label: `${i + 1}`,
+          tooltip: "x",
+          color: brushColor === SabakiColor.Black ? "#9b9b9b" : "whitesmoke",
+        };
       });
       setMarkerMap(mm);
-    }, [nextMoves, state.alternateBrushColor]);
+    }, [nextMoves, state.alternateBrushColor, brushColor]);
 
     useEffect(() => {
       onUpdateBoard(state.board);

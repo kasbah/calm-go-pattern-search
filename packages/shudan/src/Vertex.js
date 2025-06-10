@@ -56,6 +56,7 @@ export default function Vertex(props) {
       type: marker.type,
       label: marker.label,
       zIndex,
+      color: marker.color,
     });
 
   return h(

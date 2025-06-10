@@ -1,6 +1,6 @@
 import { createElement as h } from "react";
 
-export default function Marker({ sign, type, label, zIndex }) {
+export default function Marker({ sign, type, label, zIndex, color }) {
   let containerProps = {
     className: "shudan-marker",
     style: {
@@ -10,6 +10,7 @@ export default function Marker({ sign, type, label, zIndex }) {
   };
 
   if (type === "circle-label") {
+    console.log(label.color);
     const svg = `
       <svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg">
         <circle 
@@ -17,8 +18,8 @@ export default function Marker({ sign, type, label, zIndex }) {
           cy="0.5" 
           r="0.4" 
           vector-effect="non-scaling-stroke" 
-          fill="whitesmoke" 
-          stroke="currentColor"
+          fill="${color}" 
+          stroke="${color === "whitesmoke" ? "black" : "white"}"
         />
       </svg>
     `;
@@ -52,6 +53,7 @@ export default function Marker({ sign, type, label, zIndex }) {
             justifyContent: "center",
             width: "100%",
             height: "100%",
+            color: color === "whitesmoke" ? "black" : "white",
           },
         },
         label,
