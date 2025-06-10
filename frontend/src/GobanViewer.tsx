@@ -97,15 +97,6 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
 
     return (
       <div className="flex flex-row gap-2 GobanViewer" style={{ maxHeight }}>
-        <div>
-          <Goban
-            animateStonePlacement={false}
-            fuzzyStonePlacement={false}
-            vertexSize={vertexSize}
-            showCoordinates={true}
-            signMap={board}
-          />
-        </div>
         <div className="mt-2 mb-2">
           <div className="flex flex-col justify-between h-full">
             <div className="flex flex-col gap-1">
@@ -160,6 +151,15 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
               </div>
             </div>
           </div>
+        </div>
+        <div>
+          <Goban
+            animateStonePlacement={false}
+            fuzzyStonePlacement={false}
+            vertexSize={vertexSize}
+            showCoordinates={true}
+            signMap={board}
+          />
         </div>
       </div>
     );

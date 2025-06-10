@@ -361,20 +361,6 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
 
     return (
       <div className="flex flex-row gap-2 GobanEditor" style={{ maxHeight }}>
-        <div>
-          <Goban
-            animateStonePlacement={false}
-            fuzzyStonePlacement={false}
-            vertexSize={vertexSize}
-            showCoordinates={true}
-            signMap={displayBoard}
-            markerMap={markerMap}
-            dimmedVertices={dimmedVertices}
-            onVertexMouseEnter={handleVertexMouseEnter}
-            onVertexMouseLeave={handleVertexMouseLeave}
-            onVertexMouseDown={handleMouseDown}
-          />
-        </div>
         <div className="mt-2 mb-2">
           <div className="flex flex-col justify-between h-full">
             <div className="flex flex-col gap-1">
@@ -468,6 +454,20 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
               </Button>
             </div>
           </div>
+        </div>
+        <div>
+          <Goban
+            animateStonePlacement={false}
+            fuzzyStonePlacement={false}
+            vertexSize={vertexSize}
+            showCoordinates={true}
+            signMap={displayBoard}
+            markerMap={markerMap}
+            dimmedVertices={dimmedVertices}
+            onVertexMouseEnter={handleVertexMouseEnter}
+            onVertexMouseLeave={handleVertexMouseLeave}
+            onVertexMouseDown={handleMouseDown}
+          />
         </div>
       </div>
     );

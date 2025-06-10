@@ -9,7 +9,8 @@
     "fmt": "cargo fmt && prettier --write .",
     "fmt:check": "cargo fmt --check && prettier --check .",
     "cfx": "cargo fmt && cargo clippy --all-targets --all-features --fix --allow-dirty",
-    "lint": "yarn workspace frontend run lint"
+    "lint": "yarn workspace frontend run lint",
+    "dev": "yarn workspace frontend run dev"
   },
   "workspaces": [
     "frontend",
