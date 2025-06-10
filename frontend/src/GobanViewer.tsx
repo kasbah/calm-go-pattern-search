@@ -9,14 +9,12 @@ import {
 } from "react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
-import { Toggle } from "./components/ui/toggle";
 import "./GobanCommon.css";
 import "./GobanViewer.css";
 import chevronFirstSvg from "./icons/chevron-first.svg";
 import chevronLastSvg from "./icons/chevron-last.svg";
 import chevronLeftSvg from "./icons/chevron-left.svg";
 import chevronRightSvg from "./icons/chevron-right.svg";
-import mousePointerClick from "./icons/mouse-pointer-click.svg";
 import {
   emptyBoard,
   type BoardPosition,
@@ -99,11 +97,7 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
       <div className="flex flex-row gap-2 GobanViewer" style={{ maxHeight }}>
         <div className="mt-2 mb-2">
           <div className="flex flex-col justify-between h-full">
-            <div className="flex flex-col gap-1">
-              <Toggle size="xl" onClick={() => {}} pressed={true}>
-                <img src={mousePointerClick} width={32} height={32} />
-              </Toggle>
-            </div>
+            <div className="flex flex-col gap-1"></div>
             <div>
               <div className="max-w-[60px] mb-1">
                 <Input
