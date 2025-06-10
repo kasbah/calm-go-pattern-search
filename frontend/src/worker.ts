@@ -1,4 +1,6 @@
-import initWasm, { WasmSearch } from "../rust/wasm-search/pkg/wasm_search.js";
+import initWasm, {
+  WasmSearch,
+} from "../../rust/wasm-search/pkg/wasm_search.js";
 
 console.log("Worker: Initializing wasm");
 

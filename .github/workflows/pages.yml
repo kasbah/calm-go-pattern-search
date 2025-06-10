@@ -13,11 +13,9 @@ permissions:
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -28,6 +26,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Setup wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
@@ -36,14 +37,27 @@ jobs:
         with:
           node-version: "22"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
+
+      - name: Pack games
+        run: |
+          cd rust/pack-games/sgfs
+          ./extract.sh
+          cd ../python-player-name-aliases
+          gzip -d *.gz
+          cd ../
+          cargo run --release
+          cp games.pack ../wasm-search/src/
+
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-      - name: Build
-        run: yarn build
+
+      - name: Build frontend
+        run: cd frontend && yarn build
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: frontend/dist
 
   deploy:
     environment:

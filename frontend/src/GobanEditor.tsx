@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 import SabakiGoBoard from "@sabaki/go-board";
-import { Goban, type Vertex, type Map, type Marker } from "@sabaki/shudan";
-import "@sabaki/shudan/css/goban.css";
+import { Goban, type Vertex, type Map, type Marker } from "@calm-go/shudan";
+import "@calm-go/shudan/css/goban.css";
 import {
   forwardRef,
   useCallback,
@@ -285,9 +285,11 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
     }, [brushColor, onChangeBrushColor]);
 
     useEffect(() => {
-      let mm: Map<Marker | null> = emptyBoard.map((row) => row.map(() => null));
+      const mm: Map<Marker | null> = emptyBoard.map((row) =>
+        row.map(() => null),
+      );
       nextMoves.forEach(({ x, y }, i) => {
-        mm[y][x] = { type: "label", label: (i + 1).toString() };
+        mm[y][x] = { type: "label", label: (i + 1).toString(), tooltip: "x" };
       });
       setMarkerMap(mm);
     }, [nextMoves, state.alternateBrushColor]);

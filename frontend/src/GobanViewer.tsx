@@ -1,4 +1,4 @@
-import { Goban } from "@sabaki/shudan";
+import { Goban } from "@calm-go/shudan";
 import GoBoard from "@sabaki/go-board";
 import {
   forwardRef,

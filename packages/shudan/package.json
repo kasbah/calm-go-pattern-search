@@ -1,0 +1,49 @@
+{
+  "name": "@calm-go/shudan",
+  "version": "1.7.1",
+  "description": "A highly customizable, low-level Preact Goban component.",
+  "type": "module",
+  "main": "./src/main.js",
+  "types": "./src/main.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SabakiHQ/Shudan.git"
+  },
+  "keywords": [
+    "go",
+    "weiqi",
+    "baduk",
+    "goban",
+    "boardgame",
+    "ui",
+    "component",
+    "preact",
+    "react"
+  ],
+  "author": "Yichuan Shen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SabakiHQ/Shudan/issues"
+  },
+  "homepage": "https://github.com/SabakiHQ/Shudan",
+  "dependencies": {
+    "classnames": "^2.3.1",
+    "react": "^19.1.0"
+  },
+  "devDependencies": {
+    "@sabaki/go-board": "^1.4.2",
+    "onchange": "^7.1.0",
+    "prettier": "^2.7.1",
+    "webpack": "^5.52.0",
+    "webpack-cli": "^4.8.0"
+  },
+  "prettier": {
+    "proseWrap": "always"
+  },
+  "scripts": {
+    "build-demo": "webpack --entry ./demo/main.js -o ./demo --output-filename bundle.js --progress --mode production",
+    "watch-demo": "webpack --entry ./demo/main.js -o ./demo --output-filename bundle.js --progress --mode development --watch",
+    "format": "prettier \"**/*.{js,html,md}\" --write",
+    "format-watch": "onchange \"**/*.{js,html,md}\" -- prettier --write {{changed}}"
+  }
+}
