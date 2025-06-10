@@ -9,6 +9,56 @@ export default function Marker({ sign, type, label, zIndex }) {
     },
   };
 
+  if (type === "circle-label") {
+    const svg = `
+      <svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg">
+        <circle 
+          cx="0.5" 
+          cy="0.5" 
+          r="0.4" 
+          vector-effect="non-scaling-stroke" 
+          fill="whitesmoke" 
+          stroke="currentColor"
+        />
+      </svg>
+    `;
+    const encodedSvg = encodeURIComponent(svg.trim());
+    const svgBackground = `url("data:image/svg+xml;charset=utf-8,${encodedSvg}")`;
+
+    return h(
+      "div",
+      {
+        ...containerProps,
+        style: {
+          ...containerProps.style,
+          backgroundImage: svgBackground,
+          backgroundSize: "100% 100%",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        },
+      },
+      h(
+        "div",
+        {
+          style: {
+            fontSize: "0.5em",
+            lineHeight: "1",
+            textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            height: "100%",
+          },
+        },
+        label,
+      ),
+    );
+  }
+
   return type === "label"
     ? h("div", containerProps, label)
     : h(

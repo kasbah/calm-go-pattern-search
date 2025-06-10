@@ -7,6 +7,7 @@ export type Map<T> = T[][];
 export interface Marker {
   type?:
     | "circle"
+    | "circle-label"
     | "cross"
     | "triangle"
     | "square"

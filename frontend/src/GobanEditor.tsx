@@ -289,7 +289,7 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
         row.map(() => null),
       );
       nextMoves.forEach(({ x, y }, i) => {
-        mm[y][x] = { type: "label", label: (i + 1).toString(), tooltip: "x" };
+        mm[y][x] = { type: "circle-label", label: `${i + 1}`, tooltip: "x" };
       });
       setMarkerMap(mm);
     }, [nextMoves, state.alternateBrushColor]);
