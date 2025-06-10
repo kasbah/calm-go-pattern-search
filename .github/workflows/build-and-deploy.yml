@@ -8,16 +8,52 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  pack-games:
     runs-on: ubuntu-latest
+    outputs:
+      pack-games-hash: ${{ steps.get-hash.outputs.hash }}
     steps:
       - name: Checkout
         uses: nschloe/action-cached-lfs-checkout@v1
         with:
           fetch-depth: 0
 
+      - name: Get pack-games folder hash
+        id: get-hash
+        run: |
+          HASH=$(git rev-list -1 HEAD -- rust/pack-games/)
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          echo "Pack-games folder hash: $HASH"
+
+      - name: Check cache for packed games
+        id: cache-packed-games
+        uses: actions/cache@v4
+        with:
+          path: rust/pack-games/games.pack
+          key: packed-games-${{ steps.get-hash.outputs.hash }}
+
       - name: Setup Rust
+        if: steps.cache-packed-games.outputs.cache-hit != 'true'
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Pack games
+        if: steps.cache-packed-games.outputs.cache-hit != 'true'
+        run: |
+          cd rust/pack-games/sgfs
+          ./extract.sh
+          cd ../python-player-name-aliases
+          gzip -d *.gz
+          cd ../
+          cargo run --release
+
+  build:
+    runs-on: ubuntu-latest
+    needs: pack-games
+    steps:
+      - name: Checkout
+        uses: nschloe/action-cached-lfs-checkout@v1
+        with:
+          fetch-depth: 0
 
       - name: Setup wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
@@ -28,15 +64,12 @@ jobs:
           node-version: "22"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
 
-      - name: Pack games
-        run: |
-          cd rust/pack-games/sgfs
-          ./extract.sh
-          cd ../python-player-name-aliases
-          gzip -d *.gz
-          cd ../
-          cargo run --release
-          cp games.pack ../wasm-search/src/
+      - name: Get packed games from cache
+        uses: actions/cache@v4
+        with:
+          path: rust/wasm-search/src/games.pack
+          key: packed-games-${{ needs.pack-games.outputs.pack-games-hash }}
+          fail-on-cache-miss: true
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
