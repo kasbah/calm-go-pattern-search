@@ -30,11 +30,11 @@
   .shudan-goban {
     --shudan-board-border-color: white;
 
-    --shudan-board-background-color: #fee;
+    --shudan-board-background-color: var(--highlight);
     --shudan-board-foreground-color: #333;
 
-    --shudan-black-background-color: #fee;
-    --shudan-black-foreground-color: #fee;
+    --shudan-black-background-color: var(--highlight);
+    --shudan-black-foreground-color: white;
 
     --shudan-white-background-color: black;
     --shudan-white-foreground-color: black;

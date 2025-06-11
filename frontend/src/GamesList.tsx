@@ -48,7 +48,7 @@ export default function GamesList({
           <div
             key={game.path}
             data-selected={selectedGame?.path === game.path}
-            className="bg-white hover:bg-secondary data-[selected=true]:bg-[#fee] cursor-default"
+            className="bg-white hover:bg-secondary data-[selected=true]:bg-highlight cursor-default"
             onClick={() => onSelectGame(game)}
           >
             <div className="text-sm p-2">
