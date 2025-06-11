@@ -14,16 +14,16 @@ import { useImmerReducer } from "use-immer";
 import "./GobanCommon.css";
 import "./GobanEditor.css";
 
-import circleBlackSvg from "./icons/circle-black.svg";
-import circleWhiteSvg from "./icons/circle-white.svg";
-import eraserSvg from "./icons/eraser.svg";
-import overlappingCirclesBlackSvg from "./icons/overlapping-circles-black.svg";
-import overlappingCirclesBlackSwitchedSvg from "./icons/overlapping-circles-black-switched.svg";
-import overlappingCirclesWhiteSvg from "./icons/overlapping-circles-white.svg";
-import overlappingCirclesWhiteSwitchedSvg from "./icons/overlapping-circles-white-switched.svg";
-import redoSvg from "./icons/redo.svg";
-import trashSvg from "./icons/trash.svg";
-import undoSvg from "./icons/undo.svg";
+import circleBlackSvg from "./assets/icons/circle-black.svg";
+import circleWhiteSvg from "./assets/icons/circle-white.svg";
+import eraserSvg from "./assets/icons/eraser.svg";
+import overlappingCirclesBlackSvg from "./assets/icons/overlapping-circles-black.svg";
+import overlappingCirclesBlackSwitchedSvg from "./assets/icons/overlapping-circles-black-switched.svg";
+import overlappingCirclesWhiteSvg from "./assets/icons/overlapping-circles-white.svg";
+import overlappingCirclesWhiteSwitchedSvg from "./assets/icons/overlapping-circles-white-switched.svg";
+import redoSvg from "./assets/icons/redo.svg";
+import trashSvg from "./assets/icons/trash.svg";
+import undoSvg from "./assets/icons/undo.svg";
 import {
   boardsEqual,
   BrushMode,

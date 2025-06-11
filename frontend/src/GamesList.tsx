@@ -1,4 +1,4 @@
-import arrowLeftSvg from "@/icons/arrow-left.svg";
+import arrowLeftSvg from "@/assets/icons/arrow-left.svg";
 import type { Game } from "./wasm-search-types";
 
 function rotationToString(rotation: number) {

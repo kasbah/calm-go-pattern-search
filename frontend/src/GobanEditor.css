@@ -7,11 +7,11 @@
   }
 
   .shudan-stone-image.shudan-sign_-1 {
-    background-image: url("./custom_white_stone.svg");
+    background-image: url("./assets/custom_white_stone.svg");
   }
 
   .shudan-stone-image.shudan-sign_1 {
-    background-image: url("./custom_black_stone.svg");
+    background-image: url("./assets/custom_black_stone.svg");
   }
 
   .shudan-goban {

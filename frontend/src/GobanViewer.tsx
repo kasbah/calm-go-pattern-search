@@ -11,10 +11,10 @@ import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import "./GobanCommon.css";
 import "./GobanViewer.css";
-import chevronFirstSvg from "./icons/chevron-first.svg";
-import chevronLastSvg from "./icons/chevron-last.svg";
-import chevronLeftSvg from "./icons/chevron-left.svg";
-import chevronRightSvg from "./icons/chevron-right.svg";
+import chevronFirstSvg from "./assets/icons/chevron-first.svg";
+import chevronLastSvg from "./assets/icons/chevron-last.svg";
+import chevronLeftSvg from "./assets/icons/chevron-left.svg";
+import chevronRightSvg from "./assets/icons/chevron-right.svg";
 import {
   emptyBoard,
   type BoardPosition,
