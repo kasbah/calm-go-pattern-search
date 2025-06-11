@@ -20,3 +20,15 @@
   -o-user-drag: none;
   user-drag: none;
 }
+
+.shudan-stone-image.shudan-sign_-1 {
+  background-image: url("./assets/custom_white_stone.svg");
+}
+
+.shudan-stone-image.shudan-sign_1 {
+  background-image: url("./assets/custom_black_stone.svg");
+}
+
+.shudan-stone::before {
+  background: none !important;
+}

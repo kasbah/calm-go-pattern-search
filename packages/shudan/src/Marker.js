@@ -13,12 +13,12 @@ export default function Marker({ sign, type, label, zIndex, color }) {
     const svg = `
       <svg viewBox="0 0 1 1" xmlns="http://www.w3.org/2000/svg">
         <circle 
-          cx="0.5" 
-          cy="0.5" 
+          cx="0.484" 
+          cy="0.484" 
           r="0.4" 
           vector-effect="non-scaling-stroke" 
           fill="${color}" 
-          stroke="${color === "whitesmoke" ? "black" : "white"}"
+          stroke="${color === "whitesmoke" ? "grey" : "white"}"
         />
       </svg>
     `;
@@ -53,6 +53,8 @@ export default function Marker({ sign, type, label, zIndex, color }) {
             width: "100%",
             height: "100%",
             color: color === "whitesmoke" ? "black" : "white",
+            marginTop: "-0.1em",
+            marginLeft: "-0.07em",
           },
         },
         label,
@@ -71,8 +73,8 @@ export default function Marker({ sign, type, label, zIndex, color }) {
 
         type === "circle" || type === "loader" || type === "point"
           ? h("circle", {
-              cx: 0.5,
-              cy: 0.5,
+              cx: 0.484,
+              cy: 0.484,
               r: type === "point" ? 0.18 : 0.25,
               "vector-effect": "non-scaling-stroke",
             })
