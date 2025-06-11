@@ -1,6 +1,4 @@
 import arrowLeftSvg from "@/icons/arrow-left.svg";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import type { Game } from "./wasm-search-types";
 
 function rotationToString(rotation: number) {
@@ -30,9 +28,9 @@ export default function GamesList({
 }: GamesListProps) {
   const tenGames = games.slice(0, 10);
   return (
-    <div className="h-screen ml-4 w-[45%]">
+    <div className="flex flex-col h-screen ml-4 w-full">
       <div
-        className="flex"
+        className="flex mb-4 flex-shrink-0"
         style={{ cursor: selectedGame != null ? "pointer" : "default" }}
         onClick={() => onSelectGame(null)}
       >
@@ -43,12 +41,12 @@ export default function GamesList({
         )}
         {totalNumberOfGames} games
       </div>
-      <ScrollArea className="h-[96.5%] rounded-md border">
+      <div className="flex-1 overflow-y-auto space-y-2 pr-2">
         {tenGames.map((game) => (
           <div
             key={game.path}
             data-selected={selectedGame?.path === game.path}
-            className="bg-white hover:bg-secondary data-[selected=true]:bg-highlight cursor-default"
+            className="bg-white hover:bg-secondary data-[selected=true]:bg-highlight cursor-default rounded-md border"
             onClick={() => onSelectGame(game)}
           >
             <div className="text-sm p-2">
@@ -63,10 +61,9 @@ export default function GamesList({
                 <div>Moves: {game.moves.length}</div>
               </div>
             </div>
-            <Separator className="my-2" />
           </div>
         ))}
-      </ScrollArea>
+      </div>
     </div>
   );
 }
