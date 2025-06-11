@@ -387,6 +387,7 @@ impl WasmSearch {
         }
 
         results.sort_by(|a, b| b.score.cmp(&a.score));
+        results.sort_by(|a, b| a.last_move_matched.cmp(&b.last_move_matched));
 
         self.position_cache.put(position.to_vec(), results.clone());
 
