@@ -31,24 +31,36 @@ export default function GamesList({
   isSearching,
 }: GamesListProps) {
   const [showOverlay, setShowOverlay] = useState(false);
+  const [overlayStartTime, setOverlayStartTime] = useState<number | null>(null);
   const tenGames = games.slice(0, 10);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let showTimer: NodeJS.Timeout;
+    let hideTimer: NodeJS.Timeout;
+
     if (isSearching) {
-      timer = setTimeout(() => {
+      showTimer = setTimeout(() => {
         setShowOverlay(true);
+        setOverlayStartTime(Date.now());
       }, 1000);
+    } else if (showOverlay && overlayStartTime) {
+      const elapsed = Date.now() - overlayStartTime;
+      const remainingTime = Math.max(0, 1000 - elapsed);
+
+      hideTimer = setTimeout(() => {
+        setShowOverlay(false);
+        setOverlayStartTime(null);
+      }, remainingTime);
     } else {
       setShowOverlay(false);
+      setOverlayStartTime(null);
     }
 
     return () => {
-      if (timer) {
-        clearTimeout(timer);
-      }
+      if (showTimer) clearTimeout(showTimer);
+      if (hideTimer) clearTimeout(hideTimer);
     };
-  }, [isSearching]);
+  }, [isSearching, showOverlay, overlayStartTime]);
   return (
     <div className="flex flex-col h-screen ml-4 w-full">
       <div
