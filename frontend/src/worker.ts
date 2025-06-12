@@ -2,14 +2,8 @@ import initWasm, {
   WasmSearch,
 } from "../../rust/wasm-search/pkg/wasm_search.js";
 
-console.info("Worker: Initializing wasm");
-
-await initWasm();
-
-const wasmSearch = new WasmSearch();
-
+let wasmInitialized = false;
 let queue: Array<{ positionBuf: Uint8Array; nextColor: number }> = [];
-
 let isSearching = false;
 
 onmessage = (e) => {
@@ -20,8 +14,16 @@ onmessage = (e) => {
   }
 };
 
+console.info("Worker: Initializing wasm");
+
+await initWasm();
+
+const wasmSearch = new WasmSearch();
+
+wasmInitialized = true;
+
 async function handleQueue() {
-  if (queue.length > 0 && !isSearching) {
+  if (queue.length > 0 && !isSearching && wasmInitialized) {
     isSearching = true;
     // take the latest query and discard the rest
     const { positionBuf, nextColor } = queue.pop()!;
