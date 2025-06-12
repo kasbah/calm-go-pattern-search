@@ -110,6 +110,7 @@ export default function App() {
         totalNumberOfGames={totalNumberOfGames}
         onSelectGame={setSelectedGame}
         selectedGame={selectedGame}
+        isSearching={isSearching}
       />
     </div>
   );

@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import arrowLeftSvg from "@/assets/icons/arrow-left.svg";
 import type { Game } from "./wasm-search-types";
+import catRunning from "@/assets/cat_running.webp";
 
 function rotationToString(rotation: number) {
   if (rotation === 0) {
@@ -18,6 +20,7 @@ export type GamesListProps = {
   totalNumberOfGames: number;
   onSelectGame: (game: Game | null) => void;
   selectedGame: Game | null;
+  isSearching: boolean;
 };
 
 export default function GamesList({
@@ -25,8 +28,27 @@ export default function GamesList({
   totalNumberOfGames,
   onSelectGame,
   selectedGame,
+  isSearching,
 }: GamesListProps) {
+  const [showOverlay, setShowOverlay] = useState(false);
   const tenGames = games.slice(0, 10);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isSearching) {
+      timer = setTimeout(() => {
+        setShowOverlay(true);
+      }, 1000);
+    } else {
+      setShowOverlay(false);
+    }
+
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [isSearching]);
   return (
     <div className="flex flex-col h-screen ml-4 w-full">
       <div
@@ -41,7 +63,7 @@ export default function GamesList({
         )}
         {totalNumberOfGames} games
       </div>
-      <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+      <div className="flex-1 overflow-y-auto space-y-2 pr-2 relative">
         {tenGames.map((game) => (
           <div
             key={game.path}
@@ -63,6 +85,20 @@ export default function GamesList({
             </div>
           </div>
         ))}
+
+        {/* Search overlay */}
+        {showOverlay && (
+          <div
+            className="absolute inset-0 flex items-center justify-center z-10"
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.5)" }}
+          >
+            <img
+              src={catRunning}
+              alt="Loading..."
+              className="w-64 h-64 object-contain"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
