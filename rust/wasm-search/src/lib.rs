@@ -158,11 +158,26 @@ impl WasmSearch {
     }
 
     fn match_position(&mut self, position: &[Placement]) -> Vec<SearchResult> {
-        if position.is_empty() {
-            return Vec::new();
-        }
         if let Some(results) = self.position_cache.get(&position.to_vec()) {
             return results.clone();
+        }
+        if position.is_empty() {
+            let mut results = Vec::new();
+            for (path, game) in &self.game_data {
+                results.push(SearchResult {
+                    path: path.clone(),
+                    score: 0,
+                    last_move_matched: 0,
+                    rotation: 0,
+                    is_inverted: false,
+                    is_mirrored: false,
+                    all_empty_correctly_within: 0,
+                    moves: game.moves.clone(),
+                    moves_transformed: game.moves.clone(),
+                });
+            }
+            self.position_cache.put(position.to_vec(), results.clone());
+            return results;
         }
         let mut results = Vec::new();
         let rotations = get_rotations(position);
