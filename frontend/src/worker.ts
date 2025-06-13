@@ -3,7 +3,12 @@ import initWasm, {
 } from "../../rust/wasm-search/pkg/wasm_search.js";
 
 let wasmInitialized = false;
-let queue: Array<{ positionBuf: Uint8Array; nextColor: number }> = [];
+let queue: Array<{
+  positionBuf: Uint8Array;
+  nextColor: number;
+  page: number;
+  pageSize: number;
+}> = [];
 let isSearching = false;
 
 onmessage = (e) => {
@@ -26,9 +31,14 @@ async function handleQueue() {
   if (queue.length > 0 && !isSearching && wasmInitialized) {
     isSearching = true;
     // take the latest query and discard the rest
-    const { positionBuf, nextColor } = queue.pop()!;
+    const { positionBuf, nextColor, page = 0, pageSize = 10 } = queue.pop()!;
     queue = [];
-    const results = await wasmSearch.search(positionBuf, nextColor);
+    const results = await wasmSearch.search(
+      positionBuf,
+      nextColor,
+      page,
+      pageSize,
+    );
     // give the JS event loop a chance to add queries to the queue
     await new Promise((resolve) => setTimeout(resolve, 0));
     // if there are no new queries, send this result

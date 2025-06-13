@@ -21,6 +21,14 @@ export type Game = {
   moves_transformed: Array<Placement>; // games moves rotated and/or mirrored
 };
 
+export type SearchReturn = {
+  num_results: number;
+  next_moves: Array<{ x: number; y: number }>;
+  results: Array<Game>;
+  total_pages: number;
+  current_page: number;
+};
+
 export function toWasmSearch(board: BoardPosition): Array<Placement> {
   const position: Array<Placement> = [];
   board.forEach((row, y) => {

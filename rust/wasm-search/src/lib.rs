@@ -117,6 +117,8 @@ struct WasmSearchReturn {
     num_results: usize,
     next_moves: Vec<Point>,
     results: Vec<SearchResult>,
+    total_pages: usize,
+    current_page: usize,
 }
 
 #[wasm_bindgen]
@@ -133,7 +135,13 @@ impl WasmSearch {
     }
 
     #[wasm_bindgen]
-    pub async fn search(&mut self, position: Uint8Array, next_color: u8) -> Uint8Array {
+    pub async fn search(
+        &mut self,
+        position: Uint8Array,
+        next_color: u8,
+        page: usize,
+        page_size: usize,
+    ) -> Uint8Array {
         let position_buf: Vec<u8> = position.to_vec();
         let position_decoded: Vec<Placement> = serde_json::from_slice(position_buf.as_slice())
             .expect("Failed to deserialize position");
@@ -147,10 +155,17 @@ impl WasmSearch {
         let next_moves = get_next_moves(&results, &position_decoded, next_color);
 
         let num_results = results.len();
+        let total_pages = num_results.div_ceil(page_size);
+        let current_page = page.min(total_pages.saturating_sub(1));
+        let start_idx = current_page * page_size;
+        let end_idx = (start_idx + page_size).min(num_results);
+
         let ret = WasmSearchReturn {
             num_results,
             next_moves: next_moves[0..next_moves.len().min(9)].to_vec(),
-            results: results[0..num_results.min(10)].to_vec(),
+            results: results[start_idx..end_idx].to_vec(),
+            total_pages,
+            current_page,
         };
 
         let results_buf: Vec<u8> = serde_json::to_vec(&ret).expect("Failed to serialize results");

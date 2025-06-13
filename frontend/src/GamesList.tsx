@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import arrowLeftSvg from "@/assets/icons/arrow-left.svg";
 import type { Game } from "./wasm-search-types";
 import catRunning from "@/assets/cat_running.webp";
@@ -21,6 +21,8 @@ export type GamesListProps = {
   onSelectGame: (game: Game | null) => void;
   selectedGame: Game | null;
   isSearching: boolean;
+  onLoadMore: () => void;
+  hasMore: boolean;
 };
 
 export default function GamesList({
@@ -29,10 +31,12 @@ export default function GamesList({
   onSelectGame,
   selectedGame,
   isSearching,
+  onLoadMore,
+  hasMore,
 }: GamesListProps) {
   const [showOverlay, setShowOverlay] = useState(false);
   const [overlayStartTime, setOverlayStartTime] = useState<number | null>(null);
-  const tenGames = games.slice(0, 10);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let showTimer: NodeJS.Timeout;
@@ -61,6 +65,33 @@ export default function GamesList({
       if (hideTimer) clearTimeout(hideTimer);
     };
   }, [isSearching, showOverlay, overlayStartTime]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && hasMore && !isSearching) {
+          onLoadMore();
+        }
+      },
+      {
+        root: null,
+        rootMargin: "100px",
+        threshold: 0.1,
+      },
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (loadMoreRef.current) {
+        observer.unobserve(loadMoreRef.current);
+      }
+    };
+  }, [hasMore, isSearching, onLoadMore]);
+
   return (
     <div className="flex flex-col h-screen ml-4 w-full">
       <div
@@ -76,7 +107,7 @@ export default function GamesList({
         {totalNumberOfGames} games
       </div>
       <div className="flex-1 overflow-y-auto space-y-2 pr-2 relative">
-        {tenGames.map((game) => (
+        {games.map((game) => (
           <div
             key={game.path}
             data-selected={selectedGame?.path === game.path}
@@ -97,6 +128,9 @@ export default function GamesList({
             </div>
           </div>
         ))}
+
+        {/* Load more trigger */}
+        <div ref={loadMoreRef} className="h-4" />
 
         {/* Search overlay */}
         {showOverlay && (

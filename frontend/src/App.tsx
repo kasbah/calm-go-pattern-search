@@ -4,7 +4,11 @@ import GobanEditor from "./GobanEditor";
 
 import GamesList from "./GamesList";
 import { emptyBoard, SabakiColor, type BoardPosition } from "./sabaki-types";
-import { toWasmSearch, type Game } from "./wasm-search-types";
+import {
+  toWasmSearch,
+  type Game,
+  type SearchReturn,
+} from "./wasm-search-types";
 import GobanViewer from "./GobanViewer";
 
 export default function App() {
@@ -19,6 +23,10 @@ export default function App() {
   );
   const [isSearching, setIsSearching] = useState(false);
   const [brushColor, setBrushColor] = useState<SabakiColor>(SabakiColor.Black);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const pageSize = 10;
+
   const gobanEditorRef = useRef<{
     handleUndo: () => void;
     handleRedo: () => void;
@@ -38,12 +46,44 @@ export default function App() {
         const nextColor = brushColor === SabakiColor.Black ? 0 : 1;
         const positionBuf = new TextEncoder().encode(JSON.stringify(position));
         window.wasmSearchWorker.postMessage(
-          { type: "search", payload: { positionBuf, nextColor } },
+          {
+            type: "search",
+            payload: {
+              positionBuf,
+              nextColor,
+              page: 0,
+              pageSize,
+            },
+          },
           [positionBuf.buffer],
         );
+        setCurrentPage(0);
+        setGames([]);
+        setHasMore(true);
       }, 0);
     }
   }, [board, brushColor]);
+
+  const loadMore = () => {
+    if (window.wasmSearchWorker !== undefined && !isSearching) {
+      setIsSearching(true);
+      const position = toWasmSearch(board);
+      const nextColor = brushColor === SabakiColor.Black ? 0 : 1;
+      const positionBuf = new TextEncoder().encode(JSON.stringify(position));
+      window.wasmSearchWorker.postMessage(
+        {
+          type: "search",
+          payload: {
+            positionBuf,
+            nextColor,
+            page: currentPage + 1,
+            pageSize,
+          },
+        },
+        [positionBuf.buffer],
+      );
+    }
+  };
 
   useEffect(() => {
     window.wasmSearchWorker.onmessage = (e) => {
@@ -52,10 +92,17 @@ export default function App() {
       if (type === "result") {
         setIsSearching(false);
         const jsonText = new TextDecoder().decode(payload);
-        const { num_results, results, next_moves } = JSON.parse(jsonText);
-        setGames(results);
+        const { num_results, results, next_moves, total_pages, current_page } =
+          JSON.parse(jsonText) as SearchReturn;
+        if (current_page === 0) {
+          setGames(results);
+        } else {
+          setGames((prev) => [...prev, ...results]);
+        }
         setTotalNumberOfGames(num_results);
         setNextMoves(next_moves);
+        setCurrentPage(current_page);
+        setHasMore(current_page < total_pages - 1);
       }
     };
   }, []);
@@ -111,6 +158,8 @@ export default function App() {
         onSelectGame={setSelectedGame}
         selectedGame={selectedGame}
         isSearching={isSearching}
+        onLoadMore={loadMore}
+        hasMore={hasMore}
       />
     </div>
   );
