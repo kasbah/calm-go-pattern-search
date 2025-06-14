@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import arrowLeftSvg from "@/assets/icons/arrow-left.svg";
-import type { Game } from "./wasm-search-types";
+import type {
+  Game,
+  SgfDate,
+  GameResult,
+  Rank,
+  Rules,
+} from "./wasm-search-types";
 import catRunning from "@/assets/cat_running.webp";
 
 function rotationToString(rotation: number) {
@@ -13,6 +19,62 @@ function rotationToString(rotation: number) {
   } else {
     return "-90°";
   }
+}
+
+function formatDate(date: SgfDate | null): string {
+  if (!date) return "N/A";
+  if (date.YearMonthDay) {
+    const [year, month, day] = date.YearMonthDay;
+    return `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+  }
+  if (date.YearMonth) {
+    const [year, month] = date.YearMonth;
+    return `${year}-${month.toString().padStart(2, "0")}`;
+  }
+  if (date.Year) {
+    return date.Year.toString();
+  }
+  if (date.Custom) {
+    return date.Custom;
+  }
+  return "N/A";
+}
+
+function formatResult(result: GameResult | null): string {
+  if (!result) return "N/A";
+  if (result.Player) {
+    const [color, score] = result.Player;
+    const colorStr = color === "Black" ? "B" : "W";
+    if (!score) return `${colorStr}+R`;
+    if (score.Resignation) return `${colorStr}+R`;
+    if (score.Timeout) return `${colorStr}+T`;
+    if (score.Forfeit) return `${colorStr}+F`;
+    if (score.Points) return `${colorStr}+${score.Points.toFixed(1)}`;
+    return `${colorStr}+R`;
+  }
+  if (result.Draw) return "Draw";
+  if (result.Void) return "Void";
+  if (result.Unknown) return result.Unknown;
+  return "N/A";
+}
+
+function formatRank(rank: Rank | null): string {
+  if (!rank) return "N/A";
+  if (rank.Kyu) return `${rank.Kyu}k`;
+  if (rank.Dan) return `${rank.Dan}d`;
+  if (rank.Pro) return `${rank.Pro}p`;
+  if (rank.Custom) return rank.Custom;
+  return "N/A";
+}
+
+function formatRules(rules: Rules | null): string {
+  if (!rules) return "N/A";
+  if (rules.Chinese) return "Chinese";
+  if (rules.Japanese) return "Japanese";
+  if (rules.Korean) return "Korean";
+  if (rules.Ing) return "Ing";
+  if (rules.Custom) return rules.Custom;
+  return "N/A";
 }
 
 export type GamesListProps = {
@@ -81,13 +143,14 @@ export default function GamesList({
       },
     );
 
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current);
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
     }
 
     return () => {
-      if (loadMoreRef.current) {
-        observer.unobserve(loadMoreRef.current);
+      if (currentRef) {
+        observer.unobserve(currentRef);
       }
     };
   }, [hasMore, isSearching, onLoadMore]);
@@ -116,14 +179,56 @@ export default function GamesList({
           >
             <div className="text-sm p-2">
               <h2 className="text-xl font-medium mb-2">{game.path}</h2>
-              <div className="grid grid-cols-2 gap-2">
-                <div>Score: {game.score}</div>
-                <div>Matched Within Move: {game.last_move_matched + 1}</div>
-                <div>Rotation: {rotationToString(game.rotation)}</div>
-                <div>Mirrored: {game.is_mirrored ? "Yes" : "No"}</div>
-                <div>Colors Inverted: {game.is_inverted ? "Yes" : "No"}</div>
-                <div>Correct Area Size: {game.all_empty_correctly_within}</div>
-                <div>Moves: {game.moves.length}</div>
+
+              {/* Game Metadata */}
+              <div className="mb-2">
+                <div className="font-medium">Game Information</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>Event: {game.event || "N/A"}</div>
+                  <div>Round: {game.round || "N/A"}</div>
+                  <div>Location: {game.location || "N/A"}</div>
+                  <div>Date: {formatDate(game.date)}</div>
+                  <div>Rules: {formatRules(game.rules)}</div>
+                  <div>Komi: {game.komi?.toFixed(1) || "N/A"}</div>
+                  <div>Result: {formatResult(game.result)}</div>
+                </div>
+              </div>
+
+              {/* Player Information */}
+              <div className="mb-2">
+                <div className="font-medium">Players</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    Black:{" "}
+                    {game.player_black
+                      ? `Player ${game.player_black}`
+                      : "Unknown"}{" "}
+                    ({formatRank(game.rank_black)})
+                  </div>
+                  <div>
+                    White:{" "}
+                    {game.player_white
+                      ? `Player ${game.player_white}`
+                      : "Unknown"}{" "}
+                    ({formatRank(game.rank_white)})
+                  </div>
+                </div>
+              </div>
+
+              {/* Match Information */}
+              <div className="mb-2">
+                <div className="font-medium">Match Details</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>Score: {game.score}</div>
+                  <div>Matched Within Move: {game.last_move_matched + 1}</div>
+                  <div>Rotation: {rotationToString(game.rotation)}</div>
+                  <div>Mirrored: {game.is_mirrored ? "Yes" : "No"}</div>
+                  <div>Colors Inverted: {game.is_inverted ? "Yes" : "No"}</div>
+                  <div>
+                    Correct Area Size: {game.all_empty_correctly_within}
+                  </div>
+                  <div>Total Moves: {game.moves.length}</div>
+                </div>
               </div>
             </div>
           </div>

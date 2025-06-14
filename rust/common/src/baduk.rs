@@ -327,7 +327,7 @@ impl fmt::Display for Rank {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Rules {
     Chinese,
     Japanese,
@@ -478,7 +478,7 @@ pub fn parse_sgf_result(result_str: &str) -> GameResult {
 pub struct Game {
     pub event: String,
     pub round: String,
-    pub place: String,
+    pub location: String,
     pub date: Option<SgfDate>,
     pub player_black: Option<i16>,
     pub player_white: Option<i16>,
@@ -496,7 +496,7 @@ struct PackedGame {
     name: String,
     event: String,
     round: String,
-    place: String,
+    location: String,
     date: Option<SgfDate>,
     player_black: Option<i16>,
     player_white: Option<i16>,
@@ -518,7 +518,7 @@ pub fn pack_games(games: &HashMap<String, Game>) -> Vec<u8> {
             name: name.clone(),
             event: game.event.clone(),
             round: game.round.clone(),
-            place: game.place.clone(),
+            location: game.location.clone(),
             date: game.date.clone(),
             player_black: game.player_black,
             player_white: game.player_white,
@@ -552,7 +552,7 @@ pub fn unpack_games(packed: &[u8]) -> HashMap<String, Game> {
                 Game {
                     event: packed.event,
                     round: packed.round,
-                    place: packed.place,
+                    location: packed.location,
                     date: packed.date,
                     player_black: packed.player_black,
                     player_white: packed.player_white,
@@ -1048,7 +1048,7 @@ mod tests {
             (name, Game {
                 event: "Test Event".to_string(),
                 round: "Test Round".to_string(),
-                place: "Test Place".to_string(),
+                location: "Test Place".to_string(),
                 date: Some(SgfDate::YearMonthDay(2024, 1, 1)),
                 player_black: Some(1),
                 player_white: Some(2),
@@ -1086,7 +1086,7 @@ mod tests {
             (name, Game {
                 event: "Test Event".to_string(),
                 round: "Test Round".to_string(),
-                place: "Test Place".to_string(),
+                location: "Test Place".to_string(),
                 date: Some(SgfDate::YearMonthDay(2024, 1, 1)),
                 player_black: Some(1),
                 player_white: Some(2),
@@ -1124,7 +1124,7 @@ mod tests {
             (name, Game {
                 event: "Test Event".to_string(),
                 round: "Test Round".to_string(),
-                place: "Test Place".to_string(),
+                location: "Test Place".to_string(),
                 date: Some(SgfDate::YearMonthDay(2024, 1, 1)),
                 player_black: Some(1),
                 player_white: Some(2),

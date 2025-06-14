@@ -265,7 +265,7 @@ fn load_sgf(
     let mut moves = Vec::new();
     let mut event = String::new();
     let mut round = String::new();
-    let mut place = String::new();
+    let mut location = String::new();
     let mut date = None;
     let mut player_black = String::new();
     let mut player_white = String::new();
@@ -280,7 +280,7 @@ fn load_sgf(
         match prop {
             go::Prop::EV(e) => event = e.text.to_string(),
             go::Prop::RO(r) => round = r.text.to_string(),
-            go::Prop::PC(p) => place = p.text.to_string(),
+            go::Prop::PC(p) => location = p.text.to_string(),
             go::Prop::DT(d) => date = Some(parse_sgf_date(&d.text)),
             go::Prop::PB(p) => player_black = p.text.to_string(),
             go::Prop::PW(p) => player_white = p.text.to_string(),
@@ -383,7 +383,7 @@ fn load_sgf(
         Game {
             event,
             round,
-            place,
+            location,
             date,
             player_black: None,
             player_white: None,

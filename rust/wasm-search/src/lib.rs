@@ -4,8 +4,9 @@ extern crate wasm_bindgen;
 mod utils;
 
 use calm_go_patterns_common::baduk::{
-    Color, Game, Placement, Point, Rotation, check_empty, check_within_one_quadrant, get_mirrored,
-    get_rotated, get_rotations, get_surrounding_points, match_game, switch_colors, unpack_games,
+    Color, Game, GameResult, Placement, Point, Rank, Rotation, Rules, SgfDate, check_empty,
+    check_within_one_quadrant, get_mirrored, get_rotated, get_rotations, get_surrounding_points,
+    match_game, switch_colors, unpack_games,
 };
 use cfg_if::cfg_if;
 use lru::LruCache;
@@ -29,7 +30,7 @@ extern "C" {
     fn log(s: &str);
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SearchResult {
     path: String,
     score: i16,
@@ -40,6 +41,18 @@ pub struct SearchResult {
     all_empty_correctly_within: u8, // distance from moves where all surrounding points are correctly empty
     moves: Vec<Placement>,          // the actual game moves
     moves_transformed: Vec<Placement>, // the moves rotated and/or mirrored
+    // Game metadata
+    event: String,
+    round: String,
+    location: String,
+    date: Option<SgfDate>,
+    player_black: Option<i16>,
+    player_white: Option<i16>,
+    rank_black: Rank,
+    rank_white: Rank,
+    komi: Option<f32>,
+    rules: Option<Rules>,
+    result: GameResult,
 }
 
 fn get_moves_rotation(query_rotation: &Rotation) -> Rotation {
@@ -189,6 +202,17 @@ impl WasmSearch {
                     all_empty_correctly_within: 0,
                     moves: game.moves.clone(),
                     moves_transformed: game.moves.clone(),
+                    event: game.event.clone(),
+                    round: game.round.clone(),
+                    location: game.location.clone(),
+                    date: game.date.clone(),
+                    player_black: game.player_black,
+                    player_white: game.player_white,
+                    rank_black: game.rank_black.clone(),
+                    rank_white: game.rank_white.clone(),
+                    komi: game.komi,
+                    rules: game.rules.clone(),
+                    result: game.result.clone(),
                 });
             }
             self.position_cache.put(position.to_vec(), results.clone());
@@ -218,6 +242,17 @@ impl WasmSearch {
                     all_empty_correctly_within: 0,
                     moves: game.moves.clone(),
                     moves_transformed: game.moves.clone(),
+                    event: game.event.clone(),
+                    round: game.round.clone(),
+                    location: game.location.clone(),
+                    date: game.date.clone(),
+                    player_black: game.player_black,
+                    player_white: game.player_white,
+                    rank_black: game.rank_black.clone(),
+                    rank_white: game.rank_white.clone(),
+                    komi: game.komi,
+                    rules: game.rules.clone(),
+                    result: game.result.clone(),
                 });
                 continue;
             }
@@ -237,6 +272,17 @@ impl WasmSearch {
                         all_empty_correctly_within: 0,
                         moves: game.moves.clone(),
                         moves_transformed: get_rotated(&game.moves, &moves_rotation),
+                        event: game.event.clone(),
+                        round: game.round.clone(),
+                        location: game.location.clone(),
+                        date: game.date.clone(),
+                        player_black: game.player_black,
+                        player_white: game.player_white,
+                        rank_black: game.rank_black.clone(),
+                        rank_white: game.rank_white.clone(),
+                        komi: game.komi,
+                        rules: game.rules.clone(),
+                        result: game.result.clone(),
                     });
                     break;
                 }
@@ -258,6 +304,17 @@ impl WasmSearch {
                             all_empty_correctly_within: 0,
                             moves: game.moves.clone(),
                             moves_transformed: get_mirrored(&game.moves),
+                            event: game.event.clone(),
+                            round: game.round.clone(),
+                            location: game.location.clone(),
+                            date: game.date.clone(),
+                            player_black: game.player_black,
+                            player_white: game.player_white,
+                            rank_black: game.rank_black.clone(),
+                            rank_white: game.rank_white.clone(),
+                            komi: game.komi,
+                            rules: game.rules.clone(),
+                            result: game.result.clone(),
                         });
                         continue;
                     }
@@ -278,6 +335,17 @@ impl WasmSearch {
                                 all_empty_correctly_within: 0,
                                 moves: game.moves.clone(),
                                 moves_transformed: get_rotated(&get_mirrored(&game.moves), &r),
+                                event: game.event.clone(),
+                                round: game.round.clone(),
+                                location: game.location.clone(),
+                                date: game.date.clone(),
+                                player_black: game.player_black,
+                                player_white: game.player_white,
+                                rank_black: game.rank_black.clone(),
+                                rank_white: game.rank_white.clone(),
+                                komi: game.komi,
+                                rules: game.rules.clone(),
+                                result: game.result.clone(),
                             });
                             break;
                         }
@@ -299,6 +367,17 @@ impl WasmSearch {
                         all_empty_correctly_within: 0,
                         moves: game.moves.clone(),
                         moves_transformed: game.moves.clone(),
+                        event: game.event.clone(),
+                        round: game.round.clone(),
+                        location: game.location.clone(),
+                        date: game.date.clone(),
+                        player_black: game.player_black,
+                        player_white: game.player_white,
+                        rank_black: game.rank_black.clone(),
+                        rank_white: game.rank_white.clone(),
+                        komi: game.komi,
+                        rules: game.rules.clone(),
+                        result: game.result.clone(),
                     });
                     continue;
                 }
@@ -320,6 +399,17 @@ impl WasmSearch {
                             all_empty_correctly_within: 0,
                             moves: game.moves.clone(),
                             moves_transformed: get_rotated(&game.moves, &moves_rotation),
+                            event: game.event.clone(),
+                            round: game.round.clone(),
+                            location: game.location.clone(),
+                            date: game.date.clone(),
+                            player_black: game.player_black,
+                            player_white: game.player_white,
+                            rank_black: game.rank_black.clone(),
+                            rank_white: game.rank_white.clone(),
+                            komi: game.komi,
+                            rules: game.rules.clone(),
+                            result: game.result.clone(),
                         });
                         break;
                     }
@@ -342,6 +432,17 @@ impl WasmSearch {
                             all_empty_correctly_within: 0,
                             moves: game.moves.clone(),
                             moves_transformed: get_mirrored(&game.moves),
+                            event: game.event.clone(),
+                            round: game.round.clone(),
+                            location: game.location.clone(),
+                            date: game.date.clone(),
+                            player_black: game.player_black,
+                            player_white: game.player_white,
+                            rank_black: game.rank_black.clone(),
+                            rank_white: game.rank_white.clone(),
+                            komi: game.komi,
+                            rules: game.rules.clone(),
+                            result: game.result.clone(),
                         });
                         continue;
                     }
@@ -362,6 +463,17 @@ impl WasmSearch {
                                 all_empty_correctly_within: 0,
                                 moves: game.moves.clone(),
                                 moves_transformed: get_rotated(&get_mirrored(&game.moves), &r),
+                                event: game.event.clone(),
+                                round: game.round.clone(),
+                                location: game.location.clone(),
+                                date: game.date.clone(),
+                                player_black: game.player_black,
+                                player_white: game.player_white,
+                                rank_black: game.rank_black.clone(),
+                                rank_white: game.rank_white.clone(),
+                                komi: game.komi,
+                                rules: game.rules.clone(),
+                                result: game.result.clone(),
                             });
                             break;
                         }
