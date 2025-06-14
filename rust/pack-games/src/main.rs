@@ -61,6 +61,10 @@ fn find_player_id(
     None
 }
 
+fn has_multiple_players(name: &str) -> bool {
+    name.contains(" and ") || name.contains("&") || name.matches(',').count() > 1
+}
+
 fn main() {
     let player_aliases = load_player_aliases();
     let mut unknown_names = HashSet::new();
@@ -306,6 +310,11 @@ fn load_sgf(
             go::Prop::RU(r) => rules = Some(parse_rules(&r.text)),
             _ => {}
         }
+    }
+
+    // Check if player names indicate multiple players
+    if has_multiple_players(&player_black) || has_multiple_players(&player_white) {
+        return Err("Player name indicates multiple players".into());
     }
 
     if let Some(go::Prop::SZ(size)) = game[0]
