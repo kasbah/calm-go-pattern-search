@@ -143,6 +143,8 @@ fn main() {
         let mut duplicate_info = None;
         if let Some((pb, rb, pw, rw, existing_result)) = seen_moves.get(&game.moves) {
             is_duplicate = true;
+            let merged_player_black = game.player_black.or(*pb);
+            let merged_player_white = game.player_white.or(*pw);
             // Keep the game with better score information
             match (&existing_result, &game.result) {
                 // If existing is Unknown and new is not, keep the new one
@@ -150,9 +152,9 @@ fn main() {
                     seen_moves.insert(
                         game.moves.clone(),
                         (
-                            game.player_black,
+                            merged_player_black,
                             game.rank_black.to_string(),
-                            game.player_white,
+                            merged_player_white,
                             game.rank_white.to_string(),
                             game.result.clone(),
                         ),
@@ -164,9 +166,9 @@ fn main() {
                     seen_moves.insert(
                         game.moves.clone(),
                         (
-                            game.player_black,
+                            merged_player_black,
                             game.rank_black.to_string(),
-                            game.player_white,
+                            merged_player_white,
                             game.rank_white.to_string(),
                             game.result.clone(),
                         ),
@@ -182,6 +184,8 @@ fn main() {
             for (_, rotated_moves) in get_rotations(&game.moves) {
                 if let Some((pb, rb, pw, rw, existing_result)) = seen_moves.get(&rotated_moves) {
                     is_duplicate = true;
+                    let merged_player_black = game.player_black.or(*pb);
+                    let merged_player_white = game.player_white.or(*pw);
                     // Keep the game with better score information
                     match (&existing_result, &game.result) {
                         // If existing is Unknown and new is not, keep the new one
@@ -189,9 +193,9 @@ fn main() {
                             seen_moves.insert(
                                 game.moves.clone(),
                                 (
-                                    game.player_black,
+                                    merged_player_black,
                                     game.rank_black.to_string(),
-                                    game.player_white,
+                                    merged_player_white,
                                     game.rank_white.to_string(),
                                     game.result.clone(),
                                 ),
@@ -204,9 +208,9 @@ fn main() {
                             seen_moves.insert(
                                 game.moves.clone(),
                                 (
-                                    game.player_black,
+                                    merged_player_black,
                                     game.rank_black.to_string(),
-                                    game.player_white,
+                                    merged_player_white,
                                     game.rank_white.to_string(),
                                     game.result.clone(),
                                 ),
