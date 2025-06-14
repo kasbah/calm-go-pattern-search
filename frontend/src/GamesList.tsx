@@ -8,6 +8,7 @@ import type {
   Rules,
 } from "./wasm-search-types";
 import catRunning from "@/assets/cat_running.webp";
+import playerNames from "../../rust/pack-games/python-player-name-aliases/player_names.json";
 
 function rotationToString(rotation: number) {
   if (rotation === 0) {
@@ -75,6 +76,24 @@ function formatRules(rules: Rules | null): string {
   if (rules.Ing) return "Ing";
   if (rules.Custom) return rules.Custom;
   return "N/A";
+}
+
+function getPlayerName(playerId: number | null): string {
+  if (!playerId) return "Unknown";
+
+  // Find the player entry by ID
+  const playerEntry = Object.entries(playerNames).find(
+    ([_, data]) => data.id === playerId,
+  );
+  if (!playerEntry) return `Player ${playerId}`;
+
+  // Get the preferred English name if available, otherwise use the first name
+  const [name, data] = playerEntry;
+  const preferredName = data.aliases.find((alias) =>
+    alias.languages.some((lang) => lang.language === "en" && lang.preferred),
+  );
+
+  return preferredName ? preferredName.name : name;
 }
 
 export type GamesListProps = {
@@ -178,48 +197,31 @@ export default function GamesList({
             onClick={() => onSelectGame(game)}
           >
             <div className="text-sm p-2">
-              <h2 className="text-xl font-medium mb-2">{game.path}</h2>
+              <h2 className="text-xl font-medium mb-2">
+                {getPlayerName(game.player_black)} {formatRank(game.rank_black)}{" "}
+                (B) vs {getPlayerName(game.player_white)}{" "}
+                {formatRank(game.rank_white)} (W)
+              </h2>
 
               {/* Game Metadata */}
               <div className="mb-2">
-                <div className="font-medium">Game Information</div>
                 <div className="grid grid-cols-2 gap-2">
-                  <div>Event: {game.event || "N/A"}</div>
+                  <h3 className="font-medium text-lg">{game.event || "N/A"}</h3>
+                  <h3 className="font-medium text-lg">
+                    {formatDate(game.date)}
+                  </h3>
                   <div>Round: {game.round || "N/A"}</div>
                   <div>Location: {game.location || "N/A"}</div>
-                  <div>Date: {formatDate(game.date)}</div>
+
                   <div>Rules: {formatRules(game.rules)}</div>
                   <div>Komi: {game.komi?.toFixed(1) || "N/A"}</div>
                   <div>Result: {formatResult(game.result)}</div>
                 </div>
               </div>
 
-              {/* Player Information */}
-              <div className="mb-2">
-                <div className="font-medium">Players</div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    Black:{" "}
-                    {game.player_black
-                      ? `Player ${game.player_black}`
-                      : "Unknown"}{" "}
-                    ({formatRank(game.rank_black)})
-                  </div>
-                  <div>
-                    White:{" "}
-                    {game.player_white
-                      ? `Player ${game.player_white}`
-                      : "Unknown"}{" "}
-                    ({formatRank(game.rank_white)})
-                  </div>
-                </div>
-              </div>
-
               {/* Match Information */}
               <div className="mb-2">
-                <div className="font-medium">Match Details</div>
                 <div className="grid grid-cols-2 gap-2">
-                  <div>Score: {game.score}</div>
                   <div>Matched Within Move: {game.last_move_matched + 1}</div>
                   <div>Rotation: {rotationToString(game.rotation)}</div>
                   <div>Mirrored: {game.is_mirrored ? "Yes" : "No"}</div>
@@ -230,6 +232,7 @@ export default function GamesList({
                   <div>Total Moves: {game.moves.length}</div>
                 </div>
               </div>
+              <div className="text-sm text-gray-500">{game.path}</div>
             </div>
           </div>
         ))}
