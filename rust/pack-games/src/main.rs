@@ -57,6 +57,17 @@ fn find_player_id(
         return Some(*id);
     }
 
+    // If the name contains a comma, try the flipped format
+    if name.contains(',') {
+        let parts: Vec<&str> = name.split(',').map(|s| s.trim()).collect();
+        if parts.len() == 2 {
+            let flipped_name = format!("{} {}", parts[1], parts[0]);
+            if let Some(id) = aliases.get(flipped_name.to_lowercase().as_str()) {
+                return Some(*id);
+            }
+        }
+    }
+
     unknown_names.insert(name.to_string());
     None
 }
