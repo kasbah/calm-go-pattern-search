@@ -155,19 +155,22 @@ impl WasmSearch {
         next_color: u8,
         page: usize,
         page_size: usize,
-        player_id: i16,
+        player_ids: Vec<i16>,
     ) -> Uint8Array {
         let position_buf: Vec<u8> = position.to_vec();
         let position_decoded: Vec<Placement> = serde_json::from_slice(position_buf.as_slice())
             .expect("Failed to deserialize position");
         let mut results = self.match_position(&position_decoded);
 
-        log(&format!("player_id: {}", player_id));
+        log(&format!("player_ids: {:?}", player_ids));
 
-        // Filter results by player ID if provided (0 means no filter)
-        if player_id != 0 {
+        // Filter results by player IDs if provided (empty array means no filter)
+        // Games must contain ALL selected players
+        if !player_ids.is_empty() {
             results.retain(|result| {
-                result.player_black == Some(player_id) || result.player_white == Some(player_id)
+                player_ids
+                    .iter()
+                    .all(|&id| result.player_black == Some(id) || result.player_white == Some(id))
             });
         }
 

@@ -8,7 +8,7 @@ let queue: Array<{
   nextColor: number;
   page: number;
   pageSize: number;
-  playerId: number;
+  playerIds: number[];
 }> = [];
 let isSearching = false;
 
@@ -37,7 +37,7 @@ async function handleQueue() {
       nextColor,
       page = 0,
       pageSize = 10,
-      playerId = 0,
+      playerIds = [],
     } = queue.pop()!;
     queue = [];
     const results = await wasmSearch.search(
@@ -45,7 +45,7 @@ async function handleQueue() {
       nextColor,
       page,
       pageSize,
-      playerId,
+      new Int16Array(playerIds),
     );
     // give the JS event loop a chance to add queries to the queue
     await new Promise((resolve) => setTimeout(resolve, 0));

@@ -25,7 +25,7 @@ export default function App() {
   const [brushColor, setBrushColor] = useState<SabakiColor>(SabakiColor.Black);
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  const [selectedPlayerId, setSelectedPlayerId] = useState(0);
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
   const pageSize = 10;
 
   const gobanEditorRef = useRef<{
@@ -54,7 +54,7 @@ export default function App() {
               nextColor,
               page: 0,
               pageSize,
-              playerId: selectedPlayerId,
+              playerIds: selectedPlayerIds,
             },
           },
           [positionBuf.buffer],
@@ -64,7 +64,7 @@ export default function App() {
         setHasMore(true);
       }, 0);
     }
-  }, [board, brushColor, selectedPlayerId]);
+  }, [board, brushColor, selectedPlayerIds]);
 
   const loadMore = () => {
     if (window.wasmSearchWorker !== undefined && !isSearching) {
@@ -80,7 +80,7 @@ export default function App() {
             nextColor,
             page: currentPage + 1,
             pageSize,
-            playerId: selectedPlayerId,
+            playerIds: selectedPlayerIds,
           },
         },
         [positionBuf.buffer],
@@ -163,8 +163,8 @@ export default function App() {
         isSearching={isSearching}
         onLoadMore={loadMore}
         hasMore={hasMore}
-        selectedPlayerId={selectedPlayerId}
-        onPlayerSelect={setSelectedPlayerId}
+        selectedPlayerIds={selectedPlayerIds}
+        onPlayerSelect={setSelectedPlayerIds}
       />
     </div>
   );

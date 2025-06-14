@@ -105,8 +105,8 @@ export type GamesListProps = {
   isSearching: boolean;
   onLoadMore: () => void;
   hasMore: boolean;
-  selectedPlayerId: number;
-  onPlayerSelect: (playerId: number) => void;
+  selectedPlayerIds: number[];
+  onPlayerSelect: (playerIds: number[]) => void;
 };
 
 export default function GamesList({
@@ -117,7 +117,7 @@ export default function GamesList({
   isSearching,
   onLoadMore,
   hasMore,
-  selectedPlayerId,
+  selectedPlayerIds,
   onPlayerSelect,
 }: GamesListProps) {
   const [showOverlay, setShowOverlay] = useState(false);
@@ -183,7 +183,7 @@ export default function GamesList({
     <div className="flex flex-col h-screen ml-4 w-full">
       <div className="mt-4 mr-2 mb-2">
         <PlayerSearch
-          selectedPlayerId={selectedPlayerId}
+          selectedPlayerIds={selectedPlayerIds}
           onPlayerSelect={onPlayerSelect}
         />
       </div>
