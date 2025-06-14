@@ -23,11 +23,22 @@ cfg_if! {
     }
 }
 
+// Load player names from the JSON file
+const PLAYER_NAMES: &str =
+    include_str!("../../../rust/pack-games/python-player-name-aliases/player_names.json");
+
 #[wasm_bindgen]
 extern "C" {
     fn alert(s: &str);
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
+}
+
+#[wasm_bindgen]
+pub struct WasmSearch {
+    game_data: HashMap<String, Game>,
+    position_cache: LruCache<Vec<Placement>, Vec<SearchResult>>,
+    player_names_by_id: HashMap<i16, String>, // Fast lookup by ID
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -119,12 +130,6 @@ fn get_next_moves(
     next_moves.into_iter().map(|(m, _)| m.point).collect()
 }
 
-#[wasm_bindgen]
-pub struct WasmSearch {
-    game_data: HashMap<String, Game>,
-    position_cache: LruCache<Vec<Placement>, Vec<SearchResult>>,
-}
-
 #[derive(Serialize, Deserialize)]
 struct WasmSearchReturn {
     num_results: usize,
@@ -141,10 +146,54 @@ impl WasmSearch {
         let packed = include_bytes!("games.pack");
         let game_data = unpack_games(packed);
         let position_cache = LruCache::new(std::num::NonZeroUsize::new(1000).unwrap());
+
+        // Parse player names and create reverse lookup
+        let player_names: HashMap<String, serde_json::Value> =
+            serde_json::from_str(PLAYER_NAMES).expect("Failed to parse player names JSON");
+
+        let mut player_names_by_id = HashMap::new();
+        for (canonical_name, data) in &player_names {
+            if let Some(id) = data["id"].as_i64() {
+                let id = id as i16;
+
+                // Get the preferred English name if available, otherwise use canonical name
+                let display_name = if let Some(aliases) = data["aliases"].as_array() {
+                    aliases
+                        .iter()
+                        .find(|alias| {
+                            alias["languages"]
+                                .as_array()
+                                .map(|langs| {
+                                    langs.iter().any(|lang| {
+                                        lang["language"].as_str() == Some("en")
+                                            && lang["preferred"].as_bool() == Some(true)
+                                    })
+                                })
+                                .unwrap_or(false)
+                        })
+                        .and_then(|preferred| preferred["name"].as_str())
+                        .unwrap_or(canonical_name)
+                        .to_string()
+                } else {
+                    canonical_name.clone()
+                };
+
+                player_names_by_id.insert(id, display_name);
+            }
+        }
+
         Self {
             game_data,
             position_cache,
+            player_names_by_id,
         }
+    }
+
+    fn get_player_name(&self, player_id: i16) -> String {
+        self.player_names_by_id
+            .get(&player_id)
+            .cloned()
+            .unwrap_or_else(|| format!("Player {}", player_id))
     }
 
     #[wasm_bindgen]
@@ -154,11 +203,34 @@ impl WasmSearch {
         next_color: u8,
         page: usize,
         page_size: usize,
+        search_term: String,
     ) -> Uint8Array {
         let position_buf: Vec<u8> = position.to_vec();
         let position_decoded: Vec<Placement> = serde_json::from_slice(position_buf.as_slice())
             .expect("Failed to deserialize position");
-        let results = self.match_position(&position_decoded);
+        let mut results = self.match_position(&position_decoded);
+
+        log(&format!("search_term: {}", search_term));
+
+        // Filter results by search term if provided
+        if !search_term.is_empty() {
+            results.retain(|result| {
+                let black_player = result
+                    .player_black
+                    .map(|id| self.get_player_name(id))
+                    .unwrap_or_default();
+                let white_player = result
+                    .player_white
+                    .map(|id| self.get_player_name(id))
+                    .unwrap_or_default();
+                black_player
+                    .to_lowercase()
+                    .contains(&search_term.to_lowercase())
+                    || white_player
+                        .to_lowercase()
+                        .contains(&search_term.to_lowercase())
+            });
+        }
 
         let next_color = if next_color == 0 {
             Color::Black

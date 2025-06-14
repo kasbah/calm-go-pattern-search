@@ -104,6 +104,8 @@ export type GamesListProps = {
   isSearching: boolean;
   onLoadMore: () => void;
   hasMore: boolean;
+  searchTerm: string;
+  onSearchChange: (term: string) => void;
 };
 
 export default function GamesList({
@@ -114,6 +116,8 @@ export default function GamesList({
   isSearching,
   onLoadMore,
   hasMore,
+  searchTerm,
+  onSearchChange,
 }: GamesListProps) {
   const [showOverlay, setShowOverlay] = useState(false);
   const [overlayStartTime, setOverlayStartTime] = useState<number | null>(null);
@@ -176,6 +180,15 @@ export default function GamesList({
 
   return (
     <div className="flex flex-col h-screen ml-4 w-full">
+      <div className="mt-4 mr-2 mb-2">
+        <input
+          type="text"
+          placeholder="Search by player name..."
+          value={searchTerm}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
       <div
         className="flex mb-4 flex-shrink-0"
         style={{ cursor: selectedGame != null ? "pointer" : "default" }}

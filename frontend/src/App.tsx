@@ -25,6 +25,7 @@ export default function App() {
   const [brushColor, setBrushColor] = useState<SabakiColor>(SabakiColor.Black);
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const pageSize = 10;
 
   const gobanEditorRef = useRef<{
@@ -53,6 +54,7 @@ export default function App() {
               nextColor,
               page: 0,
               pageSize,
+              searchTerm,
             },
           },
           [positionBuf.buffer],
@@ -62,7 +64,7 @@ export default function App() {
         setHasMore(true);
       }, 0);
     }
-  }, [board, brushColor]);
+  }, [board, brushColor, searchTerm]);
 
   const loadMore = () => {
     if (window.wasmSearchWorker !== undefined && !isSearching) {
@@ -78,6 +80,7 @@ export default function App() {
             nextColor,
             page: currentPage + 1,
             pageSize,
+            searchTerm,
           },
         },
         [positionBuf.buffer],
@@ -160,6 +163,8 @@ export default function App() {
         isSearching={isSearching}
         onLoadMore={loadMore}
         hasMore={hasMore}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
       />
     </div>
   );

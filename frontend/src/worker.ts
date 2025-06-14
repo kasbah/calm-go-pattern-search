@@ -8,6 +8,7 @@ let queue: Array<{
   nextColor: number;
   page: number;
   pageSize: number;
+  searchTerm: string;
 }> = [];
 let isSearching = false;
 
@@ -31,13 +32,20 @@ async function handleQueue() {
   if (queue.length > 0 && !isSearching && wasmInitialized) {
     isSearching = true;
     // take the latest query and discard the rest
-    const { positionBuf, nextColor, page = 0, pageSize = 10 } = queue.pop()!;
+    const {
+      positionBuf,
+      nextColor,
+      page = 0,
+      pageSize = 10,
+      searchTerm = "",
+    } = queue.pop()!;
     queue = [];
     const results = await wasmSearch.search(
       positionBuf,
       nextColor,
       page,
       pageSize,
+      searchTerm,
     );
     // give the JS event loop a chance to add queries to the queue
     await new Promise((resolve) => setTimeout(resolve, 0));
