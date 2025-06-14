@@ -11,7 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: nschloe/action-cached-lfs-checkout@v1
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -25,6 +28,9 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           components: "clippy,rustfmt"
+
+      - name: Unpack player_names.json
+        run: cd rust/pack-games/python-player-name-aliases/ && gunzip player_names.json.gz
 
       - name: Run clippy
         run: |

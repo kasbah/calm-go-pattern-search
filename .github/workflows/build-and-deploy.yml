@@ -77,6 +77,9 @@ jobs:
           key: rust-artifacts-${{ needs.build-rust.outputs.rust-hash }}
           fail-on-cache-miss: true
 
+      - name: Unpack player_names.json
+        run: cd rust/pack-games/python-player-name-aliases/ && gunzip player_names.json.gz
+
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
