@@ -122,6 +122,7 @@ fn main() {
         HashMap::<Vec<Placement>, (Option<i16>, String, Option<i16>, String, GameResult)>::new();
     let mut unique_moves = HashMap::new();
 
+    println!("Processing games...");
     for (path, game) in games_vec {
         let mut is_duplicate = false;
         let mut duplicate_info = None;
@@ -221,17 +222,20 @@ fn main() {
             );
             unique_moves.insert(path.clone(), game.clone());
         } else if let Some((pb, rb, pw, rw)) = duplicate_info {
-            println!(
-                "Removing duplicate game: {:?} {} vs {:?} {} (duplicate of {:?} {} vs {:?} {})",
-                game.player_black,
-                game.rank_black,
-                game.player_white,
-                game.rank_white,
-                pb,
-                rb,
-                pw,
-                rw
-            );
+            // Only warn if player IDs don't match
+            if game.player_black != pb || game.player_white != pw {
+                println!(
+                    "Removing duplicate game: {:?} {} vs {:?} {} (duplicate of {:?} {} vs {:?} {})",
+                    game.player_black,
+                    game.rank_black,
+                    game.player_white,
+                    game.rank_white,
+                    pb,
+                    rb,
+                    pw,
+                    rw
+                );
+            }
         }
     }
 
