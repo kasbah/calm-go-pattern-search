@@ -42,7 +42,7 @@ fn load_player_aliases() -> HashMap<String, i16> {
     aliases
 }
 
-fn find_canonical_name(
+fn find_player_id(
     name: &str,
     aliases: &HashMap<String, i16>,
     unknown_names: &mut HashSet<String>,
@@ -78,22 +78,23 @@ fn main() {
     println!("Read directories");
 
     let games_vec = paths
-        .iter()
+        .par_iter()
         .filter_map(|path| match std::fs::read_to_string(path) {
             Ok(file_data) => match load_sgf(path, &file_data) {
                 Ok((mut game, player_black, player_white)) => {
                     // Replace player names with canonical names
+                    let mut local_unknown = HashSet::new();
                     game.player_black =
-                        find_canonical_name(&player_black, &player_aliases, &mut unknown_names);
+                        find_player_id(&player_black, &player_aliases, &mut local_unknown);
                     game.player_white =
-                        find_canonical_name(&player_white, &player_aliases, &mut unknown_names);
+                        find_player_id(&player_white, &player_aliases, &mut local_unknown);
                     let rel_path = path
                         .strip_prefix(&sgf_folder)
                         .unwrap()
                         .with_extension("")
                         .to_string_lossy()
                         .into_owned();
-                    Some((rel_path, game))
+                    Some((rel_path, game, local_unknown))
                 }
                 Err(e) => {
                     println!("Skipping {path:?}: {e}");
@@ -105,6 +106,16 @@ fn main() {
                 None
             }
         })
+        .collect::<Vec<_>>();
+
+    // Merge unknown names from all games
+    for (_, _, local_unknown) in &games_vec {
+        unknown_names.extend(local_unknown.iter().cloned());
+    }
+
+    let games_vec = games_vec
+        .into_iter()
+        .map(|(path, game, _)| (path, game))
         .collect::<Vec<_>>();
 
     let mut seen_moves =
