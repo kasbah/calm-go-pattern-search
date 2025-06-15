@@ -159,8 +159,18 @@ fn main() {
             if let Some((existing_path, existing_game)) = unique_games.get(&position) {
                 maybe_existing_game = Some((existing_path.clone(), existing_game.clone()));
                 is_duplicate = true;
-                let merged_player_black = game.player_black.or(existing_game.player_black);
-                let merged_player_white = game.player_white.or(existing_game.player_white);
+                let merged_player_black = match (existing_game.player_black, game.player_black) {
+                    (Some(id1), Some(id2)) => Some(if id1 > 0 { id1 } else { id2 }),
+                    (Some(id), None) => Some(id),
+                    (None, Some(id)) => Some(id),
+                    (None, None) => None,
+                };
+                let merged_player_white = match (existing_game.player_white, game.player_white) {
+                    (Some(id1), Some(id2)) => Some(if id1 > 0 { id1 } else { id2 }),
+                    (Some(id), None) => Some(id),
+                    (None, Some(id)) => Some(id),
+                    (None, None) => None,
+                };
                 let merged_result = match (&existing_game.result, &game.result) {
                     (GameResult::Unknown(_), new) => new.clone(),
                     (existing, GameResult::Unknown(_)) => existing.clone(),
@@ -314,9 +324,27 @@ fn main() {
     unknown_names.sort();
     std::fs::write("unknown_names.txt", unknown_names.join("\n")).unwrap();
 
-    // Write possible aliases to file
+    // Count player ID usage across unique games
+    let mut player_id_counts = HashMap::<i16, usize>::new();
+    for (_, game) in &games {
+        if let Some(id) = game.player_black {
+            *player_id_counts.entry(id).or_insert(0) += 1;
+        }
+        if let Some(id) = game.player_white {
+            *player_id_counts.entry(id).or_insert(0) += 1;
+        }
+    }
+
+    // Write possible aliases to file, filtering out those where either ID appears only once
     println!("Writing possible_aliases.txt...");
-    let mut aliases: Vec<_> = possible_aliases.into_iter().collect();
+    let mut aliases: Vec<_> = possible_aliases
+        .into_iter()
+        .filter(|alias| {
+            let count1 = player_id_counts.get(&alias.id1).unwrap_or(&0);
+            let count2 = player_id_counts.get(&alias.id2).unwrap_or(&0);
+            *count1 > 0 && *count2 > 0
+        })
+        .collect();
     aliases.sort_by(|a, b| a.id1.cmp(&b.id1).then(a.id2.cmp(&b.id2)));
     let aliases_str = aliases
         .iter()

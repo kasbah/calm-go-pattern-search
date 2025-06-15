@@ -142,6 +142,7 @@ def consolidate_aliases(
         # Remove main_name2
         del custom_alias_db[main_name2]
         main_name = main_name1
+        other_name = main_name2
     elif main_name1 in custom_alias_db:
         main_name = main_name1
         other_name = main_name2
@@ -149,8 +150,10 @@ def consolidate_aliases(
         main_name = main_name2
         other_name = main_name1
     else:
+        # If neither name is in the database, use name2 as main name
         main_name = name2
         other_name = name1
+
     # Initialize the main name's aliases if needed
     if main_name not in custom_alias_db:
         custom_alias_db[main_name] = []
@@ -182,11 +185,8 @@ def main():
     possible_aliases = load_possible_aliases()
     rejected_alias_pairs = load_rejected_alias_pairs()
 
-    # Calculate total and remaining aliases
     total_aliases = len(possible_aliases)
-    remaining_aliases = total_aliases - len(rejected_alias_pairs)
     print(f"\nTotal possible aliases: {total_aliases}")
-    print(f"Remaining to check: {remaining_aliases}")
 
     # Process each possible alias
     for i, (id1, id2) in enumerate(possible_aliases, 1):
@@ -211,45 +211,45 @@ def main():
             print(f"\nSkipping pair {id1} - {id2}: Already known aliases")
             continue
 
-        # Auto-accept if one name starts with the other or with any known alias
+        # Check if any name from player 1 starts with any name from player 2
         all_names1 = [name1] + custom_aliases1 + known_aliases1
         all_names2 = [name2] + custom_aliases2 + known_aliases2
 
         auto_accept = False
         matching_reason = ""
 
-        # Check if any name from player 1 starts with any name from player 2
+        # First check untranslated names
         for n1 in all_names1:
             for n2 in all_names2:
-                if n1.lower().startswith(n2.lower()) or n2.lower().startswith(
-                    n1.lower()
-                ):
+                if n1.lower() == n2.lower():
                     auto_accept = True
-                    matching_reason = f'"{n1}" matches with "{n2}"'
+                    matching_reason = f'Exact match: "{n1}" matches "{n2}"'
+                    break
+                elif n1.lower().startswith(n2.lower()) or n2.lower().startswith(n1.lower()):
+                    auto_accept = True
+                    matching_reason = f'Name matches: "{n1}" matches with "{n2}"'
                     break
             if auto_accept:
                 break
 
-        # Always try translation for name1 for additional context
-        translation1 = translate_name(name1, "en")
+        # Only try translation if no untranslated match was found
+        if not auto_accept:
+            # Always try translation for name1 for additional context
+            translation1 = translate_name(name1, "en")
 
-        # If not auto-accepted yet, try translation matching
-        if not auto_accept and translation1:
-            trans_text1, src_lang1 = translation1
+            # If translation successful, try translation matching
+            if translation1:
+                trans_text1, src_lang1 = translation1
 
-            # Check if translation of name1 matches name2 (case-insensitive)
-            if trans_text1.lower() == name2.lower():
-                auto_accept = True
-                matching_reason = f'Translation matches: "{trans_text1}" (from "{name1}" [{src_lang1}]) matches "{name2}"'
-            # Check if translation of name1 starts with name2 or vice versa
-            elif trans_text1.lower().startswith(
-                name2.lower()
-            ) or name2.lower().startswith(trans_text1.lower()):
-                auto_accept = True
-                matching_reason = f'Translation matches: "{trans_text1}" (from "{name1}" [{src_lang1}]) matches with "{name2}"'
+                # Check if translation of name1 matches name2 or any of its aliases (case-insensitive)
+                for n2 in all_names2:
+                    if trans_text1.lower() == n2.lower():
+                        auto_accept = True
+                        matching_reason = f'Translation matches: "{trans_text1}" (from "{name1}" [{src_lang1}]) matches "{n2}"'
+                        break
 
         if auto_accept:
-            print(f"\nAuto-accepting alias pair ({i}/{remaining_aliases}):")
+            print(f"\nAuto-accepting alias pair ({i}/{total_aliases}):")
             print(f"Player 1 (ID: {id1}): {name1}")
             print(f"Player 2 (ID: {id2}): {name2}")
             print(f"Reason: {matching_reason}")
@@ -264,13 +264,14 @@ def main():
             print(f"Aliases added to custom_aliases.json under main name: {main_name}")
             continue
 
-        print(f"\nPossible alias pair ({i}/{remaining_aliases}):")
+        print(f"\nPossible alias pair ({i}/{total_aliases}):")
         print(f"Player 1 (ID: {id1}): {name1}")
         print(f"Custom aliases: {', '.join(f'"{n}"' for n in custom_aliases1)}")
         print(f"Known aliases: {', '.join(f'"{n}"' for n in known_aliases1)}")
         if translation1:
             trans_text1, src_lang1 = translation1
             print(f"Translation: {trans_text1} (detected language: {src_lang1})")
+        print("")
         print(f"Player 2 (ID: {id2}): {name2}")
         print(f"Custom aliases: {', '.join(f'"{n}"' for n in custom_aliases2)}")
         print(f"Known aliases: {', '.join(f'"{n}"' for n in known_aliases2)}")

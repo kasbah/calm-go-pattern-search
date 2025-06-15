@@ -1,6 +1,7 @@
 {
   "Abe Yoshiteru": [
-    "Abe Kamejiro"
+    "Abe Kamejiro",
+    "安倍吉辉六段"
   ],
   "Adachi Toshimasa": [
     "Adachi Toashimasa"
@@ -21,11 +22,10 @@
   ],
   "An Cheong": [
     "An Jo Yeong",
-    "An Joyeong"
-  ],
-  "An Choyeong": [
+    "An Joyeong",
     "An Cho-yeong",
-    "An Choyoung"
+    "An Choyoung",
+    "An Choyeong"
   ],
   "An Dalhun": [
     "An Dal Hun",
@@ -65,16 +65,22 @@
     "Baek Dae Hyun"
   ],
   "Baek Hongsuk": [
-    "Baek Hong Suk"
+    "Baek Hong Suk",
+    "Paek Hong-seok",
+    "Paek Hongseok",
+    "Paek Hongsuk"
   ],
   "Baek Sungho": [
-    "Baek Seong Ho"
+    "Baek Seong Ho",
+    "Paek Seong-ho",
+    "Paek Seongho"
   ],
   "Benjamin Lockhart": [
     "Banjamin Lockhart"
   ],
   "Cao Zhilin": [
-    "Cao Zhi Lin"
+    "Cao Zhi Lin",
+    "曹志林"
   ],
   "Ch'oe Kyu-peong": [
     "Ch'oe Kyu-pyeong"
@@ -83,7 +89,8 @@
     "Cha Minsoo"
   ],
   "Chang Su-yeong": [
-    "Chang Suyeong"
+    "Chang Suyeong",
+    "Jang Su Yeong"
   ],
   "Chen Dilong": [
     "Chen Delong"
@@ -106,7 +113,8 @@
     "Cho HoonHyun",
     "Cho Hun Hyun",
     "Cho Hun-hyeon",
-    "Cho hunhyun"
+    "Cho hunhyun",
+    "曹熏铉"
   ],
   "Cho Hyeyeon": [
     "Cho Hye Yeon",
@@ -140,10 +148,14 @@
   ],
   "Choi Wonyong": [
     "Choi Won Young",
-    "Choi Wongyong"
+    "Choi Wongyong",
+    "Ch'oe Weon-yong"
   ],
   "Chu Hyeong-uk": [
-    "Chu Keer"
+    "Chu Keer",
+    "Yoon Hyun Seok",
+    "Pak Cheong-sang",
+    "Yun Hyeon-cheol"
   ],
   "Christan Gabriel Pop": [
     "Christian Pop",
@@ -211,7 +223,8 @@
     "Han Sanghun"
   ],
   "Hashimoto Shoji": [
-    "Hashimoto Syoji"
+    "Hashimoto Syoji",
+    "桥本昌二九段"
   ],
   "Hayashi Genetsu": [
     "Hayashi Genetsu Monnyu"
@@ -259,9 +272,6 @@
   "Hong Kochnoeul": [
     "Hong Kkoch'-no-eul",
     "Hong Kkon-no-eul"
-  ],
-  "Honinbo Jowa": [
-    "Honinbo Jowa 33y"
   ],
   "Honinbo San'etsu": [
     "Honinbo Sanetsu"
@@ -328,11 +338,10 @@
   "Inoue Isao": [
     "Yoshida Misako"
   ],
-  "Inoue Shunseki": [
-    "Inoue Shunseki Inseki"
-  ],
   "Inoue Shuntatsu": [
-    "Inoue Shuntatsu Inseki"
+    "Inoue Shuntatsu Inseki",
+    "Inoue Shunseki Inseki",
+    "Inoue Shunseki"
   ],
   "Ishigure Ikuro": [
     "Ishikure Ikuro",
@@ -413,7 +422,8 @@
   "Kim Eun-seon": [
     "Kim En",
     "Kim Eun Seon",
-    "Kim Eunseon"
+    "Kim Eunseon",
+    "Kim Eunsun"
   ],
   "Kim Hak-su": [
     "Kim Hak Soo"
@@ -489,17 +499,14 @@
     "Kim Soojang",
     "Kim Su Jang"
   ],
-  "Kim Yeong-hwan": [
-    "Kim Yeong Hwan",
-    "Kim Yeonghwan"
-  ],
   "Kim Yeong-sam": [
     "Kim Yeong Sam",
     "Kim Yeongsam",
     "Kim Youngsam"
   ],
   "Kim Yun Tae": [
-    "Kim Yunyoung"
+    "Kim Yunyoung",
+    "Kim Yun-yeong"
   ],
   "Kimu Sujun": [
     "Kin Shujun",
@@ -520,7 +527,10 @@
     "Ko Jae Hee"
   ],
   "Kobayashi Koichi": [
-    "Koichi Kobayashi"
+    "Koichi Kobayashi",
+    "小林光一八段",
+    "小林光一九段",
+    "小林光一 挑战者"
   ],
   "Kono Rin": [
     "Kono RIn"
@@ -535,10 +545,12 @@
     "Kusonoki Teruko"
   ],
   "Kweon Kap-yong": [
-    "Kwon Kapyong"
+    "Kwon Kapyong",
+    "Gwon Gap Ryong"
   ],
   "Kweon O-min": [
-    "Kwon Omin"
+    "Kwon Omin",
+    "Gwon o  Min"
   ],
   "Kwon Hyojin": [
     "Kwon Hyojin1",
@@ -558,20 +570,32 @@
   "Lee Sanghoon": [
     "Lee Sang Hoon",
     "Lee Sang Hoon  older",
-    "Lee Sang Hoon (older)"
+    "Lee Sang Hoon (older)",
+    "Yi Sang-hun (b)",
+    "Yi Sang-hun (s)",
+    "Yi Sang-hun Sr.",
+    "Yi Sang-hun"
   ],
   "Lee Sedol": [
     "Lee Se Dol"
   ],
   "Lee Seongjae": [
-    "Lee Seong Jae"
+    "Lee Seong Jae",
+    "Kim Yeong Hwan",
+    "Kim Yeonghwan",
+    "Kim Yeong-hwan",
+    "Yi Se-tol",
+    "Yi Seong-chae"
   ],
   "Lee Yongchan": [
     "Lee Yonchan"
   ],
   "Lee Yongsoo": [
     "Lee Yong Soo",
-    "Lee Yungsoo"
+    "Lee Yungsoo",
+    "Yi Yong-su",
+    "Yi Yong-ch'an",
+    "Lee Yong Chan"
   ],
   "Li Xiaoxi": [
     "Li Xiaoxi(小)"
@@ -661,7 +685,8 @@
   ],
   "O Rissei": [
     "O Yuinin",
-    "O Yujin"
+    "O Yujin",
+    "王立城"
   ],
   "Oba Junya": [
     "Oba Jyunya",
@@ -674,15 +699,9 @@
   "Okada Shinichiro": [
     "Okada Shin'ichiro"
   ],
-  "Paek Hongsuk": [
-    "Paek Hong-seok",
-    "Paek Hongseok"
-  ],
-  "Paek Seongho": [
-    "Paek Seong-ho"
-  ],
   "Pak Chong-yeol": [
-    "Pak Chin-yeol"
+    "Pak Chin-yeol",
+    "Park Jong Yeol"
   ],
   "Park Byeongkyu": [
     "Park Byung Gyu"
@@ -699,7 +718,8 @@
     "Park Junsuck"
   ],
   "Park Kyeonggeun": [
-    "Park Kyuongkeun"
+    "Park Kyuongkeun",
+    "Pak Kyeong-keun"
   ],
   "Park Seung Hyun": [
     "Park Seunghyun"
@@ -712,7 +732,8 @@
   ],
   "Park Yeong Hun": [
     "Pak Yeong-hun",
-    "Park Yeonghun"
+    "Park Yeonghun",
+    "Park YoungHoon"
   ],
   "Pak Seung-hyeon": [
     "Park Seunghyeon"
@@ -731,21 +752,30 @@
     "Ryu Shikun  jiin"
   ],
   "Ryu Chaehyeong": [
-    "Ryu Chae-hyeong"
+    "Ryu Chae-hyeong",
+    "Yoo Jae Hyeong",
+    "Yoo Jae Seong",
+    "Yoo Jaesung",
+    "Yu Chae-seong",
+    "Yoo Jaeseong"
   ],
   "Ryu Jaehyung": [
     "Ryu Jaehyeong"
   ],
   "Sakaguchi Sentoku": [
     "Sakaguchi Sentoku I",
-    "Sakaguchi Sentoku II"
+    "Sakaguchi Sentoku II",
+    "坂口仙得",
+    "坂口虎次郎",
+    "Sakaguchi Torajiro"
   ],
   "Sakai Takashi": [
     "Sakai Takeshi",
     "酒井猛六段"
   ],
   "Sakakibara Shoji": [
-    "Sakikabara Shoji"
+    "Sakikabara Shoji",
+    "榊原章二八段"
   ],
   "Sato Tsunezo": [
     "Sato Unji"
@@ -777,9 +807,6 @@
   "Shao Zhenzhong": [
     "Shao Zhengzhong"
   ],
-  "Shin Yunho": [
-    "Shin Yoonho"
-  ],
   "Shiori Itsuzo": [
     "Shioiri Itsuzo"
   ],
@@ -791,14 +818,19 @@
     "Shuto SHun"
   ],
   "Sin Yunho": [
-    "Sin Ho-ryeol"
+    "Sin Ho-ryeol",
+    "Shin Yoonho",
+    "Sin Yoonho",
+    "Sin Yun-ho",
+    "Shin Yunho"
   ],
   "Song Taekon": [
     "Song T'ae-kon",
     "Song Tae Kon"
   ],
   "Song Sanghoon": [
-    "Song Sanghun"
+    "Song Sanghun",
+    "Song Sang-hun"
   ],
   "Sonoda Yuichi": [
     "Sonoda Yasutaka",
@@ -806,10 +838,12 @@
     "苑田勇一九段"
   ],
   "Sugiuchi Kazuko": [
-    "Sugiuchi Kazuko (was Honda Kazuko)"
+    "Sugiuchi Kazuko (was Honda Kazuko)",
+    "杉内寿子六段"
   ],
   "Sugiuchi Masao": [
-    "Suguichi Masao"
+    "Suguichi Masao",
+    "杉内雅男九段"
   ],
   "Suzuki Shinji": [
     "Suzuki Isao"
@@ -821,7 +855,8 @@
     "Takahara Syuji"
   ],
   "Takemiya Masaki": [
-    "Takemiya Maski"
+    "Takemiya Maski",
+    "武宫正树九段"
   ],
   "Takemiya Yoko": [
     "Takemiya Youkou"
@@ -829,7 +864,9 @@
   "Tamura Hoju": [
     "Tamura Hoju (Tamura Yasuhisa)",
     "Tamura Hoju (later Shusai)",
-    "Tamura Yasuhisa"
+    "Tamura Yasuhisa",
+    "本因坊秀哉 名人",
+    "Honinbo Shusai"
   ],
   "Tamura Kahei": [
     "Tamura Kahei (no relation)"
@@ -879,10 +916,14 @@
     "Won Sungjin"
   ],
   "Whang Jaeyoun": [
-    "Whang Jaeyeon"
+    "Whang Jaeyeon",
+    "Hwang Chae-yeon"
   ],
   "Wu Songsheng": [
-    "Wu Sung-sheng"
+    "Wu Sung-sheng",
+    "吴淞生",
+    "吴凇笙",
+    "吴凇生"
   ],
   "Xie Erhao": [
     "Xie Erhoa"
@@ -898,7 +939,9 @@
     "Yang Jae Ho"
   ],
   "Yang Keon": [
-    "Yang Keon-mo"
+    "Yang Keon-mo",
+    "Yang Koon",
+    "Yang Geon"
   ],
   "Yang Shuang": [
     "Yang Shiahi",
@@ -909,7 +952,9 @@
   ],
   "Yasui Sanchi": [
     "Yasui Sanchi II",
-    "Yasui Sanchi IX"
+    "Yasui Sanchi IX",
+    "安井  算知",
+    "Yasui"
   ],
   "Yasui Santetsu": [
     "Yasui Santetsu II",
@@ -930,17 +975,6 @@
     "Yeom Junghoon",
     "Yeon Junghoon"
   ],
-  "Yi Sang-hun": [
-    "Yi Sang-hun (b)",
-    "Yi Sang-hun (s)",
-    "Yi Sang-hun Sr."
-  ],
-  "Yi Seong-chae": [
-    "Yi Se-tol"
-  ],
-  "Yi Yong-ch'an": [
-    "Yi Yong-su"
-  ],
   "Yin Chengzhi": [
     "Yin Chengjie"
   ],
@@ -950,11 +984,6 @@
     "Yoo ChangHyuk",
     "Yu Ch'ang-hyeok",
     "Yu Changhyuk"
-  ],
-  "Yoo Jaeseong": [
-    "Yoo Jae Seong",
-    "Yoo Jaesung",
-    "Yu Chae-seong"
   ],
   "Yoo Kyeongmin": [
     "Yoo Kyeong Min",
@@ -966,7 +995,8 @@
     "You Byungyong"
   ],
   "Yoshihra Yukari": [
-    "Yoshihara Yukari"
+    "Yoshihara Yukari",
+    "Umezawa Yukari"
   ],
   "Yu Chaeseong": [
     "Yu Chae-hyeong"
@@ -975,23 +1005,29 @@
     "Yun Ch'un-ho"
   ],
   "Yun Hyeok": [
-    "Yun Hyuk"
+    "Yun Hyuk",
+    "Yoon Hyuk"
   ],
   "Yun Hyunseok": [
     "Yun Hyeon-seok"
   ],
   "Yun Kihyeon": [
     "Yun Ki-hyeon",
-    "Yun Kihyun"
+    "Yun Kihyun",
+    "Yoon Ki hyun"
   ],
   "Yun Seong-hyeon": [
-    "Yun Seonghyeon"
+    "Yun Seonghyeon",
+    "Yun Seunghyeon",
+    "Yoon Seong Hyun"
   ],
   "Yun Yeong-seon": [
-    "Yun Yeongseon"
+    "Yun Yeongseon",
+    "Yoon Yeong Seon"
   ],
   "Yun Youngmin": [
-    "Yun Yeong-min"
+    "Yun Yeong-min",
+    "Yoon Yeong Min"
   ],
   "Zhang Zhengping": [
     "Zhang Zheng-ping"
@@ -1010,13 +1046,16 @@
     "Zhou Ruiyang"
   ],
   "Nakano Chitoku": [
-    "安井  知得"
+    "安井  知得",
+    "安井知得",
+    "中野知得"
   ],
   "Kim Su-chang": [
     "Kim Suchang"
   ],
   "Kuroda Genjiro": [
-    "黑田源次郎"
+    "黑田源次郎",
+    "Kuroda Shunsetsu"
   ],
   "Kuroda Yukio": [
     "黑田幸雄五段",
@@ -1036,7 +1075,9 @@
   ],
   "Takagawa Shukaku": [
     "高川秀格九段",
-    "高川秀格"
+    "高川秀格",
+    "本因坊秀格",
+    "Takagawa Kaku"
   ],
   "Takasaki Taisaku": [
     "高崎泰策"
@@ -1129,14 +1170,26 @@
     "葛野松之助"
   ],
   "Kadono Chuzaemon": [
-    "葛野忠左卫门"
+    "葛野忠左卫门",
+    "Kuzuno Chuzaemon"
   ],
   "Kadono Jowa": [
     "葛野丈和 二十五歳",
     "葛野丈和 二十九歳",
     "葛野丈和 二十三歳",
     "葛野丈和 二十七歳",
-    "葛野丈和"
+    "葛野丈和",
+    "本因坊丈和 四十歳",
+    "本因坊丈和 三十四歳",
+    "本因坊丈和 三十九歳",
+    "Honinbo Jowa 33y",
+    "本因坊丈和 四十二歳",
+    "本因坊丈和 四十一歳",
+    "本因坊丈和 六段",
+    "本因坊丈和 八段",
+    "本因坊丈和 五十六歳",
+    "本因坊丈和 五十五歳",
+    "Honinbo Jowa"
   ],
   "Chino Tadahiko": [
     "茅野直彦七段"
@@ -1191,7 +1244,8 @@
     "神田英八段"
   ],
   "Sakakibara Fumiko": [
-    "神原史子"
+    "神原史子",
+    "Sasakibara Fumiko"
   ],
   "Ishida Yoshio": [
     "石田芳夫九段"
@@ -1239,5 +1293,672 @@
   ],
   "O Meien": [
     "王铭琬九段"
+  ],
+  "Wang Youchen": [
+    "王幼宸"
+  ],
+  "Ushinohama Satsuo": [
+    "牛之滨撮雄九段"
+  ],
+  "Katayama Chiteki": [
+    "片山知的"
+  ],
+  "Kataoka Satoshi": [
+    "片冈聪九段"
+  ],
+  "Sumino Takeshi": [
+    "炭野武司八段",
+    "Sumino Tsunehiro"
+  ],
+  "Seo Hisashi": [
+    "濑尾寿七段"
+  ],
+  "Watanabe Hideo": [
+    "渡边英夫四段",
+    "渡边英夫六段"
+  ],
+  "Kawai Chodayu": [
+    "河井长太夫"
+  ],
+  "Mizokami Tomochika": [
+    "沟上知亲七段"
+  ],
+  "Ezura Yuichi": [
+    "江面雄一三段"
+  ],
+  "Nagata Jyutoku": [
+    "永田寿德"
+  ],
+  "Mizutani takujun": [
+    "水谷琢順"
+  ],
+  "Duan Qirui": [
+    "段祺瑞"
+  ],
+  "Takeda Hiroyoshi": [
+    "武田博爱五段"
+  ],
+  "Masaki Shukei": [
+    "正木主计"
+  ],
+  "Sakurai Chitatsu": [
+    "櫻井知達"
+  ],
+  "Higuchi Kenryo": [
+    "樋口建良"
+  ],
+  "Morita Michihiro": [
+    "森田道博七段"
+  ],
+  "Kajikawa Shurei": [
+    "梶川守礼",
+    "梶川　升",
+    "Kajikawa Noboru"
+  ],
+  "Kaji Kazutame": [
+    "梶和为六段"
+  ],
+  "Hashimoto Yoshimi": [
+    "桥本谊八段"
+  ],
+  "Kuwahara Shusaku": [
+    "桑原秀策"
+  ],
+  "Kuwahara Munehisa": [
+    "桑原宗久七段"
+  ],
+  "Kurita Yoshiki": [
+    "栗田佳樹"
+  ],
+  "Yanagida Tomoya": [
+    "柳田朋哉"
+  ],
+  "Yanagiuchi Emiko": [
+    "柳内惠美"
+  ],
+  "Rin Kaiho": [
+    "林海峰九段"
+  ],
+  "Hayashi Yutaro": [
+    "林有太郎八段",
+    "林有太郎七段"
+  ],
+  "Matsumoto Tokuji": [
+    "松本笃二六段",
+    "松本笃二七段"
+  ],
+  "Matsubara Nanko": [
+    "松原南岡"
+  ],
+  "Murase Yakichi": [
+    "村濑弥吉四段",
+    "村濑弥吉",
+    "村瀬秀甫",
+    "Honinbo Shuho",
+    "村濑秀甫",
+    "Murase Shuho"
+  ],
+  "Muramatsu Shunsho": [
+    "村松春松"
+  ],
+  "Murashima Yoshinori": [
+    "村岛谊纪七段"
+  ],
+  "Murakami Bunsho": [
+    "村上文祥"
+  ],
+  "Sugiyama Senwa": [
+    "杉山千和"
+  ],
+  "Honma Akio": [
+    "本间明男五段"
+  ],
+  "Honda Kunihisa": [
+    "本田邦九",
+    "本田邦久九段"
+  ],
+  "Honda Sachiko": [
+    "本田幸子四段"
+  ],
+  "Honinbo Dosaku": [
+    "本因坊道策 名人",
+    "本因坊 道策"
+  ],
+  "Honinbo Dochi": [
+    "本因坊道知 七段"
+  ],
+  "Honinbo Shuei": [
+    "本因坊秀荣 八段",
+    "本因坊秀荣  八段",
+    "本因坊秀荣  七段",
+    "Hayashi Shuei"
+  ],
+  "Honinbo Genjo": [
+    "本因坊元丈 三十六歳"
+  ],
+  "Ogawa Doteki": [
+    "本因坊  道的",
+    "小川道的",
+    "小川  道的"
+  ],
+  "Hattori Yusetsu": [
+    "服部雄节 六段",
+    "服部雄節"
+  ],
+  "Hattori Rittetsu": [
+    "服部立徹"
+  ],
+  "Hattori Hajime": [
+    "服部一"
+  ],
+  "Magari Reiki": [
+    "曲励起八段"
+  ],
+  "Haruyama Isamu": [
+    "春山勇六段"
+  ],
+  "Hoshino Toshi": [
+    "星野纪八段",
+    "星野纪七段"
+  ],
+  "Saito Tetsunosuke": [
+    "斎藤鐵之助",
+    "Saito Jotei"
+  ],
+  "Tozawa Akinobu": [
+    "户泽昭宣六段"
+  ],
+  "Kageyama Toshiro": [
+    "影山立郎五段",
+    "影山利郎六段"
+  ],
+  "Zhang Danru": [
+    "张澹如"
+  ],
+  "Zhang Hengfu": [
+    "张恒甫"
+  ],
+  "Hirano Shota": [
+    "平野翔大"
+  ],
+  "Kudo Norio": [
+    "工藤纪夫八段",
+    "工藤纪夫九段",
+    "工藤纪夫七段"
+  ],
+  "Kawamoto Noboru": [
+    "川本升四段",
+    "川本升六段"
+  ],
+  "Iwata Tatsuaki": [
+    "岩田达明九段"
+  ],
+  "Iwamoto Kaoru": [
+    "岩本薰八段"
+  ],
+  "Iwai Shinichi": [
+    "岩井真一"
+  ],
+  "Okada Tanomo": [
+    "岡田頼母"
+  ],
+  "Shimamura Toshihiro": [
+    "岛村俊广九段"
+  ],
+  "Toshiro Yamabe": [
+    "山部俊郎八段",
+    "山部俊郎九段"
+  ],
+  "Yamamoto Genkichi": [
+    "山本道佐"
+  ],
+  "Ogawa Tomoko": [
+    "山本诚子"
+  ],
+  "Yamamoto Samutsu": [
+    "山本佐六"
+  ],
+  "Yamasaki Dosa": [
+    "山崎道砂"
+  ],
+  "Yamazaki Masuo": [
+    "山崎祐男六段",
+    "山崎祐男五段"
+  ],
+  "Yamazaki Insa": [
+    "山崎因砂"
+  ],
+  "Yamana Eiki": [
+    "山名荣喜"
+  ],
+  "Yamana Zushonosuke": [
+    "山名図書助"
+  ],
+  "Yamaguchi Sanseki": [
+    "山口赞石"
+  ],
+  "Yara no Satonushi": [
+    "屋量里之子"
+  ],
+  "Ozaki Harumi": [
+    "尾崎春美四段"
+  ],
+  "Kajiwara Takeo": [
+    "尾原武雄"
+  ],
+  "Komatsu Hideki": [
+    "小松英树八段",
+    "小松英树九段"
+  ],
+  "Kojima Takaho": [
+    "小岛高穗六段",
+    "小岛高穗八段",
+    "小岛高穗五段"
+  ],
+  "Ogura Doki": [
+    "小仓道喜"
+  ],
+  "Miyamoto Naoki": [
+    "宫本直毅八段"
+  ],
+  "Miyamoto Yoshihisa": [
+    "宫本义久七段"
+  ],
+  "Miyashita Shuyo": [
+    "宫下秀洋八段",
+    "宫下秀洋九段",
+    "Miyuashika Shuyo"
+  ],
+  "Ando Hideo": [
+    "安藤英雄"
+  ],
+  "Ando Takeo": [
+    "安藤武夫五段",
+    "Suzuki Takeo"
+  ],
+  "Yasuda Eisai": [
+    "安田荣斋"
+  ],
+  "Yasuda Shusaku": [
+    "安田秀策",
+    "Honinbo Shusaku"
+  ],
+  "Yasui Shuntetsu": [
+    "安井算知 俊哲"
+  ],
+  "Yasui Sanei": [
+    "安井  算英  六段"
+  ],
+  "Yasui Chitetsu": [
+    "安井  知哲"
+  ],
+  "Yasui Shunchi": [
+    "安井  春知"
+  ],
+  "Jiang Guozhen": [
+    "姜国震"
+  ],
+  "Okunuki Chisaku": [
+    "奥貫智策 二十四歳",
+    "奥貫智策"
+  ],
+  "Narabayashi Kurakichi": [
+    "奈良林仓吉"
+  ],
+  "Ota Seido": [
+    "太田耕造"
+  ],
+  "Otake Hideo": [
+    "大竹英雄四段",
+    "大竹英雄六段",
+    "大竹英雄八段",
+    "大竹英雄五段",
+    "大竹英雄九段",
+    "大竹英雄七段",
+    "大竹英雄 八段"
+  ],
+  "Okubo Ichigen": [
+    "大窐一玄",
+    "大洼一玄"
+  ],
+  "Oya Koichi": [
+    "大矢浩一二段",
+    "大矢浩一九段"
+  ],
+  "Osawa Ginjiro": [
+    "大泽银次郎"
+  ],
+  "Oeda Yusuke": [
+    "大枝雄介六段"
+  ],
+  "Ohira Shuzo": [
+    "大平修三九段"
+  ],
+  "Tsutsumida Hironao": [
+    "堤田紘直"
+  ],
+  "Handa Dogen": [
+    "坂田道玄",
+    "Handa Hayami"
+  ],
+  "Sakata Eio": [
+    "坂田荣男九段",
+    "坂田荣男 七段"
+  ],
+  "Sakamoto Shusaku": [
+    "坂本修作"
+  ],
+  "Sakaguchi Shintaro": [
+    "坂口鋠太郎"
+  ],
+  "Sakaguchi Ryuzo": [
+    "坂口窿三"
+  ],
+  "Wada Ikkei": [
+    "和田一敬"
+  ],
+  "Go Seigen": [
+    "吴清源 六段",
+    "吴清源 八段",
+    "吴清源 五段",
+    "吴清源 九段",
+    "吴泉 六段"
+  ],
+  "Ji Zhiting": [
+    "吉芝亭"
+  ],
+  "Yoshida Yoichi": [
+    "吉田阳一"
+  ],
+  "Yoshida Hanjuro": [
+    "吉田半十郎"
+  ],
+  "Yoshiwa Dogen": [
+    "吉和道玄"
+  ],
+  "Yoshihara Bunnosuke": [
+    "吉原文之助"
+  ],
+  "Furusawa Kosai": [
+    "古澤康哉"
+  ],
+  "Inoue Matsumoto Inseki": [
+    "十三世井上因硕松本"
+  ],
+  "Kitamura Hiroshi": [
+    "北村洋司四段"
+  ],
+  "Takahashi Yuseki": [
+    "高桥友硕"
+  ],
+  "Kadono Kamesaburo": [
+    "葛野龟三郎",
+    "Kuzuno Kamesaburo"
+  ],
+  "Pu Zhongye": [
+    "溥仲业"
+  ],
+  "Ikegami Kiyoshi": [
+    "池上清"
+  ],
+  "Kimura Ushisaburo": [
+    "木村丑三郎"
+  ],
+  "Miyasaka Shinji": [
+    "宫坂采二"
+  ],
+  "Miyauchi Koyaro": [
+    "宫内弧矢郎"
+  ],
+  "Kato Masao": [
+    "加藤正夫八段",
+    "加藤正夫七段"
+  ],
+  "Yoda Norimoto": [
+    "依田纪基六段",
+    "依田纪基七段"
+  ],
+  "Sano Tsunejiro": [
+    "佐野常次郎"
+  ],
+  "Sato Genjiro": [
+    "佐藤源次郎"
+  ],
+  "Inoue Shunsaku Inseki": [
+    "佐藤春策"
+  ],
+  "Ito Shusuke": [
+    "伊藤秀闊"
+  ],
+  "Ito Kino": [
+    "伊藤甲子"
+  ],
+  "Ito Genzaburo": [
+    "伊藤源三郎"
+  ],
+  "Ito Matsujiro": [
+    "伊藤松次郎"
+  ],
+  "Ito Yasujiro": [
+    "伊藤安次郎"
+  ],
+  "Peichin of Hamahiga": [
+    "亲云上浜比贺"
+  ],
+  "Inoue Insa Inseki": [
+    "井上因碩"
+  ],
+  "Nakanishi Bungoemon": [
+    "中西文右衛門"
+  ],
+  "Nakaonoda Tomomi": [
+    "中小野田智"
+  ],
+  "Yu Chengrui": [
+    "Yu Chengjuei"
+  ],
+  "Yun Chun-sang": [
+    "Yoon Jun Sang"
+  ],
+  "Wang Zejin": [
+    "Wang Yijin"
+  ],
+  "Wang Hui": [
+    "Wang Hui Sr."
+  ],
+  "Tabuchi Sonbu": [
+    "Tabuchi Yonezo"
+  ],
+  "Seo Chung-hwi": [
+    "Seo Jonghui",
+    "Seo Chung-heui"
+  ],
+  "佐瀬半蔵": [
+    "Sase Hanzo"
+  ],
+  "Ryu Su-hyeong": [
+    "Ryu Soohyung"
+  ],
+  "Qiao Zhijian": [
+    "Qian Zhijian"
+  ],
+  "Pak Yeong-long": [
+    "Park Youngryong"
+  ],
+  "Pak Chi-eun": [
+    "Park Ji Eun"
+  ],
+  "Pan Fei": [
+    "Pan Hui"
+  ],
+  "Oyama Ichiro": [
+    "Oyama"
+  ],
+  "Ko Mosei": [
+    "O Mosei"
+  ],
+  "O Cheong-a": [
+    "O Junga"
+  ],
+  "Hayashi Senji": [
+    "Nakagawa Senji",
+    "Hayashi Senji (later Ishii Senji)"
+  ],
+  "Nakagawa Shinji": [
+    "Nakagawa Arata"
+  ],
+  "Mimura Kaori": [
+    "Mukai Kaori"
+  ],
+  "Mito Yoshiaki": [
+    "Mito Tomiaki"
+  ],
+  "Lui Eric": [
+    "Lu Haojun"
+  ],
+  "Lord Sakai of Iwami": [
+    "Lord Sakai of Ishimi"
+  ],
+  "Liao Xingwen": [
+    "Liao Hangwen"
+  ],
+  "Yi Yeong-sin": [
+    "Lee Yeong Shin"
+  ],
+  "Yi Sang-hyeon": [
+    "Lee Sanghyun"
+  ],
+  "Yi Cheong-u": [
+    "Lee Jeong Woo"
+  ],
+  "Yi Chae-ung": [
+    "Lee Jaewong"
+  ],
+  "Yi Hyeon-ho": [
+    "Lee Hyeonho"
+  ],
+  "Yi Hyeong-chin": [
+    "Lee Hyeongjin"
+  ],
+  "Yi Ho-seung": [
+    "Lee Hoseung"
+  ],
+  "Yi Hong-yeol": [
+    "Lee Hong Yeol"
+  ],
+  "Yi Heui-seong": [
+    "Lee Heesung"
+  ],
+  "Yi Ki-seop": [
+    "Lee Gi Seop"
+  ],
+  "Koyama Terumi": [
+    "Koyama Mitsuru"
+  ],
+  "Kobayashi Reiko": [
+    "Kitani Reiko"
+  ],
+  "Kim Hwan-su": [
+    "Kim Whansoo"
+  ],
+  "Kim Seung-chun": [
+    "Kim Seung Joon"
+  ],
+  "Kim Seong-rae": [
+    "Kim Seong Rae"
+  ],
+  "Kim Myeong-hun": [
+    "Kim Myeonghoon"
+  ],
+  "Kim Jooa": [
+    "Kim Jua"
+  ],
+  "Kim Chin-hwi": [
+    "Kim Jinhwi"
+  ],
+  "Kim Ch'ae-yeong": [
+    "Kim Jaeyoung"
+  ],
+  "Kim Hyeon-seop": [
+    "Kim Hyunseob"
+  ],
+  "Kim Hyeon-ch'an": [
+    "Kim Hyunchan"
+  ],
+  "Kim Tong-yeop": [
+    "Kim Dong Yup"
+  ],
+  "Hattori Seitetsu": [
+    "Kato Seitetsu"
+  ],
+  "Jiang Zhujiu": [
+    "Jiang Jujo"
+  ],
+  "Cheong Tae-sang": [
+    "Jeong Dae Sang"
+  ],
+  "Ito Kotaro": [
+    "Ito Genjiro"
+  ],
+  "Inoue Shutetsu": [
+    "Inoue Setsuzan Inseki"
+  ],
+  "Kanno Naomi": [
+    "Inoue Naomi"
+  ],
+  "Inoue Isao (also known as Yoshida Misako)": [
+    "Inoue Misao"
+  ],
+  "Inoue Inseki (16th Inoue, previously Egeta Senjiro)": [
+    "Inoue Egeta Inseki"
+  ],
+  "Kuwabara Yoko": [
+    "Inori Yoko"
+  ],
+  "Iguchi Toyohide": [
+    "Iguchi Hideichiro"
+  ],
+  "Hong Mu-chin": [
+    "Hong Moojin"
+  ],
+  "Hong Chong-hyeon": [
+    "Hong Jong Hyun"
+  ],
+  "Heo Chang-heui": [
+    "Ho Jang Hee"
+  ],
+  "Fujisawa Hosai": [
+    "Fujisawa Kuranosuke"
+  ],
+  "Fan Yunruo": [
+    "Fan Yuoruo"
+  ],
+  "Fan Weijing": [
+    "Fan Yujing",
+    "Fan Weiqing"
+  ],
+  "Tong Mengcheng": [
+    "Dong Mengcheng"
+  ],
+  "Dang Xiyun": [
+    "Dang Xijun"
+  ],
+  "Wu Guangya": [
+    "Chun Guangya"
+  ],
+  "Choi Byounghwan": [
+    "Choi Byeongwhan"
+  ],
+  "Chen Shiyuan": [
+    "Chen Seuyen"
+  ],
+  "Chen Guoxing": [
+    "Chen Guoxin"
+  ],
+  "Aragaki Shun": [
+    "Arakaki Shun"
+  ],
+  "An Kuk-hyeon": [
+    "An Kukhyun"
   ]
 }
