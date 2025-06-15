@@ -335,7 +335,10 @@
     "Inoue Shuntatsu Inseki"
   ],
   "Ishigure Ikuro": [
-    "Ishikure Ikuro"
+    "Ishikure Ikuro",
+    "石缚郁郎",
+    "石博郁郎六段",
+    "石博郁郎七段"
   ],
   "Ito Kayoko": [
     "Itoi Kayoko"
@@ -380,7 +383,8 @@
     "Kang Yootaek"
   ],
   "Karigane Junichi": [
-    "Karigane Jun'ichi"
+    "Karigane Jun'ichi",
+    "雁金准一 六段"
   ],
   "Kato Atsushi": [
     "Kato Atsushyi"
@@ -737,7 +741,8 @@
     "Sakaguchi Sentoku II"
   ],
   "Sakai Takashi": [
-    "Sakai Takeshi"
+    "Sakai Takeshi",
+    "酒井猛六段"
   ],
   "Sakakibara Shoji": [
     "Sakikabara Shoji"
@@ -749,7 +754,8 @@
     "Seki Yasubei (or Genjiro)"
   ],
   "Sekiyama Sendayu": [
-    "Sekiymama Sendayu"
+    "Sekiymama Sendayu",
+    "関山仙太夫"
   ],
   "Seo Bongsoo": [
     "Seo Bong Soo"
@@ -796,7 +802,8 @@
   ],
   "Sonoda Yuichi": [
     "Sonoda Yasutaka",
-    "Sonoda Yasutaku"
+    "Sonoda Yasutaku",
+    "苑田勇一九段"
   ],
   "Sugiuchi Kazuko": [
     "Sugiuchi Kazuko (was Honda Kazuko)"
@@ -1036,5 +1043,201 @@
   ],
   "Baba Tomoyumi": [
     "馬場智弓"
+  ],
+  "Gu Shuiru": [
+    "顾水如"
+  ],
+  "Aoki Shinichi": [
+    "青木绅一四段",
+    "青木绅一七段"
+  ],
+  "Aoki Guseki": [
+    "青木愚硕"
+  ],
+  "Lei Puhua": [
+    "雷溥华"
+  ],
+  "Iwase Junichi": [
+    "雁金準一 十三歳"
+  ],
+  "Furuya Okisaburo": [
+    "降矢沖三郎"
+  ],
+  "Yan An": [
+    "闫安"
+  ],
+  "Nagao Kinzaburo": [
+    "長尾金三郎"
+  ],
+  "Nagasaka Inosuke": [
+    "長坂猪之助二段",
+    "長坂猪之助"
+  ],
+  "Nabeshima Ichiro": [
+    "锅岛一郎六段"
+  ],
+  "Suzuki Masaharu": [
+    "铃木正春五段"
+  ],
+  "Suzuki Goro": [
+    "铃木五良六段",
+    "铃木五良五段",
+    "铃木五良七段"
+  ],
+  "Suzuki Tomohiro": [
+    "鈴木友博"
+  ],
+  "Sakai Michiharu": [
+    "酒井通温八段"
+  ],
+  "Sakai Yasujiro": [
+    "酒井安次郎"
+  ],
+  "Godo Kichijiro": [
+    "郷道吉次郎"
+  ],
+  "Tei Meiko": [
+    "郑铭璜"
+  ],
+  "Qiu Xin": [
+    "邱鑫"
+  ],
+  "Akai Gorosaku": [
+    "赤井五郎作"
+  ],
+  "Kado Hayato": [
+    "贺户隼人四段"
+  ],
+  "Tanimiya Teiji": [
+    "谷宫悌二六段",
+    "谷宫悌二五段"
+  ],
+  "Taniguchi Yohei": [
+    "谷口洋平"
+  ],
+  "Fujisawa Hideyuki": [
+    "藤泽秀行九段",
+    "藤泽秀行 九段"
+  ],
+  "Fujiki Hitomi": [
+    "藤木人见七段"
+  ],
+  "Kadono Matsunosuke": [
+    "葛野松之助 十九歳",
+    "葛野松之助 二十二歳",
+    "葛野松之助 丈和 二十一歳",
+    "葛野松之助"
+  ],
+  "Kadono Chuzaemon": [
+    "葛野忠左卫门"
+  ],
+  "Kadono Jowa": [
+    "葛野丈和 二十五歳",
+    "葛野丈和 二十九歳",
+    "葛野丈和 二十三歳",
+    "葛野丈和 二十七歳",
+    "葛野丈和"
+  ],
+  "Chino Tadahiko": [
+    "茅野直彦七段"
+  ],
+  "Wakasugi Zensaku": [
+    "若杉善策"
+  ],
+  "Karibe Eisaburo": [
+    "苅部荣三郎"
+  ],
+  "Hanadate Masaaki": [
+    "花立正昭二段"
+  ],
+  "Funabashi Genbi": [
+    "船橋元美 三十二歳",
+    "船橋元美"
+  ],
+  "Hane Yasumasa": [
+    "羽根泰正五段",
+    "羽根泰正九段",
+    "羽根泰正七段"
+  ],
+  "van Zeijst Rob": [
+    "罗布·扎伊斯特"
+  ],
+  "Yuki Satoshi": [
+    "结城聪九段"
+  ],
+  "Shinohara Masami": [
+    "筱原正美八段"
+  ],
+  "Takegawa Yasaburo": [
+    "竹川彌三郎"
+  ],
+  "Takehara Kintaro": [
+    "竹原金太郎"
+  ],
+  "Takenaka Kotaro": [
+    "竹中幸太郎四段"
+  ],
+  "Fukuhara Yoshitora": [
+    "福原义虎六段",
+    "神原义虎"
+  ],
+  "Fukui Susumu": [
+    "福井进四段"
+  ],
+  "Fukui Masaaki": [
+    "福井正明五段"
+  ],
+  "Kanda Ei": [
+    "神田英八段"
+  ],
+  "Sakakibara Fumiko": [
+    "神原史子"
+  ],
+  "Ishida Yoshio": [
+    "石田芳夫九段"
+  ],
+  "Ishige Kakuo": [
+    "石毛嘉久夫六段",
+    "石毛嘉久夫五段",
+    "石毛嘉久夫七段"
+  ],
+  "Ishikawa Shingoemon": [
+    "石川新五右衛門"
+  ],
+  "Ishihara Zezan": [
+    "石原是山"
+  ],
+  "Ishii Kunio": [
+    "石井邦生八段",
+    "石井邦生九段"
+  ],
+  "Ishii Mamoru": [
+    "石井衡",
+    "石井卫六段",
+    "石井卫五段"
+  ],
+  "Ishii Shinzo": [
+    "石井新藏九段"
+  ],
+  "Ishii Senji": [
+    "石井  千治  六段"
+  ],
+  "Shirae Haruhiko": [
+    "白江治彦五段"
+  ],
+  "Shiraki Sukeemon": [
+    "白木助右卫门"
+  ],
+  "Tahara Tsunesaburo": [
+    "田原常三郎"
+  ],
+  "Taoka Keiichi": [
+    "田冈敬一"
+  ],
+  "Tanaka Minaichi": [
+    "田中三七一五段"
+  ],
+  "O Meien": [
+    "王铭琬九段"
   ]
 }

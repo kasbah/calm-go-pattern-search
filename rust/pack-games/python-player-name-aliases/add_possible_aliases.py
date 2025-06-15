@@ -230,6 +230,24 @@ def main():
             if auto_accept:
                 break
 
+        # Always try translation for name1 for additional context
+        translation1 = translate_name(name1, "en")
+
+        # If not auto-accepted yet, try translation matching
+        if not auto_accept and translation1:
+            trans_text1, src_lang1 = translation1
+
+            # Check if translation of name1 matches name2 (case-insensitive)
+            if trans_text1.lower() == name2.lower():
+                auto_accept = True
+                matching_reason = f'Translation matches: "{trans_text1}" (from "{name1}" [{src_lang1}]) matches "{name2}"'
+            # Check if translation of name1 starts with name2 or vice versa
+            elif trans_text1.lower().startswith(
+                name2.lower()
+            ) or name2.lower().startswith(trans_text1.lower()):
+                auto_accept = True
+                matching_reason = f'Translation matches: "{trans_text1}" (from "{name1}" [{src_lang1}]) matches with "{name2}"'
+
         if auto_accept:
             print(f"\nAuto-accepting alias pair ({i}/{remaining_aliases}):")
             print(f"Player 1 (ID: {id1}): {name1}")
@@ -250,25 +268,19 @@ def main():
         print(f"Player 1 (ID: {id1}): {name1}")
         print(f"Custom aliases: {', '.join(f'"{n}"' for n in custom_aliases1)}")
         print(f"Known aliases: {', '.join(f'"{n}"' for n in known_aliases1)}")
+        if translation1:
+            trans_text1, src_lang1 = translation1
+            print(f"Translation: {trans_text1} (detected language: {src_lang1})")
         print(f"Player 2 (ID: {id2}): {name2}")
         print(f"Custom aliases: {', '.join(f'"{n}"' for n in custom_aliases2)}")
         print(f"Known aliases: {', '.join(f'"{n}"' for n in known_aliases2)}")
 
         while True:
             # Ask for confirmation
-            response = input(
-                "\nAdd these as aliases? (y/n/t for translation/q to quit): "
-            ).lower()
+            response = input("\nAdd these as aliases? (y/n/q to quit): ").lower()
 
             if response == "q":
                 sys.exit(0)
-            elif response == "t":
-                translation = translate_name(name1, "en")
-                if translation:
-                    print(f"\nEnglish translation for {name1}: {translation[0]}")
-                    print(f"Detected source language: {translation[1]}")
-                else:
-                    print("\nNo English translation available")
             elif response == "y":
                 # Consolidate aliases under a single main name
                 main_name = consolidate_aliases(
