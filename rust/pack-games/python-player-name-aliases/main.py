@@ -168,7 +168,7 @@ def main():
     print(f"Loaded {len(all_names)} total names for verification")
 
     # Load existing aliases
-    output_file = "name_aliases.json"
+    output_file = "custom_aliases.json"
     existing_aliases = load_existing_aliases(output_file)
     existing_keys = set(existing_aliases.keys())
     print(f"Loaded {len(existing_aliases)} existing name entries")

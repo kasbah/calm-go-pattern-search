@@ -24,7 +24,7 @@ def get_languages_from_simplenames(simplenames: List[dict]) -> List[dict]:
 
 
 PLAYERDB_FILE = "playerdb-2025-05-10.json"
-ALIASES_FILE = "name_aliases.json"
+CUSTOM_ALIASES_FILE = "custom_aliases.json"
 FOREIGN_NAMES_FILE = "foreign_names.txt"
 NAMES_FILE = "names.txt"
 UNKNOWN_NAMES_FILE = "unknown_names.txt"
@@ -34,7 +34,7 @@ OUTPUT_FILE = "player_names.json"
 def combine_aliases():
     # Load all input files
     playerdb = load_json_file(PLAYERDB_FILE)
-    name_aliases = load_json_file(ALIASES_FILE)
+    custom_aliases = load_json_file(CUSTOM_ALIASES_FILE)
     foreign_names = load_names(FOREIGN_NAMES_FILE)
     names_txt = load_names(NAMES_FILE)
     unknown_names = load_names(UNKNOWN_NAMES_FILE)
@@ -42,7 +42,7 @@ def combine_aliases():
     result = {}
     generated_id_counter = -1
 
-    for name, aliases in name_aliases.items():
+    for name, aliases in custom_aliases.items():
         key_name = None
         player_id = None
         for player in playerdb:

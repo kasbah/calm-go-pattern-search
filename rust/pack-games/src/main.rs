@@ -13,6 +13,13 @@ use calm_go_patterns_common::baduk::{
     parse_sgf_result,
 };
 
+// Structure to track possible player ID aliases
+#[derive(Debug, Hash, Eq, PartialEq)]
+struct PossiblePlayerAlias {
+    id1: i16,
+    id2: i16,
+}
+
 fn load_player_aliases() -> HashMap<String, i16> {
     let mut aliases = HashMap::new();
     let file = File::open("python-player-name-aliases/player_names.json")
@@ -78,6 +85,7 @@ fn has_multiple_players(name: &str) -> bool {
 fn main() {
     let player_aliases = load_player_aliases();
     let mut unknown_names = HashSet::new();
+    let mut possible_aliases = HashSet::new();
     let mut sgf_folder = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     sgf_folder.push("sgfs");
     let mut paths = Vec::new();
@@ -139,6 +147,14 @@ fn main() {
         let mut is_duplicate = false;
         let mut maybe_existing_game: Option<(String, Game)> = None;
         let mut maybe_merged_game: Option<(String, Game)> = None;
+
+        // Skip duplicate detection for games with less than 30 moves
+        if game.moves.len() < 30 {
+            println!("Skipping duplicate detection for game with only {} moves: {:?}", game.moves.len(), path);
+            unique_games.insert(game.moves.clone(), (path, game));
+            continue;
+        }
+
         for position in all_rotations(&game.moves) {
             if let Some((existing_path, existing_game)) = unique_games.get(&position) {
                 maybe_existing_game = Some((existing_path.clone(), existing_game.clone()));
@@ -248,28 +264,22 @@ fn main() {
         if !is_duplicate {
             unique_games.insert(game.moves.clone(), (path, game.clone()));
         } else if let Some((merged_path, merged_game)) = maybe_merged_game {
-            let moves = maybe_existing_game
-                .expect("No existing game")
-                .1
-                .moves
-                .clone();
+            let existing_game = maybe_existing_game.expect("No existing game").1;
             // Only warn if player IDs don't match
-            if game.player_black != merged_game.player_black
-                || game.player_white != merged_game.player_white
-            {
-                println!(
-                    "Removing duplicate game: {:?} {} vs {:?} {} (duplicate of {:?} {} vs {:?} {})",
-                    game.player_black,
-                    game.rank_black,
-                    game.player_white,
-                    game.rank_white,
-                    merged_game.player_black,
-                    merged_game.rank_black,
-                    merged_game.player_white,
-                    merged_game.rank_white
-                );
+
+            // Record possible aliases
+            if let (Some(id1), Some(id2)) = (existing_game.player_black, merged_game.player_black) {
+                if id1 != id2 {
+                    possible_aliases.insert(PossiblePlayerAlias { id1, id2 });
+                }
             }
-            unique_games.insert(moves, (merged_path, merged_game));
+            if let (Some(id1), Some(id2)) = (existing_game.player_white, merged_game.player_white) {
+                if id1 != id2 {
+                    possible_aliases.insert(PossiblePlayerAlias { id1, id2 });
+                }
+            }
+
+            unique_games.insert(existing_game.moves.clone(), (merged_path, merged_game));
         }
     }
 
@@ -303,6 +313,18 @@ fn main() {
     let mut unknown_names: Vec<_> = unknown_names.into_iter().collect();
     unknown_names.sort();
     std::fs::write("unknown_names.txt", unknown_names.join("\n")).unwrap();
+
+    // Write possible aliases to file
+    println!("Writing possible_aliases.txt...");
+    let mut aliases: Vec<_> = possible_aliases.into_iter().collect();
+    aliases.sort_by(|a, b| a.id1.cmp(&b.id1).then(a.id2.cmp(&b.id2)));
+    let aliases_str = aliases
+        .iter()
+        .map(|a| format!("{} {}", a.id1, a.id2))
+        .collect::<Vec<_>>()
+        .join("\n");
+    std::fs::write("possible_aliases.txt", aliases_str).unwrap();
+
     println!("Done");
 }
 
@@ -440,6 +462,12 @@ fn load_sgf(
                 _ => {}
             }
         }
+    }
+
+    if moves.is_empty() {
+        return Err("Game has no moves".into());
+    } else if moves.len() < 5 {
+        return Err("Game has less than 5 moves".into());
     }
 
     Ok((

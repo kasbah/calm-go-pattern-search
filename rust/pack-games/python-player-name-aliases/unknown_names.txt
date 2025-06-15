@@ -6,7 +6,6 @@ AQ
 Abacus
 Abe Hiroyuki
 Abe Yumiko
-Aguilar, Fernand
 Aihara Kaseki
 Aizawa Kaoru
 Akai Gorosaku
@@ -142,7 +141,6 @@ Deep Zen
 Deep_ark
 Denis Dobranis
 Diego Guerrero
-Dinerchtein, Alexandre
 Ding Xiaojie
 Ding Yichen
 Do Eungyo
@@ -301,7 +299,6 @@ Huang Xiupu
 Huang Yongji
 Huang Youteng
 Huiren Yang
-Hung, Joey
 Hwang Yong-kyu
 Hye Sangsil
 I-Han Lui
@@ -469,7 +466,6 @@ Kawamoto Toshio
 Kawase Takanosuke
 Kawasumi Michio
 Kawata Kiyoko
-Kerwin, James
 Kevin Yang
 Khanh Lam Bui Le
 Kifuwarabe
@@ -645,7 +641,6 @@ Lee Yong Chan
 Lee Yongheui
 Lee Yongsoo
 Lee Young Koo
-Lee, John
 Lei Puhua
 Li Baixiang
 Li Chunyu
@@ -942,7 +937,6 @@ Qu Ming
 Quynh Anh Ha
 Ramon Jan
 Raynz
-Redmond, Michael
 Remi Campagnie
 Rin Kakentsu
 Rin Kanketu
@@ -1144,7 +1138,6 @@ Taniguchi Yohei
 Taoka Hideko
 Taoka Keiichi
 Taranu Katalin
-Taranu, Catalin
 Tatsumi Akane
 Tei Kosuki
 Teng Honghao
@@ -1457,7 +1450,6 @@ southern
 spring
 tobe
 tobe*
-van Zeijst, Rob
 wasabi
 woochon
 yoboeo7
@@ -2735,3 +2727,8 @@ yoboeo7
 조성호
 채현지
 최윤상
+Japanese insei
+Kim Suchang
+Matsuda
+安井  知得
+宫重元丈
