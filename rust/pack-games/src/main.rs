@@ -10,8 +10,9 @@ use std::io::BufReader;
 use std::path::PathBuf;
 
 use calm_go_patterns_common::baduk::{
-    BOARD_SIZE, Color, Game, GameResult, GoBoard, Placement, Point, Rank, get_rotations,
-    pack_games, parse_komi, parse_rank, parse_rules, parse_sgf_date, parse_sgf_result,
+    BOARD_SIZE, Color, Game, GameResult, GoBoard, Placement, Point, Rank, Rules, SgfDate,
+    all_rotations, pack_games, parse_komi, parse_rank, parse_rules, parse_sgf_date,
+    parse_sgf_result,
 };
 
 fn load_player_aliases() -> HashMap<String, i16> {
@@ -133,138 +134,154 @@ fn main() {
         .map(|(path, game, _)| (path, game))
         .collect::<Vec<_>>();
 
-    let mut seen_moves =
-        HashMap::<Vec<Placement>, (Option<i16>, String, Option<i16>, String, GameResult)>::new();
-    let mut unique_moves = HashMap::new();
+    let mut unique_games = HashMap::<Vec<Placement>, (String, Game)>::new();
 
-    println!("Processing games...");
+    println!("Removing duplicates...");
     for (path, game) in games_vec {
         let mut is_duplicate = false;
-        let mut duplicate_info = None;
-        if let Some((pb, rb, pw, rw, existing_result)) = seen_moves.get(&game.moves) {
-            is_duplicate = true;
-            let merged_player_black = game.player_black.or(*pb);
-            let merged_player_white = game.player_white.or(*pw);
-            // Keep the game with better score information
-            match (&existing_result, &game.result) {
-                // If existing is Unknown and new is not, keep the new one
-                (GameResult::Unknown(_), _) => {
-                    seen_moves.insert(
-                        game.moves.clone(),
-                        (
-                            merged_player_black,
-                            game.rank_black.to_string(),
-                            merged_player_white,
-                            game.rank_white.to_string(),
-                            game.result.clone(),
-                        ),
-                    );
-                    unique_moves.insert(path.clone(), game.clone());
-                }
-                // If both are Player results, keep the one with Some(Score)
-                (GameResult::Player(_, None, _), GameResult::Player(_, Some(_), _)) => {
-                    seen_moves.insert(
-                        game.moves.clone(),
-                        (
-                            merged_player_black,
-                            game.rank_black.to_string(),
-                            merged_player_white,
-                            game.rank_white.to_string(),
-                            game.result.clone(),
-                        ),
-                    );
-                    unique_moves.insert(path.clone(), game.clone());
-                }
-                // Otherwise keep the existing one
-                _ => {
-                    duplicate_info = Some((*pb, rb.clone(), *pw, rw.clone()));
-                }
-            }
-        } else {
-            for (_, rotated_moves) in get_rotations(&game.moves) {
-                if let Some((pb, rb, pw, rw, existing_result)) = seen_moves.get(&rotated_moves) {
-                    is_duplicate = true;
-                    let merged_player_black = game.player_black.or(*pb);
-                    let merged_player_white = game.player_white.or(*pw);
-                    // Keep the game with better score information
-                    match (&existing_result, &game.result) {
-                        // If existing is Unknown and new is not, keep the new one
-                        (GameResult::Unknown(_), _) => {
-                            seen_moves.insert(
-                                game.moves.clone(),
-                                (
-                                    merged_player_black,
-                                    game.rank_black.to_string(),
-                                    merged_player_white,
-                                    game.rank_white.to_string(),
-                                    game.result.clone(),
-                                ),
-                            );
-                            unique_moves.insert(path.clone(), game.clone());
-                            break;
-                        }
-                        // If both are Player results, keep the one with Some(Score)
-                        (GameResult::Player(_, None, _), GameResult::Player(_, Some(_), _)) => {
-                            seen_moves.insert(
-                                game.moves.clone(),
-                                (
-                                    merged_player_black,
-                                    game.rank_black.to_string(),
-                                    merged_player_white,
-                                    game.rank_white.to_string(),
-                                    game.result.clone(),
-                                ),
-                            );
-                            unique_moves.insert(path.clone(), game.clone());
-                            break;
-                        }
-                        // Otherwise keep the existing one
-                        _ => {
-                            duplicate_info = Some((*pb, rb.clone(), *pw, rw.clone()));
-                            break;
+        let mut maybe_existing_game: Option<(String, Game)> = None;
+        let mut maybe_merged_game: Option<(String, Game)> = None;
+        for position in all_rotations(&game.moves) {
+            if let Some((existing_path, existing_game)) = unique_games.get(&position) {
+                maybe_existing_game = Some((existing_path.clone(), existing_game.clone()));
+                is_duplicate = true;
+                let merged_player_black = game.player_black.or(existing_game.player_black);
+                let merged_player_white = game.player_white.or(existing_game.player_white);
+                let merged_result = match (&existing_game.result, &game.result) {
+                    (GameResult::Unknown(_), new) => new.clone(),
+                    (existing, GameResult::Unknown(_)) => existing.clone(),
+                    (GameResult::Player(_, None, _), GameResult::Player(_, Some(_), _)) => {
+                        game.result.clone()
+                    }
+                    (GameResult::Player(_, Some(_), _), GameResult::Player(_, None, _)) => {
+                        existing_game.result.clone()
+                    }
+                    _ => existing_game.result.clone(),
+                };
+                let merged_rank_black = match (&game.rank_black, &existing_game.rank_black) {
+                    (Rank::Pro(_), _) => game.rank_black.clone(),
+                    (_, Rank::Pro(_)) => existing_game.rank_black.clone(),
+                    (Rank::Dan(_), _) => game.rank_black.clone(),
+                    (_, Rank::Dan(_)) => existing_game.rank_black.clone(),
+                    (Rank::Kyu(_), _) => game.rank_black.clone(),
+                    (_, Rank::Kyu(_)) => existing_game.rank_black.clone(),
+                    (Rank::Custom(s1), Rank::Custom(_)) if s1.is_empty() => {
+                        existing_game.rank_black.clone()
+                    }
+                    _ => game.rank_black.clone(),
+                };
+                let merged_rank_white = match (&game.rank_white, &existing_game.rank_white) {
+                    (Rank::Pro(_), _) => game.rank_white.clone(),
+                    (_, Rank::Pro(_)) => existing_game.rank_white.clone(),
+                    (Rank::Dan(_), _) => game.rank_white.clone(),
+                    (_, Rank::Dan(_)) => existing_game.rank_white.clone(),
+                    (Rank::Kyu(_), _) => game.rank_white.clone(),
+                    (_, Rank::Kyu(_)) => existing_game.rank_white.clone(),
+                    (Rank::Custom(s1), Rank::Custom(_)) if s1.is_empty() => {
+                        existing_game.rank_white.clone()
+                    }
+                    _ => game.rank_white.clone(),
+                };
+                let merged_location = match (&game.location, &existing_game.location) {
+                    (l1, _) if !l1.is_empty() => game.location.clone(),
+                    (_, l2) if !l2.is_empty() => existing_game.location.clone(),
+                    _ => game.location.clone(),
+                };
+                let merged_round = match (&game.round, &existing_game.round) {
+                    (r1, _) if !r1.is_empty() => game.round.clone(),
+                    (_, r2) if !r2.is_empty() => existing_game.round.clone(),
+                    _ => game.round.clone(),
+                };
+                let merged_event = match (&game.event, &existing_game.event) {
+                    (e1, _) if !e1.is_empty() => game.event.clone(),
+                    (_, e2) if !e2.is_empty() => existing_game.event.clone(),
+                    _ => game.event.clone(),
+                };
+                let merged_date = match (&game.date, &existing_game.date) {
+                    (Some(d1), Some(d2)) => {
+                        // If both dates exist, use the more precise one
+                        match (d1, d2) {
+                            (SgfDate::YearMonthDay(_, _, _), SgfDate::YearMonthDay(_, _, _)) => {
+                                game.date.clone()
+                            }
+                            (SgfDate::YearMonthDay(_, _, _), _) => game.date.clone(),
+                            (_, SgfDate::YearMonthDay(_, _, _)) => existing_game.date.clone(),
+                            (SgfDate::YearMonth(_, _), SgfDate::YearMonth(_, _)) => {
+                                game.date.clone()
+                            }
+                            (SgfDate::YearMonth(_, _), _) => game.date.clone(),
+                            (_, SgfDate::YearMonth(_, _)) => existing_game.date.clone(),
+                            _ => game.date.clone(),
                         }
                     }
-                }
+                    (Some(_), None) => game.date.clone(),
+                    (None, Some(_)) => existing_game.date.clone(),
+                    _ => game.date.clone(),
+                };
+                let merged_rules = match (&game.rules, &existing_game.rules) {
+                    (Some(Rules::Custom(_)), Some(Rules::Custom(_))) => game.rules.clone(),
+                    (Some(Rules::Custom(_)), _) => existing_game.rules.clone(),
+                    (_, Some(Rules::Custom(_))) => game.rules.clone(),
+                    _ => game.rules.clone(),
+                };
+
+                maybe_merged_game = Some((
+                    existing_path.clone(),
+                    Game {
+                        event: merged_event,
+                        round: merged_round,
+                        location: merged_location,
+                        date: merged_date,
+                        player_black: merged_player_black,
+                        player_white: merged_player_white,
+                        rank_black: merged_rank_black,
+                        rank_white: merged_rank_white,
+                        komi: game.komi,
+                        result: merged_result,
+                        rules: merged_rules,
+                        moves: game.moves.clone(),
+                        captures: game.captures.clone(),
+                    },
+                ));
+                break;
             }
         }
 
         if !is_duplicate {
-            seen_moves.insert(
-                game.moves.clone(),
-                (
-                    game.player_black,
-                    game.rank_black.to_string(),
-                    game.player_white,
-                    game.rank_white.to_string(),
-                    game.result.clone(),
-                ),
-            );
-            unique_moves.insert(path.clone(), game.clone());
-        } else if let Some((pb, rb, pw, rw)) = duplicate_info {
+            unique_games.insert(game.moves.clone(), (path, game.clone()));
+        } else if let Some((merged_path, merged_game)) = maybe_merged_game {
+            let moves = maybe_existing_game
+                .expect("No existing game")
+                .1
+                .moves
+                .clone();
             // Only warn if player IDs don't match
-            if game.player_black != pb || game.player_white != pw {
+            if game.player_black != merged_game.player_black
+                || game.player_white != merged_game.player_white
+            {
                 println!(
                     "Removing duplicate game: {:?} {} vs {:?} {} (duplicate of {:?} {} vs {:?} {})",
                     game.player_black,
                     game.rank_black,
                     game.player_white,
                     game.rank_white,
-                    pb,
-                    rb,
-                    pw,
-                    rw
+                    merged_game.player_black,
+                    merged_game.rank_black,
+                    merged_game.player_white,
+                    merged_game.rank_white
                 );
             }
+            unique_games.insert(moves, (merged_path, merged_game));
         }
     }
 
-    println!("Found {} unique games", unique_moves.len());
+    println!("Found {} unique games", unique_games.len());
 
     println!("Computing captures...");
 
-    let games = unique_moves
+    let games = unique_games
         .into_par_iter()
-        .map(|(path, mut game)| {
+        .map(|(_, (path, mut game))| {
             let mut captures = HashMap::new();
             let mut gb = GoBoard::new();
 
