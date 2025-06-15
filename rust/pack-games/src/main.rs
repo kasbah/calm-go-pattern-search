@@ -1,5 +1,3 @@
-mod sgf_traversal;
-
 use rayon::prelude::*;
 use serde_json::Value;
 use sgf_parse::{ParseOptions, go, parse_with_options};
@@ -370,8 +368,8 @@ fn load_sgf(
         }
     }
 
-    for node in sgf_traversal::variation_nodes(&game[0], 0)? {
-        for props in &node.sgf_node.properties {
+    for node in game[0].main_variation() {
+        for props in &node.properties {
             match props {
                 go::Prop::W(go::Move::Move(point)) => {
                     if point.x >= BOARD_SIZE || point.y >= BOARD_SIZE {
