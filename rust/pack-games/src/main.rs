@@ -2,7 +2,7 @@ mod sgf_traversal;
 
 use rayon::prelude::*;
 use serde_json::Value;
-use sgf_parse::go;
+use sgf_parse::{ParseOptions, go, parse_with_options};
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fs::File;
@@ -312,7 +312,16 @@ fn load_sgf(
     path: &PathBuf,
     file_data: &str,
 ) -> Result<(Game, String, String), Box<dyn std::error::Error>> {
-    let game = go::parse(file_data)?;
+    let parse_options = ParseOptions {
+        lenient: true,
+        ..ParseOptions::default()
+    };
+    let gametrees = parse_with_options(file_data, &parse_options)?;
+    let game = gametrees
+        .into_iter()
+        .map(|gametree| gametree.into_go_node())
+        .collect::<Result<Vec<_>, _>>()?;
+
     let mut moves = Vec::new();
     let mut event = String::new();
     let mut round = String::new();

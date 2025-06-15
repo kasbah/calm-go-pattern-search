@@ -574,8 +574,7 @@ dependencies = [
 [[package]]
 name = "sgf-parse"
 version = "4.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1339a328f725ced68a3a768c08b7bc8705b338c5dd0192102addde28f75a93f8"
+source = "git+https://github.com/julianandrews/sgf-parse?rev=7ca35bb08026c54b8fe656172778f3673353b464#7ca35bb08026c54b8fe656172778f3673353b464"
 
 [[package]]
 name = "shlex"
