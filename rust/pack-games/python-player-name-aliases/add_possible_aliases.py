@@ -211,6 +211,41 @@ def main():
             print(f"\nSkipping pair {id1} - {id2}: Already known aliases")
             continue
 
+        # Auto-accept if one name starts with the other or with any known alias
+        all_names1 = [name1] + custom_aliases1 + known_aliases1
+        all_names2 = [name2] + custom_aliases2 + known_aliases2
+
+        auto_accept = False
+        matching_reason = ""
+
+        # Check if any name from player 1 starts with any name from player 2
+        for n1 in all_names1:
+            for n2 in all_names2:
+                if n1.lower().startswith(n2.lower()) or n2.lower().startswith(
+                    n1.lower()
+                ):
+                    auto_accept = True
+                    matching_reason = f'"{n1}" matches with "{n2}"'
+                    break
+            if auto_accept:
+                break
+
+        if auto_accept:
+            print(f"\nAuto-accepting alias pair ({i}/{remaining_aliases}):")
+            print(f"Player 1 (ID: {id1}): {name1}")
+            print(f"Player 2 (ID: {id2}): {name2}")
+            print(f"Reason: {matching_reason}")
+
+            # Consolidate aliases under a single main name
+            main_name = consolidate_aliases(
+                name1, name2, custom_alias_db, custom_aliases1, custom_aliases2
+            )
+
+            # Save the updated custom_aliases.json
+            save_custom_aliases(custom_alias_db)
+            print(f"Aliases added to custom_aliases.json under main name: {main_name}")
+            continue
+
         print(f"\nPossible alias pair ({i}/{remaining_aliases}):")
         print(f"Player 1 (ID: {id1}): {name1}")
         print(f"Custom aliases: {', '.join(f'"{n}"' for n in custom_aliases1)}")
