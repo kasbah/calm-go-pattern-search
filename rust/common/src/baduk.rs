@@ -234,7 +234,9 @@ pub fn pack_placements(placements: &[Placement]) -> Vec<u8> {
         color_bits.push(color);
     }
 
-    let len = placements.len() as u16;
+    let len = placements.len();
+
+    assert!(len <= u16::MAX as usize, "Placements length greater than u16::MAX");
 
     let mut packed = Vec::new();
     packed.push((len >> 8) as u8);
@@ -254,6 +256,7 @@ pub fn pack_captures(captures: &HashMap<usize, Vec<Placement>>) -> Vec<u8> {
 
     for (move_number, placements) in captures {
         // Pack move number (u16)
+        assert!(*move_number <= u16::MAX as usize, "Move number greater than u16::MAX");
         packed.push((move_number >> 8) as u8);
         packed.push(*move_number as u8);
 
