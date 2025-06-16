@@ -49,7 +49,11 @@ fn load_player_aliases() -> HashMap<String, i16> {
 }
 
 fn find_player_id(name: &str, aliases: &HashMap<String, i16>) -> Player {
-    let name = name.replace(['\n'], " ").trim().to_string();
+    let name = name
+        .replace(['\n'], " ")
+        .replace([','], "")
+        .trim()
+        .to_string();
 
     if name.is_empty() {
         return Player::Unknown("".to_string());
@@ -59,22 +63,14 @@ fn find_player_id(name: &str, aliases: &HashMap<String, i16>) -> Player {
         return Player::Id(*id);
     }
 
-    // If the name contains a comma, try the flipped format
-    if name.contains(',') {
-        let parts: Vec<&str> = name.split(',').map(|s| s.trim()).collect();
-        if parts.len() == 2 {
-            let flipped_name = format!("{} {}", parts[1], parts[0]);
-            if let Some(id) = aliases.get(flipped_name.to_lowercase().as_str()) {
-                return Player::Id(*id);
-            }
-        }
-    }
-
     Player::Unknown(name)
 }
 
 fn has_multiple_players(name: &str) -> bool {
-    name.contains(" and ") || name.contains("&") || name.matches(',').count() > 1
+    name.contains(" and ")
+        || name.contains("&")
+        || name.matches(',').count() > 1
+        || name.contains("day 1")
 }
 
 fn main() {
@@ -429,7 +425,6 @@ fn load_sgf(
         }
     }
 
-    // Check if player names indicate multiple players
     if has_multiple_players(&player_black) || has_multiple_players(&player_white) {
         return Err("Player name indicates multiple players".into());
     }
