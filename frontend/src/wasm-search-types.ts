@@ -50,6 +50,11 @@ export type Rules = {
   Custom?: string;
 };
 
+export type Player = {
+  Id?: number;
+  Unknown?: string;
+};
+
 export type Game = {
   path: string;
   score: number;
@@ -65,8 +70,8 @@ export type Game = {
   round: string;
   location: string;
   date: SgfDate | null;
-  player_black: number | null;
-  player_white: number | null;
+  player_black: Player;
+  player_white: Player;
   rank_black: Rank;
   rank_white: Rank;
   komi: number | null;

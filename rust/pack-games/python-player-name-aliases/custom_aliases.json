@@ -230,7 +230,8 @@
     "Hayashi Genetsu Monnyu"
   ],
   "Hayashi Hakuei": [
-    "Hayashi Hakuei Monnyu"
+    "Hayashi Hakuei Monnyu",
+    "林门入"
   ],
   "Hayashi Incho": [
     "Hayashi Incho Monnyu"
@@ -497,7 +498,9 @@
   ],
   "Kim Sujang": [
     "Kim Soojang",
-    "Kim Su Jang"
+    "Kim Su Jang",
+    "Kim Suchang",
+    "Kim Su-chang"
   ],
   "Kim Yeong-sam": [
     "Kim Yeong Sam",
@@ -866,7 +869,8 @@
     "Tamura Hoju (later Shusai)",
     "Tamura Yasuhisa",
     "本因坊秀哉 名人",
-    "Honinbo Shusai"
+    "Honinbo Shusai",
+    "田村保寿"
   ],
   "Tamura Kahei": [
     "Tamura Kahei (no relation)"
@@ -917,7 +921,8 @@
   ],
   "Whang Jaeyoun": [
     "Whang Jaeyeon",
-    "Hwang Chae-yeon"
+    "Hwang Chae-yeon",
+    "Whang jaeyoun"
   ],
   "Wu Songsheng": [
     "Wu Sung-sheng",
@@ -962,7 +967,8 @@
   ],
   "Yasui Senchi": [
     "Yasui Senchi Senkaku",
-    "Yasui Senkaku Senchi"
+    "Yasui Senkaku Senchi",
+    "安井仙知仙角"
   ],
   "Yasui Senkaku": [
     "Yasui Shuntetsu Senkaku"
@@ -1049,9 +1055,6 @@
     "安井  知得",
     "安井知得",
     "中野知得"
-  ],
-  "Kim Su-chang": [
-    "Kim Suchang"
   ],
   "Kuroda Genjiro": [
     "黑田源次郎",
@@ -1189,7 +1192,8 @@
     "本因坊丈和 八段",
     "本因坊丈和 五十六歳",
     "本因坊丈和 五十五歳",
-    "Honinbo Jowa"
+    "Honinbo Jowa",
+    "葛野丈和 二十四歳"
   ],
   "Chino Tadahiko": [
     "茅野直彦七段"
@@ -1212,7 +1216,9 @@
     "羽根泰正九段",
     "羽根泰正七段"
   ],
-  "van Zeijst Rob": [
+  "Rob van Zeijst": [
+    "van Zeijst Rob", 
+    "van Zeijst, Rob",
     "罗布·扎伊斯特"
   ],
   "Yuki Satoshi": [
@@ -1273,9 +1279,6 @@
   "Ishii Shinzo": [
     "石井新藏九段"
   ],
-  "Ishii Senji": [
-    "石井  千治  六段"
-  ],
   "Shirae Haruhiko": [
     "白江治彦五段"
   ],
@@ -1321,6 +1324,7 @@
     "河井长太夫"
   ],
   "Mizokami Tomochika": [
+    "Mizokami Tomochiak",
     "沟上知亲七段"
   ],
   "Ezura Yuichi": [
@@ -1405,7 +1409,8 @@
     "村岛谊纪七段"
   ],
   "Murakami Bunsho": [
-    "村上文祥"
+    "村上文祥",
+    "Bunsho Murakami"
   ],
   "Sugiyama Senwa": [
     "杉山千和"
@@ -1434,7 +1439,8 @@
     "Hayashi Shuei"
   ],
   "Honinbo Genjo": [
-    "本因坊元丈 三十六歳"
+    "本因坊元丈 三十六歳",
+    "Miyashige Genjo"
   ],
   "Ogawa Doteki": [
     "本因坊  道的",
@@ -1491,7 +1497,8 @@
     "川本升六段"
   ],
   "Iwata Tatsuaki": [
-    "岩田达明九段"
+    "岩田达明九段",
+    "Iwata Masao"
   ],
   "Iwamoto Kaoru": [
     "岩本薰八段"
@@ -1731,7 +1738,8 @@
     "伊藤秀闊"
   ],
   "Ito Kino": [
-    "伊藤甲子"
+    "伊藤甲子",
+    "Ito Kinoko"
   ],
   "Ito Genzaburo": [
     "伊藤源三郎"
@@ -1802,7 +1810,9 @@
   ],
   "Hayashi Senji": [
     "Nakagawa Senji",
-    "Hayashi Senji (later Ishii Senji)"
+    "Hayashi Senji (later Ishii Senji)",
+    "石井  千治  六段",
+    "Ishii Senji"
   ],
   "Nakagawa Shinji": [
     "Nakagawa Arata"
@@ -1814,7 +1824,8 @@
     "Mito Tomiaki"
   ],
   "Lui Eric": [
-    "Lu Haojun"
+    "Lu Haojun",
+    "Eric Lui"
   ],
   "Lord Sakai of Iwami": [
     "Lord Sakai of Ishimi"
@@ -1960,5 +1971,66 @@
   ],
   "An Kuk-hyeon": [
     "An Kukhyun"
+  ],
+  "Inoue Tabuchi Inseki": [
+    "井上因硕十五世"
+  ],
+  "Guo Tisheng": [
+    "过惕生"
+  ],
+  "Fukuo Genko": [
+    "福尾玄故"
+  ],
+  "Kumagai Honseki": [
+    "熊谷本硕"
+  ],
+  "Kawakita Konosuke": [
+    "河北耕之助"
+  ],
+  "Rigen": [
+    "林　利玄"
+  ],
+  "Hayashi Hakuetsu": [
+    "林 柏悦"
+  ],
+  "Minamisato Yohee": [
+    "南里与兵卫"
+  ],
+  "Kato Ryujiro": [
+    "加藤降二郎",
+    "加藤隆二郎"
+  ],
+  "Kariya Kazuo": [
+    "刈谷数雄"
+  ],
+  "Takeda Misao": [
+    "Takeda Itsuko"
+  ],
+  "高山三次郎": [
+    "Takayama Sanjiro"
+  ],
+  "Shi Xiangxia": [
+    "Shi Dingan"
+  ],
+  "Ogata Masaki": [
+    "Okada Kihachiro"
+  ],
+  "Udono Tokuzo": [
+    "鹈殿德藏"
+  ],
+  "Sakai Dotetsu": [
+    "镜道哲"
+  ],
+  "Kato Ryuwa": [
+    "加藤隆次郎"
+  ],
+  "Ito Daizaburo": [
+    "伊藤大三郎"
+  ],
+  "Ninomiya Kaizo": [
+    "二宫快藏"
+  ],
+  "Ogura Takami": [
+    "Ogura Tokitsu"
   ]
 }

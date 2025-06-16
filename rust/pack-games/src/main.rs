@@ -8,7 +8,7 @@ use std::io::BufReader;
 use std::path::PathBuf;
 
 use calm_go_patterns_common::baduk::{
-    BOARD_SIZE, Color, Game, GameResult, GoBoard, Placement, Point, Rank, Rules, SgfDate,
+    BOARD_SIZE, Color, Game, GameResult, GoBoard, Placement, Player, Point, Rank, Rules, SgfDate,
     all_rotations, pack_games, parse_komi, parse_rank, parse_rules, parse_sgf_date,
     parse_sgf_result,
 };
@@ -48,19 +48,15 @@ fn load_player_aliases() -> HashMap<String, i16> {
     aliases
 }
 
-fn find_player_id(
-    name: &str,
-    aliases: &HashMap<String, i16>,
-    unknown_names: &mut HashSet<String>,
-) -> Option<i16> {
+fn find_player_id(name: &str, aliases: &HashMap<String, i16>) -> Player {
     let name = name.replace(['\n'], " ").trim().to_string();
 
     if name.is_empty() {
-        return None;
+        return Player::Unknown("".to_string());
     }
 
     if let Some(id) = aliases.get(name.to_lowercase().as_str()) {
-        return Some(*id);
+        return Player::Id(*id);
     }
 
     // If the name contains a comma, try the flipped format
@@ -69,13 +65,12 @@ fn find_player_id(
         if parts.len() == 2 {
             let flipped_name = format!("{} {}", parts[1], parts[0]);
             if let Some(id) = aliases.get(flipped_name.to_lowercase().as_str()) {
-                return Some(*id);
+                return Player::Id(*id);
             }
         }
     }
 
-    unknown_names.insert(name.to_string());
-    None
+    Player::Unknown(name)
 }
 
 fn has_multiple_players(name: &str) -> bool {
@@ -84,7 +79,6 @@ fn has_multiple_players(name: &str) -> bool {
 
 fn main() {
     let player_aliases = load_player_aliases();
-    let mut unknown_names = HashSet::new();
     let mut possible_aliases = HashSet::new();
     let mut sgf_folder = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     sgf_folder.push("sgfs");
@@ -105,18 +99,15 @@ fn main() {
             Ok(file_data) => match load_sgf(path, &file_data) {
                 Ok((mut game, player_black, player_white)) => {
                     // Replace player names with canonical names
-                    let mut local_unknown = HashSet::new();
-                    game.player_black =
-                        find_player_id(&player_black, &player_aliases, &mut local_unknown);
-                    game.player_white =
-                        find_player_id(&player_white, &player_aliases, &mut local_unknown);
+                    game.player_black = find_player_id(&player_black, &player_aliases);
+                    game.player_white = find_player_id(&player_white, &player_aliases);
                     let rel_path = path
                         .strip_prefix(&sgf_folder)
                         .unwrap()
                         .with_extension("")
                         .to_string_lossy()
                         .into_owned();
-                    Some((rel_path, game, local_unknown))
+                    Some((rel_path, game))
                 }
                 Err(e) => {
                     println!("Skipping {path:?}: {e}");
@@ -130,15 +121,7 @@ fn main() {
         })
         .collect::<Vec<_>>();
 
-    // Merge unknown names from all games
-    for (_, _, local_unknown) in &games_vec {
-        unknown_names.extend(local_unknown.iter().cloned());
-    }
-
-    let games_vec = games_vec
-        .into_iter()
-        .map(|(path, game, _)| (path, game))
-        .collect::<Vec<_>>();
+    // games_vec now contains (path, game) tuples directly
 
     let mut unique_games = HashMap::<Vec<Placement>, (String, Game)>::new();
 
@@ -148,9 +131,12 @@ fn main() {
         let mut maybe_existing_game: Option<(String, Game)> = None;
         let mut maybe_merged_game: Option<(String, Game)> = None;
 
-        // Skip duplicate detection for games with less than 30 moves
-        if game.moves.len() < 30 {
-            println!("Skipping duplicate detection for game with only {} moves: {:?}", game.moves.len(), path);
+        if game.moves.len() <= 10 {
+            println!(
+                "Skipping duplicate detection for game with only {} moves: {:?}",
+                game.moves.len(),
+                path
+            );
             unique_games.insert(game.moves.clone(), (path, game));
             continue;
         }
@@ -159,17 +145,33 @@ fn main() {
             if let Some((existing_path, existing_game)) = unique_games.get(&position) {
                 maybe_existing_game = Some((existing_path.clone(), existing_game.clone()));
                 is_duplicate = true;
-                let merged_player_black = match (existing_game.player_black, game.player_black) {
-                    (Some(id1), Some(id2)) => Some(if id1 > 0 { id1 } else { id2 }),
-                    (Some(id), None) => Some(id),
-                    (None, Some(id)) => Some(id),
-                    (None, None) => None,
+                let merged_player_black = match (&existing_game.player_black, &game.player_black) {
+                    (Player::Id(id1), Player::Id(id2)) => {
+                        Player::Id(if *id1 > 0 { *id1 } else { *id2 })
+                    }
+                    (Player::Id(id), Player::Unknown(_)) => Player::Id(*id),
+                    (Player::Unknown(_), Player::Id(id)) => Player::Id(*id),
+                    (Player::Unknown(name1), Player::Unknown(name2)) => {
+                        Player::Unknown(if !name1.is_empty() {
+                            name1.clone()
+                        } else {
+                            name2.clone()
+                        })
+                    }
                 };
-                let merged_player_white = match (existing_game.player_white, game.player_white) {
-                    (Some(id1), Some(id2)) => Some(if id1 > 0 { id1 } else { id2 }),
-                    (Some(id), None) => Some(id),
-                    (None, Some(id)) => Some(id),
-                    (None, None) => None,
+                let merged_player_white = match (&existing_game.player_white, &game.player_white) {
+                    (Player::Id(id1), Player::Id(id2)) => {
+                        Player::Id(if *id1 > 0 { *id1 } else { *id2 })
+                    }
+                    (Player::Id(id), Player::Unknown(_)) => Player::Id(*id),
+                    (Player::Unknown(_), Player::Id(id)) => Player::Id(*id),
+                    (Player::Unknown(name1), Player::Unknown(name2)) => {
+                        Player::Unknown(if !name1.is_empty() {
+                            name1.clone()
+                        } else {
+                            name2.clone()
+                        })
+                    }
                 };
                 let merged_result = match (&existing_game.result, &game.result) {
                     (GameResult::Unknown(_), new) => new.clone(),
@@ -278,14 +280,24 @@ fn main() {
             // Only warn if player IDs don't match
 
             // Record possible aliases
-            if let (Some(id1), Some(id2)) = (existing_game.player_black, merged_game.player_black) {
+            if let (Player::Id(id1), Player::Id(id2)) =
+                (&existing_game.player_black, &merged_game.player_black)
+            {
                 if id1 != id2 {
-                    possible_aliases.insert(PossiblePlayerAlias { id1, id2 });
+                    possible_aliases.insert(PossiblePlayerAlias {
+                        id1: *id1,
+                        id2: *id2,
+                    });
                 }
             }
-            if let (Some(id1), Some(id2)) = (existing_game.player_white, merged_game.player_white) {
+            if let (Player::Id(id1), Player::Id(id2)) =
+                (&existing_game.player_white, &merged_game.player_white)
+            {
                 if id1 != id2 {
-                    possible_aliases.insert(PossiblePlayerAlias { id1, id2 });
+                    possible_aliases.insert(PossiblePlayerAlias {
+                        id1: *id1,
+                        id2: *id2,
+                    });
                 }
             }
 
@@ -318,6 +330,22 @@ fn main() {
     let buf = pack_games(&games);
     std::fs::write("games.pack", buf).unwrap();
 
+    // Collect unknown names from final unique games
+    println!("Collecting unknown names from unique games...");
+    let mut unknown_names = HashSet::new();
+    for game in games.values() {
+        if let Player::Unknown(name) = &game.player_black {
+            if !name.is_empty() {
+                unknown_names.insert(name.clone());
+            }
+        }
+        if let Player::Unknown(name) = &game.player_white {
+            if !name.is_empty() {
+                unknown_names.insert(name.clone());
+            }
+        }
+    }
+
     // Write unknown names to file
     println!("Writing unknown_names.txt...");
     let mut unknown_names: Vec<_> = unknown_names.into_iter().collect();
@@ -326,11 +354,11 @@ fn main() {
 
     // Count player ID usage across unique games
     let mut player_id_counts = HashMap::<i16, usize>::new();
-    for (_, game) in &games {
-        if let Some(id) = game.player_black {
+    for game in games.values() {
+        if let Player::Id(id) = game.player_black {
             *player_id_counts.entry(id).or_insert(0) += 1;
         }
-        if let Some(id) = game.player_white {
+        if let Player::Id(id) = game.player_white {
             *player_id_counts.entry(id).or_insert(0) += 1;
         }
     }
@@ -504,8 +532,8 @@ fn load_sgf(
             round,
             location,
             date,
-            player_black: None,
-            player_white: None,
+            player_black: Player::Unknown(player_black.clone()),
+            player_white: Player::Unknown(player_white.clone()),
             rank_black,
             rank_white,
             komi,

@@ -4,7 +4,7 @@ extern crate wasm_bindgen;
 mod utils;
 
 use calm_go_patterns_common::baduk::{
-    Color, Game, GameResult, Placement, Point, Rank, Rotation, Rules, SgfDate, check_empty,
+    Color, Game, GameResult, Placement, Player, Point, Rank, Rotation, Rules, SgfDate, check_empty,
     check_within_one_quadrant, get_mirrored, get_rotated, get_rotations, get_surrounding_points,
     match_game, switch_colors, unpack_games,
 };
@@ -52,8 +52,8 @@ pub struct SearchResult {
     round: String,
     location: String,
     date: Option<SgfDate>,
-    player_black: Option<i16>,
-    player_white: Option<i16>,
+    player_black: Player,
+    player_white: Player,
     rank_black: Rank,
     rank_white: Rank,
     komi: Option<f32>,
@@ -168,9 +168,10 @@ impl WasmSearch {
         // Games must contain ALL selected players
         if !player_ids.is_empty() {
             results.retain(|result| {
-                player_ids
-                    .iter()
-                    .all(|&id| result.player_black == Some(id) || result.player_white == Some(id))
+                player_ids.iter().all(|&id| {
+                    matches!(result.player_black, Player::Id(player_id) if player_id == id)
+                        || matches!(result.player_white, Player::Id(player_id) if player_id == id)
+                })
             });
         }
 
@@ -220,8 +221,8 @@ impl WasmSearch {
                     round: game.round.clone(),
                     location: game.location.clone(),
                     date: game.date.clone(),
-                    player_black: game.player_black,
-                    player_white: game.player_white,
+                    player_black: game.player_black.clone(),
+                    player_white: game.player_white.clone(),
                     rank_black: game.rank_black.clone(),
                     rank_white: game.rank_white.clone(),
                     komi: game.komi,
@@ -260,8 +261,8 @@ impl WasmSearch {
                     round: game.round.clone(),
                     location: game.location.clone(),
                     date: game.date.clone(),
-                    player_black: game.player_black,
-                    player_white: game.player_white,
+                    player_black: game.player_black.clone(),
+                    player_white: game.player_white.clone(),
                     rank_black: game.rank_black.clone(),
                     rank_white: game.rank_white.clone(),
                     komi: game.komi,
@@ -290,8 +291,8 @@ impl WasmSearch {
                         round: game.round.clone(),
                         location: game.location.clone(),
                         date: game.date.clone(),
-                        player_black: game.player_black,
-                        player_white: game.player_white,
+                        player_black: game.player_black.clone(),
+                        player_white: game.player_white.clone(),
                         rank_black: game.rank_black.clone(),
                         rank_white: game.rank_white.clone(),
                         komi: game.komi,
@@ -322,8 +323,8 @@ impl WasmSearch {
                             round: game.round.clone(),
                             location: game.location.clone(),
                             date: game.date.clone(),
-                            player_black: game.player_black,
-                            player_white: game.player_white,
+                            player_black: game.player_black.clone(),
+                            player_white: game.player_white.clone(),
                             rank_black: game.rank_black.clone(),
                             rank_white: game.rank_white.clone(),
                             komi: game.komi,
@@ -353,8 +354,8 @@ impl WasmSearch {
                                 round: game.round.clone(),
                                 location: game.location.clone(),
                                 date: game.date.clone(),
-                                player_black: game.player_black,
-                                player_white: game.player_white,
+                                player_black: game.player_black.clone(),
+                                player_white: game.player_white.clone(),
                                 rank_black: game.rank_black.clone(),
                                 rank_white: game.rank_white.clone(),
                                 komi: game.komi,
@@ -385,8 +386,8 @@ impl WasmSearch {
                         round: game.round.clone(),
                         location: game.location.clone(),
                         date: game.date.clone(),
-                        player_black: game.player_black,
-                        player_white: game.player_white,
+                        player_black: game.player_black.clone(),
+                        player_white: game.player_white.clone(),
                         rank_black: game.rank_black.clone(),
                         rank_white: game.rank_white.clone(),
                         komi: game.komi,
@@ -417,8 +418,8 @@ impl WasmSearch {
                             round: game.round.clone(),
                             location: game.location.clone(),
                             date: game.date.clone(),
-                            player_black: game.player_black,
-                            player_white: game.player_white,
+                            player_black: game.player_black.clone(),
+                            player_white: game.player_white.clone(),
                             rank_black: game.rank_black.clone(),
                             rank_white: game.rank_white.clone(),
                             komi: game.komi,
@@ -450,8 +451,8 @@ impl WasmSearch {
                             round: game.round.clone(),
                             location: game.location.clone(),
                             date: game.date.clone(),
-                            player_black: game.player_black,
-                            player_white: game.player_white,
+                            player_black: game.player_black.clone(),
+                            player_white: game.player_white.clone(),
                             rank_black: game.rank_black.clone(),
                             rank_white: game.rank_white.clone(),
                             komi: game.komi,
@@ -481,8 +482,8 @@ impl WasmSearch {
                                 round: game.round.clone(),
                                 location: game.location.clone(),
                                 date: game.date.clone(),
-                                player_black: game.player_black,
-                                player_white: game.player_white,
+                                player_black: game.player_black.clone(),
+                                player_white: game.player_white.clone(),
                                 rank_black: game.rank_black.clone(),
                                 rank_white: game.rank_white.clone(),
                                 komi: game.komi,

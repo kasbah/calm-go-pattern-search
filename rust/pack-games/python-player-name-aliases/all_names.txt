@@ -1,3 +1,4 @@
+?
 ACE
 AQ
 Aarón Alvarado
@@ -9,6 +10,7 @@ Abe Yoshiteru
 Abe Yumiko
 Adachi Toashimasa
 Adachi Toshimasa
+Aguilar, Fernand
 Ahn Kukhyun
 Aihara Kaseki
 Aizawa Kaoru
@@ -447,6 +449,7 @@ Diego Guerrero
 Diego Ruiz
 Dina Burdakova
 Dinerchtein Alexander
+Dinerchtein, Alexandre
 Ding Bo
 Ding Hao
 Ding Lie
@@ -893,6 +896,7 @@ Hong T'ae-seon
 Hong Tae Seon
 Hong Taesun
 Hong Yan
+Hong, Seung Hyun
 Honinbo Chihaku
 Honinbo Dochi
 Honinbo Doetsu
@@ -915,7 +919,6 @@ Honinbo Shugen
 Honinbo Shuhaku
 Honinbo Shuho
 Honinbo Shusai
-Honinbo Shusai Meijin
 Honinbo Shusaku
 Honinbo Shuwa
 Honke Yoshiaki
@@ -997,6 +1000,7 @@ Huang Youteng
 Huang Yunsong
 Huangfu Wei
 Huiren Yang
+Hung, Joey
 Husdin Aekasinghachai
 Hwang Jaeyeon
 Hwang Jinhyung
@@ -1065,7 +1069,6 @@ Imataki Tarobee
 Inaba Karin
 Inaba Takahiro
 Inagaki Kanetaro
-Inagaki Kentaro
 Inagaki Koichi
 Inagaki Yo
 Injune Kang
@@ -1082,8 +1085,7 @@ Inoue Gennan Inseki
 Inoue Hatsue
 Inoue Ichiro
 Inoue Insa Inseki
-Inoue Inseki (14th Inoue)
-Inoue Inseki (15th Inoue)
+Inoue Inseki (16th Inoue, previously Egeta Senjiro)
 Inoue Inseki XIV
 Inoue Inseki XV
 Inoue Inseki XVI
@@ -1091,7 +1093,6 @@ Inoue Insetsu
 Inoue Insetsu Inseki
 Inoue Intatsu
 Inoue Intatsu Inseki
-Inoue Isao (also known as Yoshida Misako)
 Inoue Kaname
 Inoue Kohei
 Inoue Kunio
@@ -1131,6 +1132,7 @@ Ishii Senji
 Ishii Shinzo
 Ishii Shiro
 Ishikawa Otojiro
+Ishikawa Shingoemon
 Ishikawa Zenpachi
 Ishikura Noboru
 Ishikure Ikuro
@@ -1138,10 +1140,8 @@ Ishimine Shinichi
 Isogawa Masao
 Isshiki Satoo
 Itagaki Chuzo
-Itagaki Zenbei
 Itasaka Usaburo
 Ito Akio
-Ito Daizaburo
 Ito Genjiro
 Ito Genzaburo
 Ito Hachisaburo
@@ -1150,6 +1150,7 @@ Ito Hitoshi
 Ito Katsuko
 Ito Kayoko
 Ito Kenryo
+Ito Kino
 Ito Kinoko
 Ito Kinzo
 Ito Kiyoko
@@ -1161,7 +1162,6 @@ Ito Matsujiro
 Ito Naoki
 Ito Shigeko
 Ito Showa
-Ito Shusuke
 Ito Sotozo
 Ito Tamotsu
 Ito Tokubee
@@ -1182,7 +1182,6 @@ Iwamaru Taira
 Iwamoto Kaoru
 Iwamura Taira
 Iwasa Kei
-Iwasaki (or Ebisawa) Kenzo
 Iwasaki Haruto
 Iwasaki Kenzo
 Iwase Junichi
@@ -1200,7 +1199,6 @@ Izawa Iwakichi
 Izumi Kiichiro
 Izumi Minoru
 Izumi Shusetsu
-Izumi Yohee
 Izumitani Hideo
 Izumitani Masanori
 Izumo Eiji
@@ -1215,7 +1213,9 @@ Jang Du Jin
 Jang Koonhyun
 Jang Sooyong
 Jang Su Yeong
+Jang, Bi
 Janice Kim
+Japanese insei
 Jean Michel
 Jeff Seailles
 Jeffrey Fung
@@ -1238,8 +1238,8 @@ Jeong Suhyeon
 Jeong Woojin
 Jeong Yeonwoo
 Jeong Yujin
+Jeong, Jong In
 Ji Lili
-Ji Zhiting
 Jia Ganglu
 Jia Qian
 Jia Xiaoyu
@@ -1264,6 +1264,7 @@ Jiang Weijie
 Jiang Yingcun
 Jiang Zhiqiang
 Jiang Zhujiu
+Jiang, Ming Jiu
 Jie Hui Kwa
 Jie Li
 Jie Liang
@@ -1290,7 +1291,6 @@ Jong Moon Lee
 Jong-Hoon Lee
 Joo Hyeongwuk
 Jorge Sasaki
-Josaku
 Joseph Webster
 Ju Chihong
 Ju Hyeongwuk
@@ -1425,7 +1425,6 @@ Kawada Kiyoko
 Kawada Kohei
 Kawaguchi Tsubasa
 Kawahara Yu
-Kawai Chodayu
 Kawai Kikuji
 Kawai Shoji
 Kawai Tetsuyuki
@@ -1443,18 +1442,17 @@ Kazama Jun
 Ke Jie
 Kenmochi Jo
 Kenmochi Joe
+Kerwin, James
 Kevin Huang
 Kevin Yang
 Khanh Lam Bui Le
 Kibe Natsuki
 Kifuwarabe
-Kihara (or Kiwara) Kametaro
 Kihara Kametaro
 Kikkawa Hajime
 Kikuchi Masatoshi
 Kikuchi Yasuro
 Kikuchi Yoshio
-Kikugawa Yuseki
 Kim Beomseo
 Kim Bumseo
 Kim Byeongjun
@@ -1644,7 +1642,6 @@ Kim Seong-rae
 Kim Seong-ryong
 Kim Seongi
 Kim Seongjae
-Kim Seongrae
 Kim Seongryong
 Kim Seonryong
 Kim Sesil
@@ -1666,6 +1663,7 @@ Kim Su Yeong
 Kim Su-chang
 Kim Su-chin
 Kim Su-yeong
+Kim Suchang
 Kim Sujang
 Kim Sujun
 Kim Sungjin
@@ -1754,6 +1752,7 @@ Ko Miso
 Ko Mosei
 Ko Reibun
 Ko Yunseo
+Ko, Dae Hyuk
 Kobayashi
 Kobayashi Chizu
 Kobayashi Izumi
@@ -1772,6 +1771,7 @@ Koga Yoshio
 Kogawa Konyu
 Kogishi Soji
 Kogishi Soji (13 year old)
+Koh, Juyong
 Kohara Gitaro
 Kohara Kitaro
 Koichi Kobayashi
@@ -1879,6 +1879,7 @@ Kuwamoto Shinpei
 Kuwata Yasuaki
 Kuzuno Chuzaemon
 Kuzuno Dowa
+Kuzuno Kamesaburo
 Kwak Wonkeun
 Kweon Hyo-chin
 Kweon Kap-yong
@@ -2011,6 +2012,7 @@ Lee Youngjoo
 Lee Youngsin
 Lee Yungsoo
 Lee jihyun
+Lee, John
 Lei Jiankun
 Lei Puhua
 Lei Zhenkun
@@ -2130,6 +2132,7 @@ Lin Zhihan
 Lin Zhihe
 Lin Zijie
 Lin Ziyuan
+Lin, Xuefen
 Ling Sixia
 Lionel Zhang
 Liu Bo
@@ -2235,7 +2238,6 @@ Mark Boon
 Martin Li
 Maru
 Maruyama Toyoji
-Masaki Shukei
 Masashi Ito
 Mashiko Fumihiko
 Master
@@ -2244,6 +2246,7 @@ Masuya Tsunejiro
 Mateusz Surma
 Matsubara Taisei
 Matsubayashi Yoshihiko
+Matsuda
 Matsuda Takeo
 Matsuhara Taisei
 Matsumoto Nayoko
@@ -2301,7 +2304,6 @@ Mitani Tetsuya
 Mitic Dusan
 Mito Shuhei
 Mito Tomiaki
-Mito Yoshiaki
 Mito Yukari
 Mitome Kiyoshi
 Mitsuhara Itaro
@@ -2329,7 +2331,6 @@ Miyashige Iwanosuke
 Miyashita Shuyo
 Miyashita Suzue
 Miyatani Fuga
-Miyauchi Koyaro
 Miyazaki Hiroshi
 Miyazaki Ryutaro
 Miyazaki Shimako
@@ -2408,7 +2409,6 @@ Murakawa Daisuke
 Muramatsu Hiroki
 Muramatsu Ryuichi
 Muramatsu Shofu
-Muramatsu Shunsho
 Muramoto Wataru
 Muraoka Mika
 Muraoka Shigeyuki
@@ -2417,7 +2417,6 @@ Murase Shuho
 Murase Yakichi
 Murashima Yoshikatsu
 Murashima Yoshinori
-Murata Masahiro
 Murata Seiko
 Mutsuura Yuta
 Mykhailo Halchenko
@@ -2437,7 +2436,6 @@ Nagao Kinzaburo
 Nagasaka Inosuke
 Nagasaki Yuji
 Nagashima Kozue
-Nagata Jyutoku
 Nagayasu Hidemitsu
 Nagayo Kazumori
 NaiWei*
@@ -2485,7 +2483,6 @@ Nakayama Noriyuki
 Nakayama Shigeyuki
 Nakayama Suemaro
 Nakayama Zenkichi
-Nakayama Zenkichi (or Yoshikichi)
 Nakazawa Ayako
 Nakazono Kiyozo
 Nakazono Seizo
@@ -2508,6 +2505,7 @@ Ni Linqiang
 Nichiren
 Nie Weiping
 Nie Yuxuan
+Nikkai, 1st Honinbo Sansa
 Nikola Jevtic
 Ninomiya Hideko
 Ninomiya Kaizo
@@ -2631,7 +2629,6 @@ Onishi Ryuhei
 Onizuka Genji
 Onkeiji
 Ono Ayako
-Ono Genka
 Ono Koji
 Ono Nobuyuki
 Ono Shingo
@@ -2740,7 +2737,6 @@ Park Ji Eun
 Park Jieun
 Park Jihoon
 Park Jihun
-Park Jihun (b)
 Park Jihun (s)
 Park Jihyun
 Park Jin Sol
@@ -2815,6 +2811,7 @@ Peng Zunde
 Piao Wenyao
 Pierre Colmez
 Piers Shepperson
+Pietsch, Hans
 Pongsakarn Sornarra
 Pop Christian
 Porcai Rita
@@ -2847,6 +2844,7 @@ Rafif Shidqi Fitrah
 Ramon Jan
 Rao Ruiyong
 Raynz
+Redmond, Michael
 Remi Campagnie
 Ri Ishu
 Ri Tin
@@ -2953,7 +2951,6 @@ Sano Eisuke
 Sano Kuniko
 Sano Takatsugu
 Sano Tomoko
-Sano Tsunejiro
 Sanpu Hao
 Santiago Tabares
 Sasaka Shiro
@@ -2976,7 +2973,6 @@ Sato Ryoichi
 Sato Shoji
 Sato Sunao
 Sato Tadayoshi
-Sato Toshio
 Sato Tsunezo
 Sato Unji
 Sato Yohei
@@ -2989,7 +2985,6 @@ Seki Kotaro
 Seki Ryosuke
 Seki Tatsuya
 Seki Yasubee
-Seki Yasubei (or Genjiro)
 Sekine Naohisa
 Sekiyama Riichi
 Sekiyama Sendayu
@@ -3040,6 +3035,7 @@ Shen Junqian
 Shen Peiran
 Shen Yien
 Shen Ying
+Shen, Jennie
 Shi Dingan
 Shi Hongyi
 Shi Jinbo
@@ -3069,7 +3065,6 @@ Shimamura Michihiro
 Shimamura Toshihiro
 Shimizu Kosuke
 Shimohira Akio
-Shimoji Genchu
 Shimoji Gensho
 Shimojima Yohei
 Shimosaka Miori
@@ -3286,7 +3281,6 @@ Takeda Misawo
 Takeda Shingen
 Takeda Yoshinori
 Takegawa Yasaburo
-Takehara Kintaro
 Takehashi Shigeyuki
 Takei Futoshi
 Takei Taishin
@@ -3305,6 +3299,7 @@ Takeshita Ryoya
 Takeuchi Kazuo
 Takeuchi Kiyotaka
 Takeuchi Kosuke
+Takeuchi Kotaro
 Takeuchi Kousuke
 Takeuchi Sumio
 Takeuchi Takeo
@@ -3317,7 +3312,6 @@ Tamaki Shoji
 Tamayama Chiai
 Tamura Chiaki
 Tamura Hoju
-Tamura Hoju (Tamura Yasuhisa)
 Tamura Hoju (later Shusai)
 Tamura Kahei
 Tamura Kahei (no relation)
@@ -3374,6 +3368,7 @@ Taoka Hideko
 Taoka Keiichi
 Taranu Catalin
 Taranu Katalin
+Taranu, Catalin
 Tasaka Jintaro
 Tasaka Shintaro
 Tatsumi Akane
@@ -3412,9 +3407,7 @@ Torii Yuta
 Toriki Hiroshi
 Totsuka Kazuo
 Toya Dowa
-Toyama Sansetsu
 Toyoda Hirohito
-Toyoda Hiroo
 Toyoshima Yoshio
 Tozawa Akinobu
 Tran Anh Tuan
@@ -3449,7 +3442,6 @@ Tsuruyama Atushi
 Tsushima Juichi
 Tsutsui Katsumi
 Tsutsumida Hironao
-Tsuya Moriitsuro
 Tsuyamori Itsuro
 Tsuzuki Senko
 Tsuzuki Senshi
@@ -3600,6 +3592,7 @@ Wang Zhiguo
 Wang Zhihong
 Wang Zihan
 Wang Ziyan
+Wang, Rui
 Watanabe Akira
 Watanabe Hideo
 Watanabe Kandai
@@ -3718,6 +3711,7 @@ Yamada Shiho
 Yamada Shinji
 Yamada Takuji
 Yamada Wakio
+Yamaguchi
 Yamaguchi Sanseki
 Yamaguchi Shigeharu
 Yamaki Chinpei
@@ -3820,10 +3814,11 @@ Yang Zi
 Yang Zixuan
 Yang Zonglin
 Yang Zongyu
+Yang, Huiren
+Yang, Hurien
 Yao Zheng
 Yao Zhi Teng
 Yao Zhiteng
-Yara no Satonushi
 Yashiro Kumiko
 Yasuda Akika
 Yasuda Eisai
@@ -4017,6 +4012,7 @@ Yu Qingquan
 Yu Xuan
 Yu Zhengqi
 Yu Zhiying
+Yu, Lianzhou
 Yuan Shengqin
 Yuan Tingyu
 Yuan Weihong
@@ -4077,7 +4073,6 @@ Zhang Ce
 Zhang Chao
 Zhang Chenghua
 Zhang Chi
-Zhang Danru
 Zhang Donglie
 Zhang Dongyue
 Zhang Enpin
@@ -4221,6 +4216,1698 @@ southern
 spring
 tobe
 tobe*
+van Zeijst, Rob
 wasabi
 woochon
 yoboeo7
+丁  伟
+丁伟
+丁俊傑
+丁剑侯
+丁波
+丁铉山
+七世 井上春达 七段
+三好纪德
+三村智保
+三橋拓真
+三沢健太郎
+三浦浩
+三王裕孝八段
+三王裕孝六段
+三轮芳郎七段
+三轮芳郎六段
+上村收藏
+上村邦夫
+上村阳生
+上海方捷
+上海邱峻
+下地玄忠
+下田和美
+专吃大鸟
+东山朝寻坊
+东野弘昭
+东野弘昭九段
+东野政治
+中华瑞雪
+中园清三
+中埜道甫
+中小野田智
+中山翼
+中川亀三郎
+中川顺节
+中川龟三郎
+中村勇太郎七段
+中村哲启
+中村正平
+中村秀仁
+中村道硕
+中根大喜
+中根明楽
+中泽彩子
+中西文右衛門
+中辰光
+中野宽也
+中野知得
+丰云
+丰云祖德
+丰田洸夫
+丰芸
+丹田秀树
+久井敬史
+久代俊明
+久代迎春
+久保田
+久保胜昭
+久保胜昭八段
+久岛国夫
+乔诗尧
+九世安井算知
+二世安井算知
+二枚腰
+于恪强
+于梅玲
+于璇
+井上因硕 (六世)
+井上因硕十五世
+井上因碩
+井上孝平
+井上安節
+井上安节
+井上安节 五段
+井上尚美
+井上春策
+井上清七
+井上秀彻
+井上道砂因硕
+井上道砂因硕 七段
+井場悠史
+井秀一郎
+亲云上浜比贺
+亲云上滨比贺
+今分喜行
+今村俊也
+今村俊也六段
+今村启子
+今村文明
+今泷太郎兵卫
+今野遼平
+仓桥正藏
+仓桥正行
+付  利
+付冲
+付利
+付利(中国)
+付斌芳
+仲邑信也
+任敬讃
+任昌植
+任渭南
+任炳
+伊了院
+伊東信義
+伊東蜂三郎
+伊耀卿
+伊藤優真
+伊藤友惠
+伊藤周助
+伊藤大三郎
+伊藤安次郎
+伊藤松和
+伊藤松次郎
+伊藤源三郎
+伊藤甲子
+伊藤秀助
+伊藤秀闊
+伊藤诚五段
+伊達昌希
+佃亚纪子
+佐々木涼真
+佐坂志郎四段
+佐板志朗
+佐瀬半蔵
+佐藤 洸矢
+佐藤　司
+佐藤亚纪子
+佐藤昌二
+佐藤春策
+佐藤民之助
+佐藤洸矢
+佐藤源次郎
+佐藤直男
+佐野常次郎
+何不药
+何右林
+何旭光
+何晓任
+何晓伍
+何暗公
+何耕书
+何闇公
+余平
+余承叡 中国台湾
+依田纪基
+依田纪基七段
+依田纪基三段
+依田纪基五段
+依田纪基六段
+依田纪基初段
+俊知
+俞  斌
+俞巍巍
+俞斌
+俞永嘉
+俞长侯
+倪克让
+倪林强
+傅利
+傅斌芳
+僧秋航
+僧贯如
+元才
+克里斯蒂安·鲍勃(罗马尼亚)
+党沧云
+八幡常之助 十七歳
+八硕
+关山仙太夫
+关山利夫
+关山利道
+兼田雅史
+内藤富明
+内藤陸斗
+冈光雄
+冈田结美子
+冈田赖母
+冒湘舟
+冒象珠（冒湘舟）
+冨田裕章
+冯伟
+冯波
+冯涌
+冯魁
+凌元焕
+刃持丈
+刈谷数雄
+刈谷研
+刘  星
+刘  菁
+刘世振
+刘书伦
+刘乾利
+刘云峰
+刘叔伦
+刘小光
+刘帆
+刘文龙
+刘昌赫
+刘昌赫 挑战者
+刘星
+刘曦
+刘棣怀
+刘欣
+刘波
+刘涛
+刘熙
+刘玉堂
+刘继武
+刘菁
+刘轶一
+刘钧
+刘铮
+刘青琳
+初段
+前田陈尔 六段
+劉子萌
+劉慧玲
+劉順宇
+加田克司
+加田克司八段
+加藤信 七段
+加藤充志
+加藤小三郎
+加藤朋子
+加藤正夫
+加藤正夫Kato Masao
+加藤正夫七段
+加藤正夫八段
+加藤正夫六段
+加藤降二郎
+加藤隆二郎
+加藤隆次郎
+北川貴浩
+十三世井上因硕松本
+千丰诈
+半田道玄
+华.刘
+华以刚
+华以刚孔祥明
+华伟荣
+华学刘小
+华学明
+南治亨
+南里与兵卫
+卜沧如
+卞子兰
+卞宾原
+卞邠原
+卡斯帕尔·洪贝克(丹麦)
+卢俊焕
+原田实
+古  力
+古力
+古川元
+古澤康哉
+可儿
+史洪奕
+史金帛
+史雅静
+史鸿奕
+叶.俞
+叶桂
+叶锦锦
+吉原文之助
+吉和道玄
+吉田
+吉田半十郎
+吉田晃
+吉田清右衛門
+吉田直義
+吉田算碩
+吉田美香
+吉田透真
+吉祥丸
+吉芝亭
+后藤俊午
+后藤胜彦
+向岛智朗
+向島智郎
+向盛保
+吳清源
+吴中汉
+吴冠三
+吴凇笙
+吴凤来
+吴孔祚
+吴战影
+吴政洙
+吴新宇
+吴是中
+吴来仪
+吴泉 六段
+吴涤生 雷溥华 崔云趾
+吴淞笙
+吴清源
+吴清源 七段
+吴清源 九段
+吴清源 五段
+吴清源 八段
+吴清源 六段
+吴玉林
+吴理沙
+吴琦
+吴琪
+吴瑞徵
+吴祺
+吴纯圃
+吴绳武
+吴肇义
+吴肇毅
+吴莼圃
+吴莼圃(冠三)
+吴麒
+呉彦諶
+呉理沙
+周东侯
+周东候
+周俊勋
+周元服
+周小松
+周懒予
+周振宇
+周星垣
+周春来
+周杰
+周西侯
+周逵
+周鹤洋
+和田一敬
+哈斯丁·阿卡辛哈猜(泰国)
+哲斋
+唐伟
+唐晓宏
+唐毅
+唐瞻之
+唐锦朝
+唐锦潮
+喻平
+四方治雄
+回敬辰
+因入
+因策
+国松聪
+國松聡
+土屋百三郎
+土屋秀元
+土屋秀悦
+土栋喜行
+土棟喜行
+土田正光
+地曵知紘
+坂井嵩司
+坂倉健太
+坂口仙寿
+坂口仙得
+坂口仙徳
+坂口仙徳 二三歳
+坂口仙德
+坂口常治郎
+坂口虎次郎
+坂口鋠太郎
+坂本修作
+坂本秀誠
+坂田荣男
+坂田荣男 九段
+坂田荣男 八段
+坂田荣男九段
+坂田道玄
+坏哥哥
+堀井勇佑
+堀本範子
+堤田紘直
+夏冰
+夏胜浩
+夏衔誉
+外山三節
+外山算節
+外山算节 五段
+多田遼太郎
+多贺文吾
+大島玲奈
+大平修三
+大東邦雄
+大枝雄介六段
+大森泰志
+大沢摩耶
+大泽银次郎
+大洼一玄七段
+大洼一玄八段
+大矢浩一
+大矢浩一二段
+大窐一玄
+大竹英雄
+大竹英雄七段
+大竹英雄九段
+大竹英雄五段
+大竹英雄六段
+大竹英雄四段
+大表拓都
+大马力
+太田卯之助
+太田卯之助 十六歳
+太田清道
+太田雄蔵
+太田雄藏
+奈良昌利
+奈良林仓吉
+奔风激电
+奥貫智策
+奥貫智策 二十四歳
+姚书升
+姚军远
+姚吁孺
+姚小敏
+姚征
+姚文侯
+姚签孺
+姚聘三
+姚采臣
+姜勋
+姜升希
+姜国震
+姜志强
+姜晚寓
+娄子恒
+娄子恩
+孔令文
+孔刘
+孔杰
+孔炳柱
+孔祥吴玉
+孔祥明
+孙乃经
+孙国梁
+孙宜国
+孙志刚
+孙思忠
+孙牧歌
+孟昭玉
+孟泰龄
+季心雪
+季荣强
+孫志剛
+安井  春知
+安井  知哲
+安井  算知
+安井  算英  六段
+安井仙知
+安井仙知仙角
+安井俊哲
+安井春知
+安井知哲
+安井知得
+安井知得 四十歳
+安井算哲
+安井算知 俊哲
+安井算英
+安倍吉辉
+安倍吉辉八段
+安官旭
+安柞永
+安永结
+安田秀策
+安田荣斋
+安祚永
+宋启安
+宋瑞莱
+宋雪林
+宫下秀洋
+宫下秀洋九段
+宫下秀洋八段
+宫内弧矢郎
+宫坂采二
+宫崎志摩子
+宫崎龙太郎
+宫本直毅
+宫本直毅八段
+宫泽吾朗
+宫重元丈
+宮崎能爾
+宮谷風雅
+宮重元丈
+宮野内樹
+家田隆二
+容坚行
+富田忠夫
+富田秀六
+小仓道喜
+小山光晶
+小山荣美
+小岛高穗
+小岛高穗八段
+小岸壮二
+小川  道的
+小川诚子
+小川道的
+小川道的 七段(16岁)
+小杉丁
+小松英树
+小松英树五段
+小松藤夫
+小林光一
+小林光一 挑战者
+小林光一九段
+小林光一八段
+小林千寿
+小林泉美
+小林觉
+小林铁次郎
+小森祥嗣
+小池芳弘
+小泽三五郎
+小玉高龍
+小田彩子
+小芳芳芳
+小西和子
+小西理章
+小野田千代太郎
+尹奇铉
+尹炫皙
+尹瑛善
+尹盛铉
+尹羅恩
+尹英善
+尹钟变
+尹铉皙
+尾原武雄
+尾崎春美四段
+尾崎達郎
+屋良 里之子 (十五岁,琉球人)
+屋量里之子
+山下寛
+山下寛(静岡中郷西中2)
+山口赞石
+山名図書助
+山名荣喜
+山城宏
+山家
+山崎主悦
+山崎因砂
+山崎有民 雷葆申 吴清源
+山崎道砂
+山本佐六
+山本德治
+山本拓徳
+山本淳
+山本源吉
+山本源吉 二九歳
+山本道佐
+山田凌馬
+山田和贵雄
+山田紘平
+山田至宝
+山田规三生
+山部俊郎九段
+山部俊郎八段
+山際庸平
+岛村俊广
+岛村俊广九段
+岛村明彦
+岡田健斗
+岡田量
+岡田頼母
+岩井理直
+岩井真一
+岩佐 銈
+岩佐銈
+岩崎健造
+岩本薰九段
+岩田右一郎
+岩田达明
+岩田达明九段
+岳  亮
+岳亮
+岸　隆廣
+岸本一男
+岸本左一郎
+崔云趾
+崔修士
+崔前进
+崔哲瀚
+崔圭炳
+崔宁
+崔明勋
+崔明薰
+崔晋源
+川又瑛介
+川口飛翔
+川村律文
+川畑拓也
+川畑龍司
+工藤纪夫
+工藤纪夫九段
+工藤纪夫八段
+工藤纪夫六段
+巴德符
+帕拉丁
+常  昊
+常振明
+常昊
+平冈聪
+平田博则
+平野海斗
+平野翔大
+平顶山煤业集团队 王东亮
+平顶山煤业集团队王檄
+幻庵因硕
+广濑平治郎
+庄园
+庄玫嫔
+庞延
+康占斌
+康美玲
+廖桂永
+廣瀬平治郎
+张  璇
+张介福
+张介轩
+张伟金
+张元若
+张力仁
+张吕陈
+张学中
+张学斌
+张廷彦
+张建东
+张恒甫
+张振西
+张文东
+张文耀
+张春林
+张次云
+张欣
+张澹如
+张灵璐
+张璇
+张璇卫平
+张秀英
+张立
+张继芳
+张英挺
+张谦
+张逅
+张邦彦
+張心治
+彦坂直人
+彭  荃
+彭　荃
+彭小峰
+彭时佳
+彭景华
+彭荃
+影山立郎五段
+後藤一
+徐中辉 韩国
+徐在中
+徐奉洙
+徐文革
+徐星友
+徐星友（受三子）
+徐祯君
+徐耀文
+徐能旭
+徐荣新
+徐莹
+徐莹马晓
+徐锋
+德乐菴
+德米托·博格特斯基(乌克兰)
+志賀司
+恩田烈彦
+愚溪眺雪
+愚硕
+慧芳临新
+戦鷹
+戴秋士
+戴臣埜
+户泽昭宣
+户泽昭宣七段
+扬士海
+敖立婷
+斎藤鐵之助
+新垣武
+方作周
+方天丰
+方天风
+方捷
+方梦园
+方秋客
+方飞
+施定庵
+施敏
+施洲
+施省三
+施襄夏
+日莲上人
+日野勝太
+日野大地
+早濑宏
+明楽昌夫
+星合  八硕
+星合八硕
+星川信明
+星野纪七段
+春山勇六段
+曲励起八段
+曹丽塘
+曹元尊
+曹大元
+曹大元cao dayuan
+曹志林
+曹熏铉
+曹熏铉 cho kunxuan
+曹薰铉
+曾我部敏行
+曾炳权
+有村比吕司
+服部  立徹
+服部一
+服部因彻(因淑)
+服部因徹
+服部因徹 三二歳
+服部因淑
+服部清彦
+服部立徹
+服部雄節
+服部雄节 六段
+朝寻
+朝日悠俊
+木下暢暁
+木村丑三郎
+木村广造
+木浦賢彦
+木谷实
+木谷实 七段
+本因坊  道的
+本因坊 察元 名人
+本因坊 道悦
+本因坊 道策
+本因坊 道策 名人
+本因坊丈和
+本因坊丈和 七段
+本因坊丈和 三十九歳
+本因坊丈和 三十六歳
+本因坊丈和 五十九歳
+本因坊丈和 五十五歳
+本因坊丈和 五十六歳
+本因坊丈和 八段
+本因坊丈和 名人
+本因坊丈和 四十歳
+本因坊元丈
+本因坊元丈 三十六歳
+本因坊烈元
+本因坊秀和
+本因坊秀哉
+本因坊秀哉 名人
+本因坊秀榮
+本因坊秀策
+本因坊秀荣  七段
+本因坊秀荣  八段
+本因坊秀荣 八段
+本因坊算悦
+本因坊算砂
+本因坊荣寿
+本因坊道悦
+本因坊道的
+本因坊道知
+本因坊道知 七段
+本因坊道策
+本因坊道策 名人
+本手2
+本田满彦
+本田邦久
+本田邦久九段
+朱业明
+朱叔庄
+朱叔文
+朱嗣升
+朱士升
+朱天叙
+朱天植
+朱天直
+朱宝琨
+朱宝训
+朱彦臻
+朱松力
+朱毅
+朱燕铭
+朱玉廷
+朱菊菲
+朱金兆
+朱阿逸
+朴　入
+朴伸英
+朴志恩
+朴文尧
+朴智恩
+朴炳奎
+朴相墩
+朴鎭鍈
+权亨震
+权孝珍
+杉内寿子
+杉内寿子六段
+杉内雅男
+杉内雅男 九段
+杉内雅男九段
+杉山千和
+杉村三郎左卫门
+杉田俊太朗
+李  劫
+李  轶
+李(吉吉)
+李予川
+李亚春
+李亮
+李元兆
+李刚
+李劫
+李华嵩
+李君凯
+李嘉馨
+李嘉麟
+李圣宰
+李家庆
+李峰一(朝鲜)
+李康
+李建兵
+李成熙
+李扬
+李昆瑜
+李昆瑜   陈子仙
+李昌镐
+李昌镐 大王
+李星
+李春辉
+李晨硕
+李景文
+李晶媛
+李本武
+李杨
+李步青
+李永刚
+李海
+李湛源
+李潤玉
+李相熏
+李知炫
+李祈年
+李英信
+李莹
+李豫川
+李賢虎
+李贤甫
+李轶
+李钢
+李青海
+李香澄
+村岛谊纪七段
+村松春松
+村濑弥吉
+村濑弥吉四段
+村濑秀甫
+村瀬秀甫
+杜宇峰
+杜景宇
+杜维新
+杨  一
+杨一
+杨以伦
+杨光裕
+杨嘉源
+杨士海
+杨戎
+杨晋华
+杨晖
+杨晖曹大
+杨桥
+杨汝炯
+杨爽
+杨靖
+杭天鹏
+松冈秀树
+松原南岡
+松多洋一郎
+松本彰夫
+松本笃二七段
+松本笃二六段
+松村直幹
+松茂亭
+板垣
+板垣善兵卫
+林 元美
+林 宗次
+林 柏悦
+林 鐵元
+林 門入
+林　利玄
+林　柏悦
+林　鐵元
+林　門悦
+林むつみ
+林井上春策
+林勉
+林圣贤
+林子渊
+林宣根
+林峰
+林德藏
+林怡廷
+林新猛 吴清源 崔云趾
+林有太郎
+林有太郎 七段
+林有美
+林朝华
+林海峰
+林海峰Rin Kaiho
+林海峰九段
+林海峰六段
+林玄悦门入
+林符卿
+林越山
+林进煜
+林鐵元
+林锋
+林门入
+林门悦门人
+林隆羽
+柏井大
+染谷一雄
+柳内惠美
+柳原咲輝
+柳才馨
+柳时熏
+柳春圃
+柳田朋哉
+柿沢善紀
+栗原源二
+栗田佳樹
+栾斌
+桑原  道节
+桑原宗久七段
+桑原秀策
+桑原道节
+桑田泰明
+桥本宇太郎
+桥本宇太郎 九段
+桥本昌二
+桧沢仁宏
+梁会京
+梁伟棠
+梁宰豪
+梁建
+梁彙经
+梁彙经 梁会京、梁魏今
+梁画堂
+梁相国
+梁雅娣
+梁雪冬
+梁魏京
+梁魏今
+梁魏金
+梁鹤年
+梶原政之助
+梶原武雄九段
+梶川　升
+梶川守礼
+棋院岗哨
+森　春甫
+森山直棋
+森木几右卫门
+森洋喜
+森田道博
+植木智子
+楚桐隐
+楠光子
+榊原章二
+樋口建良
+横塚元輝
+横手悠生
+横田茂昭
+橋本宇太郎
+櫻井知達
+欧阳红
+欧阳虹
+正木主计
+武井一利
+武宫正树
+武宫阳光
+武邦瑞
+段  嵘
+段嵘
+段祺瑞
+段芝泉
+段荣
+段骏良
+毕伟
+毛吟龙
+水户夕香里
+水戸興彰
+水田羡博
+水谷琢順
+水谷縫次
+永井美安佳
+永田寿德
+江君辅
+江天远
+江尻敏彰
+江尻敏影
+江星若
+江铸久
+江鸣久
+池上清
+池本遼太
+池田吉行
+池間博美
+汪  洋
+汪于磷
+汪于鳞
+汪云丰
+汪仲芳
+汪幼清
+汪振雄
+汪汀
+汪汉年
+汪洋
+汪见虹
+沈介之
+沈君迁
+沈子尚
+沈果孙
+沈果荪
+沈逸恩
+沈静
+沈颖
+河井长太夫
+河北耕之助
+河合将史
+河灿锡
+河璨锡
+河边健
+河辺健
+河野元虎
+河野照哉
+河野靖
+泉谷英雄
+泽口刚一
+津波
+洪中贤
+洪太善
+洪完灼
+洪羽翔
+洪茂亭
+洪顺善
+洼内秀知
+浅野哲也
+浜崎公輔
+浦原繁治
+海老泽健造
+涉川春海
+涤田秀行
+淡路修三
+清水拓哉
+清风一子
+渡利大遥
+渡边英夫四段
+渡辺優
+渡辺昇吉
+渡辺春利
+渡辺淳子
+渡辺莉佐子
+温越
+溥仲业
+滝沢雄太
+潘星见
+潘景斋
+潘秀甫
+濑尾寿
+濑尾寿七段
+濑川良雄
+濑越宪作
+瀬越憲作
+炭野武司八段
+熊木熙弥
+熊谷本硕
+熊谷本硕 七段
+片冈聪
+片山孝
+片山浩之
+片山知的
+片岸完次郎
+牛之浜撮雄
+牛力力
+牛诗特
+牛雨田
+独行小目
+猫眯 手(5段)
+玄可
+王  尧
+王  檄
+王  磊
+王  群
+王  雷
+王一飞
+王业辉
+王东亮
+王亦民
+王伯刚
+王佑(幼)宸
+王佑宸(王幼宸)
+王佰刚
+王元
+王公锡
+王冠军
+王剑坤
+王存
+王尧
+王幼宸
+王幼宸 雷傅华 吴涤生
+王性有
+王惇楷
+王敬
+王新洲
+王楚軒
+王汝南
+王洪军
+王海军
+王煜辉
+王玄所
+王磊
+王立城
+王立诚
+王群
+王蕊
+王谊
+王谦毅
+王辉
+王铭琬
+王铭琬八段
+王隽
+王雷
+王鹭
+璇聂
+田中三七一五段
+田中不二男
+田中仙悦
+田中伸拓
+田中豊
+田原常三郎
+田原恒三郎
+田口昂征
+田向东
+田头亲云上 (琉球棋手)
+田小农
+田村保寿
+田村保寿 (后来的本因坊名人秀哉)
+田村保寿 六段
+田結荘明
+申立功
+癸生川聡
+白大铉
+白如丁
+白宏江
+白木助右卫门
+白石裕
+白石裕九段
+百瀬久人
+盛大有
+相原可硕 (十三岁)
+省略
+睦镇硕
+知哲
+知念かぉり
+石井  千治  六段
+石井大輝(広島磯松中3)
+石井成幸
+石井新藏
+石井新藏九段
+石井衡
+石井邦生
+石仓升
+石博郁郎七段
+石原八十八
+石原是山
+石川
+石川新五右衛門
+石村竜青
+石毛嘉久夫五段
+石毛嘉久夫六段
+石田章
+石田笃司
+石田芳夫
+石田芳夫九段
+硎野和希
+硯川俊正
+祝励三
+神原义虎
+神原史子
+神津伯太
+神田英
+神谷佑樹
+祷真理子
+福井正一
+福井进
+福冈修
+福原义虎六段
+福原勘左卫门
+福尾玄故
+福永彦左衛門
+福田正义
+秋山次郎
+秋航
+秦葆平
+程乐田
+程仲容
+程兰如
+程征宇
+程德堂
+程晓流
+程澜
+穆晓红
+童和衷
+竹中幸太郎
+竹内一雄
+竹原金太郎
+竹川彌三郎
+筱原正美八段
+简莹
+算哲
+算悦
+算智
+算知 名人
+管一昕
+篠田優也
+米津玲吾
+糸山剛志
+结城聪
+结城聪九段
+绝代小仙女
+绵羊爱飞燕
+罗允升
+罗布·扎伊斯特
+罗建元
+罗建文
+罗洗河
+羽根泰正
+羽根泰正九段
+羽根泰正八段
+羽根直树
+翁子瑜
+聂卫平
+聂卫平张璇
+聚友网络
+肃亲王
+胁元安
+胜田荣辅
+胡位三
+胡兆麟
+胡卫东
+胡沛泉
+胡煜清 中国
+胡盼盼
+胡硕实
+胡耀宇
+胡肇麟
+臧念宣
+臧念萱
+自性坊
+船橋元美
+船橋元美 三十二歳
+船橋勇太郎
+船橋勇太郎 十七歳
+芝野龍之介
+芮乃伟
+花巻未生
+花立正昭二段
+苅部荣三郎
+苏亦瞻
+苏揆之
+苑田勇一
+苑田勇一九段
+若杉善策
+若林大介
+范君甫
+范紫纶
+范继森
+范胜林
+范西屏
+荒井干太
+荒井幹太
+荒木親吉
+菅一昕
+菅野清规
+菊川友硕 五段
+菊池康郎
+菲尔莱德蒙
+萧幼白
+葛凡帆
+葛野  丈和
+葛野丈和
+葛野丈和 二十七歳
+葛野丈和 二十三歳
+葛野丈和 二十九歳
+葛野丈和 二十五歳
+葛野丈和 二十四歳
+葛野丈和 五段
+葛野忠左卫门
+葛野松之助
+葛野松之助 二十二歳
+葛野松之助 十九歳
+葛野策七
+葛野龟三郎
+董  彦
+董六泉
+董可羽
+董和中
+董彦
+董文艺
+董银奎
+董鹿泉
+董鹿泉  柳春圃
+蒋丹宁
+蒋再宾
+蔚深锦潮
+蔡临卿
+蔡书平
+蔡忠阳
+蔡文河
+蔵元実
+薏野和希
+藏念宣
+藤井阳光
+藤原 彰子
+藤原彰子
+藤原深織
+藤泽一就
+藤泽库之助
+藤泽朋斋
+藤泽朋斋九段
+藤泽秀行
+藤泽秀行 王座
+藤泽秀行九段
+藤澤理秀
+藤田怜央
+藤田明弘
+蜀山情
+行松靖
+袁卫红
+袁曦
+裘瑜明
+褚飞
+西崎保彦
+西川貴敏
+西村修
+西村僚太郎
+西田荣美
+角仓康之
+角優輝
+諸留康博
+謝承翰
+许书祥
+许书详
+许在中
+许壮会
+许敬仲
+谢  赫
+谢友玉
+谢峰
+谢裕国
+谢赫
+谭揆士
+谭炎午
+谷口洋平
+谷宫悌二五段
+谷結衣子
+豊田融
+贺户隼人四段
+贾倩
+赖秀山
+赖秀琛
+赤井五郎作
+赤星因彻 七段
+赤星因徹
+赵两峰
+赵之云
+赵余宏
+赵余虹
+赵兴华
+赵哲伦
+赵善津
+赵大贤
+赵守洵
+赵文东
+赵晋卿
+赵朱子一
+赵栋
+赵治勋
+赵治勋 本因坊
+赵泰元 朝鲜
+赵祥衍
+赵雁培
+趙錫彬
+车泽武
+轰结衣
+辻篤仁
+辻華
+过伯龄
+过惕生
+过旭初
+过泊龄
+过百龄
+近藤幸子
+近藤芳朗
+道悦
+道智
+道的
+道砂
+道硕
+道节
+邢印达
+邢翼腾
+邱  峻
+邱传德
+邱峻
+邱继红
+邱鑫
+邵含章
+邵文远
+邵炜刚
+邵纬刚
+邵翼圣
+邵莘甫
+邵震中
+邹俊杰
+邹海石
+郑  弘
+郑.丰
+郑大相
+郑岩
+郑弘
+郑涟漪
+郑策
+郑铭煌
+郝明霞
+郭北雅
+郭娟
+郭溶川
+郭璜友
+郭鹃
+郷道吉次郎
+都筑米子
+鄧歆懿
+鄭載想
+酒井安次郎
+酒井猛
+酒井猛六段
+酒井真树
+酒井通温八段
+重川佳吾
+野中優希
+野口基树
+野本东生
+野村季友
+野雪
+金 大赫
+金万树
+金东勉
+金亚贤
+金伟斌
+金佑中
+金俊永
+金原
+金同实
+金哲中
+金在田
+金基宪
+金大赫
+金子賢
+金孝贞
+金寅
+金岛忠
+金成来
+金成龙
+金承俊
+金敏熙
+金日焕
+金森荣八
+金正勲
+金永焕
+金泰现
+金润泰
+金渭斌
+金灿佑
+金秀壮
+金秀英
+金秋林
+金艳
+金茜倩
+金荣三
+金荣桓
+金賢錫
+金鎮成
+金锡兴
+金镇焕
+鈴木友博
+鈴木知清
+钮亮周
+钱东惠
+钱东汇
+钱宇平
+钱芳圃
+钱贡南
+铃木为次郎
+铃木知清
+铃木顺清
+镜道哲
+長坂猪之助
+長尾金三郎
+長谷泉
+长坂猪之助
+长昭信
+长沼信四段
+长谷川直
+长谷川章 七段
+関山仙太夫
+関航太郎
+闇雲翼
+闫安
+闵娜
+阎安
+阜秀史
+阮云生
+阮允生
+阿佐巧
+阿基鲁尔
+陆军
+陆远游
+陈.汪
+陈临新
+陈九如
+陈佳
+陈倩薇
+陈兆峰
+陈劭全
+陈嘉谋
+陈嘉锐
+陈堉琪
+陈子仙
+陈安齐
+陈德堂
+陈志刚
+陈慧芳
+陈明川
+陈林新
+陈毅
+陈永奇
+陈洪
+陈瑞
+陈祖德
+陈耀烨
+陈耆年
+陈胜林
+陈芯瑜
+陈苑游
+陈锡明
+陈陶轩
+陈齐安
+降矢沖三郎
+陳柏劭
+雁金准一
+雁金准一 六段
+雁金準一
+雁金準一 十三歳
+雍皓如
+雏屋立甫
+雷侦倜
+雷溥华
+雷贞倜
+雾都情缘
+青木喜久代
+青木愚硕
+青木绅一
+青木绅一七段
+韦小凤
+韧持丈
+韩启宇
+韩学元
+韩钢
+須藤真理子
+顾审音
+顾水如
+顾萍
+飞燕翔天
+馬場智弓
+馬納特
+马亚兰
+马媛媛
+马嫒嫒
+马晓春
+马石
+马笑冰
+高亚东
+高利格利·索格尼克(以色列)
+高又彤
+高在熙
+高地祐希
+高尾绅路
+高山希々花
+高峰
+高崎泰策
+高川秀格
+高木直昌
+高木祥一
+高本润
+高林共平
+高桥俊光七段
+高桥友硕
+高桥杵三郎  五段
+高橋新一郎
+高橋杵三郎
+高胤瑞
+高见泽忠夫五段
+高部道平
+高钦如
+高飞
+髙地祐希
+鬼塚源次
+魏昕
+魏海鸿
+魔礼红
+鲁健
+鲛岛一郎
+鳥塚圓次
+鳥越瑛太
+鶴山敬一
+鸣海直
+鹈殿德藏
+鹤丸敬一
+鹤冈三郎助
+鹿塩利賢
+鹿盐利玄
+麦克雷蒙六段
+黄丽萍
+黄佳
+黄元俊
+黄及侣
+黄友功
+黄奕中
+黄妙龄
+黄家胤
+黄小牧
+黄希文
+黄弈中
+黄德勋
+黄我占
+黄晓江
+黄月天
+黄水生
+黄永吉
+黄焰
+黄祥任
+黄稼书
+黄良玉
+黄贤书
+黄进先
+黄龙士
+黎春俞斌
+黎春华
+黑田幸雄
+龙泽千晴
+龙霖
+龚世运
+강재우
+김다빈
+김승구
+김윤태
+김주형
+박신영
+박종욱
+송홍석
+윤민중
+임상규
+장혜령
+정유진
+정지우
+조성호
+채현지
+최원진
+최윤상
+허영락

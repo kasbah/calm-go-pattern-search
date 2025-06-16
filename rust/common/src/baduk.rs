@@ -487,14 +487,20 @@ pub fn parse_sgf_result(result_str: &str) -> GameResult {
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum Player {
+    Id(i16),
+    Unknown(String),
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Game {
     pub event: String,
     pub round: String,
     pub location: String,
     pub date: Option<SgfDate>,
-    pub player_black: Option<i16>,
-    pub player_white: Option<i16>,
+    pub player_black: Player,
+    pub player_white: Player,
     pub rank_black: Rank,
     pub rank_white: Rank,
     pub komi: Option<f32>,
@@ -511,8 +517,8 @@ struct PackedGame {
     round: String,
     location: String,
     date: Option<SgfDate>,
-    player_black: Option<i16>,
-    player_white: Option<i16>,
+    player_black: Player,
+    player_white: Player,
     rank_black: Rank,
     rank_white: Rank,
     komi: Option<f32>,
@@ -533,8 +539,8 @@ pub fn pack_games(games: &HashMap<String, Game>) -> Vec<u8> {
             round: game.round.clone(),
             location: game.location.clone(),
             date: game.date.clone(),
-            player_black: game.player_black,
-            player_white: game.player_white,
+            player_black: game.player_black.clone(),
+            player_white: game.player_white.clone(),
             rank_black: game.rank_black.clone(),
             rank_white: game.rank_white.clone(),
             komi: game.komi,
@@ -1063,8 +1069,8 @@ mod tests {
                 round: "Test Round".to_string(),
                 location: "Test Place".to_string(),
                 date: Some(SgfDate::YearMonthDay(2024, 1, 1)),
-                player_black: Some(1),
-                player_white: Some(2),
+                player_black: Player::Id(1),
+                player_white: Player::Id(2),
                 rank_black: Rank::Pro(9),
                 rank_white: Rank::Pro(9),
                 komi: None,
@@ -1101,8 +1107,8 @@ mod tests {
                 round: "Test Round".to_string(),
                 location: "Test Place".to_string(),
                 date: Some(SgfDate::YearMonthDay(2024, 1, 1)),
-                player_black: Some(1),
-                player_white: Some(2),
+                player_black: Player::Id(1),
+                player_white: Player::Id(2),
                 rank_black: Rank::Pro(9),
                 rank_white: Rank::Pro(9),
                 komi: None,
@@ -1139,8 +1145,8 @@ mod tests {
                 round: "Test Round".to_string(),
                 location: "Test Place".to_string(),
                 date: Some(SgfDate::YearMonthDay(2024, 1, 1)),
-                player_black: Some(1),
-                player_white: Some(2),
+                player_black: Player::Id(1),
+                player_white: Player::Id(2),
                 rank_black: Rank::Pro(9),
                 rank_white: Rank::Pro(9),
                 komi: None,

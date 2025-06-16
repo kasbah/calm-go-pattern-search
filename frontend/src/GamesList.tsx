@@ -6,6 +6,7 @@ import type {
   GameResult,
   Rank,
   Rules,
+  Player,
 } from "./wasm-search-types";
 import catRunning from "@/assets/cat_running.webp";
 import playerNames from "../../rust/pack-games/python-player-name-aliases/player_names.json";
@@ -79,22 +80,23 @@ function formatRules(rules: Rules | null): string {
   return "N/A";
 }
 
-function getPlayerName(playerId: number | null): string {
-  if (!playerId) return "Unknown";
+function getPlayerName(player: Player): string {
+  if (player.Id) {
+    // Find the player entry by ID
+    const playerEntry = Object.entries(playerNames).find(
+      ([_, data]) => data.id === player.Id,
+    );
+    if (!playerEntry) return `Player ${player.Id}`;
 
-  // Find the player entry by ID
-  const playerEntry = Object.entries(playerNames).find(
-    ([_, data]) => data.id === playerId,
-  );
-  if (!playerEntry) return `Player ${playerId}`;
+    // Get the preferred English name if available, otherwise use the first name
+    const [name, data] = playerEntry;
+    const preferredName = data.aliases.find((alias) =>
+      alias.languages.some((lang) => lang.language === "en" && lang.preferred),
+    );
 
-  // Get the preferred English name if available, otherwise use the first name
-  const [name, data] = playerEntry;
-  const preferredName = data.aliases.find((alias) =>
-    alias.languages.some((lang) => lang.language === "en" && lang.preferred),
-  );
-
-  return preferredName ? preferredName.name : name;
+    return preferredName ? preferredName.name : name;
+  }
+  return player.Unknown || "Unknown";
 }
 
 export type GamesListProps = {
