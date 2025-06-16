@@ -73,18 +73,36 @@ fn has_multiple_players(name: &str) -> bool {
         || name.contains("day 1")
 }
 
+fn load_blocklist() -> HashSet<String> {
+    match std::fs::read_to_string("blocklist.txt") {
+        Ok(contents) => contents.lines().map(String::from).collect(),
+        Err(_) => HashSet::new(),
+    }
+}
+
 fn main() {
     let player_aliases = load_player_aliases();
     let mut possible_aliases = HashSet::new();
     let mut sgf_folder = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     sgf_folder.push("sgfs");
     let mut paths = Vec::new();
+    let blocklist = load_blocklist();
 
     println!("Loading games...");
     for entry in jwalk::WalkDir::new(&sgf_folder) {
         let path = entry.expect("Failed to read directory entry").path();
         if path.extension().is_some_and(|ext| ext == "sgf") {
-            paths.push(path.clone());
+            let rel_path = path
+                .strip_prefix(&sgf_folder)
+                .unwrap()
+                .with_extension("")
+                .to_string_lossy()
+                .into_owned();
+            if !blocklist.contains(&rel_path) {
+                paths.push(path.clone());
+            } else {
+                println!("Skipping blocked path: {}", rel_path);
+            }
         }
     }
     println!("Read directories");
