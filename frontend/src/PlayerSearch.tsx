@@ -60,6 +60,9 @@ export default function PlayerSearch({
 
   const handleSuggestionClick = (suggestion: PlayerSearchResult) => {
     const player = suggestion.player;
+    if (selectedPlayerIds.length >= 2) {
+      return; // Don't allow more than 2 players
+    }
     const newSelectedIds = [...selectedPlayerIds, player.id];
     setSearchTerm(""); // Clear search term when player is selected (shown as chip)
     setShowSuggestions(false);
@@ -150,12 +153,13 @@ export default function PlayerSearch({
             <input
               ref={inputRef}
               type="text"
-              placeholder="Add another player..."
+              placeholder={selectedPlayerIds.length < 2 ? "Add another player..." : "Maximum 2 players selected"}
               value={searchTerm}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
               onFocus={() => searchTerm.length >= 2 && setShowSuggestions(true)}
               className="flex-1 bg-transparent focus:outline-none min-w-0"
+              disabled={selectedPlayerIds.length >= 2}
             />
             {selectedPlayers.length > 0 && (
               <button
@@ -172,12 +176,13 @@ export default function PlayerSearch({
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search by player name..."
+            placeholder={selectedPlayerIds.length < 2 ? "Search by player name..." : "Maximum 2 players selected"}
             value={searchTerm}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             onFocus={() => searchTerm.length >= 2 && setShowSuggestions(true)}
             className="w-full p-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={selectedPlayerIds.length >= 2}
           />
         )}
         {selectedPlayers.length === 0 && searchTerm && (
