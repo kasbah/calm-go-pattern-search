@@ -26,7 +26,7 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
-  const pageSize = 10;
+  const pageSize = 20;
 
   const gobanEditorRef = useRef<{
     handleUndo: () => void;
