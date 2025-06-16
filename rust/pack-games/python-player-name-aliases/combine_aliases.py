@@ -109,6 +109,11 @@ def extend_playerdb(playerdb: dict) -> tuple[int, dict]:
                     "id": next_negative_id,
                     "aliases": [{"name": custom_alias_key, "languages": []}],
                 }
+                for custom_alias in custom_aliases[custom_alias_key]:
+                    playerdb[custom_alias_key]["aliases"].append({
+                        "name": custom_alias,
+                        "languages": [],
+                    })
                 next_negative_id -= 1
     return next_negative_id, playerdb
 
