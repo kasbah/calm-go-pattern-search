@@ -128,7 +128,6 @@ def main():
         processed_count += 1
         print(f"Processing {processed_count}/{total_names}: {name}")
 
-        name = name.replace(",", "")
         playerdb_key = check_playerdb(playerdb, name)
 
         if playerdb_key:

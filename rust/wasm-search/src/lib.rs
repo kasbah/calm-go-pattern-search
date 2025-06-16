@@ -169,8 +169,8 @@ impl WasmSearch {
         if !player_ids.is_empty() {
             results.retain(|result| {
                 player_ids.iter().all(|&id| {
-                    matches!(result.player_black, Player::Id(player_id) if player_id == id)
-                        || matches!(result.player_white, Player::Id(player_id) if player_id == id)
+                    matches!(result.player_black, Player::Id(player_id, _) if player_id == id)
+                        || matches!(result.player_white, Player::Id(player_id, _) if player_id == id)
                 })
             });
         }

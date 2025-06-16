@@ -82,16 +82,16 @@ function formatRules(rules: Rules | null): string {
 
 function getPlayerName(player: Player): string {
   if (player.Id) {
-    // Find the player entry by ID
     const playerEntry = Object.entries(playerNames).find(
-      ([_, data]) => data.id === player.Id,
+      ([_, data]) => data.id === player.Id![0],
     );
-    if (!playerEntry) return `Player ${player.Id}`;
+    if (!playerEntry) return `Player ${player.Id![0]}`;
 
-    // Get the preferred English name if available, otherwise use the first name
     const [name, data] = playerEntry;
-    const preferredName = data.aliases.find((alias) =>
-      alias.languages.some((lang) => lang.language === "en" && lang.preferred),
+    const preferredName = data.aliases.find((alias: any) =>
+      alias.languages.some(
+        (lang: any) => lang.language === "en" && lang.preferred,
+      ),
     );
 
     return preferredName ? preferredName.name : name;

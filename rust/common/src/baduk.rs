@@ -487,9 +487,9 @@ pub fn parse_sgf_result(result_str: &str) -> GameResult {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Player {
-    Id(i16),
+    Id(i16, String),
     Unknown(String),
 }
 
@@ -1069,8 +1069,8 @@ mod tests {
                 round: "Test Round".to_string(),
                 location: "Test Place".to_string(),
                 date: Some(SgfDate::YearMonthDay(2024, 1, 1)),
-                player_black: Player::Id(1),
-                player_white: Player::Id(2),
+                player_black: Player::Id(1, "Black".to_string()),
+                player_white: Player::Id(2, "White".to_string()),
                 rank_black: Rank::Pro(9),
                 rank_white: Rank::Pro(9),
                 komi: None,
@@ -1107,8 +1107,8 @@ mod tests {
                 round: "Test Round".to_string(),
                 location: "Test Place".to_string(),
                 date: Some(SgfDate::YearMonthDay(2024, 1, 1)),
-                player_black: Player::Id(1),
-                player_white: Player::Id(2),
+                player_black: Player::Id(1, "Black".to_string()),
+                player_white: Player::Id(2, "White".to_string()),
                 rank_black: Rank::Pro(9),
                 rank_white: Rank::Pro(9),
                 komi: None,
@@ -1145,8 +1145,8 @@ mod tests {
                 round: "Test Round".to_string(),
                 location: "Test Place".to_string(),
                 date: Some(SgfDate::YearMonthDay(2024, 1, 1)),
-                player_black: Player::Id(1),
-                player_white: Player::Id(2),
+                player_black: Player::Id(1, "Black".to_string()),
+                player_white: Player::Id(2, "White".to_string()),
                 rank_black: Rank::Pro(9),
                 rank_white: Rank::Pro(9),
                 komi: None,

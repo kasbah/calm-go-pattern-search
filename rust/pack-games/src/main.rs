@@ -60,7 +60,7 @@ fn find_player_id(name: &str, aliases: &HashMap<String, i16>) -> Player {
     }
 
     if let Some(id) = aliases.get(name.to_lowercase().as_str()) {
-        return Player::Id(*id);
+        return Player::Id(*id, name);
     }
 
     Player::Unknown(name)
@@ -117,6 +117,32 @@ fn main() {
         })
         .collect::<Vec<_>>();
 
+    // Collect all player names from all games (including duplicates)
+    println!("Collecting all player names...");
+    let mut all_names = HashSet::new();
+    for (_, game) in &games_vec {
+        match &game.player_black {
+            Player::Id(_, name) => all_names.insert(name.clone()),
+            Player::Unknown(name) if !name.is_empty() => all_names.insert(name.clone()),
+            _ => false,
+        };
+        match &game.player_white {
+            Player::Id(_, name) => all_names.insert(name.clone()),
+            Player::Unknown(name) if !name.is_empty() => all_names.insert(name.clone()),
+            _ => false,
+        };
+    }
+
+    // Write all names to file
+    println!("Writing all_names.txt...");
+    let mut all_names: Vec<_> = all_names.into_iter().collect();
+    all_names.sort();
+    std::fs::write(
+        "python-player-name-aliases/all_names.txt",
+        all_names.join("\n"),
+    )
+    .unwrap();
+
     // games_vec now contains (path, game) tuples directly
 
     let mut unique_games = HashMap::<Vec<Placement>, (String, Game)>::new();
@@ -142,11 +168,11 @@ fn main() {
                 maybe_existing_game = Some((existing_path.clone(), existing_game.clone()));
                 is_duplicate = true;
                 let merged_player_black = match (&existing_game.player_black, &game.player_black) {
-                    (Player::Id(id1), Player::Id(id2)) => {
-                        Player::Id(if *id1 > 0 { *id1 } else { *id2 })
+                    (Player::Id(id1, name1), Player::Id(id2, _name2)) => {
+                        Player::Id(if *id1 > 0 { *id1 } else { *id2 }, name1.clone())
                     }
-                    (Player::Id(id), Player::Unknown(_)) => Player::Id(*id),
-                    (Player::Unknown(_), Player::Id(id)) => Player::Id(*id),
+                    (Player::Id(id, name), Player::Unknown(_)) => Player::Id(*id, name.clone()),
+                    (Player::Unknown(_), Player::Id(id, name)) => Player::Id(*id, name.clone()),
                     (Player::Unknown(name1), Player::Unknown(name2)) => {
                         Player::Unknown(if !name1.is_empty() {
                             name1.clone()
@@ -156,11 +182,11 @@ fn main() {
                     }
                 };
                 let merged_player_white = match (&existing_game.player_white, &game.player_white) {
-                    (Player::Id(id1), Player::Id(id2)) => {
-                        Player::Id(if *id1 > 0 { *id1 } else { *id2 })
+                    (Player::Id(id1, name1), Player::Id(id2, _name2)) => {
+                        Player::Id(if *id1 > 0 { *id1 } else { *id2 }, name1.clone())
                     }
-                    (Player::Id(id), Player::Unknown(_)) => Player::Id(*id),
-                    (Player::Unknown(_), Player::Id(id)) => Player::Id(*id),
+                    (Player::Id(id, name), Player::Unknown(_)) => Player::Id(*id, name.clone()),
+                    (Player::Unknown(_), Player::Id(id, name)) => Player::Id(*id, name.clone()),
                     (Player::Unknown(name1), Player::Unknown(name2)) => {
                         Player::Unknown(if !name1.is_empty() {
                             name1.clone()
@@ -276,7 +302,7 @@ fn main() {
             // Only warn if player IDs don't match
 
             // Record possible aliases
-            if let (Player::Id(id1), Player::Id(id2)) =
+            if let (Player::Id(id1, _), Player::Id(id2, _)) =
                 (&existing_game.player_black, &merged_game.player_black)
             {
                 if id1 != id2 {
@@ -286,7 +312,7 @@ fn main() {
                     });
                 }
             }
-            if let (Player::Id(id1), Player::Id(id2)) =
+            if let (Player::Id(id1, _), Player::Id(id2, _)) =
                 (&existing_game.player_white, &merged_game.player_white)
             {
                 if id1 != id2 {
@@ -351,10 +377,10 @@ fn main() {
     // Count player ID usage across unique games
     let mut player_id_counts = HashMap::<i16, usize>::new();
     for game in games.values() {
-        if let Player::Id(id) = game.player_black {
+        if let Player::Id(id, _) = game.player_black {
             *player_id_counts.entry(id).or_insert(0) += 1;
         }
-        if let Player::Id(id) = game.player_white {
+        if let Player::Id(id, _) = game.player_white {
             *player_id_counts.entry(id).or_insert(0) += 1;
         }
     }

@@ -51,7 +51,7 @@ export type Rules = {
 };
 
 export type Player = {
-  Id?: number;
+  Id?: [number, string];
   Unknown?: string;
 };
 

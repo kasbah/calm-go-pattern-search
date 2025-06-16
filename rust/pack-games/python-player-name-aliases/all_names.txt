@@ -1,3 +1,5 @@
+1st Inoue Nakamura Doseki
+1st Yasui Santetsu
 ?
 ACE
 AQ
@@ -10,7 +12,7 @@ Abe Yoshiteru
 Abe Yumiko
 Adachi Toashimasa
 Adachi Toshimasa
-Aguilar, Fernand
+Aguilar Fernand
 Ahn Kukhyun
 Aihara Kaseki
 Aizawa Kaoru
@@ -89,12 +91,14 @@ Antonio Fernández
 Antti Törmänen
 Anzai Nobuaki
 Aoba Kaori
+Aoki Genetsu
 Aoki Guseki
 Aoki Hideaki
 Aoki Hirotaka
 Aoki Kazuo
 Aoki Kikiyo
 Aoki Kikuyo
+Aoki Shin'ichi
 Aoki Shinichi
 Aoki Yoshio
 Aoyagi Hideo
@@ -210,6 +214,7 @@ Cha Minsoo
 Cha Sookwon
 Chai Qingying
 Chan Ka Yui
+Chang Doojin
 Chang Dujin
 Chang Fukang
 Chang Geonhyun
@@ -345,6 +350,7 @@ Cho Mikyung
 Cho Min-su
 Cho Nam Cheol
 Cho Nam-ch'eol
+Cho Namchul
 Cho Namkun
 Cho Riyu
 Cho Rosho
@@ -363,6 +369,7 @@ Cho Yeong-suk
 Cho Zuiketsu
 Cho hunhyun
 Choi Byeongwhan
+Choi Byounghwan
 Choi Cheol Han
 Choi Cheolhan
 Choi Cholhan
@@ -435,6 +442,7 @@ Dang Yifei
 Daniel Chou
 DarkForest
 David Chen
+David Lee
 David Pollitzer
 David Ward
 Deep Zen
@@ -449,7 +457,7 @@ Diego Guerrero
 Diego Ruiz
 Dina Burdakova
 Dinerchtein Alexander
-Dinerchtein, Alexandre
+Dinerchtein Alexandre
 Ding Bo
 Ding Hao
 Ding Lie
@@ -484,6 +492,7 @@ Duan Qirui
 Duan Rong
 Ebisawa Kenzo
 Ebizawa Kenzo
+Eduardo Lopez
 Eduardo López Herrero
 Edward Kao
 Edward Kim
@@ -586,6 +595,7 @@ Fukui Susumu
 Fukunaga Hikoemon
 Fukuo Genko
 Fukuoka Kotaro
+Funabashi Genbi
 Fung Yanlin
 Furusawa Jusaburo
 Furusawa Kosai
@@ -613,6 +623,7 @@ Gert Schnider
 Giang Viên Minh
 Gnu Go
 Go Seigen
+Godo Kichijiro
 Golaxy
 Gon Jiwoo
 Gong Shiyun
@@ -712,6 +723,7 @@ Han Sang-yeol
 Han Sanghoon
 Han Sanghun
 Han Sangjoo
+Han Sangyeol
 Han Seungjoo
 Han Sungju
 Han Taehee
@@ -783,8 +795,10 @@ Hayashi Kozo
 Hayashi Monetsu
 Hayashi Monnyu
 Hayashi Monri
+Hayashi Rigen
 Hayashi Sano
 Hayashi Senji
+Hayashi Senji (later Ishii Senji)
 Hayashi Shuei
 Hayashi Takashi
 Hayashi Taku
@@ -888,6 +902,7 @@ Hong Mujin
 Hong Seokui
 Hong Seong-chi
 Hong Seongji
+Hong Seung Hyun
 Hong Seung-chi
 Hong Sokwe
 Hong Suk Song
@@ -896,7 +911,6 @@ Hong T'ae-seon
 Hong Tae Seon
 Hong Taesun
 Hong Yan
-Hong, Seung Hyun
 Honinbo Chihaku
 Honinbo Dochi
 Honinbo Doetsu
@@ -919,6 +933,7 @@ Honinbo Shugen
 Honinbo Shuhaku
 Honinbo Shuho
 Honinbo Shusai
+Honinbo Shusai Meijin
 Honinbo Shusaku
 Honinbo Shuwa
 Honke Yoshiaki
@@ -947,6 +962,8 @@ Hosuk Yi
 Hotta
 Hotta Seiji
 Hotta Yozo
+Hsia Da Min
+Hsiao Cheng Hao
 Hsu Chia Yuan
 Hsu Chiayuan
 Hu Ranmin
@@ -1000,7 +1017,7 @@ Huang Youteng
 Huang Yunsong
 Huangfu Wei
 Huiren Yang
-Hung, Joey
+Hung Joey
 Husdin Aekasinghachai
 Hwang Jaeyeon
 Hwang Jinhyung
@@ -1069,7 +1086,9 @@ Imataki Tarobee
 Inaba Karin
 Inaba Takahiro
 Inagaki Kanetaro
+Inagaki Kentaro
 Inagaki Koichi
+Inagaki Nissho
 Inagaki Yo
 Injune Kang
 Inori Yoko
@@ -1085,7 +1104,10 @@ Inoue Gennan Inseki
 Inoue Hatsue
 Inoue Ichiro
 Inoue Insa Inseki
-Inoue Inseki (16th Inoue, previously Egeta Senjiro)
+Inoue Inseki (14th Inoue)
+Inoue Inseki (15th Inoue)
+Inoue Inseki (16th Inoue previously Egeta Senjiro)
+Inoue Inseki (4th Inoue)
 Inoue Inseki XIV
 Inoue Inseki XV
 Inoue Inseki XVI
@@ -1093,6 +1115,7 @@ Inoue Insetsu
 Inoue Insetsu Inseki
 Inoue Intatsu
 Inoue Intatsu Inseki
+Inoue Isao (also known as Yoshida Misako)
 Inoue Kaname
 Inoue Kohei
 Inoue Kunio
@@ -1125,6 +1148,7 @@ Ishigaya Kosaku
 Ishige Kakuo
 Ishigure Ikuro
 Ishigure Makiko
+Ishihara Zezan
 Ishii Akane
 Ishii Kunio
 Ishii Mamoru
@@ -1140,8 +1164,10 @@ Ishimine Shinichi
 Isogawa Masao
 Isshiki Satoo
 Itagaki Chuzo
+Itagaki Zenbei
 Itasaka Usaburo
 Ito Akio
+Ito Daizaburo
 Ito Genjiro
 Ito Genzaburo
 Ito Hachisaburo
@@ -1162,6 +1188,7 @@ Ito Matsujiro
 Ito Naoki
 Ito Shigeko
 Ito Showa
+Ito Shusuke
 Ito Sotozo
 Ito Tamotsu
 Ito Tokubee
@@ -1182,6 +1209,7 @@ Iwamaru Taira
 Iwamoto Kaoru
 Iwamura Taira
 Iwasa Kei
+Iwasaki (or Ebisawa) Kenzo
 Iwasaki Haruto
 Iwasaki Kenzo
 Iwase Junichi
@@ -1199,6 +1227,7 @@ Izawa Iwakichi
 Izumi Kiichiro
 Izumi Minoru
 Izumi Shusetsu
+Izumi Yohee
 Izumitani Hideo
 Izumitani Masanori
 Izumo Eiji
@@ -1209,11 +1238,11 @@ Jaime Orlando Ramírez
 James Kerwin
 James Sedgwick
 Jan Simara
+Jang Bi
 Jang Du Jin
 Jang Koonhyun
 Jang Sooyong
 Jang Su Yeong
-Jang, Bi
 Janice Kim
 Japanese insei
 Jean Michel
@@ -1229,6 +1258,7 @@ Jeong Daesang
 Jeong Daesung
 Jeong Dooho
 Jeong Hyeon San
+Jeong Jong In
 Jeong Junwoo
 Jeong Seojun
 Jeong Seunghyun
@@ -1238,8 +1268,8 @@ Jeong Suhyeon
 Jeong Woojin
 Jeong Yeonwoo
 Jeong Yujin
-Jeong, Jong In
 Ji Lili
+Ji Zhiting
 Jia Ganglu
 Jia Qian
 Jia Xiaoyu
@@ -1255,6 +1285,7 @@ Jiang Chenzhong
 Jiang Feng
 Jiang Guozhen
 Jiang Jujo
+Jiang Ming Jiu
 Jiang Mingjiu
 Jiang Minjiu
 Jiang Qirun
@@ -1264,7 +1295,7 @@ Jiang Weijie
 Jiang Yingcun
 Jiang Zhiqiang
 Jiang Zhujiu
-Jiang, Ming Jiu
+Jiao Shiwei
 Jie Hui Kwa
 Jie Li
 Jie Liang
@@ -1287,10 +1318,12 @@ John J-S Lee
 John Lee
 John Power
 Jong Hunhyun
+Jong Hyeonsan
 Jong Moon Lee
 Jong-Hoon Lee
 Joo Hyeongwuk
 Jorge Sasaki
+Josaku
 Joseph Webster
 Ju Chihong
 Ju Hyeongwuk
@@ -1425,6 +1458,7 @@ Kawada Kiyoko
 Kawada Kohei
 Kawaguchi Tsubasa
 Kawahara Yu
+Kawai Chodayu
 Kawai Kikuji
 Kawai Shoji
 Kawai Tetsuyuki
@@ -1442,17 +1476,20 @@ Kazama Jun
 Ke Jie
 Kenmochi Jo
 Kenmochi Joe
-Kerwin, James
+Kerwin James
 Kevin Huang
 Kevin Yang
 Khanh Lam Bui Le
 Kibe Natsuki
 Kifuwarabe
+Kihara (or Kiwara) Kametaro
+Kihara (sometimes Kiwara) Kametaro
 Kihara Kametaro
 Kikkawa Hajime
 Kikuchi Masatoshi
 Kikuchi Yasuro
 Kikuchi Yoshio
+Kikugawa Yuseki
 Kim Beomseo
 Kim Bumseo
 Kim Byeongjun
@@ -1642,9 +1679,11 @@ Kim Seong-rae
 Kim Seong-ryong
 Kim Seongi
 Kim Seongjae
+Kim Seongrae
 Kim Seongryong
 Kim Seonryong
 Kim Sesil
+Kim Seung Jae
 Kim Seung Joon
 Kim Seung-chun
 Kim Seunggu
@@ -1667,6 +1706,7 @@ Kim Suchang
 Kim Sujang
 Kim Sujun
 Kim Sungjin
+Kim Sunho
 Kim Sunmi
 Kim T'ae-hyang
 Kim T'ae-hyeon
@@ -1735,6 +1775,7 @@ Kiyonari Mao
 Kiyonari Tetsuya
 Ko Chae-heui
 Ko Chae-pong
+Ko Dae Hyuk
 Ko Daehyuk
 Ko Geun Tae
 Ko Geunate
@@ -1744,6 +1785,7 @@ Ko Iun
 Ko Jae Hee
 Ko Jaehee
 Ko Joyeon
+Ko Keun-T'ae
 Ko Keun-t'ae
 Ko Keuntae
 Ko Kwang-myeong
@@ -1752,7 +1794,6 @@ Ko Miso
 Ko Mosei
 Ko Reibun
 Ko Yunseo
-Ko, Dae Hyuk
 Kobayashi
 Kobayashi Chizu
 Kobayashi Izumi
@@ -1771,7 +1812,7 @@ Koga Yoshio
 Kogawa Konyu
 Kogishi Soji
 Kogishi Soji (13 year old)
-Koh, Juyong
+Koh Juyong
 Kohara Gitaro
 Kohara Kitaro
 Koichi Kobayashi
@@ -1851,8 +1892,10 @@ Kugutsu
 Kumagaya Honseki
 Kumaki Teruya
 Kumamoto Shusei
+Kumamoto Syusei
 Kunisawa Hiroto
 Kuo Chyo Ching
+Kuo Chyoching
 Kurahashi Masayuki
 Kurahashi Shozo
 Kurita Yoshiki
@@ -1862,6 +1905,7 @@ Kuroda Yukio
 Kurosawa Tadanao
 Kurotaki Masaki
 Kurotaki Masanori
+Kusaka Harutake
 Kusaka Kaneo
 Kusaka Kimindo
 Kushiro Toshiaki
@@ -1934,6 +1978,7 @@ Lee Hoseong
 Lee Hoseung
 Lee Huiseong
 Lee Hyeong Ro
+Lee Hyeong-ro
 Lee Hyeongjin
 Lee Hyeonho
 Lee Hyeonjun
@@ -1952,6 +1997,7 @@ Lee Jeong Woo
 Lee Ji Hyun
 Lee Jihyun
 Lee Jihyun (m)
+Lee John
 Lee Jong-Moon
 Lee Joo-young
 Lee Joohyung
@@ -2012,7 +2058,6 @@ Lee Youngjoo
 Lee Youngsin
 Lee Yungsoo
 Lee jihyun
-Lee, John
 Lei Jiankun
 Lei Puhua
 Lei Zhenkun
@@ -2061,6 +2106,7 @@ Li Weiqing
 Li Xiang
 Li Xiangyu
 Li Xiangyuan
+Li Xiao Xi
 Li Xiaoxi
 Li Xiaoxi(小)
 Li Xing
@@ -2075,6 +2121,7 @@ Li Ying (b)
 Li Ying (s)
 Li Ying Sr.
 Li Yirong
+Li Yixiu
 Li Yong-su
 Li Yonggang
 Li Yuang
@@ -2100,6 +2147,7 @@ Liao Xingwen
 Liao Xinwen
 Liao Yuanhe
 Lie Jie
+Lim Jungho
 Lin Chaohua
 Lin Feng
 Lin Hanzhang
@@ -2132,7 +2180,6 @@ Lin Zhihan
 Lin Zhihe
 Lin Zijie
 Lin Ziyuan
-Lin, Xuefen
 Ling Sixia
 Lionel Zhang
 Liu Bo
@@ -2207,6 +2254,7 @@ Luo Yan
 Luo Zhuofan
 Lü Fan (呂範)
 Ma Qingqing
+Ma Ru Long
 Ma Rulong
 Ma Shi
 Ma Shuai
@@ -2238,12 +2286,14 @@ Mark Boon
 Martin Li
 Maru
 Maruyama Toyoji
+Masaki Shukei
 Masashi Ito
 Mashiko Fumihiko
 Master
 Masubuchi Tatsuko
 Masuya Tsunejiro
 Mateusz Surma
+Matsubara Nanko
 Matsubara Taisei
 Matsubayashi Yoshihiko
 Matsuda
@@ -2304,6 +2354,7 @@ Mitani Tetsuya
 Mitic Dusan
 Mito Shuhei
 Mito Tomiaki
+Mito Yoshiaki
 Mito Yukari
 Mitome Kiyoshi
 Mitsuhara Itaro
@@ -2331,6 +2382,7 @@ Miyashige Iwanosuke
 Miyashita Shuyo
 Miyashita Suzue
 Miyatani Fuga
+Miyauchi Koyaro
 Miyazaki Hiroshi
 Miyazaki Ryutaro
 Miyazaki Shimako
@@ -2364,6 +2416,7 @@ Mok Jin Seok
 Mok Jin-Seok
 Mok Jinseok
 Moon Byeongkwon
+Moon Byungkwon
 Moon Chong Kim
 Moon Dowon
 Moon Jihwan
@@ -2392,6 +2445,7 @@ Mukai Chiaki
 Mukai Kaori
 Mukai Kazuo
 Mukai Kozue
+Mukai Seijun
 Mukai Shoso
 Mukai Toshinari
 Mun Il-to
@@ -2409,6 +2463,7 @@ Murakawa Daisuke
 Muramatsu Hiroki
 Muramatsu Ryuichi
 Muramatsu Shofu
+Muramatsu Shunsho
 Muramoto Wataru
 Muraoka Mika
 Muraoka Shigeyuki
@@ -2417,6 +2472,7 @@ Murase Shuho
 Murase Yakichi
 Murashima Yoshikatsu
 Murashima Yoshinori
+Murata Masahiro
 Murata Seiko
 Mutsuura Yuta
 Mykhailo Halchenko
@@ -2436,6 +2492,7 @@ Nagao Kinzaburo
 Nagasaka Inosuke
 Nagasaki Yuji
 Nagashima Kozue
+Nagata Jyutoku
 Nagayasu Hidemitsu
 Nagayo Kazumori
 NaiWei*
@@ -2443,6 +2500,7 @@ Nakabo Kinzo
 Nakagawa Arata
 Nakagawa Junsetsu
 Nakagawa Kamesaburo
+Nakagawa Kamesaburo (II)
 Nakagawa Kamesaburo I
 Nakagawa Kamesaburo II
 Nakagawa Senji
@@ -2465,6 +2523,7 @@ Nakamura Zenichiro
 Nakane Daiki
 Nakane Hojiro
 Nakane Naoyuki
+Nakanishi Bungoemon
 Nakano Chitoku
 Nakano Chitoku (Yasui Senchi)
 Nakano Hironari
@@ -2483,6 +2542,7 @@ Nakayama Noriyuki
 Nakayama Shigeyuki
 Nakayama Suemaro
 Nakayama Zenkichi
+Nakayama Zenkichi (or Yoshikichi)
 Nakazawa Ayako
 Nakazono Kiyozo
 Nakazono Seizo
@@ -2505,7 +2565,7 @@ Ni Linqiang
 Nichiren
 Nie Weiping
 Nie Yuxuan
-Nikkai, 1st Honinbo Sansa
+Nikkai 1st Honinbo Sansa
 Nikola Jevtic
 Ninomiya Hideko
 Ninomiya Kaizo
@@ -2596,6 +2656,7 @@ Oka Nobumitsu
 Oka Tadashi
 Okabe Hiroaki
 Okada Kihachiro
+Okada Ryukichi
 Okada Shin'ichiro
 Okada Shinichiro
 Okada Tanomo
@@ -2629,6 +2690,7 @@ Onishi Ryuhei
 Onizuka Genji
 Onkeiji
 Ono Ayako
+Ono Genka
 Ono Koji
 Ono Nobuyuki
 Ono Shingo
@@ -2737,6 +2799,7 @@ Park Ji Eun
 Park Jieun
 Park Jihoon
 Park Jihun
+Park Jihun (b)
 Park Jihun (s)
 Park Jihyun
 Park Jin Sol
@@ -2811,7 +2874,7 @@ Peng Zunde
 Piao Wenyao
 Pierre Colmez
 Piers Shepperson
-Pietsch, Hans
+Pietsch Hans
 Pongsakarn Sornarra
 Pop Christian
 Porcai Rita
@@ -2844,7 +2907,7 @@ Rafif Shidqi Fitrah
 Ramon Jan
 Rao Ruiyong
 Raynz
-Redmond, Michael
+Redmond Michael
 Remi Campagnie
 Ri Ishu
 Ri Tin
@@ -2951,6 +3014,7 @@ Sano Eisuke
 Sano Kuniko
 Sano Takatsugu
 Sano Tomoko
+Sano Tsunejiro
 Sanpu Hao
 Santiago Tabares
 Sasaka Shiro
@@ -2973,6 +3037,7 @@ Sato Ryoichi
 Sato Shoji
 Sato Sunao
 Sato Tadayoshi
+Sato Toshio
 Sato Tsunezo
 Sato Unji
 Sato Yohei
@@ -2985,6 +3050,7 @@ Seki Kotaro
 Seki Ryosuke
 Seki Tatsuya
 Seki Yasubee
+Seki Yasubei (or Genjiro)
 Sekine Naohisa
 Sekiyama Riichi
 Sekiyama Sendayu
@@ -3000,6 +3066,7 @@ Seo Bongsoo
 Seo Chung-heui
 Seo Gun Woo
 Seo Gunwoo
+Seo Hiroshi
 Seo Hisashi
 Seo Jonghui
 Seo Joonghui
@@ -3030,12 +3097,12 @@ Shao Weigang
 Shao Zhengzhong
 Shao Zhenzhong
 Shen Guosun
+Shen Jennie
 Shen Jing
 Shen Junqian
 Shen Peiran
 Shen Yien
 Shen Ying
-Shen, Jennie
 Shi Dingan
 Shi Hongyi
 Shi Jinbo
@@ -3064,12 +3131,15 @@ Shimamura
 Shimamura Michihiro
 Shimamura Toshihiro
 Shimizu Kosuke
+Shimoda Kazumi
 Shimohira Akio
+Shimoji Genchu
 Shimoji Gensho
 Shimojima Yohei
 Shimosaka Miori
 Shin Donghyun
 Shin Jaewon
+Shin Jin Seo
 Shin Jinseo
 Shin Minjun
 Shin Minyun
@@ -3113,6 +3183,7 @@ Sin Ho-ryeol
 Sin Jinseo
 Sin Minjun
 Sin Yeong-ch'eol
+Sin Yoonho
 Sin Yunho
 So Kofuku
 So Yokoku
@@ -3217,6 +3288,7 @@ T. Ishikawa
 T.卡塔林
 Tabata Sonbu
 Tabuchi Koichi
+Tabuchi Sonbu
 Tabuchi Yonezo
 Tafu Kae
 Taga Bungo
@@ -3281,6 +3353,7 @@ Takeda Misawo
 Takeda Shingen
 Takeda Yoshinori
 Takegawa Yasaburo
+Takehara Kintaro
 Takehashi Shigeyuki
 Takei Futoshi
 Takei Taishin
@@ -3312,6 +3385,7 @@ Tamaki Shoji
 Tamayama Chiai
 Tamura Chiaki
 Tamura Hoju
+Tamura Hoju (Tamura Yasuhisa)
 Tamura Hoju (later Shusai)
 Tamura Kahei
 Tamura Kahei (no relation)
@@ -3353,6 +3427,7 @@ Tang Ying
 Tang Zhenghe
 Tanguy Lecalve
 Tanida Harumi
+Taniguchi Tooru
 Taniguchi Toru
 Taniguchi Toshinori
 Taniguchi Yohei
@@ -3368,7 +3443,6 @@ Taoka Hideko
 Taoka Keiichi
 Taranu Catalin
 Taranu Katalin
-Taranu, Catalin
 Tasaka Jintaro
 Tasaka Shintaro
 Tatsumi Akane
@@ -3393,11 +3467,13 @@ Tian Zhou
 Tianrang
 Tibor Pocsai
 Tobita Saki
+Togino Kazuki
 Tokimoto Hajime
 Tokugawa Musei
 Tokunaga Hirohisa
 Tominaga Takeshi
 Tomita Shuroku
+Tomita Tadao
 Tong Mengcheng
 Tong Yulin
 Tono Hiroaki
@@ -3407,7 +3483,9 @@ Torii Yuta
 Toriki Hiroshi
 Totsuka Kazuo
 Toya Dowa
+Toyama Sansetsu
 Toyoda Hirohito
+Toyoda Hiroo
 Toyoshima Yoshio
 Tozawa Akinobu
 Tran Anh Tuan
@@ -3418,8 +3496,10 @@ Tsubota Ganseki
 Tsubouchi Seikan
 Tsubouchi Tetsuzo
 Tsuchida Masamitsu
+Tsuchiya (Honinbo Shugen)
 Tsuchiya Hanshichi
 Tsuchiya Momosaburo
+Tsuchiya Shuei
 Tsuchiya Shuetsu
 Tsuchiya Shugen
 Tsuchiya Shuwa
@@ -3442,6 +3522,7 @@ Tsuruyama Atushi
 Tsushima Juichi
 Tsutsui Katsumi
 Tsutsumida Hironao
+Tsuya Moriitsuro
 Tsuyamori Itsuro
 Tsuzuki Senko
 Tsuzuki Senshi
@@ -3592,7 +3673,6 @@ Wang Zhiguo
 Wang Zhihong
 Wang Zihan
 Wang Ziyan
-Wang, Rui
 Watanabe Akira
 Watanabe Hideo
 Watanabe Kandai
@@ -3620,6 +3700,7 @@ Whang Jaeyeon
 Whang Jaeyoun
 Whang Jinhyung
 Whang jaeyoun
+Wi Taewong
 Wi Taewung
 Wi Taeyoung
 Willis Huang
@@ -3637,6 +3718,7 @@ Wu Junhao
 Wu Junyi
 Wu Kai
 Wu Qi
+Wu Qi Sr.
 Wu Shuhao
 Wu Songsheng
 Wu Sung-sheng
@@ -3649,6 +3731,7 @@ Wu Zhaoyi
 Wu Zhenyu
 Wu Zitian
 Xi Yanyan
+Xia Chen Kun
 Xia Chenkun
 Xia Daming
 Xia Jiankun
@@ -3708,6 +3791,7 @@ Yamada Kozo
 Yamada Masanari
 Yamada Noriyoshi
 Yamada Shiho
+Yamada Shihou
 Yamada Shinji
 Yamada Takuji
 Yamada Wakio
@@ -3744,6 +3828,7 @@ Yamashita Naoki
 Yamashita Yorimoto
 Yamashita Yosuke
 Yamazaki Dosa
+Yamazaki Insa
 Yamazaki Masuo
 Yamazaki Nobu
 Yamazaki Sotosaburo
@@ -3777,6 +3862,7 @@ Yang Haozhe
 Yang Hueren
 Yang Hui
 Yang Huiren
+Yang Hurien
 Yang Jae Ho
 Yang Jaeho
 Yang Jing
@@ -3804,6 +3890,7 @@ Yang Xiantian
 Yang Xiaotian
 Yang Xican
 Yang Yi
+Yang Yi (b)
 Yang Yi (s)
 Yang Yilun
 Yang Yoojun
@@ -3814,11 +3901,10 @@ Yang Zi
 Yang Zixuan
 Yang Zonglin
 Yang Zongyu
-Yang, Huiren
-Yang, Hurien
 Yao Zheng
 Yao Zhi Teng
 Yao Zhiteng
+Yara no Satonushi
 Yashiro Kumiko
 Yasuda Akika
 Yasuda Eisai
@@ -3985,6 +4071,7 @@ You Haoyu
 Young Kwon
 Yu Bin
 Yu Ch'ang-hyeok
+Yu Chae-ho
 Yu Chae-hyeong
 Yu Chae-seong
 Yu Chaeseong
@@ -4012,7 +4099,6 @@ Yu Qingquan
 Yu Xuan
 Yu Zhengqi
 Yu Zhiying
-Yu, Lianzhou
 Yuan Shengqin
 Yuan Tingyu
 Yuan Weihong
@@ -4073,6 +4159,7 @@ Zhang Ce
 Zhang Chao
 Zhang Chenghua
 Zhang Chi
+Zhang Danru
 Zhang Donglie
 Zhang Dongyue
 Zhang Enpin
@@ -4089,6 +4176,7 @@ Zhang Jiao
 Zhang Jiwan
 Zhang Kaixin
 Zhang Li
+Zhang Liyuan
 Zhang Peipei
 Zhang Qi
 Zhang Qiang
@@ -4098,6 +4186,7 @@ Zhang Shufan
 Zhang Tao
 Zhang Tingwei
 Zhang Wei
+Zhang Wei (2)
 Zhang Weibin
 Zhang Weijin
 Zhang Wendong
@@ -4186,6 +4275,7 @@ Zhu Jufei
 Zhu Junhuan
 Zhu Li
 Zhu Lili
+Zhu Renkun
 Zhu Songli
 Zhu Yanming
 Zhu Yanzhen
@@ -4216,7 +4306,7 @@ southern
 spring
 tobe
 tobe*
-van Zeijst, Rob
+van Zeijst Rob
 wasabi
 woochon
 yoboeo7
@@ -4232,31 +4322,43 @@ yoboeo7
 三橋拓真
 三沢健太郎
 三浦浩
+三王裕孝
+三王裕孝九段
 三王裕孝八段
 三王裕孝六段
 三轮芳郎七段
 三轮芳郎六段
+三郎左衛門
 上村收藏
 上村邦夫
+上村邦夫六段
 上村阳生
+上村阳生九段
 上海方捷
 上海邱峻
 下地玄忠
+下地玄昭初段
 下田和美
 专吃大鸟
 东山朝寻坊
 东野弘昭
 东野弘昭九段
+东野弘昭八段
 东野政治
+中冈二郎六段
 中华瑞雪
 中园清三
 中埜道甫
 中小野田智
 中山翼
 中川亀三郎
+中川千治
+中川新之七段
+中川新之六段
 中川顺节
 中川龟三郎
 中村勇太郎七段
+中村勇太郎八段
 中村哲启
 中村正平
 中村秀仁
@@ -4274,6 +4376,7 @@ yoboeo7
 丰芸
 丹田秀树
 久井敬史
+久井敬史八段
 久代俊明
 久代迎春
 久保田
@@ -4283,10 +4386,13 @@ yoboeo7
 乔诗尧
 九世安井算知
 二世安井算知
+二宫快藏
 二枚腰
 于恪强
 于梅玲
 于璇
+五十川正雄七段
+井上因砂因硕 六段
 井上因硕 (六世)
 井上因硕十五世
 井上因碩
@@ -4297,6 +4403,7 @@ yoboeo7
 井上尚美
 井上春策
 井上清七
+井上真知子
 井上秀彻
 井上道砂因硕
 井上道砂因硕 七段
@@ -4306,9 +4413,11 @@ yoboeo7
 亲云上滨比贺
 今分喜行
 今村俊也
+今村俊也九段
 今村俊也六段
 今村启子
 今村文明
+今村正道
 今泷太郎兵卫
 今野遼平
 仓桥正藏
@@ -4327,11 +4436,13 @@ yoboeo7
 伊東信義
 伊東蜂三郎
 伊耀卿
+伊藤义夫三段
 伊藤優真
 伊藤友惠
 伊藤周助
 伊藤大三郎
 伊藤安次郎
+伊藤小太郎  四段
 伊藤松和
 伊藤松次郎
 伊藤源三郎
@@ -4349,11 +4460,17 @@ yoboeo7
 佐藤　司
 佐藤亚纪子
 佐藤昌二
+佐藤昌晴
+佐藤昌晴五段
+佐藤昌晴八段
 佐藤春策
 佐藤民之助
 佐藤洸矢
 佐藤源次郎
 佐藤直男
+佐藤真知子初段
+佐藤馨五段
+佐藤馨六段
 佐野常次郎
 何不药
 何右林
@@ -4368,6 +4485,8 @@ yoboeo7
 依田纪基
 依田纪基七段
 依田纪基三段
+依田纪基九段
+依田纪基二段
 依田纪基五段
 依田纪基六段
 依田纪基初段
@@ -4383,6 +4502,7 @@ yoboeo7
 傅斌芳
 僧秋航
 僧贯如
+儿玉国男五段
 元才
 克里斯蒂安·鲍勃(罗马尼亚)
 党沧云
@@ -4394,6 +4514,7 @@ yoboeo7
 兼田雅史
 内藤富明
 内藤陸斗
+冈信光三段
 冈光雄
 冈田结美子
 冈田赖母
@@ -4436,11 +4557,14 @@ yoboeo7
 刘青琳
 初段
 前田陈尔 六段
+前田陈尔九段
 劉子萌
 劉慧玲
 劉順宇
 加田克司
 加田克司八段
+加纳嘉德九段
+加纳嘉德八段
 加藤信 七段
 加藤充志
 加藤小三郎
@@ -4448,12 +4572,17 @@ yoboeo7
 加藤正夫
 加藤正夫Kato Masao
 加藤正夫七段
+加藤正夫三段
+加藤正夫九段
+加藤正夫五段
 加藤正夫八段
 加藤正夫六段
+加藤正夫四段
 加藤降二郎
 加藤隆二郎
 加藤隆次郎
 北川貴浩
+北村洋司四段
 十三世井上因硕松本
 千丰诈
 半田道玄
@@ -4494,6 +4623,7 @@ yoboeo7
 吉田算碩
 吉田美香
 吉田透真
+吉田阳一
 吉祥丸
 吉芝亭
 后藤俊午
@@ -4504,6 +4634,7 @@ yoboeo7
 吳清源
 吴中汉
 吴冠三
+吴凇生
 吴凇笙
 吴凤来
 吴孔祚
@@ -4514,6 +4645,7 @@ yoboeo7
 吴来仪
 吴泉 六段
 吴涤生 雷溥华 崔云趾
+吴淞生
 吴淞笙
 吴清源
 吴清源 七段
@@ -4563,6 +4695,7 @@ yoboeo7
 回敬辰
 因入
 因策
+园田泰隆
 国松聪
 國松聡
 土屋百三郎
@@ -4580,11 +4713,14 @@ yoboeo7
 坂口仙徳 二三歳
 坂口仙德
 坂口常治郎
+坂口窿三
 坂口虎次郎
 坂口鋠太郎
+坂口隆三
 坂本修作
 坂本秀誠
 坂田荣男
+坂田荣男 七段
 坂田荣男 九段
 坂田荣男 八段
 坂田荣男九段
@@ -4603,20 +4739,25 @@ yoboeo7
 多贺文吾
 大島玲奈
 大平修三
+大平修三九段
 大東邦雄
 大枝雄介六段
 大森泰志
 大沢摩耶
 大泽银次郎
+大洼一玄
 大洼一玄七段
 大洼一玄八段
 大矢浩一
+大矢浩一九段
 大矢浩一二段
 大窐一玄
 大竹英雄
+大竹英雄 八段
 大竹英雄七段
 大竹英雄九段
 大竹英雄五段
+大竹英雄八段
 大竹英雄六段
 大竹英雄四段
 大表拓都
@@ -4624,6 +4765,7 @@ yoboeo7
 太田卯之助
 太田卯之助 十六歳
 太田清道
+太田耕造
 太田雄蔵
 太田雄藏
 奈良昌利
@@ -4666,6 +4808,7 @@ yoboeo7
 孫志剛
 安井  春知
 安井  知哲
+安井  知得
 安井  算知
 安井  算英  六段
 安井仙知
@@ -4680,12 +4823,15 @@ yoboeo7
 安井算英
 安倍吉辉
 安倍吉辉八段
+安倍吉辉六段
 安官旭
 安柞永
 安永结
 安田秀策
 安田荣斋
 安祚永
+安藤武夫五段
+安藤英雄
 宋启安
 宋瑞莱
 宋雪林
@@ -4696,6 +4842,7 @@ yoboeo7
 宫坂采二
 宫崎志摩子
 宫崎龙太郎
+宫本义久七段
 宫本直毅
 宫本直毅八段
 宫泽吾朗
@@ -4712,7 +4859,9 @@ yoboeo7
 小山光晶
 小山荣美
 小岛高穗
+小岛高穗五段
 小岛高穗八段
+小岛高穗六段
 小岸壮二
 小川  道的
 小川诚子
@@ -4720,7 +4869,9 @@ yoboeo7
 小川道的 七段(16岁)
 小杉丁
 小松英树
+小松英树九段
 小松英树五段
+小松英树八段
 小松藤夫
 小林光一
 小林光一 挑战者
@@ -4728,6 +4879,7 @@ yoboeo7
 小林光一八段
 小林千寿
 小林泉美
+小林礼子
 小林觉
 小林铁次郎
 小森祥嗣
@@ -4750,7 +4902,7 @@ yoboeo7
 尾原武雄
 尾崎春美四段
 尾崎達郎
-屋良 里之子 (十五岁,琉球人)
+屋良 里之子 (十五岁琉球人)
 屋量里之子
 山下寛
 山下寛(静岡中郷西中2)
@@ -4762,6 +4914,8 @@ yoboeo7
 山崎主悦
 山崎因砂
 山崎有民 雷葆申 吴清源
+山崎祐男五段
+山崎祐男六段
 山崎道砂
 山本佐六
 山本德治
@@ -4769,6 +4923,7 @@ yoboeo7
 山本淳
 山本源吉
 山本源吉 二九歳
+山本诚子
 山本道佐
 山田凌馬
 山田和贵雄
@@ -4790,6 +4945,7 @@ yoboeo7
 岩佐銈
 岩崎健造
 岩本薰九段
+岩本薰八段
 岩田右一郎
 岩田达明
 岩田达明九段
@@ -4809,10 +4965,13 @@ yoboeo7
 崔晋源
 川又瑛介
 川口飛翔
+川本升六段
+川本升四段
 川村律文
 川畑拓也
 川畑龍司
 工藤纪夫
+工藤纪夫七段
 工藤纪夫九段
 工藤纪夫八段
 工藤纪夫六段
@@ -4848,6 +5007,7 @@ yoboeo7
 张廷彦
 张建东
 张恒甫
+张成华
 张振西
 张文东
 张文耀
@@ -4873,6 +5033,7 @@ yoboeo7
 彭时佳
 彭景华
 彭荃
+影山利郎六段
 影山立郎五段
 後藤一
 徐中辉 韩国
@@ -4900,6 +5061,7 @@ yoboeo7
 戴臣埜
 户泽昭宣
 户泽昭宣七段
+户泽昭宣六段
 扬士海
 敖立婷
 斎藤鐵之助
@@ -4920,11 +5082,13 @@ yoboeo7
 日野勝太
 日野大地
 早濑宏
+时本壹
 明楽昌夫
 星合  八硕
 星合八硕
 星川信明
 星野纪七段
+星野纪八段
 春山勇六段
 曲励起八段
 曹丽塘
@@ -4965,11 +5129,15 @@ yoboeo7
 本因坊丈和 七段
 本因坊丈和 三十九歳
 本因坊丈和 三十六歳
+本因坊丈和 三十四歳
 本因坊丈和 五十九歳
 本因坊丈和 五十五歳
 本因坊丈和 五十六歳
 本因坊丈和 八段
+本因坊丈和 六段
 本因坊丈和 名人
+本因坊丈和 四十一歳
+本因坊丈和 四十二歳
 本因坊丈和 四十歳
 本因坊元丈
 本因坊元丈 三十六歳
@@ -4977,6 +5145,7 @@ yoboeo7
 本因坊秀和
 本因坊秀哉
 本因坊秀哉 名人
+本因坊秀格
 本因坊秀榮
 本因坊秀策
 本因坊秀荣  七段
@@ -4992,9 +5161,12 @@ yoboeo7
 本因坊道策
 本因坊道策 名人
 本手2
+本田幸子四段
 本田满彦
 本田邦久
 本田邦久九段
+本田邦九
+本间明男五段
 朱业明
 朱叔庄
 朱叔文
@@ -5079,6 +5251,7 @@ yoboeo7
 李钢
 李青海
 李香澄
+村上文祥
 村岛谊纪七段
 村松春松
 村濑弥吉
@@ -5134,6 +5307,8 @@ yoboeo7
 林新猛 吴清源 崔云趾
 林有太郎
 林有太郎 七段
+林有太郎七段
+林有太郎八段
 林有美
 林朝华
 林海峰
@@ -5169,6 +5344,9 @@ yoboeo7
 桥本宇太郎
 桥本宇太郎 九段
 桥本昌二
+桥本昌二九段
+桥本谊
+桥本谊八段
 桧沢仁宏
 梁会京
 梁伟棠
@@ -5186,6 +5364,7 @@ yoboeo7
 梁鹤年
 梶原政之助
 梶原武雄九段
+梶和为六段
 梶川　升
 梶川守礼
 棋院岗哨
@@ -5194,10 +5373,13 @@ yoboeo7
 森木几右卫门
 森洋喜
 森田道博
+森田道博七段
+森野节男
 植木智子
 楚桐隐
 楠光子
 榊原章二
+榊原章二八段
 樋口建良
 横塚元輝
 横手悠生
@@ -5209,7 +5391,9 @@ yoboeo7
 正木主计
 武井一利
 武宫正树
+武宫正树九段
 武宫阳光
+武田博爱五段
 武邦瑞
 段  嵘
 段嵘
@@ -5232,6 +5416,7 @@ yoboeo7
 江尻敏影
 江星若
 江铸久
+江面雄一三段
 江鸣久
 池上清
 池本遼太
@@ -5256,6 +5441,7 @@ yoboeo7
 沈逸恩
 沈静
 沈颖
+沟上知亲七段
 河井长太夫
 河北耕之助
 河合将史
@@ -5283,9 +5469,11 @@ yoboeo7
 涉川春海
 涤田秀行
 淡路修三
+清成哲也
 清水拓哉
 清风一子
 渡利大遥
+渡边英夫六段
 渡边英夫四段
 渡辺優
 渡辺昇吉
@@ -5308,11 +5496,13 @@ yoboeo7
 熊谷本硕
 熊谷本硕 七段
 片冈聪
+片冈聪九段
 片山孝
 片山浩之
 片山知的
 片岸完次郎
 牛之浜撮雄
+牛之滨撮雄九段
 牛力力
 牛诗特
 牛雨田
@@ -5359,6 +5549,7 @@ yoboeo7
 王谦毅
 王辉
 王铭琬
+王铭琬九段
 王铭琬八段
 王隽
 王雷
@@ -5369,6 +5560,7 @@ yoboeo7
 田中仙悦
 田中伸拓
 田中豊
+田冈敬一
 田原常三郎
 田原恒三郎
 田口昂征
@@ -5385,8 +5577,10 @@ yoboeo7
 白如丁
 白宏江
 白木助右卫门
+白江治彦五段
 白石裕
 白石裕九段
+白鸟澄子
 百瀬久人
 盛大有
 相原可硕 (十三岁)
@@ -5395,25 +5589,32 @@ yoboeo7
 知哲
 知念かぉり
 石井  千治  六段
+石井卫五段
+石井卫六段
 石井大輝(広島磯松中3)
 石井成幸
 石井新藏
 石井新藏九段
 石井衡
 石井邦生
+石井邦生九段
+石井邦生八段
 石仓升
 石博郁郎七段
+石博郁郎六段
 石原八十八
 石原是山
 石川
 石川新五右衛門
 石村竜青
+石毛嘉久夫七段
 石毛嘉久夫五段
 石毛嘉久夫六段
 石田章
 石田笃司
 石田芳夫
 石田芳夫九段
+石缚郁郎
 硎野和希
 硯川俊正
 祝励三
@@ -5421,10 +5622,13 @@ yoboeo7
 神原史子
 神津伯太
 神田英
+神田英八段
 神谷佑樹
 祷真理子
 福井正一
+福井正明五段
 福井进
+福井进四段
 福冈修
 福原义虎六段
 福原勘左卫门
@@ -5444,6 +5648,7 @@ yoboeo7
 穆晓红
 童和衷
 竹中幸太郎
+竹中幸太郎四段
 竹内一雄
 竹原金太郎
 竹川彌三郎
@@ -5467,7 +5672,9 @@ yoboeo7
 罗建文
 罗洗河
 羽根泰正
+羽根泰正七段
 羽根泰正九段
+羽根泰正五段
 羽根泰正八段
 羽根直树
 翁子瑜
@@ -5494,6 +5701,7 @@ yoboeo7
 船橋勇太郎
 船橋勇太郎 十七歳
 芝野龍之介
+芦田矶子
 芮乃伟
 花巻未生
 花立正昭二段
@@ -5509,6 +5717,8 @@ yoboeo7
 范继森
 范胜林
 范西屏
+茅野直彦
+茅野直彦七段
 荒井干太
 荒井幹太
 荒木親吉
@@ -5529,6 +5739,7 @@ yoboeo7
 葛野丈和 五段
 葛野忠左卫门
 葛野松之助
+葛野松之助 丈和 二十一歳
 葛野松之助 二十二歳
 葛野松之助 十九歳
 葛野策七
@@ -5556,11 +5767,13 @@ yoboeo7
 藤原 彰子
 藤原彰子
 藤原深織
+藤木人见七段
 藤泽一就
 藤泽库之助
 藤泽朋斋
 藤泽朋斋九段
 藤泽秀行
+藤泽秀行 九段
 藤泽秀行 王座
 藤泽秀行九段
 藤澤理秀
@@ -5594,7 +5807,9 @@ yoboeo7
 谭揆士
 谭炎午
 谷口洋平
+谷宫悌二
 谷宫悌二五段
+谷宫悌二六段
 谷結衣子
 豊田融
 贺户隼人四段
@@ -5619,6 +5834,7 @@ yoboeo7
 赵栋
 赵治勋
 赵治勋 本因坊
+赵治勋七段
 赵泰元 朝鲜
 赵祥衍
 赵雁培
@@ -5664,7 +5880,9 @@ yoboeo7
 郑涟漪
 郑策
 郑铭煌
+郑铭璜
 郝明霞
+郡寿男
 郭北雅
 郭娟
 郭溶川
@@ -5734,12 +5952,19 @@ yoboeo7
 钱芳圃
 钱贡南
 铃木为次郎
+铃木五良七段
+铃木五良五段
+铃木五良六段
+铃木正春五段
 铃木知清
 铃木顺清
+锅岛一郎六段
 镜道哲
 長坂猪之助
+長坂猪之助二段
 長尾金三郎
 長谷泉
+长原芳明四段
 长坂猪之助
 长昭信
 长沼信四段
@@ -5804,6 +6029,7 @@ yoboeo7
 青木愚硕
 青木绅一
 青木绅一七段
+青木绅一四段
 韦小凤
 韧持丈
 韩启宇
@@ -5828,12 +6054,16 @@ yoboeo7
 高在熙
 高地祐希
 高尾绅路
+高山三次郎
 高山希々花
 高峰
 高崎泰策
 高川秀格
+高川秀格九段
 高木直昌
 高木祥一
+高木祥一五段
+高木祥一六段
 高本润
 高林共平
 高桥俊光七段
@@ -5856,6 +6086,7 @@ yoboeo7
 鳥塚圓次
 鳥越瑛太
 鶴山敬一
+鸣泽泰一四段
 鸣海直
 鹈殿德藏
 鹤丸敬一
@@ -5889,7 +6120,15 @@ yoboeo7
 黄龙士
 黎春俞斌
 黎春华
+黑泽尚忠五段
+黑泽尚忠六段
+黑泽忠尚七段
+黑泽忠尚五段
+黑泽忠尚六段
+黑田俊杰
 黑田幸雄
+黑田幸雄五段
+黑田源次郎
 龙泽千晴
 龙霖
 龚世运
