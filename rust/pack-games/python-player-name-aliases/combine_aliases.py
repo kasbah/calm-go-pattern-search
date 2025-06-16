@@ -23,6 +23,7 @@ CUSTOM_ALIASES_FILE = "custom_aliases.json"
 ALL_NAMES_FILE = "all_names.txt"
 OUTPUT_FILE = "player_names.json"
 
+
 def load_playerdb() -> dict:
     playerdb_json = load_json_file(PLAYERDB_FILE)
     # Pre-process playerdb into a more convenient format
@@ -32,7 +33,7 @@ def load_playerdb() -> dict:
         player_id = player.get("id")
         if not key_name:
             continue
-            
+
         # Collect all name variations for this player with language info
         all_player_names = {}  # name -> language info
         for name_entry in player.get("names", []):
@@ -41,153 +42,105 @@ def load_playerdb() -> dict:
                 if name:
                     languages = simple_name.get("languages", [])
                     all_player_names[name] = languages
-        
-        # Create lookup entries for each name variation
-        for name in all_player_names:
-            playerdb[name] = {
-                "key": key_name,
-                "id": player_id,
-                "all_names": all_player_names
-            }
+
+        playerdb[key_name] = {
+            "id": player_id,
+            "aliases": [
+                {"name": key, "languages": all_player_names[key]}
+                for key in all_player_names
+            ],
+        }
+
     print(f"Pre-processed {len(playerdb)} name entries from playerdb")
     return playerdb
 
 
-def check_playerdb(playerdb: dict, name: str) -> tuple[str | None, int | None, list]:
-    playerdb_aliases_found = []
-    playerdb_key = None
-    player_id = None
+def check_playerdb(playerdb: dict, name: str) -> str | None:
     if name in playerdb:
-        playerdb_info = playerdb[name]
-        playerdb_key = playerdb_info["key"]
-        player_id = playerdb_info["id"]
-        # Add all playerdb aliases with their language info
-        for alias_name, languages in playerdb_info["all_names"].items():
-            playerdb_aliases_found.append({
-                "name": alias_name,
-                "languages": languages
-            })
+        return name
     else:
-        for playerdb_name in playerdb:
-            playerdb_info = playerdb[playerdb_name]
-            for alias_name, languages in playerdb_info["all_names"].items():
-                if name == alias_name:
-                    playerdb_key = playerdb_info["key"]
-                    player_id = playerdb_info["id"]
-                    for alias_name, languages in playerdb_info["all_names"].items():
-                        playerdb_aliases_found.append({
-                            "name": alias_name,
-                            "languages": languages
-                        })
-                    break
-    return playerdb_key, player_id, playerdb_aliases_found
+        for playerdb_key in playerdb:
+            player = playerdb[playerdb_key]
+            for alias in player["aliases"]:
+                if name == alias["name"]:
+                    return playerdb_key
 
+
+def extend_playerdb(playerdb: dict) -> tuple[int, dict]:
+    next_negative_id = -1
+    custom_aliases = load_json_file(CUSTOM_ALIASES_FILE)
+    for custom_alias_key in custom_aliases:
+        playerdb_key = check_playerdb(playerdb, custom_alias_key)
+        if playerdb_key:
+            for custom_alias in custom_aliases[custom_alias_key] + [custom_alias_key]:
+                found = False
+                for playerdb_alias in playerdb[playerdb_key]["aliases"]:
+                    if custom_alias == playerdb_alias["name"]:
+                        found = True
+                        break
+                if not found:
+                    playerdb[playerdb_key]["aliases"].append({
+                        "name": custom_alias,
+                        "languages": [],
+                    })
+        else:
+            found = False
+            for custom_alias in custom_aliases[custom_alias_key]:
+                playerdb_key = check_playerdb(playerdb, custom_alias)
+                if playerdb_key:
+                    found = True
+                    break
+            if found:
+                for custom_alias in custom_aliases[custom_alias_key] + [
+                    custom_alias_key
+                ]:
+                    found = False
+                    for playerdb_alias in playerdb[playerdb_key]["aliases"]:
+                        if custom_alias == playerdb_alias["name"]:
+                            found = True
+                            break
+                    if not found:
+                        playerdb[playerdb_key]["aliases"].append({
+                            "name": custom_alias,
+                            "languages": [],
+                        })
+            else:
+                playerdb[custom_alias_key] = {
+                    "id": next_negative_id,
+                    "aliases": [{"name": custom_alias_key, "languages": []}],
+                }
+                next_negative_id -= 1
+    return next_negative_id, playerdb
 
 
 def main():
     print("Starting alias combination process...")
-    
+
     playerdb = load_playerdb()
-    custom_aliases = load_json_file(CUSTOM_ALIASES_FILE)
+    next_negative_id, playerdb = extend_playerdb(playerdb)
+
     all_names = load_text_file(ALL_NAMES_FILE)
-
-    # Initialize result dictionary
     result = {}
-    
-    # Counter for auto-decrementing negative IDs
-    next_negative_id = -1
-
     total_names = len(all_names)
     processed_count = 0
-    
+
     for name in all_names:
-        name = name.replace(",", "")
         processed_count += 1
         print(f"Processing {processed_count}/{total_names}: {name}")
-        
-        # 1. Check if it's already an alias or key in the result
-        already_processed = False
-        for key, data in result.items():
-            if key == name or any(alias["name"] == name for alias in data["aliases"]):
-                already_processed = True
-                break
-        
-        if already_processed:
-            continue
-            
-        # Collect all aliases for this name
-        collected_aliases = []
-        player_id = None
-        
-        # 2. Check if it's an alias or a key in custom_aliases
-        custom_key = None
-        custom_aliases_found = []
-        for key, aliases in custom_aliases.items():
-            if name == key or name in aliases:
-                custom_key = key
-                # Add all custom aliases with empty languages
-                for alias_name in aliases:
-                    custom_aliases_found.append({
-                        "name": alias_name,
-                        "languages": []
-                    })
-                break
-        
-        playerdb_key, player_id, playerdb_aliases_found = check_playerdb(playerdb, name)
 
-        if not playerdb_aliases_found:
-            for custom_alias in custom_aliases_found:
-                playerdb_key, player_id, playerdb_aliases_found = check_playerdb(playerdb, custom_alias["name"])
-                if playerdb_aliases_found:
-                    break
-        
-        # Determine the primary key for this name group
+        name = name.replace(",", "")
+        playerdb_key = check_playerdb(playerdb, name)
+
         if playerdb_key:
-            primary_key = playerdb_key
-        elif custom_key:
-            primary_key = custom_key
+            result[playerdb_key] = playerdb[playerdb_key]
         else:
-            primary_key = name
-        
-        # Assign negative ID if not found in playerdb
-        if player_id is None:
-            player_id = next_negative_id
+            result[name] = {"id": next_negative_id, "aliases": []}
             next_negative_id -= 1
-        
-        # Merge aliases from both sources
-        # Use a dict to avoid duplicates while preserving language info
-        alias_dict = {}
-        
-        # Add playerdb aliases first (they have language info)
-        for alias in playerdb_aliases_found:
-            alias_dict[alias["name"]] = alias
-            
-        # Add custom aliases (empty languages, but don't overwrite playerdb languages)
-        for alias in custom_aliases_found:
-            if alias["name"] not in alias_dict:
-                alias_dict[alias["name"]] = alias
-        
-        # Add the current name if it's not already included and not the primary key
-        if name != primary_key and name not in alias_dict:
-            alias_dict[name] = {
-                "name": name,
-                "languages": []
-            }
-        
-        # Convert to list
-        collected_aliases = list(alias_dict.values())
-        
-        # Store in result with new structure
-        result[primary_key] = {
-            "id": player_id,
-            "aliases": collected_aliases
-        }
-    
-    # Save the result
+
     print(f"\nSaving result to {OUTPUT_FILE}...")
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=2, ensure_ascii=False)
-    
+
     print(f"Process completed! Generated {len(result)} alias groups.")
     print(f"Result saved to {OUTPUT_FILE}")
 
