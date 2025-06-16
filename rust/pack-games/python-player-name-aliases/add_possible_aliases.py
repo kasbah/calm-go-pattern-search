@@ -188,8 +188,10 @@ def main():
     total_aliases = len(possible_aliases)
     print(f"\nTotal possible aliases: {total_aliases}")
 
+
     # Process each possible alias
     for i, (id1, id2) in enumerate(possible_aliases, 1):
+        translation1 = None
         # Skip if this pair was previously rejected
         if (id1, id2) in rejected_alias_pairs or (id2, id1) in rejected_alias_pairs:
             continue

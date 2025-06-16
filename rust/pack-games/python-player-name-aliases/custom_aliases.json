@@ -789,7 +789,8 @@
   ],
   "Sekiyama Sendayu": [
     "Sekiymama Sendayu",
-    "関山仙太夫"
+    "関山仙太夫",
+    "关山仙太夫"
   ],
   "Seo Bongsoo": [
     "Seo Bong Soo"
@@ -1119,7 +1120,8 @@
     "長坂猪之助"
   ],
   "Nabeshima Ichiro": [
-    "锅岛一郎六段"
+    "锅岛一郎六段",
+    "Samejima Ichiro"
   ],
   "Suzuki Masaharu": [
     "铃木正春五段"
@@ -1234,7 +1236,8 @@
     "竹原金太郎"
   ],
   "Takenaka Kotaro": [
-    "竹中幸太郎四段"
+    "竹中幸太郎四段",
+    "Takeuchi Kotaro"
   ],
   "Fukuhara Yoshitora": [
     "福原义虎六段",
@@ -1314,7 +1317,8 @@
     "Sumino Tsunehiro"
   ],
   "Seo Hisashi": [
-    "濑尾寿七段"
+    "濑尾寿七段",
+    "Seo Hiroshi"
   ],
   "Watanabe Hideo": [
     "渡边英夫四段",
@@ -1455,7 +1459,9 @@
     "服部立徹"
   ],
   "Hattori Hajime": [
-    "服部一"
+    "服部一",
+    "Kato Seitetsu",
+    "Hattori Seitetsu"
   ],
   "Magari Reiki": [
     "曲励起八段"
@@ -1735,7 +1741,8 @@
     "佐藤春策"
   ],
   "Ito Shusuke": [
-    "伊藤秀闊"
+    "伊藤秀闊",
+    "伊藤秀助"
   ],
   "Ito Kino": [
     "伊藤甲子",
@@ -1745,7 +1752,8 @@
     "伊藤源三郎"
   ],
   "Ito Matsujiro": [
-    "伊藤松次郎"
+    "伊藤松次郎",
+    "Ito Showa"
   ],
   "Ito Yasujiro": [
     "伊藤安次郎"
@@ -1754,7 +1762,8 @@
     "亲云上浜比贺"
   ],
   "Inoue Insa Inseki": [
-    "井上因碩"
+    "井上因碩",
+    "井上因砂因硕 六段"
   ],
   "Nakanishi Bungoemon": [
     "中西文右衛門"
@@ -1772,7 +1781,8 @@
     "Wang Yijin"
   ],
   "Wang Hui": [
-    "Wang Hui Sr."
+    "Wang Hui Sr.",
+    "王辉"
   ],
   "Tabuchi Sonbu": [
     "Tabuchi Yonezo"
@@ -1899,9 +1909,6 @@
   "Kim Tong-yeop": [
     "Kim Dong Yup"
   ],
-  "Hattori Seitetsu": [
-    "Kato Seitetsu"
-  ],
   "Jiang Zhujiu": [
     "Jiang Jujo"
   ],
@@ -1992,7 +1999,8 @@
     "林　利玄"
   ],
   "Hayashi Hakuetsu": [
-    "林 柏悦"
+    "林 柏悦",
+    "林　柏悦"
   ],
   "Minamisato Yohee": [
     "南里与兵卫"
@@ -2033,5 +2041,58 @@
   ],
   "Ogura Takami": [
     "Ogura Tokitsu"
+  ],
+  "Yu Lijun": [
+    "Yu Lichun"
+  ],
+  "Guo Yiming": [
+    "Yiming Guo"
+  ],
+  "Tsuzuki Yoneko": [
+    "Tsuzuki Senshi"
+  ],
+  "鹤冈三郎助": [
+    "Tsuruoka Saburosuke"
+  ],
+  "小泽三五郎": [
+    "Ozawa Mitsugoro"
+  ],
+  "太田卯之助 十六歳": [
+    "Ota Unosuke"
+  ],
+  "鸣海直": [
+    "Narumi Naoshi"
+  ],
+  "三好纪德": [
+    "Miyoshi Kitoku"
+  ],
+  "Alphago": [
+    "Master",
+    "Magist"
+  ],
+  "Li Jie": [
+    "Li Jie (2)"
+  ],
+  "Kim Chun-seok": [
+    "Kim Junseok"
+  ],
+  "加藤小三郎": [
+    "Kato Kosaburo"
+  ],
+  "今村正道": [
+    "Imamura Masamichi"
+  ],
+  "星合八硕": [
+    "Hoshiai Hasseki",
+    "星合  八硕"
+  ],
+  "雏屋立甫": [
+    "Hinaya Rippo"
+  ],
+  "Dinerchtein Alexander": [
+    "Dinerchtein Alexandre"
+  ],
+  "沈君迁": [
+    "Shen Junqian"
   ]
 }
