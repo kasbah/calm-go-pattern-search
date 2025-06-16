@@ -1,8 +1,7 @@
 use rayon::prelude::*;
 use serde_json::Value;
 use sgf_parse::{ParseOptions, go, parse_with_options};
-use std::collections::HashMap;
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs::File;
 use std::io::BufReader;
 use std::path::PathBuf;
@@ -165,7 +164,7 @@ fn main() {
 
     // games_vec now contains (path, game) tuples directly
 
-    let mut unique_games = HashMap::<Vec<Placement>, (String, Game)>::new();
+    let mut unique_games = BTreeMap::<Vec<Placement>, (String, Game)>::new();
 
     println!("Removing duplicates...");
     for (path, game) in games_vec {
@@ -338,6 +337,8 @@ fn main() {
     println!("Computing captures...");
 
     let games = unique_games
+        .into_iter()
+        .collect::<Vec<_>>()
         .into_par_iter()
         .map(|(_, (path, mut game))| {
             let mut captures = HashMap::new();
