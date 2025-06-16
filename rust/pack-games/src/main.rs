@@ -107,7 +107,7 @@ fn main() {
     }
     println!("Read directories");
 
-    let games_vec = paths
+    let mut games_vec = paths
         .par_iter()
         .filter_map(|path| match std::fs::read_to_string(path) {
             Ok(file_data) => match load_sgf(path, &file_data) {
@@ -134,6 +134,8 @@ fn main() {
             }
         })
         .collect::<Vec<_>>();
+
+    games_vec.sort_by(|a, b| a.0.cmp(&b.0));
 
     // Collect all player names from all games (including duplicates)
     println!("Collecting all player names...");
@@ -168,8 +170,6 @@ fn main() {
     println!("Removing duplicates...");
     for (path, game) in games_vec {
         let mut is_duplicate = false;
-        let mut maybe_existing_game: Option<(String, Game)> = None;
-        let mut maybe_merged_game: Option<(String, Game)> = None;
 
         if game.moves.len() <= 10 {
             println!(
@@ -182,8 +182,7 @@ fn main() {
         }
 
         for position in all_rotations(&game.moves) {
-            if let Some((existing_path, existing_game)) = unique_games.get(&position) {
-                maybe_existing_game = Some((existing_path.clone(), existing_game.clone()));
+            if let Some((_existing_path, existing_game)) = unique_games.get_mut(&position) {
                 is_duplicate = true;
                 let merged_player_black = match (&existing_game.player_black, &game.player_black) {
                     (Player::Id(id1, name1), Player::Id(id2, _name2)) => {
@@ -291,57 +290,46 @@ fn main() {
                     _ => game.rules.clone(),
                 };
 
-                maybe_merged_game = Some((
-                    existing_path.clone(),
-                    Game {
-                        event: merged_event,
-                        round: merged_round,
-                        location: merged_location,
-                        date: merged_date,
-                        player_black: merged_player_black,
-                        player_white: merged_player_white,
-                        rank_black: merged_rank_black,
-                        rank_white: merged_rank_white,
-                        komi: game.komi,
-                        result: merged_result,
-                        rules: merged_rules,
-                        moves: game.moves.clone(),
-                        captures: game.captures.clone(),
-                    },
-                ));
+                // Record possible aliases
+                if let (Player::Id(id1, _), Player::Id(id2, _)) =
+                    (&existing_game.player_black, &merged_player_black)
+                {
+                    if id1 != id2 {
+                        possible_aliases.insert(PossiblePlayerAlias {
+                            id1: *id1,
+                            id2: *id2,
+                        });
+                    }
+                }
+                if let (Player::Id(id1, _), Player::Id(id2, _)) =
+                    (&existing_game.player_white, &merged_player_white)
+                {
+                    if id1 != id2 {
+                        possible_aliases.insert(PossiblePlayerAlias {
+                            id1: *id1,
+                            id2: *id2,
+                        });
+                    }
+                }
+
+                existing_game.event = merged_event;
+                existing_game.round = merged_round;
+                existing_game.location = merged_location;
+                existing_game.date = merged_date;
+                existing_game.player_black = merged_player_black;
+                existing_game.player_white = merged_player_white;
+                existing_game.rank_black = merged_rank_black;
+                existing_game.rank_white = merged_rank_white;
+                existing_game.komi = game.komi;
+                existing_game.result = merged_result;
+                existing_game.rules = merged_rules;
+
                 break;
             }
         }
 
         if !is_duplicate {
             unique_games.insert(game.moves.clone(), (path, game.clone()));
-        } else if let Some((merged_path, merged_game)) = maybe_merged_game {
-            let existing_game = maybe_existing_game.expect("No existing game").1;
-            // Only warn if player IDs don't match
-
-            // Record possible aliases
-            if let (Player::Id(id1, _), Player::Id(id2, _)) =
-                (&existing_game.player_black, &merged_game.player_black)
-            {
-                if id1 != id2 {
-                    possible_aliases.insert(PossiblePlayerAlias {
-                        id1: *id1,
-                        id2: *id2,
-                    });
-                }
-            }
-            if let (Player::Id(id1, _), Player::Id(id2, _)) =
-                (&existing_game.player_white, &merged_game.player_white)
-            {
-                if id1 != id2 {
-                    possible_aliases.insert(PossiblePlayerAlias {
-                        id1: *id1,
-                        id2: *id2,
-                    });
-                }
-            }
-
-            unique_games.insert(existing_game.moves.clone(), (merged_path, merged_game));
         }
     }
 
