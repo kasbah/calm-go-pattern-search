@@ -8,7 +8,7 @@ use std::fmt;
 
 pub const BOARD_SIZE: u8 = 19;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Ord, PartialOrd)]
 pub enum SgfDate {
     YearMonthDay(u16, u8, u8),
     YearMonth(u16, u8),
