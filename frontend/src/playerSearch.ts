@@ -15,6 +15,7 @@ export type PlayerAlias = {
 type PlayerData = {
   id: number;
   aliases: PlayerAlias[];
+  games_count: number;
 };
 
 type PlayerNamesData = Record<string, PlayerData>;
@@ -26,6 +27,7 @@ export type PlayerSuggestion = {
   name: string;
   canonicalName: string;
   aliases: string[];
+  gamesCount: number;
 };
 
 export type PlayerSearchResult = {
@@ -92,8 +94,12 @@ class PlayerSearchEngine {
         name: displayName,
         canonicalName,
         aliases,
+        gamesCount: data.games_count,
       });
     }
+
+    // Sort players by games count (descending - most games first)
+    players.sort((a, b) => b.gamesCount - a.gamesCount);
 
     return players;
   }
@@ -105,10 +111,22 @@ class PlayerSearchEngine {
 
     const results = this.fuse.search(query, { limit });
 
-    return results.map((result) => ({
+    const searchResults = results.map((result) => ({
       player: result.item,
       score: result.score || 0,
     }));
+
+    // Sort by search score first, then by games count for ties
+    searchResults.sort((a, b) => {
+      const scoreDiff = a.score - b.score;
+      if (Math.abs(scoreDiff) < 0.01) {
+        // If scores are very similar
+        return b.player.gamesCount - a.player.gamesCount; // Sort by games count (descending)
+      }
+      return scoreDiff; // Sort by search score (ascending - lower is better)
+    });
+
+    return searchResults;
   }
 
   getPlayerById(id: number): PlayerSuggestion | undefined {
@@ -116,7 +134,8 @@ class PlayerSearchEngine {
   }
 
   getAllPlayers(): PlayerSuggestion[] {
-    return this.players;
+    // Return a copy sorted by games count (already sorted in constructor, but ensuring consistency)
+    return [...this.players].sort((a, b) => b.gamesCount - a.gamesCount);
   }
 }
 

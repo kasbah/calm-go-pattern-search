@@ -277,6 +277,10 @@ fn main() {
         .join("\n");
     std::fs::write("possible_aliases.txt", aliases_str).unwrap();
 
+    // Update player_names.json with games count
+    println!("Updating player_names.json with games count...");
+    update_player_names_with_games_count(&player_id_counts);
+
     println!("Done");
 }
 
@@ -338,6 +342,36 @@ fn load_blocklist() -> HashSet<String> {
         Ok(contents) => contents.lines().map(String::from).collect(),
         Err(_) => HashSet::new(),
     }
+}
+
+fn update_player_names_with_games_count(player_id_counts: &HashMap<i16, usize>) {
+    let file = File::open("python-player-name-aliases/player_names.json")
+        .expect("Failed to open player names file");
+    let reader = BufReader::new(file);
+    let mut json: Value =
+        serde_json::from_reader(reader).expect("Failed to parse player names JSON");
+
+    if let Some(players) = json.as_object_mut() {
+        for (_canonical_name, player_data) in players.iter_mut() {
+            if let Some(player_obj) = player_data.as_object_mut() {
+                if let Some(id_value) = player_obj.get("id") {
+                    if let Some(id) = id_value.as_i64() {
+                        let games_count = player_id_counts.get(&(id as i16)).unwrap_or(&0);
+                        player_obj.insert(
+                            "games_count".to_string(),
+                            Value::Number(serde_json::Number::from(*games_count)),
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    // Write the updated JSON back to the file
+    let output_file = File::create("python-player-name-aliases/player_names.json")
+        .expect("Failed to create player names file");
+    serde_json::to_writer_pretty(output_file, &json)
+        .expect("Failed to write updated player names JSON");
 }
 
 fn merge_games(existing_game: &mut Game, new_game: &Game) {
