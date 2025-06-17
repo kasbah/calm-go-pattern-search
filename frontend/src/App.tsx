@@ -3,6 +3,7 @@ import { useWindowSize } from "@reach/window-size";
 import GobanEditor from "./GobanEditor";
 
 import GamesList from "./GamesList";
+import PlayerSearch from "./PlayerSearch";
 import { emptyBoard, SabakiColor, type BoardPosition } from "./sabaki-types";
 import {
   toWasmSearch,
@@ -163,17 +164,23 @@ export default function App() {
           />
         </div>
       )}
-      <GamesList
-        games={games}
-        totalNumberOfGames={totalNumberOfGames}
-        onSelectGame={setSelectedGame}
-        selectedGame={selectedGame}
-        isSearching={isSearching}
-        onLoadMore={loadMore}
-        hasMore={hasMore}
-        onPlayerSelect={setSelectedPlayerIds}
-        playerCounts={playerCounts}
-      />
+      <div className="flex flex-col h-screen ml-4 w-full">
+        <div className="mt-4 mr-2 mb-2">
+          <PlayerSearch
+            onPlayerSelect={setSelectedPlayerIds}
+            playerCounts={playerCounts}
+          />
+        </div>
+        <GamesList
+          games={games}
+          totalNumberOfGames={totalNumberOfGames}
+          onSelectGame={setSelectedGame}
+          selectedGame={selectedGame}
+          isSearching={isSearching}
+          onLoadMore={loadMore}
+          hasMore={hasMore}
+        />
+      </div>
     </div>
   );
 }

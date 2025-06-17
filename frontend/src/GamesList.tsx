@@ -10,7 +10,6 @@ import type {
 } from "./wasm-search-types";
 import catRunning from "@/assets/cat_running.webp";
 import playerNames from "../../rust/pack-games/python-player-name-aliases/player_names.json";
-import PlayerSearch from "./PlayerSearch";
 
 // Import types from playerSearch.ts to avoid duplication
 import type { PlayerAlias, PlayerAliasLanguage } from "./playerSearch";
@@ -110,8 +109,6 @@ export type GamesListProps = {
   isSearching: boolean;
   onLoadMore: () => void;
   hasMore: boolean;
-  onPlayerSelect: (playerIds: number[]) => void;
-  playerCounts?: Record<number, number>;
 };
 
 export default function GamesList({
@@ -122,8 +119,6 @@ export default function GamesList({
   isSearching,
   onLoadMore,
   hasMore,
-  onPlayerSelect,
-  playerCounts,
 }: GamesListProps) {
   const [showOverlay, setShowOverlay] = useState(false);
   const [overlayStartTime, setOverlayStartTime] = useState<number | null>(null);
@@ -186,12 +181,6 @@ export default function GamesList({
 
   return (
     <div className="flex flex-col h-screen ml-4 w-full">
-      <div className="mt-4 mr-2 mb-2">
-        <PlayerSearch
-          onPlayerSelect={onPlayerSelect}
-          playerCounts={playerCounts}
-        />
-      </div>
       <div
         className="flex mb-4 flex-shrink-0"
         style={{ cursor: selectedGame != null ? "pointer" : "default" }}
