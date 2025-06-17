@@ -1,125 +1,44 @@
 import { useState, useEffect, useRef } from "react";
-import {
-  playerSearchEngine,
-  type PlayerSuggestion,
-  type PlayerSearchResult,
-} from "./playerSearch";
+import { Input } from "./components/ui/input";
+import { cn } from "./lib/utils";
+import { playerSearchEngine, type PlayerSuggestion } from "./playerSearch";
+import cancelSvg from "@/assets/icons/cancel.svg";
 
-interface PlayerSearchProps {
-  selectedPlayerIds: number[];
-  onPlayerSelect: (playerIds: number[]) => void;
-}
+type PlayerInputProps = {
+  placeholder: string;
+  query: string;
+  onQueryChange: (query: string) => void;
+  suggestions: PlayerSuggestion[];
+  showSuggestions: boolean;
+  onShowSuggestions: (show: boolean) => void;
+  selectedPlayer: PlayerSuggestion | null;
+  onPlayerSelect: (player: PlayerSuggestion) => void;
+  onPlayerClear: () => void;
+};
 
-export default function PlayerSearch({
-  selectedPlayerIds,
+function PlayerInput({
+  placeholder,
+  query,
+  onQueryChange,
+  suggestions,
+  showSuggestions,
+  onShowSuggestions,
+  selectedPlayer,
   onPlayerSelect,
-}: PlayerSearchProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [suggestions, setSuggestions] = useState<PlayerSearchResult[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [selectedPlayers, setSelectedPlayers] = useState<PlayerSuggestion[]>(
-    [],
-  );
-  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  onPlayerClear,
+}: PlayerInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
-  // Update selected players when selectedPlayerIds changes
-  useEffect(() => {
-    const players = selectedPlayerIds
-      .map((id) => playerSearchEngine.getPlayerById(id))
-      .filter((player): player is PlayerSuggestion => player !== undefined);
-    setSelectedPlayers(players);
-    setSearchTerm(""); // Clear search term when players are selected
-  }, [selectedPlayerIds]);
-
-  // Update suggestions when search term changes
-  useEffect(() => {
-    if (searchTerm.length >= 2) {
-      const results = playerSearchEngine.search(searchTerm, 10);
-      // Filter out already selected players
-      const filteredResults = results.filter(
-        (result) => !selectedPlayerIds.includes(result.player.id),
-      );
-      setSuggestions(filteredResults);
-      setShowSuggestions(true);
-      setHighlightedIndex(-1);
-    } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
-    }
-  }, [searchTerm, selectedPlayerIds]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-
-    // Don't clear the selected player when typing in the search (they can coexist)
-    // Only clear when explicitly clicking the clear button
-  };
-
-  const handleSuggestionClick = (suggestion: PlayerSearchResult) => {
-    const player = suggestion.player;
-    if (selectedPlayerIds.length >= 2) {
-      return; // Don't allow more than 2 players
-    }
-    const newSelectedIds = [...selectedPlayerIds, player.id];
-    setSearchTerm(""); // Clear search term when player is selected (shown as chip)
-    setShowSuggestions(false);
-    onPlayerSelect(newSelectedIds);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!showSuggestions || suggestions.length === 0) return;
-
-    switch (e.key) {
-      case "ArrowDown":
-        e.preventDefault();
-        setHighlightedIndex((prev) =>
-          prev < suggestions.length - 1 ? prev + 1 : 0,
-        );
-        break;
-      case "ArrowUp":
-        e.preventDefault();
-        setHighlightedIndex((prev) =>
-          prev > 0 ? prev - 1 : suggestions.length - 1,
-        );
-        break;
-      case "Enter":
-        e.preventDefault();
-        if (highlightedIndex >= 0 && highlightedIndex < suggestions.length) {
-          handleSuggestionClick(suggestions[highlightedIndex]);
-        }
-        break;
-      case "Escape":
-        setShowSuggestions(false);
-        setHighlightedIndex(-1);
-        break;
-    }
-  };
-
-  const handleClearAll = () => {
-    setSearchTerm("");
-    setShowSuggestions(false);
-    onPlayerSelect([]);
-    inputRef.current?.focus();
-  };
-
-  const handleRemovePlayer = (playerId: number) => {
-    const newSelectedIds = selectedPlayerIds.filter((id) => id !== playerId);
-    onPlayerSelect(newSelectedIds);
-  };
-
-  // Close suggestions when clicking outside
+  // Handle clicking outside to close suggestions
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node) &&
         suggestionsRef.current &&
-        !suggestionsRef.current.contains(event.target as Node)
+        !suggestionsRef.current.contains(event.target as Node) &&
+        !inputRef.current?.contains(event.target as Node)
       ) {
-        setShowSuggestions(false);
+        onShowSuggestions(false);
       }
     };
 
@@ -127,128 +46,186 @@ export default function PlayerSearch({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [onShowSuggestions]);
+
+  const renderSuggestions = () => {
+    if (!showSuggestions || suggestions.length === 0) return null;
+
+    return (
+      <div
+        ref={suggestionsRef}
+        className="absolute z-50 w-full bg-background border rounded-md shadow-md mt-1 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent"
+      >
+        {suggestions.map((player) => (
+          <div
+            key={player.id}
+            className={cn(
+              "px-3 py-2 cursor-pointer border-b last:border-b-0 transition-colors",
+              "hover:bg-accent hover:text-accent-foreground",
+              "focus:bg-accent focus:text-accent-foreground focus:outline-none",
+            )}
+            onClick={() => onPlayerSelect(player)}
+            role="option"
+            tabIndex={0}
+          >
+            <div className="font-medium text-sm">{player.name}</div>
+            {player.aliases.length > 1 && (
+              <div className="text-xs text-muted-foreground/70 truncate">
+                {player.aliases.slice(0, 10).join(", ")}
+                {player.aliases.length > 10 && "..."}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="relative">
-      <div className="relative">
-        {selectedPlayers.length > 0 ? (
-          // Show selected players as tags
-          <div className="flex flex-wrap items-center w-full p-2 border rounded-md bg-blue-50 border-blue-300 gap-2">
-            {selectedPlayers.map((player) => (
-              <div
-                key={player.id}
-                className="flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-sm"
-                title={`${player.name}${player.canonicalName !== player.name ? ` (${player.canonicalName})` : ""} - ID: ${player.id}`}
-              >
-                <span className="font-medium">{player.name}</span>
-                <button
-                  onClick={() => handleRemovePlayer(player.id)}
-                  className="ml-2 text-blue-600 hover:text-blue-800 focus:outline-none"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder={selectedPlayerIds.length < 2 ? "Add another player..." : "Maximum 2 players selected"}
-              value={searchTerm}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
-              onFocus={() => searchTerm.length >= 2 && setShowSuggestions(true)}
-              className="flex-1 bg-transparent focus:outline-none min-w-0"
-              disabled={selectedPlayerIds.length >= 2}
-            />
-            {selectedPlayers.length > 0 && (
-              <button
-                onClick={handleClearAll}
-                className="text-blue-600 hover:text-blue-800 focus:outline-none text-sm"
-                title="Clear all"
-              >
-                Clear All
-              </button>
-            )}
-          </div>
-        ) : (
-          // Show regular search input
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder={selectedPlayerIds.length < 2 ? "Search by player name..." : "Maximum 2 players selected"}
-            value={searchTerm}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            onFocus={() => searchTerm.length >= 2 && setShowSuggestions(true)}
-            className="w-full p-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={selectedPlayerIds.length >= 2}
-          />
-        )}
-        {selectedPlayers.length === 0 && searchTerm && (
-          <button
-            onClick={handleClearAll}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
-          >
-            ✕
-          </button>
-        )}
+      <Input
+        ref={inputRef}
+        type="text"
+        placeholder={placeholder}
+        value={query}
+        onChange={(e) => onQueryChange(e.target.value)}
+        onFocus={() => onShowSuggestions(true)}
+        className={cn("pr-8", selectedPlayer && "bg-accent/20 border-primary")}
+      />
+      {selectedPlayer && (
+        <button
+          onClick={onPlayerClear}
+          className={cn(
+            "absolute right-2 top-1/2 -translate-y-1/2",
+            "h-5 w-5 rounded-sm opacity-70 hover:opacity-100",
+            "flex items-center justify-center",
+            "text-muted-foreground hover:text-foreground",
+            "transition-opacity",
+          )}
+          type="button"
+          tabIndex={-1}
+        >
+          <img src={cancelSvg} alt="Clear" className="h-4 w-4" />
+        </button>
+      )}
+      {renderSuggestions()}
+    </div>
+  );
+}
+
+type PlayerSearchProps = {
+  selectedPlayerIds: number[];
+  onPlayerSelect: (playerIds: number[]) => void;
+};
+
+export default function PlayerSearch({
+  selectedPlayerIds,
+  onPlayerSelect,
+}: PlayerSearchProps) {
+  const [player1Query, setPlayer1Query] = useState("");
+  const [player2Query, setPlayer2Query] = useState("");
+  const [player1Suggestions, setPlayer1Suggestions] = useState<
+    PlayerSuggestion[]
+  >([]);
+  const [player2Suggestions, setPlayer2Suggestions] = useState<
+    PlayerSuggestion[]
+  >([]);
+  const [showPlayer1Suggestions, setShowPlayer1Suggestions] = useState(false);
+  const [showPlayer2Suggestions, setShowPlayer2Suggestions] = useState(false);
+  const [selectedPlayer1, setSelectedPlayer1] =
+    useState<PlayerSuggestion | null>(null);
+  const [selectedPlayer2, setSelectedPlayer2] =
+    useState<PlayerSuggestion | null>(null);
+
+  // Search for player 1
+  useEffect(() => {
+    if (player1Query.length >= 2) {
+      const results = playerSearchEngine.search(player1Query, 100);
+      setPlayer1Suggestions(results.map((r) => r.player));
+    } else if (player1Query.length === 0) {
+      // Show all players when empty
+      const allPlayers = playerSearchEngine.getAllPlayers();
+      setPlayer1Suggestions(allPlayers);
+    } else {
+      setPlayer1Suggestions([]);
+    }
+  }, [player1Query]);
+
+  // Search for player 2
+  useEffect(() => {
+    if (player2Query.length >= 2) {
+      const results = playerSearchEngine.search(player2Query, 100);
+      setPlayer2Suggestions(results.map((r) => r.player));
+    } else if (player2Query.length === 0) {
+      // Show all players when empty
+      const allPlayers = playerSearchEngine.getAllPlayers();
+      setPlayer2Suggestions(allPlayers);
+    } else {
+      setPlayer2Suggestions([]);
+    }
+  }, [player2Query]);
+
+  // Update selected player IDs when players are selected/deselected
+  useEffect(() => {
+    const newPlayerIds: number[] = [];
+    if (selectedPlayer1) newPlayerIds.push(selectedPlayer1.id);
+    if (selectedPlayer2) newPlayerIds.push(selectedPlayer2.id);
+    onPlayerSelect(newPlayerIds);
+  }, [selectedPlayer1, selectedPlayer2, onPlayerSelect]);
+
+  const handlePlayer1Select = (player: PlayerSuggestion) => {
+    setSelectedPlayer1(player);
+    setPlayer1Query(player.name);
+    setShowPlayer1Suggestions(false);
+  };
+
+  const handlePlayer2Select = (player: PlayerSuggestion) => {
+    setSelectedPlayer2(player);
+    setPlayer2Query(player.name);
+    setShowPlayer2Suggestions(false);
+  };
+
+  const handlePlayer1Clear = () => {
+    setSelectedPlayer1(null);
+    setPlayer1Query("");
+    setShowPlayer1Suggestions(false);
+  };
+
+  const handlePlayer2Clear = () => {
+    setSelectedPlayer2(null);
+    setPlayer2Query("");
+    setShowPlayer2Suggestions(false);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="text-sm font-medium text-foreground mb-2">
+        Search Players ({selectedPlayerIds.length} selected)
       </div>
 
-      {showSuggestions && suggestions.length > 0 && (
-        <div
-          ref={suggestionsRef}
-          className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto"
-        >
-          {suggestions.map((suggestion, index) => {
-            const player = suggestion.player;
-            // Show up to 6 most relevant aliases (excluding the main name and canonical name)
-            // Prioritize English aliases first
-            const relevantAliases = player.aliasesWithLanguages.filter(
-              (alias) =>
-                alias.name !== player.name &&
-                alias.name !== player.canonicalName,
-            );
+      <PlayerInput
+        placeholder="Player 1"
+        query={player1Query}
+        onQueryChange={setPlayer1Query}
+        suggestions={player1Suggestions}
+        showSuggestions={showPlayer1Suggestions}
+        onShowSuggestions={setShowPlayer1Suggestions}
+        selectedPlayer={selectedPlayer1}
+        onPlayerSelect={handlePlayer1Select}
+        onPlayerClear={handlePlayer1Clear}
+      />
 
-            // Sort aliases: English first, then others
-            const sortedAliases = relevantAliases.sort((a, b) => {
-              if (a.isEnglish && !b.isEnglish) return -1;
-              if (!a.isEnglish && b.isEnglish) return 1;
-              return 0;
-            });
-
-            const displayAliases = sortedAliases
-              .slice(0, 6)
-              .map((alias) => alias.name);
-
-            return (
-              <div
-                key={player.id}
-                onClick={() => handleSuggestionClick(suggestion)}
-                className={`px-3 py-2 cursor-pointer hover:bg-gray-100 ${
-                  index === highlightedIndex ? "bg-blue-100" : ""
-                }`}
-              >
-                <div className="font-medium">{player.name}</div>
-                {player.canonicalName !== player.name && (
-                  <div className="text-sm text-gray-500">
-                    {player.canonicalName}
-                  </div>
-                )}
-                {displayAliases.length > 0 && (
-                  <div className="text-sm text-gray-400 mt-1">
-                    Also known as: {displayAliases.join(", ")}
-                    {relevantAliases.length > displayAliases.length && " ..."}
-                  </div>
-                )}
-                <div className="text-xs text-gray-400 mt-1">
-                  ID: {player.id} • Score: {(1 - suggestion.score).toFixed(3)}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <PlayerInput
+        placeholder="Player 2"
+        query={player2Query}
+        onQueryChange={setPlayer2Query}
+        suggestions={player2Suggestions}
+        showSuggestions={showPlayer2Suggestions}
+        onShowSuggestions={setShowPlayer2Suggestions}
+        selectedPlayer={selectedPlayer2}
+        onPlayerSelect={handlePlayer2Select}
+        onPlayerClear={handlePlayer2Clear}
+      />
     </div>
   );
 }

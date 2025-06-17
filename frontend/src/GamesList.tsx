@@ -12,6 +12,9 @@ import catRunning from "@/assets/cat_running.webp";
 import playerNames from "../../rust/pack-games/python-player-name-aliases/player_names.json";
 import PlayerSearch from "./PlayerSearch";
 
+// Import types from playerSearch.ts to avoid duplication
+import type { PlayerAlias, PlayerAliasLanguage } from "./playerSearch";
+
 function rotationToString(rotation: number) {
   if (rotation === 0) {
     return "None";
@@ -88,9 +91,9 @@ function getPlayerName(player: Player): string {
     if (!playerEntry) return `Player ${player.Id![0]}`;
 
     const [name, data] = playerEntry;
-    const preferredName = data.aliases.find((alias: any) =>
+    const preferredName = data.aliases.find((alias: PlayerAlias) =>
       alias.languages.some(
-        (lang: any) => lang.language === "en" && lang.preferred,
+        (lang: PlayerAliasLanguage) => lang.language === "en" && lang.preferred,
       ),
     );
 

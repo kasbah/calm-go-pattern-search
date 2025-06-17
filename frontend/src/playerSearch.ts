@@ -2,37 +2,36 @@ import Fuse from "fuse.js";
 import playerNamesData from "../../rust/pack-games/python-player-name-aliases/player_names.json";
 
 // Type definitions for the player names JSON structure
-interface PlayerLanguage {
+export type PlayerAliasLanguage = {
   language: string;
   preferred?: boolean;
-}
+};
 
-interface PlayerAlias {
+export type PlayerAlias = {
   name: string;
-  languages: PlayerLanguage[];
-}
+  languages: Array<PlayerAliasLanguage>;
+};
 
-interface PlayerData {
+type PlayerData = {
   id: number;
   aliases: PlayerAlias[];
-}
+};
 
 type PlayerNamesData = Record<string, PlayerData>;
 
 const playerNames = playerNamesData as PlayerNamesData;
 
-export interface PlayerSuggestion {
+export type PlayerSuggestion = {
   id: number;
   name: string;
   canonicalName: string;
   aliases: string[];
-  aliasesWithLanguages: Array<{ name: string; isEnglish: boolean }>;
-}
+};
 
-export interface PlayerSearchResult {
+export type PlayerSearchResult = {
   player: PlayerSuggestion;
   score: number;
-}
+};
 
 class PlayerSearchEngine {
   private fuse: Fuse<PlayerSuggestion>;
@@ -66,31 +65,33 @@ class PlayerSearchEngine {
       // Get the preferred English name if available, otherwise use canonical name
       const preferredName = data.aliases.find((alias: PlayerAlias) =>
         alias.languages.some(
-          (lang: PlayerLanguage) => lang.language === "en" && lang.preferred,
+          (lang: PlayerAliasLanguage) =>
+            lang.language === "en" && lang.preferred,
         ),
       );
 
       const displayName = preferredName ? preferredName.name : canonicalName;
 
+      data.aliases.sort((a: PlayerAlias, _: PlayerAlias) => {
+        if (
+          a.languages.some(
+            (lang: PlayerAliasLanguage) => lang.language === "en",
+          )
+        ) {
+          return -1;
+        }
+        return 1;
+      });
+
       // Collect all aliases for searching
       const aliases: string[] = data.aliases.map(
         (alias: PlayerAlias) => alias.name,
       );
-
-      // Collect aliases with language information
-      const aliasesWithLanguages = data.aliases.map((alias: PlayerAlias) => ({
-        name: alias.name,
-        isEnglish: alias.languages.some(
-          (lang: PlayerLanguage) => lang.language === "en",
-        ),
-      }));
-
       players.push({
         id,
         name: displayName,
         canonicalName,
         aliases,
-        aliasesWithLanguages,
       });
     }
 
