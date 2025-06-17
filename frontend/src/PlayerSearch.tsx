@@ -126,7 +126,7 @@ function PlayerInput({
   );
 }
 
-type PlayerSearchProps = {
+export type PlayerSearchProps = {
   onPlayerSelect: (playerIds: number[]) => void;
   playerCounts?: Record<number, number>;
 };
@@ -137,12 +137,7 @@ export default function PlayerSearch({
 }: PlayerSearchProps) {
   const [player1Query, setPlayer1Query] = useState("");
   const [player2Query, setPlayer2Query] = useState("");
-  const [player1Suggestions, setPlayer1Suggestions] = useState<
-    PlayerSuggestion[]
-  >([]);
-  const [player2Suggestions, setPlayer2Suggestions] = useState<
-    PlayerSuggestion[]
-  >([]);
+  const [suggestions, setSuggestions] = useState<PlayerSuggestion[]>([]);
   const [showPlayer1Suggestions, setShowPlayer1Suggestions] = useState(false);
   const [showPlayer2Suggestions, setShowPlayer2Suggestions] = useState(false);
   const [selectedPlayer1, setSelectedPlayer1] =
@@ -195,9 +190,16 @@ export default function PlayerSearch({
       return [];
     }
 
-    setPlayer1Suggestions(searchPlayers(player1Query, playerCounts));
-    setPlayer2Suggestions(searchPlayers(player2Query, playerCounts));
-  }, [player1Query, player2Query, playerCounts]);
+    // Use the active query to update suggestions
+    const activeQuery = showPlayer1Suggestions ? player1Query : player2Query;
+    setSuggestions(searchPlayers(activeQuery, playerCounts));
+  }, [
+    player1Query,
+    player2Query,
+    playerCounts,
+    showPlayer1Suggestions,
+    showPlayer2Suggestions,
+  ]);
 
   // Update selected player IDs when players are selected/deselected
   useEffect(() => {
@@ -237,7 +239,7 @@ export default function PlayerSearch({
         placeholder="Player 1"
         query={player1Query}
         onQueryChange={setPlayer1Query}
-        suggestions={player1Suggestions}
+        suggestions={suggestions}
         showSuggestions={showPlayer1Suggestions}
         onShowSuggestions={setShowPlayer1Suggestions}
         selectedPlayer={selectedPlayer1}
@@ -251,7 +253,7 @@ export default function PlayerSearch({
         placeholder="Player 2"
         query={player2Query}
         onQueryChange={setPlayer2Query}
-        suggestions={player2Suggestions}
+        suggestions={suggestions}
         showSuggestions={showPlayer2Suggestions}
         onShowSuggestions={setShowPlayer2Suggestions}
         selectedPlayer={selectedPlayer2}
