@@ -132,6 +132,7 @@ struct WasmSearchReturn {
     results: Vec<SearchResult>,
     total_pages: usize,
     current_page: usize,
+    player_counts: HashMap<i16, usize>, // player_id -> count of games
 }
 
 #[wasm_bindgen]
@@ -162,8 +163,6 @@ impl WasmSearch {
             .expect("Failed to deserialize position");
         let mut results = self.match_position(&position_decoded);
 
-        log(&format!("player_ids: {:?}", player_ids));
-
         // Filter results by player IDs if provided (empty array means no filter)
         // Games must contain ALL selected players
         if !player_ids.is_empty() {
@@ -185,6 +184,23 @@ impl WasmSearch {
         let num_results = results.len();
         let total_pages = num_results.div_ceil(page_size);
         let current_page = page.min(total_pages.saturating_sub(1));
+        // Aggregate player counts from all results, excluding filtered players
+        let mut player_counts: HashMap<i16, usize> = HashMap::new();
+        for result in &results {
+            // Count black player (exclude if it's one of the filtered players)
+            if let Player::Id(player_id, _) = &result.player_black {
+                if !player_ids.contains(player_id) {
+                    *player_counts.entry(*player_id).or_insert(0) += 1;
+                }
+            }
+            // Count white player (exclude if it's one of the filtered players)
+            if let Player::Id(player_id, _) = &result.player_white {
+                if !player_ids.contains(player_id) {
+                    *player_counts.entry(*player_id).or_insert(0) += 1;
+                }
+            }
+        }
+
         let start_idx = current_page * page_size;
         let end_idx = (start_idx + page_size).min(num_results);
 
@@ -194,6 +210,7 @@ impl WasmSearch {
             results: results[start_idx..end_idx].to_vec(),
             total_pages,
             current_page,
+            player_counts,
         };
 
         let results_buf: Vec<u8> = serde_json::to_vec(&ret).expect("Failed to serialize results");

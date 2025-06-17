@@ -85,6 +85,7 @@ export type SearchReturn = {
   results: Array<Game>;
   total_pages: number;
   current_page: number;
+  player_counts: Record<number, number>; // player_id -> count of games
 };
 
 export function toWasmSearch(board: BoardPosition): Array<Placement> {

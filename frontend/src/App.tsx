@@ -26,6 +26,7 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
+  const [playerCounts, setPlayerCounts] = useState<Record<number, number>>({});
   const pageSize = 20;
 
   const gobanEditorRef = useRef<{
@@ -95,8 +96,14 @@ export default function App() {
       if (type === "result") {
         setIsSearching(false);
         const jsonText = new TextDecoder().decode(payload);
-        const { num_results, results, next_moves, total_pages, current_page } =
-          JSON.parse(jsonText) as SearchReturn;
+        const {
+          num_results,
+          results,
+          next_moves,
+          total_pages,
+          current_page,
+          player_counts,
+        } = JSON.parse(jsonText) as SearchReturn;
         if (current_page === 0) {
           setGames(results);
         } else {
@@ -106,6 +113,7 @@ export default function App() {
         setNextMoves(next_moves);
         setCurrentPage(current_page);
         setHasMore(current_page < total_pages - 1);
+        setPlayerCounts(player_counts);
       }
     };
   }, []);
@@ -165,6 +173,7 @@ export default function App() {
         hasMore={hasMore}
         selectedPlayerIds={selectedPlayerIds}
         onPlayerSelect={setSelectedPlayerIds}
+        playerCounts={playerCounts}
       />
     </div>
   );

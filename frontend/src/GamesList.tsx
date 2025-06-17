@@ -112,6 +112,7 @@ export type GamesListProps = {
   hasMore: boolean;
   selectedPlayerIds: number[];
   onPlayerSelect: (playerIds: number[]) => void;
+  playerCounts?: Record<number, number>;
 };
 
 export default function GamesList({
@@ -124,6 +125,7 @@ export default function GamesList({
   hasMore,
   selectedPlayerIds,
   onPlayerSelect,
+  playerCounts,
 }: GamesListProps) {
   const [showOverlay, setShowOverlay] = useState(false);
   const [overlayStartTime, setOverlayStartTime] = useState<number | null>(null);
@@ -190,6 +192,7 @@ export default function GamesList({
         <PlayerSearch
           selectedPlayerIds={selectedPlayerIds}
           onPlayerSelect={onPlayerSelect}
+          playerCounts={playerCounts}
         />
       </div>
       <div
