@@ -219,7 +219,12 @@ fn main() {
 
     println!("Writing games.pack...");
     let buf = pack_games(&games);
-    std::fs::write("games.pack", buf).unwrap();
+    std::fs::write("../wasm-search/src/games.pack", buf).unwrap();
+
+    // Show file size
+    let metadata = std::fs::metadata("../wasm-search/src/games.pack").unwrap();
+    let file_size = metadata.len();
+    println!("games.pack size: {:.2} MB", file_size as f64 / 1_048_576.0);
 
     // Collect unknown names from final unique games
     println!("Collecting unknown names from unique games...");
