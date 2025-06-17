@@ -32,7 +32,6 @@ function PlayerInput({
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
-  // Handle clicking outside to close suggestions
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -56,7 +55,12 @@ function PlayerInput({
     return (
       <div
         ref={suggestionsRef}
-        className="absolute z-50 w-full bg-background border rounded-md shadow-md mt-1 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent"
+        className={cn(
+          "absolute z-50 w-full bg-background border",
+          "rounded-md shadow-md mt-1 max-h-64",
+          "overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground/20",
+          "scrollbar-track-transparent",
+        )}
       >
         {suggestions.map((player) => (
           <div
@@ -109,6 +113,7 @@ function PlayerInput({
             "flex items-center justify-center",
             "text-muted-foreground hover:text-foreground",
             "transition-opacity",
+            "cursor-pointer",
           )}
           type="button"
           tabIndex={-1}
@@ -122,13 +127,11 @@ function PlayerInput({
 }
 
 type PlayerSearchProps = {
-  selectedPlayerIds: number[];
   onPlayerSelect: (playerIds: number[]) => void;
   playerCounts?: Record<number, number>;
 };
 
 export default function PlayerSearch({
-  selectedPlayerIds,
   onPlayerSelect,
   playerCounts,
 }: PlayerSearchProps) {
@@ -147,93 +150,54 @@ export default function PlayerSearch({
   const [selectedPlayer2, setSelectedPlayer2] =
     useState<PlayerSuggestion | null>(null);
 
-  // Search for player 1
   useEffect(() => {
-    if (player1Query.length >= 2) {
-      const results = playerSearchEngine.search(player1Query, 100);
-      let filteredResults = results.map((r) => r.player);
+    function searchPlayers(
+      query: string,
+      playerCounts?: Record<number, number>,
+    ) {
+      if (query.length >= 2) {
+        const results = playerSearchEngine.search(query, 100);
+        let filteredResults = results.map((r) => r.player);
 
-      // Filter by players in playerCounts if available
-      if (playerCounts && Object.keys(playerCounts).length > 0) {
-        filteredResults = filteredResults.filter(
-          (player) => playerCounts[player.id] !== undefined,
-        );
-      }
+        // Filter by players in playerCounts if available
+        if (playerCounts && Object.keys(playerCounts).length > 0) {
+          filteredResults = filteredResults.filter(
+            (player) => playerCounts[player.id] !== undefined,
+          );
+        }
 
-      // Sort by player counts (most counts first)
-      filteredResults.sort((a, b) => {
-        const aCount = playerCounts?.[a.id] ?? a.gamesCount;
-        const bCount = playerCounts?.[b.id] ?? b.gamesCount;
-        return bCount - aCount;
-      });
-
-      setPlayer1Suggestions(filteredResults);
-    } else if (player1Query.length === 0) {
-      // Show players from playerCounts when empty, or all players if no playerCounts
-      if (playerCounts && Object.keys(playerCounts).length > 0) {
-        const allPlayers = playerSearchEngine.getAllPlayers();
-        const filteredPlayers = allPlayers.filter(
-          (player) => playerCounts[player.id] !== undefined,
-        );
         // Sort by player counts (most counts first)
-        filteredPlayers.sort((a, b) => {
+        filteredResults.sort((a, b) => {
           const aCount = playerCounts?.[a.id] ?? a.gamesCount;
           const bCount = playerCounts?.[b.id] ?? b.gamesCount;
           return bCount - aCount;
         });
-        setPlayer1Suggestions(filteredPlayers);
-      } else {
-        const allPlayers = playerSearchEngine.getAllPlayers();
-        setPlayer1Suggestions(allPlayers);
+
+        return filteredResults;
+      } else if (query.length === 0) {
+        // Show players from playerCounts when empty, or all players if no playerCounts
+        if (playerCounts && Object.keys(playerCounts).length > 0) {
+          const allPlayers = playerSearchEngine.getAllPlayers();
+          const filteredPlayers = allPlayers.filter(
+            (player) => playerCounts[player.id] !== undefined,
+          );
+          // Sort by player counts (most counts first)
+          filteredPlayers.sort((a, b) => {
+            const aCount = playerCounts?.[a.id] ?? a.gamesCount;
+            const bCount = playerCounts?.[b.id] ?? b.gamesCount;
+            return bCount - aCount;
+          });
+          return filteredPlayers;
+        } else {
+          return playerSearchEngine.getAllPlayers();
+        }
       }
-    } else {
-      setPlayer1Suggestions([]);
+      return [];
     }
-  }, [player1Query, playerCounts]);
 
-  // Search for player 2
-  useEffect(() => {
-    if (player2Query.length >= 2) {
-      const results = playerSearchEngine.search(player2Query, 100);
-      let filteredResults = results.map((r) => r.player);
-
-      // Filter by players in playerCounts if available
-      if (playerCounts && Object.keys(playerCounts).length > 0) {
-        filteredResults = filteredResults.filter(
-          (player) => playerCounts[player.id] !== undefined,
-        );
-      }
-
-      // Sort by player counts (most counts first)
-      filteredResults.sort((a, b) => {
-        const aCount = playerCounts?.[a.id] ?? a.gamesCount;
-        const bCount = playerCounts?.[b.id] ?? b.gamesCount;
-        return bCount - aCount;
-      });
-
-      setPlayer2Suggestions(filteredResults);
-    } else if (player2Query.length === 0) {
-      // Show players from playerCounts when empty, or all players if no playerCounts
-      if (playerCounts && Object.keys(playerCounts).length > 0) {
-        const allPlayers = playerSearchEngine.getAllPlayers();
-        const filteredPlayers = allPlayers.filter(
-          (player) => playerCounts[player.id] !== undefined,
-        );
-        // Sort by player counts (most counts first)
-        filteredPlayers.sort((a, b) => {
-          const aCount = playerCounts?.[a.id] ?? a.gamesCount;
-          const bCount = playerCounts?.[b.id] ?? b.gamesCount;
-          return bCount - aCount;
-        });
-        setPlayer2Suggestions(filteredPlayers);
-      } else {
-        const allPlayers = playerSearchEngine.getAllPlayers();
-        setPlayer2Suggestions(allPlayers);
-      }
-    } else {
-      setPlayer2Suggestions([]);
-    }
-  }, [player2Query, playerCounts]);
+    setPlayer1Suggestions(searchPlayers(player1Query, playerCounts));
+    setPlayer2Suggestions(searchPlayers(player2Query, playerCounts));
+  }, [player1Query, player2Query, playerCounts]);
 
   // Update selected player IDs when players are selected/deselected
   useEffect(() => {
@@ -268,11 +232,7 @@ export default function PlayerSearch({
   };
 
   return (
-    <div className="space-y-3">
-      <div className="text-sm font-medium text-foreground mb-2">
-        Search Players ({selectedPlayerIds.length} selected)
-      </div>
-
+    <div className="space-y-3 mb-3">
       <PlayerInput
         placeholder="Player 1"
         query={player1Query}
@@ -286,6 +246,7 @@ export default function PlayerSearch({
         playerCounts={playerCounts}
       />
 
+      <div className="text-sm font-medium text-foreground mb-2">vs</div>
       <PlayerInput
         placeholder="Player 2"
         query={player2Query}

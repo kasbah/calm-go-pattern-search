@@ -171,7 +171,6 @@ export default function App() {
         isSearching={isSearching}
         onLoadMore={loadMore}
         hasMore={hasMore}
-        selectedPlayerIds={selectedPlayerIds}
         onPlayerSelect={setSelectedPlayerIds}
         playerCounts={playerCounts}
       />

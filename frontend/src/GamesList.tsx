@@ -110,7 +110,6 @@ export type GamesListProps = {
   isSearching: boolean;
   onLoadMore: () => void;
   hasMore: boolean;
-  selectedPlayerIds: number[];
   onPlayerSelect: (playerIds: number[]) => void;
   playerCounts?: Record<number, number>;
 };
@@ -123,7 +122,6 @@ export default function GamesList({
   isSearching,
   onLoadMore,
   hasMore,
-  selectedPlayerIds,
   onPlayerSelect,
   playerCounts,
 }: GamesListProps) {
@@ -190,7 +188,6 @@ export default function GamesList({
     <div className="flex flex-col h-screen ml-4 w-full">
       <div className="mt-4 mr-2 mb-2">
         <PlayerSearch
-          selectedPlayerIds={selectedPlayerIds}
           onPlayerSelect={onPlayerSelect}
           playerCounts={playerCounts}
         />
