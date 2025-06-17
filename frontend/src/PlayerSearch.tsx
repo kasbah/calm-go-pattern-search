@@ -6,31 +6,26 @@ import cancelSvg from "@/assets/icons/cancel.svg";
 
 type PlayerInputProps = {
   placeholder: string;
-  query: string;
-  onQueryChange: (query: string) => void;
-  suggestions: PlayerSuggestion[];
-  showSuggestions: boolean;
-  onShowSuggestions: (show: boolean) => void;
+  initialQuery?: string;
+  onQueryChange?: (query: string) => void;
   selectedPlayer: PlayerSuggestion | null;
-  onPlayerSelect: (player: PlayerSuggestion) => void;
-  onPlayerClear: () => void;
+  onPlayerSelect: (player: PlayerSuggestion | null) => void;
   playerCounts?: Record<number, number>;
 };
 
 function PlayerInput({
   placeholder,
-  query,
+  initialQuery = "",
   onQueryChange,
-  suggestions,
-  showSuggestions,
-  onShowSuggestions,
   selectedPlayer,
   onPlayerSelect,
-  onPlayerClear,
   playerCounts,
 }: PlayerInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const [suggestions, setSuggestions] = useState<PlayerSuggestion[]>([]);
+  const [query, setQuery] = useState(initialQuery);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -39,7 +34,7 @@ function PlayerInput({
         !suggestionsRef.current.contains(event.target as Node) &&
         !inputRef.current?.contains(event.target as Node)
       ) {
-        onShowSuggestions(false);
+        setShowSuggestions(false);
       }
     };
 
@@ -47,7 +42,22 @@ function PlayerInput({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [onShowSuggestions]);
+  }, []);
+
+  useEffect(() => {
+    setSuggestions(playerSearchEngine.searchPlayers(query, playerCounts));
+  }, [query, playerCounts]);
+
+  const handleQueryChange = (newQuery: string) => {
+    setQuery(newQuery);
+    onQueryChange?.(newQuery);
+  };
+
+  const handlePlayerSelect = (player: PlayerSuggestion | null) => {
+    setQuery(player?.name ?? "");
+    onPlayerSelect(player);
+    setShowSuggestions(false);
+  };
 
   const renderSuggestions = () => {
     if (!showSuggestions || suggestions.length === 0) return null;
@@ -70,7 +80,7 @@ function PlayerInput({
               "hover:bg-accent hover:text-accent-foreground",
               "focus:bg-accent focus:text-accent-foreground focus:outline-none",
             )}
-            onClick={() => onPlayerSelect(player)}
+            onClick={() => handlePlayerSelect(player)}
             role="option"
             tabIndex={0}
           >
@@ -100,13 +110,13 @@ function PlayerInput({
         type="text"
         placeholder={placeholder}
         value={query}
-        onChange={(e) => onQueryChange(e.target.value)}
-        onFocus={() => onShowSuggestions(true)}
+        onChange={(e) => handleQueryChange(e.target.value)}
+        onFocus={() => setShowSuggestions(true)}
         className={cn("pr-8", selectedPlayer && "bg-accent/20 border-primary")}
       />
       {selectedPlayer && (
         <button
-          onClick={onPlayerClear}
+          onClick={() => handlePlayerSelect(null)}
           className={cn(
             "absolute right-2 top-1/2 -translate-y-1/2",
             "h-5 w-5 rounded-sm opacity-70 hover:opacity-100",
@@ -135,71 +145,10 @@ export default function PlayerSearch({
   onPlayerSelect,
   playerCounts,
 }: PlayerSearchProps) {
-  const [player1Query, setPlayer1Query] = useState("");
-  const [player2Query, setPlayer2Query] = useState("");
-  const [suggestions, setSuggestions] = useState<PlayerSuggestion[]>([]);
-  const [showPlayer1Suggestions, setShowPlayer1Suggestions] = useState(false);
-  const [showPlayer2Suggestions, setShowPlayer2Suggestions] = useState(false);
   const [selectedPlayer1, setSelectedPlayer1] =
     useState<PlayerSuggestion | null>(null);
   const [selectedPlayer2, setSelectedPlayer2] =
     useState<PlayerSuggestion | null>(null);
-
-  useEffect(() => {
-    function searchPlayers(
-      query: string,
-      playerCounts?: Record<number, number>,
-    ) {
-      if (query.length >= 2) {
-        const results = playerSearchEngine.search(query, 100);
-        let filteredResults = results.map((r) => r.player);
-
-        // Filter by players in playerCounts if available
-        if (playerCounts && Object.keys(playerCounts).length > 0) {
-          filteredResults = filteredResults.filter(
-            (player) => playerCounts[player.id] !== undefined,
-          );
-        }
-
-        // Sort by player counts (most counts first)
-        filteredResults.sort((a, b) => {
-          const aCount = playerCounts?.[a.id] ?? a.gamesCount;
-          const bCount = playerCounts?.[b.id] ?? b.gamesCount;
-          return bCount - aCount;
-        });
-
-        return filteredResults;
-      } else if (query.length === 0) {
-        // Show players from playerCounts when empty, or all players if no playerCounts
-        if (playerCounts && Object.keys(playerCounts).length > 0) {
-          const allPlayers = playerSearchEngine.getAllPlayers();
-          const filteredPlayers = allPlayers.filter(
-            (player) => playerCounts[player.id] !== undefined,
-          );
-          // Sort by player counts (most counts first)
-          filteredPlayers.sort((a, b) => {
-            const aCount = playerCounts?.[a.id] ?? a.gamesCount;
-            const bCount = playerCounts?.[b.id] ?? b.gamesCount;
-            return bCount - aCount;
-          });
-          return filteredPlayers;
-        } else {
-          return playerSearchEngine.getAllPlayers();
-        }
-      }
-      return [];
-    }
-
-    // Use the active query to update suggestions
-    const activeQuery = showPlayer1Suggestions ? player1Query : player2Query;
-    setSuggestions(searchPlayers(activeQuery, playerCounts));
-  }, [
-    player1Query,
-    player2Query,
-    playerCounts,
-    showPlayer1Suggestions,
-    showPlayer2Suggestions,
-  ]);
 
   // Update selected player IDs when players are selected/deselected
   useEffect(() => {
@@ -209,56 +158,20 @@ export default function PlayerSearch({
     onPlayerSelect(newPlayerIds);
   }, [selectedPlayer1, selectedPlayer2, onPlayerSelect]);
 
-  const handlePlayer1Select = (player: PlayerSuggestion) => {
-    setSelectedPlayer1(player);
-    setPlayer1Query(player.name);
-    setShowPlayer1Suggestions(false);
-  };
-
-  const handlePlayer2Select = (player: PlayerSuggestion) => {
-    setSelectedPlayer2(player);
-    setPlayer2Query(player.name);
-    setShowPlayer2Suggestions(false);
-  };
-
-  const handlePlayer1Clear = () => {
-    setSelectedPlayer1(null);
-    setPlayer1Query("");
-    setShowPlayer1Suggestions(false);
-  };
-
-  const handlePlayer2Clear = () => {
-    setSelectedPlayer2(null);
-    setPlayer2Query("");
-    setShowPlayer2Suggestions(false);
-  };
-
   return (
     <div className="space-y-3 mb-3">
       <PlayerInput
         placeholder="Player 1"
-        query={player1Query}
-        onQueryChange={setPlayer1Query}
-        suggestions={suggestions}
-        showSuggestions={showPlayer1Suggestions}
-        onShowSuggestions={setShowPlayer1Suggestions}
         selectedPlayer={selectedPlayer1}
-        onPlayerSelect={handlePlayer1Select}
-        onPlayerClear={handlePlayer1Clear}
+        onPlayerSelect={setSelectedPlayer1}
         playerCounts={playerCounts}
       />
 
       <div className="text-sm font-medium text-foreground mb-2">vs</div>
       <PlayerInput
         placeholder="Player 2"
-        query={player2Query}
-        onQueryChange={setPlayer2Query}
-        suggestions={suggestions}
-        showSuggestions={showPlayer2Suggestions}
-        onShowSuggestions={setShowPlayer2Suggestions}
         selectedPlayer={selectedPlayer2}
-        onPlayerSelect={handlePlayer2Select}
-        onPlayerClear={handlePlayer2Clear}
+        onPlayerSelect={setSelectedPlayer2}
         playerCounts={playerCounts}
       />
     </div>

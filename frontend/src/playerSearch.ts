@@ -137,6 +137,57 @@ class PlayerSearchEngine {
     // Return a copy sorted by games count (already sorted in constructor, but ensuring consistency)
     return [...this.players].sort((a, b) => b.gamesCount - a.gamesCount);
   }
+
+  searchPlayers(
+    query: string,
+    playerCounts?: Record<number, number>,
+  ): PlayerSuggestion[] {
+    if (query.length >= 2) {
+      const results = this.search(query, 100);
+      let filteredResults = results.map((r) => r.player);
+
+      // Filter by players in playerCounts if available
+      if (playerCounts && Object.keys(playerCounts).length > 0) {
+        filteredResults = filteredResults.filter(
+          (player) => playerCounts[player.id] !== undefined,
+        );
+      }
+
+      // Sort by search score first, then by player counts for ties
+      filteredResults.sort((a, b) => {
+        const aScore = results.find((r) => r.player.id === a.id)?.score ?? 0;
+        const bScore = results.find((r) => r.player.id === b.id)?.score ?? 0;
+        const scoreDiff = aScore - bScore;
+        if (Math.abs(scoreDiff) < 0.01) {
+          // If scores are very similar, sort by player counts
+          const aCount = playerCounts?.[a.id] ?? a.gamesCount;
+          const bCount = playerCounts?.[b.id] ?? b.gamesCount;
+          return bCount - aCount;
+        }
+        return scoreDiff;
+      });
+
+      return filteredResults;
+    } else if (query.length === 0) {
+      // Show players from playerCounts when empty, or all players if no playerCounts
+      if (playerCounts && Object.keys(playerCounts).length > 0) {
+        const allPlayers = this.getAllPlayers();
+        const filteredPlayers = allPlayers.filter(
+          (player) => playerCounts[player.id] !== undefined,
+        );
+        // Sort by player counts (most counts first)
+        filteredPlayers.sort((a, b) => {
+          const aCount = playerCounts?.[a.id] ?? a.gamesCount;
+          const bCount = playerCounts?.[b.id] ?? b.gamesCount;
+          return bCount - aCount;
+        });
+        return filteredPlayers;
+      } else {
+        return this.getAllPlayers();
+      }
+    }
+    return [];
+  }
 }
 
 // Export a singleton instance
