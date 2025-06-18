@@ -26,6 +26,9 @@ function PlayerInput({
   const [suggestions, setSuggestions] = useState<PlayerSuggestion[]>([]);
   const [query, setQuery] = useState(initialQuery);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [deletedPlayer, setDeletedPlayer] = useState<PlayerSuggestion | null>(
+    null,
+  );
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -35,6 +38,10 @@ function PlayerInput({
         !inputRef.current?.contains(event.target as Node)
       ) {
         setShowSuggestions(false);
+        if (deletedPlayer) {
+          handlePlayerSelect(deletedPlayer);
+        }
+        setDeletedPlayer(null);
       }
     };
 
@@ -42,7 +49,7 @@ function PlayerInput({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [deletedPlayer, setDeletedPlayer, setShowSuggestions]);
 
   useEffect(() => {
     setSuggestions(playerSearchEngine.searchPlayers(query, playerCounts));
@@ -54,9 +61,10 @@ function PlayerInput({
   };
 
   const handlePlayerSelect = (player: PlayerSuggestion | null) => {
-    setQuery(player?.name ?? "");
     onPlayerSelect(player);
     setShowSuggestions(false);
+    setSuggestions([]);
+    setQuery("");
   };
 
   const renderSuggestions = () => {
@@ -109,9 +117,15 @@ function PlayerInput({
         ref={inputRef}
         type="text"
         placeholder={placeholder}
-        value={query}
+        value={selectedPlayer?.name ?? query}
         onChange={(e) => handleQueryChange(e.target.value)}
-        onFocus={() => setShowSuggestions(true)}
+        onFocus={() => {
+          if (selectedPlayer) {
+            setDeletedPlayer(selectedPlayer);
+            handlePlayerSelect(null);
+          }
+          setShowSuggestions(true);
+        }}
         className={cn("pr-8", selectedPlayer && "bg-accent/20 border-primary")}
       />
       {selectedPlayer && (
