@@ -1,4 +1,5 @@
-.GobanEditor {
+.GobanEditor,
+.TinyGoban {
   .shudan-goban-image {
     background-image: none;
   }

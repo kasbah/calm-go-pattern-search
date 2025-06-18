@@ -4,6 +4,7 @@ import GamesList from "./GamesList";
 import GobanEditor from "./GobanEditor";
 import GobanViewer from "./GobanViewer";
 import PlayerSearch from "./PlayerSearch";
+import TinyGoban from "./TinyGoban";
 import { emptyBoard, SabakiColor, type BoardPosition } from "./sabaki-types";
 import {
   toWasmSearch,
@@ -11,11 +12,10 @@ import {
   type SearchReturn,
 } from "./wasm-search-types";
 
-import arrowLeftSvg from "@/assets/icons/arrow-left.svg";
-
 export default function App() {
   const windowSize = useWindowSize();
   const vertexSize = windowSize.width * 0.02;
+  const tinyVertexSize = windowSize.width * 0.007;
   const [board, setBoard] = useState<BoardPosition>(emptyBoard);
   const [games, setGames] = useState<Array<Game>>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
@@ -147,50 +147,48 @@ export default function App() {
 
   return (
     <div className="flex flex-gap-100">
-      <div
-        className="sticky top-0 h-screen"
-        style={{ display: selectedGame != null ? "none" : "block" }}
-      >
-        <GobanEditor
-          ref={gobanEditorRef}
-          onUpdateBoard={setBoard}
-          onChangeBrushColor={setBrushColor}
-          vertexSize={vertexSize}
-          nextMoves={isSearching ? [] : nextMoves}
-        />
-      </div>
-      {selectedGame != null && (
-        <div className="sticky top-0 h-screen" style={{ display: "block" }}>
+      <div className="sticky top-0 h-screen">
+        <div style={{ display: selectedGame ? "none" : "block" }}>
+          <GobanEditor
+            ref={gobanEditorRef}
+            onUpdateBoard={setBoard}
+            onChangeBrushColor={setBrushColor}
+            vertexSize={vertexSize}
+            nextMoves={isSearching ? [] : nextMoves}
+          />
+        </div>
+        {selectedGame != null && (
           <GobanViewer
             ref={gobanViewerRef}
             game={selectedGame}
             vertexSize={vertexSize}
           />
-        </div>
-      )}
+        )}
+      </div>
       <div className="flex flex-col ml-4 w-full">
         <div className="sticky top-0 bg-white z-10 pt-4 pb-4 mr-2">
-          <div className="flex flex-column justify-evenly">
-            <div className="w-full"></div>
-            <div className="w-full pr-4">
+          <div className="flex flex-row">
+            <div
+              className="mr-10 w-1/3"
+              style={{
+                minHeight: tinyVertexSize * 21,
+                minWidth: tinyVertexSize * 21,
+              }}
+            >
+              {selectedGame != null && (
+                <div onClick={() => setSelectedGame(null)}>
+                  <TinyGoban vertexSize={tinyVertexSize} board={board} />
+                </div>
+              )}
+            </div>
+            <div className="w-full flex flex-col justify-between">
               <PlayerSearch
                 onPlayerSelect={setSelectedPlayerIds}
                 playerCounts={playerCounts}
                 isLoading={isSearching}
               />
+              <div className="flex justify-end">{totalNumberOfGames} games</div>
             </div>
-          </div>
-          <div
-            className="flex justify-end mr-4 mt-4"
-            style={{ cursor: selectedGame != null ? "pointer" : "default" }}
-            onClick={() => setSelectedGame(null)}
-          >
-            {selectedGame != null && (
-              <div>
-                <img src={arrowLeftSvg} />
-              </div>
-            )}
-            {totalNumberOfGames} games
           </div>
         </div>
         <GamesList
