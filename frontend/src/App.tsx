@@ -148,35 +148,42 @@ export default function App() {
   return (
     <div className="flex flex-gap-100">
       <div className="sticky top-0 h-screen">
-        <div style={{ display: selectedGame ? "none" : "block" }}>
-          <GobanEditor
-            ref={gobanEditorRef}
-            onUpdateBoard={setBoard}
-            onChangeBrushColor={setBrushColor}
-            vertexSize={vertexSize}
-            nextMoves={isSearching ? [] : nextMoves}
-          />
+        <div className="goban-transition-container">
+          <div
+            className={`goban-editor-wrapper ${selectedGame ? "goban-editor-hidden" : "goban-editor-visible"}`}
+          >
+            <GobanEditor
+              ref={gobanEditorRef}
+              onUpdateBoard={setBoard}
+              onChangeBrushColor={setBrushColor}
+              vertexSize={vertexSize}
+              nextMoves={isSearching ? [] : nextMoves}
+            />
+          </div>
+          {selectedGame != null && (
+            <GobanViewer
+              ref={gobanViewerRef}
+              game={selectedGame}
+              vertexSize={vertexSize}
+            />
+          )}
         </div>
-        {selectedGame != null && (
-          <GobanViewer
-            ref={gobanViewerRef}
-            game={selectedGame}
-            vertexSize={vertexSize}
-          />
-        )}
       </div>
       <div className="flex flex-col ml-4 w-full">
         <div className="sticky top-0 bg-white z-10 pt-4 pb-4 mr-2">
           <div className="flex flex-row">
             <div
-              className="mr-10 w-1/3"
+              className={`mr-10 w-1/3 tiny-goban-container ${selectedGame != null ? "tiny-goban-visible" : "tiny-goban-hidden"}`}
               style={{
                 minHeight: tinyVertexSize * 21,
                 minWidth: tinyVertexSize * 21,
               }}
             >
               {selectedGame != null && (
-                <div onClick={() => setSelectedGame(null)}>
+                <div
+                  onClick={() => setSelectedGame(null)}
+                  className="tiny-goban-clickable"
+                >
                   <TinyGoban vertexSize={tinyVertexSize} board={board} />
                 </div>
               )}
