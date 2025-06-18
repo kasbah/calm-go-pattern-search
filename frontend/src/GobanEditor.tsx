@@ -9,6 +9,7 @@ import {
   useEffect,
   useState,
   useImperativeHandle,
+  useRef,
 } from "react";
 import { useImmerReducer } from "use-immer";
 import "./GobanCommon.css";
@@ -249,6 +250,9 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
     const [brushColor, setBrushColor] = useState<SabakiColor>(
       SabakiColor.Black,
     );
+    const markerTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+      undefined,
+    );
 
     const [isHoveringAlternateBrush, setHoveringAlternateBrush] =
       useState<boolean>(false);
@@ -290,9 +294,14 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
     }, [brushColor, onChangeBrushColor]);
 
     useEffect(() => {
+      clearTimeout(markerTimerRef.current);
       const mm: Map<Marker | null> = emptyBoard.map((row) =>
         row.map(() => null),
       );
+      if (nextMoves.length === 0) {
+        setMarkerMap(mm);
+        return;
+      }
       nextMoves.forEach(({ x, y }, i) => {
         mm[y][x] = {
           type: "circle-label",
@@ -301,7 +310,12 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
           color: brushColor === SabakiColor.Black ? "#9b9b9b" : "whitesmoke",
         };
       });
-      setMarkerMap(mm);
+      markerTimerRef.current = setTimeout(() => {
+        setMarkerMap(mm);
+      }, 100);
+      return () => {
+        clearTimeout(markerTimerRef.current);
+      };
     }, [nextMoves, state.alternateBrushColor, brushColor]);
 
     useEffect(() => {
