@@ -170,11 +170,16 @@ export default function App() {
       )}
       <div className="flex flex-col ml-4 w-full">
         <div className="sticky top-0 bg-white z-10 pt-4 pb-4 mr-2">
-          <PlayerSearch
-            onPlayerSelect={setSelectedPlayerIds}
-            playerCounts={playerCounts}
-            isLoading={isSearching}
-          />
+          <div className="flex flex-column justify-evenly">
+            <div className="w-full"></div>
+            <div className="w-full pr-4">
+              <PlayerSearch
+                onPlayerSelect={setSelectedPlayerIds}
+                playerCounts={playerCounts}
+                isLoading={isSearching}
+              />
+            </div>
+          </div>
           <div
             className=""
             style={{ cursor: selectedGame != null ? "pointer" : "default" }}
