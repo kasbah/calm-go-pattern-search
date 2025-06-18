@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useReducer } from "react";
 import { Input } from "./components/ui/input";
 import { cn } from "./lib/utils";
 import { playerSearchEngine, type PlayerSuggestion } from "./playerSearch";
@@ -8,6 +8,139 @@ import circleWhiteSvg from "@/assets/icons/circle-white.svg";
 import circleBlackOrWhiteSvg from "@/assets/icons/circle-black-or-white.svg";
 
 type PlayerColor = "black" | "white" | "any";
+
+type PlayerState = {
+  player1: PlayerSuggestion | null;
+  player2: PlayerSuggestion | null;
+  color1: PlayerColor;
+  color2: PlayerColor;
+  prevColor1: PlayerColor;
+  prevColor2: PlayerColor;
+  tempDeletedPlayer1: PlayerSuggestion | null;
+  tempDeletedPlayer2: PlayerSuggestion | null;
+};
+
+type PlayerAction =
+  | { type: "SELECT_PLAYER_1"; player: PlayerSuggestion | null }
+  | { type: "SELECT_PLAYER_2"; player: PlayerSuggestion | null }
+  | { type: "SET_COLOR_1"; color: PlayerColor }
+  | { type: "SET_COLOR_2"; color: PlayerColor }
+  | { type: "RESET_COLORS" }
+  | { type: "TEMP_DELETE_PLAYER_1" }
+  | { type: "TEMP_DELETE_PLAYER_2" }
+  | { type: "RESTORE_PLAYER_1" }
+  | { type: "RESTORE_PLAYER_2" };
+
+function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
+  switch (action.type) {
+    case "SELECT_PLAYER_1":
+      return {
+        ...state,
+        player1: action.player,
+        tempDeletedPlayer1: null,
+        // Reset colors if player is cleared or both players are cleared
+        ...(action.player === null
+          ? {
+              color1: "any",
+              prevColor1: "any",
+              ...(state.player2 === null
+                ? {
+                    color2: "any",
+                    prevColor2: "any",
+                  }
+                : state.color2 !== "any"
+                  ? {
+                      color1: state.color2 === "black" ? "white" : "black",
+                    }
+                  : {}),
+            }
+          : {}),
+      };
+    case "SELECT_PLAYER_2":
+      return {
+        ...state,
+        player2: action.player,
+        tempDeletedPlayer2: null,
+        // Reset colors if player is cleared or both players are cleared
+        ...(action.player === null
+          ? {
+              color2: "any",
+              prevColor2: "any",
+              ...(state.player1 === null
+                ? {
+                    color1: "any",
+                    prevColor1: "any",
+                  }
+                : state.color1 !== "any"
+                  ? {
+                      color2: state.color1 === "black" ? "white" : "black",
+                    }
+                  : {}),
+            }
+          : {}),
+      };
+    case "TEMP_DELETE_PLAYER_1":
+      return {
+        ...state,
+        tempDeletedPlayer1: state.player1,
+        player1: null,
+      };
+    case "TEMP_DELETE_PLAYER_2":
+      return {
+        ...state,
+        tempDeletedPlayer2: state.player2,
+        player2: null,
+      };
+    case "RESTORE_PLAYER_1":
+      return {
+        ...state,
+        player1: state.tempDeletedPlayer1,
+        tempDeletedPlayer1: null,
+      };
+    case "RESTORE_PLAYER_2":
+      return {
+        ...state,
+        player2: state.tempDeletedPlayer2,
+        tempDeletedPlayer2: null,
+      };
+    case "SET_COLOR_1":
+      return {
+        ...state,
+        color1: action.color,
+        prevColor1: state.color1,
+        // Update color2 based on color1
+        color2:
+          action.color === "black"
+            ? "white"
+            : action.color === "white"
+              ? "black"
+              : "any",
+      };
+    case "SET_COLOR_2":
+      return {
+        ...state,
+        color2: action.color,
+        prevColor2: state.color2,
+        // Update color1 based on color2
+        color1:
+          action.color === "black"
+            ? "white"
+            : action.color === "white"
+              ? "black"
+              : "any",
+      };
+    case "RESET_COLORS":
+      return {
+        ...state,
+        color1: "any",
+        color2: "any",
+        prevColor1: "any",
+        prevColor2: "any",
+      };
+    default:
+      return state;
+  }
+}
 
 type PlayerInputProps = {
   placeholder: string;
@@ -19,6 +152,8 @@ type PlayerInputProps = {
   isLoading: boolean;
   color?: PlayerColor;
   onColorChange?: (color: PlayerColor) => void;
+  onTempDelete: () => void;
+  onRestore: () => void;
 };
 
 function PlayerInput({
@@ -31,6 +166,8 @@ function PlayerInput({
   isLoading,
   color = "any",
   onColorChange,
+  onTempDelete,
+  onRestore,
 }: PlayerInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
@@ -39,9 +176,6 @@ function PlayerInput({
   const [query, setQuery] = useState(initialQuery);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showColorDropdown, setShowColorDropdown] = useState(false);
-  const [deletedPlayer, setDeletedPlayer] = useState<PlayerSuggestion | null>(
-    null,
-  );
 
   const handlePlayerSelect = useCallback(
     (player: PlayerSuggestion | null) => {
@@ -50,16 +184,13 @@ function PlayerInput({
       setSuggestions([]);
       setQuery("");
     },
-    [onPlayerSelect, setShowSuggestions, setSuggestions, setQuery],
+    [onPlayerSelect],
   );
 
   const closeSuggestions = useCallback(() => {
     setShowSuggestions(false);
-    if (deletedPlayer) {
-      handlePlayerSelect(deletedPlayer);
-    }
-    setDeletedPlayer(null);
-  }, [setShowSuggestions, deletedPlayer, handlePlayerSelect]);
+    onRestore();
+  }, [onRestore]);
 
   const handleColorSelect = useCallback(
     (newColor: PlayerColor) => {
@@ -100,7 +231,7 @@ function PlayerInput({
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [deletedPlayer, closeSuggestions]);
+  }, [closeSuggestions]);
 
   useEffect(() => {
     if (showSuggestions && !isLoading) {
@@ -113,18 +244,17 @@ function PlayerInput({
       setQuery(event.target.value);
       onQueryChange?.(event.target.value);
     },
-    [setQuery, onQueryChange],
+    [onQueryChange],
   );
 
   const handleInputFocus = useCallback(() => {
     if (selectedPlayer) {
-      setDeletedPlayer(selectedPlayer);
-      handlePlayerSelect(null);
+      onTempDelete();
       setTimeout(() => setShowSuggestions(true), 500);
     } else {
       setShowSuggestions(true);
     }
-  }, [selectedPlayer, handlePlayerSelect, setShowSuggestions]);
+  }, [selectedPlayer, onTempDelete]);
 
   const deletePlayer = useCallback(() => {
     handlePlayerSelect(null);
@@ -299,97 +429,59 @@ export default function PlayerSearch({
   isLoading,
   onColorChange,
 }: PlayerSearchProps) {
-  const [selectedPlayer1, setSelectedPlayer1] =
-    useState<PlayerSuggestion | null>(null);
-  const [selectedPlayer2, setSelectedPlayer2] =
-    useState<PlayerSuggestion | null>(null);
-  const [color1, setColor1] = useState<PlayerColor>("any");
-  const [color2, setColor2] = useState<PlayerColor>("any");
-  const [prevColor1, setPrevColor1] = useState<PlayerColor>("any");
-  const [prevColor2, setPrevColor2] = useState<PlayerColor>("any");
+  const [state, dispatch] = useReducer(playerReducer, {
+    player1: null,
+    player2: null,
+    color1: "any",
+    color2: "any",
+    prevColor1: "any",
+    prevColor2: "any",
+    tempDeletedPlayer1: null,
+    tempDeletedPlayer2: null,
+  });
 
   useEffect(() => {
     const newPlayerIds: number[] = [];
-    if (selectedPlayer1 != null) newPlayerIds.push(selectedPlayer1.id);
-    if (selectedPlayer2 != null) newPlayerIds.push(selectedPlayer2.id);
+    if (state.player1 != null) newPlayerIds.push(state.player1.id);
+    if (state.player2 != null) newPlayerIds.push(state.player2.id);
     onPlayerSelect(newPlayerIds);
-    if (selectedPlayer1 == null && selectedPlayer2 == null) {
-      setPrevColor1("any");
-      setPrevColor2("any");
-      setColor1("any");
-      setColor2("any");
-    } else if (selectedPlayer1 == null && selectedPlayer2 != null) {
-      if (color2 === "black") {
-        setPrevColor1("white");
-        setColor1("white");
-      } else if (color2 === "white") {
-        setPrevColor1("black");
-        setColor1("black");
-      } else {
-        setPrevColor1("any");
-        setColor1("any");
-      }
-    }
-  }, [
-    selectedPlayer1,
-    selectedPlayer2,
-    onPlayerSelect,
-    setPrevColor1,
-    setPrevColor2,
-    color1,
-    color2,
-  ]);
+  }, [state.player1, state.player2, onPlayerSelect]);
 
   useEffect(() => {
-    if (color1 === "black" && prevColor1 !== "black") {
-      setColor2("white");
-    } else if (color1 === "white" && prevColor1 !== "white") {
-      setColor2("black");
-    } else if (color2 === "black" && prevColor2 !== "black") {
-      setColor1("white");
-    } else if (color2 === "white" && prevColor2 !== "white") {
-      setColor1("black");
-    } else if (color1 === "any" && prevColor1 !== "any") {
-      setColor2("any");
-    } else if (color2 === "any" && prevColor2 !== "any") {
-      setColor1("any");
-    }
-    setPrevColor1(color1);
-    setPrevColor2(color2);
-    onColorChange?.([color1, color2]);
-  }, [
-    color1,
-    color2,
-    onColorChange,
-    prevColor1,
-    prevColor2,
-    setPrevColor1,
-    setPrevColor2,
-  ]);
+    onColorChange?.([state.color1, state.color2]);
+  }, [state.color1, state.color2, onColorChange]);
 
   return (
     <div className="space-y-3 mb-3">
       <PlayerInput
         placeholder="Player 1"
-        selectedPlayer={selectedPlayer1}
-        onPlayerSelect={setSelectedPlayer1}
+        selectedPlayer={state.player1}
+        onPlayerSelect={(player) =>
+          dispatch({ type: "SELECT_PLAYER_1", player })
+        }
         playerCounts={playerCounts}
         isLoading={isLoading}
-        color={color1}
-        onColorChange={setColor1}
+        color={state.color1}
+        onColorChange={(color) => dispatch({ type: "SET_COLOR_1", color })}
+        onTempDelete={() => dispatch({ type: "TEMP_DELETE_PLAYER_1" })}
+        onRestore={() => dispatch({ type: "RESTORE_PLAYER_1" })}
       />
 
-      <div className="text-sm font-medium text-foreground mb-2 text-center">
+      <div className="text-sm font-medium text-foreground mb-3 text-center">
         vs
       </div>
       <PlayerInput
         placeholder="Player 2"
-        selectedPlayer={selectedPlayer2}
-        onPlayerSelect={setSelectedPlayer2}
+        selectedPlayer={state.player2}
+        onPlayerSelect={(player) =>
+          dispatch({ type: "SELECT_PLAYER_2", player })
+        }
         playerCounts={playerCounts}
         isLoading={isLoading}
-        color={color2}
-        onColorChange={setColor2}
+        color={state.color2}
+        onColorChange={(color) => dispatch({ type: "SET_COLOR_2", color })}
+        onTempDelete={() => dispatch({ type: "TEMP_DELETE_PLAYER_2" })}
+        onRestore={() => dispatch({ type: "RESTORE_PLAYER_2" })}
       />
     </div>
   );
