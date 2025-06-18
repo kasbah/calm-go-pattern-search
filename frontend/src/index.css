@@ -126,20 +126,23 @@
   position: relative;
 }
 
-.goban-editor-wrapper {
+.goban-editor-wrapper,
+.goban-viewer-wrapper {
   transition:
-    opacity 0.5s ease-in-out,
-    transform 0.5s ease-in-out;
+    opacity 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
   transform-origin: center;
 }
 
-.goban-editor-visible {
+.goban-editor-visible,
+.goban-viewer-visible {
   opacity: 1;
   transform: scale(1);
   position: relative;
 }
 
-.goban-editor-hidden {
+.goban-editor-hidden,
+.goban-viewer-hidden {
   opacity: 0;
   transform: scale(0.95);
   position: absolute;
@@ -150,8 +153,8 @@
 
 .tiny-goban-container {
   transition:
-    opacity 0.5s ease-in-out,
-    transform 0.5s ease-in-out;
+    opacity 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
   transform-origin: center;
 }
 
@@ -168,7 +171,7 @@
 
 .tiny-goban-clickable {
   cursor: pointer;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.1s ease-in-out;
   border-radius: 8px;
   padding: 4px;
 }
@@ -181,19 +184,22 @@
 /* Respect user's motion preferences */
 @media (prefers-reduced-motion: reduce) {
   .goban-editor-wrapper,
+  .goban-viewer-wrapper,
   .tiny-goban-container,
   .tiny-goban-clickable {
     transition: none;
   }
 
-  .goban-editor-visible {
+  .goban-editor-visible,
+  .goban-viewer-visible {
     opacity: 1;
     transform: none;
     position: static;
     display: block;
   }
 
-  .goban-editor-hidden {
+  .goban-editor-hidden,
+  .goban-viewer-hidden {
     display: none;
   }
 

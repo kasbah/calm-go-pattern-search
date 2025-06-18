@@ -160,13 +160,17 @@ export default function App() {
               nextMoves={isSearching ? [] : nextMoves}
             />
           </div>
-          {selectedGame != null && (
-            <GobanViewer
-              ref={gobanViewerRef}
-              game={selectedGame}
-              vertexSize={vertexSize}
-            />
-          )}
+          <div
+            className={`goban-viewer-wrapper ${selectedGame ? "goban-viewer-visible" : "goban-viewer-hidden"}`}
+          >
+            {selectedGame != null && (
+              <GobanViewer
+                ref={gobanViewerRef}
+                game={selectedGame}
+                vertexSize={vertexSize}
+              />
+            )}
+          </div>
         </div>
       </div>
       <div className="flex flex-col ml-4 w-full">
