@@ -126,25 +126,23 @@
   position: relative;
 }
 
-.goban-editor-wrapper,
+.goban-editor-wrapper {
+  transition: opacity 0.3s ease-in-out;
+}
+
 .goban-viewer-wrapper {
-  transition:
-    opacity 0.3s ease-in-out,
-    transform 0.3s ease-in-out;
-  transform-origin: center;
+  transition: opacity 0.8s ease-in-out;
 }
 
 .goban-editor-visible,
 .goban-viewer-visible {
   opacity: 1;
-  transform: scale(1);
   position: relative;
 }
 
 .goban-editor-hidden,
 .goban-viewer-hidden {
   opacity: 0;
-  transform: scale(0.95);
   position: absolute;
   top: 0;
   left: 0;
@@ -193,7 +191,6 @@
   .goban-editor-visible,
   .goban-viewer-visible {
     opacity: 1;
-    transform: none;
     position: static;
     display: block;
   }

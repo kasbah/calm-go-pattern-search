@@ -12,6 +12,29 @@ import {
   type SearchReturn,
 } from "./wasm-search-types";
 
+const emptyGame: Game = {
+  path: "",
+  score: 0,
+  last_move_matched: -1,
+  rotation: 0,
+  is_inverted: false,
+  is_mirrored: false,
+  all_empty_correctly_within: 0,
+  moves: [],
+  moves_transformed: [],
+  event: "",
+  round: "",
+  location: "",
+  date: null,
+  player_black: { Unknown: "" },
+  player_white: { Unknown: "" },
+  rank_black: { Custom: "" },
+  rank_white: { Custom: "" },
+  komi: null,
+  rules: null,
+  result: { Void: true },
+};
+
 export default function App() {
   const windowSize = useWindowSize();
   const vertexSize = windowSize.width * 0.02;
@@ -163,13 +186,11 @@ export default function App() {
           <div
             className={`goban-viewer-wrapper ${selectedGame ? "goban-viewer-visible" : "goban-viewer-hidden"}`}
           >
-            {selectedGame != null && (
-              <GobanViewer
-                ref={gobanViewerRef}
-                game={selectedGame}
-                vertexSize={vertexSize}
-              />
-            )}
+            <GobanViewer
+              ref={gobanViewerRef}
+              game={selectedGame || emptyGame}
+              vertexSize={vertexSize}
+            />
           </div>
         </div>
       </div>

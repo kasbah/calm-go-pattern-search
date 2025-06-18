@@ -27,6 +27,10 @@ function calculateBoardPosition(
   moveNumber: number,
 ): BoardPosition {
   let sgb = new GoBoard(emptyBoard);
+  // If moveNumber is -1, return empty board
+  if (moveNumber < 0) {
+    return sgb.signMap;
+  }
   for (let i = 0; i <= moveNumber; i++) {
     const move = moves[i];
     sgb = sgb.makeMove(move.color, [move.point.x, move.point.y]);
@@ -73,7 +77,10 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
 
     const setMoveNumber = useCallback(
       (moveNumber: number) => {
-        if (moveNumber < 0) {
+        if (game.moves_transformed.length === 0) {
+          // For games with no moves, keep moveNumber at -1
+          moveNumber = -1;
+        } else if (moveNumber < 0) {
           moveNumber = 0;
         } else if (moveNumber >= game.moves_transformed.length) {
           moveNumber = game.moves_transformed.length - 1;
