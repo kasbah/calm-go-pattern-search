@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Input } from "./components/ui/input";
 import { cn } from "./lib/utils";
 import { playerSearchEngine, type PlayerSuggestion } from "./playerSearch";
@@ -32,6 +32,24 @@ function PlayerInput({
     null,
   );
 
+  const handlePlayerSelect = useCallback(
+    (player: PlayerSuggestion | null) => {
+      onPlayerSelect(player);
+      setShowSuggestions(false);
+      setSuggestions([]);
+      setQuery("");
+    },
+    [onPlayerSelect, setShowSuggestions, setSuggestions, setQuery],
+  );
+
+  const closeSuggestions = useCallback(() => {
+    setShowSuggestions(false);
+    if (deletedPlayer) {
+      handlePlayerSelect(deletedPlayer);
+    }
+    setDeletedPlayer(null);
+  }, [setShowSuggestions, deletedPlayer, handlePlayerSelect]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -39,19 +57,23 @@ function PlayerInput({
         !suggestionsRef.current.contains(event.target as Node) &&
         !inputRef.current?.contains(event.target as Node)
       ) {
-        setShowSuggestions(false);
-        if (deletedPlayer) {
-          handlePlayerSelect(deletedPlayer);
-        }
-        setDeletedPlayer(null);
+        closeSuggestions();
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeSuggestions();
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
     };
-  }, [deletedPlayer, setDeletedPlayer, setShowSuggestions]);
+  }, [deletedPlayer, closeSuggestions]);
 
   useEffect(() => {
     if (showSuggestions && !isLoading) {
@@ -59,17 +81,27 @@ function PlayerInput({
     }
   }, [query, playerCounts, showSuggestions, isLoading]);
 
-  const handleQueryChange = (newQuery: string) => {
-    setQuery(newQuery);
-    onQueryChange?.(newQuery);
-  };
+  const handleQueryChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setQuery(event.target.value);
+      onQueryChange?.(event.target.value);
+    },
+    [setQuery, onQueryChange],
+  );
 
-  const handlePlayerSelect = (player: PlayerSuggestion | null) => {
-    onPlayerSelect(player);
-    setShowSuggestions(false);
-    setSuggestions([]);
-    setQuery("");
-  };
+  const handleInputFocus = useCallback(() => {
+    if (selectedPlayer) {
+      setDeletedPlayer(selectedPlayer);
+      handlePlayerSelect(null);
+      setTimeout(() => setShowSuggestions(true), 500);
+    } else {
+      setShowSuggestions(true);
+    }
+  }, [selectedPlayer, handlePlayerSelect, setShowSuggestions]);
+
+  const deletePlayer = useCallback(() => {
+    handlePlayerSelect(null);
+  }, [handlePlayerSelect]);
 
   const renderSuggestions = () => {
     if (isLoading || !showSuggestions || suggestions.length === 0) {
@@ -124,21 +156,13 @@ function PlayerInput({
         type="text"
         placeholder={placeholder}
         value={selectedPlayer?.name ?? query}
-        onChange={(e) => handleQueryChange(e.target.value)}
-        onFocus={() => {
-          if (selectedPlayer) {
-            setDeletedPlayer(selectedPlayer);
-            handlePlayerSelect(null);
-            setTimeout(() => setShowSuggestions(true), 500);
-          } else {
-            setShowSuggestions(true);
-          }
-        }}
+        onChange={handleQueryChange}
+        onFocus={handleInputFocus}
         className={cn("pr-8", selectedPlayer && "bg-accent/20 border-primary")}
       />
       {selectedPlayer && (
         <button
-          onClick={() => handlePlayerSelect(null)}
+          onClick={deletePlayer}
           className={cn(
             "absolute right-2 top-1/2 -translate-y-1/2",
             "h-5 w-5 rounded-sm opacity-70 hover:opacity-100",
