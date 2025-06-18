@@ -387,6 +387,12 @@ function PlayerInput({
           value={selectedPlayer?.name ?? query}
           onChange={handleQueryChange}
           onFocus={handleInputFocus}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && suggestions.length > 0) {
+              handlePlayerSelect(suggestions[0]);
+              inputRef.current?.blur();
+            }
+          }}
           className={cn(
             "pl-10 pr-8",
             selectedPlayer && "bg-accent/20 border-primary",
