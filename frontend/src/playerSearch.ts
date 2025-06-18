@@ -1,7 +1,6 @@
 import Fuse from "fuse.js";
 import playerNamesData from "../../rust/pack-games/python-player-name-aliases/player_names.json";
 
-// Type definitions for the player names JSON structure
 export type PlayerAliasLanguage = {
   language: string;
   preferred?: boolean;
@@ -40,10 +39,8 @@ class PlayerSearchEngine {
   private players: Array<PlayerSuggestion>;
 
   constructor() {
-    // Transform the player names data into a searchable format
     this.players = this.transformPlayerData();
 
-    // Configure Fuse.js for fuzzy searching
     this.fuse = new Fuse(this.players, {
       keys: [{ name: "aliases", weight: 1.0 }],
       threshold: 0.1, // Lower threshold = more strict matching
@@ -105,16 +102,15 @@ class PlayerSearchEngine {
     limit: number,
     playerCounts?: Record<number, number>,
   ): Array<PlayerSuggestion> {
+    let searchResults = [];
     if (!query || query.length < 2) {
-      return [];
+      searchResults = this.getAllPlayers();
+    } else {
+      searchResults = this.fuse.search(query, { limit }).map((result) => ({
+        player: result.item,
+        score: result.score ?? 1.0,
+      }));
     }
-
-    const results = this.fuse.search(query, { limit });
-
-    let searchResults = results.map((result) => ({
-      player: result.item,
-      score: result.score || 0,
-    }));
 
     if (playerCounts) {
       searchResults = searchResults.filter((r) => playerCounts[r.player.id]);
@@ -139,9 +135,10 @@ class PlayerSearchEngine {
     return this.players.find((player) => player.id === id);
   }
 
-  getAllPlayers(): PlayerSuggestion[] {
-    // Return a copy sorted by games count (already sorted in constructor, but ensuring consistency)
-    return [...this.players].sort((a, b) => b.gamesCount - a.gamesCount);
+  getAllPlayers(): Array<PlayerSearchResult> {
+    return [...this.players]
+      .sort((a, b) => b.gamesCount - a.gamesCount)
+      .map((player) => ({ score: 0, player }));
   }
 }
 
