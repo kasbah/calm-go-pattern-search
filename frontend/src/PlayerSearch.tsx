@@ -11,6 +11,7 @@ type PlayerInputProps = {
   selectedPlayer: PlayerSuggestion | null;
   onPlayerSelect: (player: PlayerSuggestion | null) => void;
   playerCounts?: Record<number, number>;
+  isLoading: boolean;
 };
 
 function PlayerInput({
@@ -20,6 +21,7 @@ function PlayerInput({
   selectedPlayer,
   onPlayerSelect,
   playerCounts,
+  isLoading,
 }: PlayerInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
@@ -52,8 +54,10 @@ function PlayerInput({
   }, [deletedPlayer, setDeletedPlayer, setShowSuggestions]);
 
   useEffect(() => {
-    setSuggestions(playerSearchEngine.searchPlayers(query, playerCounts));
-  }, [query, playerCounts]);
+    if (showSuggestions && !isLoading) {
+      setSuggestions(playerSearchEngine.searchPlayers(query, playerCounts));
+    }
+  }, [query, playerCounts, showSuggestions, isLoading]);
 
   const handleQueryChange = (newQuery: string) => {
     setQuery(newQuery);
@@ -68,7 +72,9 @@ function PlayerInput({
   };
 
   const renderSuggestions = () => {
-    if (!showSuggestions || suggestions.length === 0) return null;
+    if (isLoading || !showSuggestions || suggestions.length === 0) {
+      return null;
+    }
 
     return (
       <div
@@ -123,8 +129,10 @@ function PlayerInput({
           if (selectedPlayer) {
             setDeletedPlayer(selectedPlayer);
             handlePlayerSelect(null);
+            setTimeout(() => setShowSuggestions(true), 500);
+          } else {
+            setShowSuggestions(true);
           }
-          setShowSuggestions(true);
         }}
         className={cn("pr-8", selectedPlayer && "bg-accent/20 border-primary")}
       />
@@ -153,11 +161,13 @@ function PlayerInput({
 export type PlayerSearchProps = {
   onPlayerSelect: (playerIds: number[]) => void;
   playerCounts?: Record<number, number>;
+  isLoading: boolean;
 };
 
 export default function PlayerSearch({
   onPlayerSelect,
   playerCounts,
+  isLoading,
 }: PlayerSearchProps) {
   const [selectedPlayer1, setSelectedPlayer1] =
     useState<PlayerSuggestion | null>(null);
@@ -179,6 +189,7 @@ export default function PlayerSearch({
         selectedPlayer={selectedPlayer1}
         onPlayerSelect={setSelectedPlayer1}
         playerCounts={playerCounts}
+        isLoading={isLoading}
       />
 
       <div className="text-sm font-medium text-foreground mb-2">vs</div>
@@ -187,6 +198,7 @@ export default function PlayerSearch({
         selectedPlayer={selectedPlayer2}
         onPlayerSelect={setSelectedPlayer2}
         playerCounts={playerCounts}
+        isLoading={isLoading}
       />
     </div>
   );

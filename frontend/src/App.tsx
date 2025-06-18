@@ -169,6 +169,7 @@ export default function App() {
           <PlayerSearch
             onPlayerSelect={setSelectedPlayerIds}
             playerCounts={playerCounts}
+            isLoading={isSearching}
           />
         </div>
         <GamesList
