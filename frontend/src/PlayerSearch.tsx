@@ -235,7 +235,7 @@ function PlayerInput({
 
   useEffect(() => {
     if (showSuggestions && !isLoading) {
-      setSuggestions(playerSearchEngine.searchPlayers(query, playerCounts));
+      setSuggestions(playerSearchEngine.search(query, 100, playerCounts));
     }
   }, [query, playerCounts, showSuggestions, isLoading]);
 

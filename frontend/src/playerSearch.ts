@@ -26,7 +26,7 @@ export type PlayerSuggestion = {
   id: number;
   name: string;
   canonicalName: string;
-  aliases: string[];
+  aliases: Array<string>;
   gamesCount: number;
 };
 
@@ -37,7 +37,7 @@ export type PlayerSearchResult = {
 
 class PlayerSearchEngine {
   private fuse: Fuse<PlayerSuggestion>;
-  private players: PlayerSuggestion[];
+  private players: Array<PlayerSuggestion>;
 
   constructor() {
     // Transform the player names data into a searchable format
@@ -45,12 +45,8 @@ class PlayerSearchEngine {
 
     // Configure Fuse.js for fuzzy searching
     this.fuse = new Fuse(this.players, {
-      keys: [
-        { name: "name", weight: 1.0 },
-        { name: "canonicalName", weight: 0.8 },
-        { name: "aliases", weight: 0.6 },
-      ],
-      threshold: 0.4, // Lower threshold = more strict matching
+      keys: [{ name: "aliases", weight: 1.0 }],
+      threshold: 0.1, // Lower threshold = more strict matching
       distance: 100,
       minMatchCharLength: 2,
       includeScore: true,
@@ -104,29 +100,39 @@ class PlayerSearchEngine {
     return players;
   }
 
-  search(query: string, limit: number = 10): PlayerSearchResult[] {
+  search(
+    query: string,
+    limit: number,
+    playerCounts?: Record<number, number>,
+  ): Array<PlayerSuggestion> {
     if (!query || query.length < 2) {
       return [];
     }
 
     const results = this.fuse.search(query, { limit });
 
-    const searchResults = results.map((result) => ({
+    let searchResults = results.map((result) => ({
       player: result.item,
       score: result.score || 0,
     }));
 
-    // Sort by search score first, then by games count for ties
-    searchResults.sort((a, b) => {
-      const scoreDiff = a.score - b.score;
-      if (Math.abs(scoreDiff) < 0.01) {
-        // If scores are very similar
-        return b.player.gamesCount - a.player.gamesCount; // Sort by games count (descending)
-      }
-      return scoreDiff; // Sort by search score (ascending - lower is better)
-    });
+    if (playerCounts) {
+      searchResults = searchResults.filter((r) => playerCounts[r.player.id]);
+      searchResults.sort((a, b) => {
+        const countA = playerCounts[a.player.id];
+        const countB = playerCounts[b.player.id];
 
-    return searchResults;
+        return countB - countA;
+      });
+    }
+
+    if (query) {
+      searchResults.sort((a, b) => {
+        return a.score - b.score;
+      });
+    }
+
+    return searchResults.map((r) => r.player);
   }
 
   getPlayerById(id: number): PlayerSuggestion | undefined {
@@ -136,57 +142,6 @@ class PlayerSearchEngine {
   getAllPlayers(): PlayerSuggestion[] {
     // Return a copy sorted by games count (already sorted in constructor, but ensuring consistency)
     return [...this.players].sort((a, b) => b.gamesCount - a.gamesCount);
-  }
-
-  searchPlayers(
-    query: string,
-    playerCounts?: Record<number, number>,
-  ): PlayerSuggestion[] {
-    if (query.length >= 2) {
-      const results = this.search(query, 100);
-      let filteredResults = results.map((r) => r.player);
-
-      // Filter by players in playerCounts if available
-      if (playerCounts && Object.keys(playerCounts).length > 0) {
-        filteredResults = filteredResults.filter(
-          (player) => playerCounts[player.id] !== undefined,
-        );
-      }
-
-      // Sort by search score first, then by player counts for ties
-      filteredResults.sort((a, b) => {
-        const aScore = results.find((r) => r.player.id === a.id)?.score ?? 0;
-        const bScore = results.find((r) => r.player.id === b.id)?.score ?? 0;
-        const scoreDiff = aScore - bScore;
-        if (Math.abs(scoreDiff) < 0.01) {
-          // If scores are very similar, sort by player counts
-          const aCount = playerCounts?.[a.id] ?? a.gamesCount;
-          const bCount = playerCounts?.[b.id] ?? b.gamesCount;
-          return bCount - aCount;
-        }
-        return scoreDiff;
-      });
-
-      return filteredResults;
-    } else if (query.length === 0) {
-      // Show players from playerCounts when empty, or all players if no playerCounts
-      if (playerCounts && Object.keys(playerCounts).length > 0) {
-        const allPlayers = this.getAllPlayers();
-        const filteredPlayers = allPlayers.filter(
-          (player) => playerCounts[player.id] !== undefined,
-        );
-        // Sort by player counts (most counts first)
-        filteredPlayers.sort((a, b) => {
-          const aCount = playerCounts?.[a.id] ?? a.gamesCount;
-          const bCount = playerCounts?.[b.id] ?? b.gamesCount;
-          return bCount - aCount;
-        });
-        return filteredPlayers;
-      } else {
-        return this.getAllPlayers();
-      }
-    }
-    return [];
   }
 }
 
