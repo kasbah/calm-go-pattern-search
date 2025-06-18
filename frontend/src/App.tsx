@@ -181,7 +181,7 @@ export default function App() {
             </div>
           </div>
           <div
-            className=""
+            className="flex justify-end mr-4 mt-4"
             style={{ cursor: selectedGame != null ? "pointer" : "default" }}
             onClick={() => setSelectedGame(null)}
           >
