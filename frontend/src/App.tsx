@@ -1,8 +1,8 @@
-import { useEffect, useState, useRef } from "react";
 import { useWindowSize } from "@reach/window-size";
-import GobanEditor from "./GobanEditor";
-
+import { useEffect, useRef, useState } from "react";
 import GamesList from "./GamesList";
+import GobanEditor from "./GobanEditor";
+import GobanViewer from "./GobanViewer";
 import PlayerSearch from "./PlayerSearch";
 import { emptyBoard, SabakiColor, type BoardPosition } from "./sabaki-types";
 import {
@@ -10,7 +10,8 @@ import {
   type Game,
   type SearchReturn,
 } from "./wasm-search-types";
-import GobanViewer from "./GobanViewer";
+
+import arrowLeftSvg from "@/assets/icons/arrow-left.svg";
 
 export default function App() {
   const windowSize = useWindowSize();
@@ -145,8 +146,11 @@ export default function App() {
   }, [selectedGame]);
 
   return (
-    <div className="flex flex-gap-100 h-screen">
-      <div style={{ display: selectedGame != null ? "none" : "block" }}>
+    <div className="flex flex-gap-100">
+      <div
+        className="sticky top-0 h-screen"
+        style={{ display: selectedGame != null ? "none" : "block" }}
+      >
         <GobanEditor
           ref={gobanEditorRef}
           onUpdateBoard={setBoard}
@@ -156,7 +160,7 @@ export default function App() {
         />
       </div>
       {selectedGame != null && (
-        <div style={{ display: "block" }}>
+        <div className="sticky top-0 h-screen" style={{ display: "block" }}>
           <GobanViewer
             ref={gobanViewerRef}
             game={selectedGame}
@@ -164,17 +168,28 @@ export default function App() {
           />
         </div>
       )}
-      <div className="flex flex-col h-screen ml-4 w-full">
-        <div className="mt-4 mr-2 mb-2">
+      <div className="flex flex-col ml-4 w-full">
+        <div className="sticky top-0 bg-white z-10 pt-4 pb-4 mr-2">
           <PlayerSearch
             onPlayerSelect={setSelectedPlayerIds}
             playerCounts={playerCounts}
             isLoading={isSearching}
           />
+          <div
+            className=""
+            style={{ cursor: selectedGame != null ? "pointer" : "default" }}
+            onClick={() => setSelectedGame(null)}
+          >
+            {selectedGame != null && (
+              <div>
+                <img src={arrowLeftSvg} />
+              </div>
+            )}
+            {totalNumberOfGames} games
+          </div>
         </div>
         <GamesList
           games={games}
-          totalNumberOfGames={totalNumberOfGames}
           onSelectGame={setSelectedGame}
           selectedGame={selectedGame}
           isSearching={isSearching}

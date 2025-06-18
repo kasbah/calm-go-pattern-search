@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import arrowLeftSvg from "@/assets/icons/arrow-left.svg";
 import type {
   Game,
   SgfDate,
@@ -103,7 +102,6 @@ function getPlayerName(player: Player): string {
 
 export type GamesListProps = {
   games: Array<Game>;
-  totalNumberOfGames: number;
   onSelectGame: (game: Game | null) => void;
   selectedGame: Game | null;
   isSearching: boolean;
@@ -113,7 +111,6 @@ export type GamesListProps = {
 
 export default function GamesList({
   games,
-  totalNumberOfGames,
   onSelectGame,
   selectedGame,
   isSearching,
@@ -180,20 +177,8 @@ export default function GamesList({
   }, [hasMore, isSearching, onLoadMore]);
 
   return (
-    <div className="flex flex-col h-screen ml-4 w-full">
-      <div
-        className="flex mb-4 flex-shrink-0"
-        style={{ cursor: selectedGame != null ? "pointer" : "default" }}
-        onClick={() => onSelectGame(null)}
-      >
-        {selectedGame != null && (
-          <div>
-            <img src={arrowLeftSvg} />
-          </div>
-        )}
-        {totalNumberOfGames} games
-      </div>
-      <div className="flex-1 overflow-y-auto space-y-2 pr-2 relative">
+    <div className="flex flex-col w-full">
+      <div className="space-y-2 pr-2 relative">
         {games.map((game, index) => (
           <div key={game.path}>
             {index === games.length - 5 && (
