@@ -84,6 +84,13 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
       }
     }, [game.moves_transformed, moveNumber]);
 
+    // Clear markers when the game is about to be hidden (game becomes null or empty)
+    useEffect(() => {
+      if (!game || !game.path) {
+        setMarkerMap(emptyBoard.map((row) => row.map(() => null)));
+      }
+    }, [game]);
+
     const handlePrevMove = useCallback(() => {
       setMoveNumber(
         clampMoveNumber(moveNumber - 1, game.moves_transformed.length),
