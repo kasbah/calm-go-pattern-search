@@ -1,4 +1,4 @@
-import { Goban, type Marker, type Map } from "@calm-go/shudan";
+import { Goban, type Marker, type Map, type Vertex } from "@calm-go/shudan";
 import GoBoard from "@sabaki/go-board";
 import {
   forwardRef,
@@ -7,18 +7,26 @@ import {
   useState,
   useImperativeHandle,
 } from "react";
+import { useImmerReducer } from "use-immer";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
+import { Toggle } from "./components/ui/toggle";
 import "./GobanCommon.css";
 import "./GobanViewer.css";
 import chevronFirstSvg from "./assets/icons/chevron-first.svg";
 import chevronLastSvg from "./assets/icons/chevron-last.svg";
 import chevronLeftSvg from "./assets/icons/chevron-left.svg";
 import chevronRightSvg from "./assets/icons/chevron-right.svg";
+import overlappingCirclesBlackSvg from "./assets/icons/overlapping-circles-black.svg";
+import overlappingCirclesBlackSwitchedSvg from "./assets/icons/overlapping-circles-black-switched.svg";
+import overlappingCirclesWhiteSvg from "./assets/icons/overlapping-circles-white.svg";
+import overlappingCirclesWhiteSwitchedSvg from "./assets/icons/overlapping-circles-white-switched.svg";
 import {
   emptyBoard,
   type BoardPosition,
   type SabakiMove,
+  SabakiColor,
+  SabakiSign,
 } from "./sabaki-types";
 import { toSabakiMove, type Game } from "./wasm-search-types";
 
@@ -58,8 +66,82 @@ const clampMoveNumber = (moveNumber: number, max: number) => {
   return moveNumber;
 };
 
+type GobanViewerAction =
+  | { type: "TOGGLE_ALTERNATE_COLOR" }
+  | { type: "SET_MOVE_NUMBER"; payload: number }
+  | { type: "UPDATE_BOARD"; payload: BoardPosition }
+  | { type: "MOUSE_ENTER"; payload: Vertex }
+  | { type: "MOUSE_LEAVE"; payload: Vertex };
+
+type GobanViewerState = {
+  alternateBrushColor: SabakiColor;
+  moveNumber: number;
+  stagingBoard: BoardPosition;
+  currentBoard: BoardPosition;
+};
+
+const initialViewerState: GobanViewerState = {
+  alternateBrushColor: SabakiColor.Black,
+  moveNumber: 0,
+  stagingBoard: emptyBoard,
+  currentBoard: emptyBoard,
+};
+
+function stageHoverStone(state: GobanViewerState, vertex: Vertex) {
+  const [x, y] = vertex;
+  const stone = state.currentBoard[y][x];
+
+  // Only show hover stone on empty positions
+  if (stone !== SabakiSign.Empty) {
+    state.stagingBoard = state.currentBoard;
+    return;
+  }
+
+  // Create a copy of the current board for staging
+  state.stagingBoard = state.currentBoard.map((row) => [...row]);
+
+  // Add the hover stone
+  state.stagingBoard[y][x] = state.alternateBrushColor;
+}
+
+function gobanViewerReducer(
+  state: GobanViewerState,
+  action: GobanViewerAction,
+): void {
+  switch (action.type) {
+    case "TOGGLE_ALTERNATE_COLOR": {
+      state.alternateBrushColor =
+        state.alternateBrushColor === SabakiSign.Black
+          ? SabakiSign.White
+          : SabakiSign.Black;
+      return;
+    }
+    case "SET_MOVE_NUMBER": {
+      state.moveNumber = action.payload;
+      return;
+    }
+    case "UPDATE_BOARD": {
+      state.currentBoard = action.payload;
+      state.stagingBoard = action.payload;
+      return;
+    }
+    case "MOUSE_ENTER": {
+      stageHoverStone(state, action.payload);
+      return;
+    }
+    case "MOUSE_LEAVE": {
+      state.stagingBoard = state.currentBoard;
+      return;
+    }
+  }
+}
+
 const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
   ({ game, vertexSize, moveNumber, setMoveNumber }, ref) => {
+    const [state, dispatch] = useImmerReducer(
+      gobanViewerReducer,
+      initialViewerState,
+    );
     const [markerMap, setMarkerMap] = useState<Map<Marker | null>>(
       emptyBoard.map((row) => row.map(() => null)),
     );
@@ -70,6 +152,10 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
     const [board, setBoard] = useState<BoardPosition>(
       calculateBoardPosition(moves, moveNumber),
     );
+    const [isHoveringAlternateBrush, setHoveringAlternateBrush] =
+      useState<boolean>(false);
+    const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
+    const [displayBoard, setDisplayBoard] = useState<BoardPosition>(emptyBoard);
 
     useEffect(() => {
       const mm: Map<Marker | null> = emptyBoard.map((row) =>
@@ -120,11 +206,95 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
       setBoard(calculateBoardPosition(moves, moveNumber));
     }, [moves, moveNumber]);
 
+    // Update staging board when the main board changes
+    useEffect(() => {
+      dispatch({ type: "SET_MOVE_NUMBER", payload: moveNumber });
+      dispatch({ type: "UPDATE_BOARD", payload: board });
+
+      // Set alternate brush color to opposite of last move
+      const lastMove = game.moves_transformed[moveNumber];
+      if (lastMove) {
+        const nextColor =
+          lastMove.color === "Black" ? SabakiSign.White : SabakiSign.Black;
+        if (state.alternateBrushColor !== nextColor) {
+          dispatch({ type: "TOGGLE_ALTERNATE_COLOR" });
+        }
+      } else {
+        // If no moves or at start, default to black
+        if (state.alternateBrushColor !== SabakiSign.Black) {
+          dispatch({ type: "TOGGLE_ALTERNATE_COLOR" });
+        }
+      }
+    }, [board, moveNumber, game.moves_transformed]);
+
+    // Update display board and dimmed vertices based on staging
+    useEffect(() => {
+      const dimmed: Array<Vertex> = [];
+      const display: BoardPosition = state.currentBoard.map((row, y) =>
+        row.map((boardStone, x) => {
+          const stagingStone = state.stagingBoard[y][x];
+          if (stagingStone !== boardStone) {
+            dimmed.push([x, y]);
+          }
+          if (stagingStone !== SabakiSign.Empty) {
+            return stagingStone;
+          }
+          if (boardStone !== SabakiSign.Empty) {
+            return boardStone;
+          }
+          return SabakiSign.Empty;
+        }),
+      );
+      setDisplayBoard(display);
+      setDimmedVertices(dimmed);
+    }, [state.currentBoard, state.stagingBoard]);
+
+    const handleVertexMouseEnter = useCallback(
+      (_e: React.MouseEvent, vertex: Vertex) => {
+        dispatch({ type: "MOUSE_ENTER", payload: vertex });
+      },
+      [dispatch],
+    );
+
+    const handleVertexMouseLeave = useCallback(
+      (_e: React.MouseEvent, vertex: Vertex) => {
+        dispatch({ type: "MOUSE_LEAVE", payload: vertex });
+      },
+      [dispatch],
+    );
+
     return (
       <div className="flex flex-row gap-2 GobanViewer" style={{ maxHeight }}>
         <div className="ml-2 mb-2 mt-2">
           <div className="flex flex-col justify-between h-full">
-            <div className="flex flex-col gap-1"></div>
+            <div className="flex flex-col gap-1">
+              <Toggle
+                size="xl"
+                onClick={() => {
+                  dispatch({
+                    type: "TOGGLE_ALTERNATE_COLOR",
+                  });
+                  setHoveringAlternateBrush(false);
+                }}
+                pressed={false}
+                onMouseEnter={() => setHoveringAlternateBrush(true)}
+                onMouseLeave={() => setHoveringAlternateBrush(false)}
+              >
+                <img
+                  src={
+                    isHoveringAlternateBrush
+                      ? state.alternateBrushColor === SabakiSign.Black
+                        ? overlappingCirclesBlackSwitchedSvg
+                        : overlappingCirclesWhiteSwitchedSvg
+                      : state.alternateBrushColor === SabakiSign.Black
+                        ? overlappingCirclesBlackSvg
+                        : overlappingCirclesWhiteSvg
+                  }
+                  width={32}
+                  height={32}
+                />
+              </Toggle>
+            </div>
             <div>
               <div className="max-w-[60px] mb-1">
                 <Input
@@ -211,8 +381,11 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
             fuzzyStonePlacement={false}
             vertexSize={vertexSize}
             showCoordinates={true}
-            signMap={board}
+            signMap={displayBoard}
             markerMap={markerMap}
+            dimmedVertices={dimmedVertices}
+            onVertexMouseEnter={handleVertexMouseEnter}
+            onVertexMouseLeave={handleVertexMouseLeave}
           />
         </div>
       </div>
