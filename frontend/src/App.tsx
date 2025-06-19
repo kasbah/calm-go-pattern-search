@@ -56,12 +56,12 @@ export default function App() {
   const pageSize = 20;
 
   const gobanEditorRef = useRef<{
-    handleUndo: () => void;
-    handleRedo: () => void;
+    undo: () => void;
+    redo: () => void;
   } | null>(null);
   const gobanViewerRef = useRef<{
-    handlePrevMove: () => void;
-    handleNextMove: () => void;
+    prevMove: () => void;
+    nextMove: () => void;
   } | null>(null);
 
   const timer = useRef<NodeJS.Timeout | undefined>(undefined);
@@ -149,10 +149,10 @@ export default function App() {
       if (selectedGame === null && gobanEditorRef.current) {
         if (e.key === "ArrowLeft" || (e.ctrlKey && e.key === "z")) {
           e.preventDefault(); // Prevent browser's default undo
-          gobanEditorRef.current.handleUndo();
+          gobanEditorRef.current.undo();
         } else if (e.key === "ArrowRight" || (e.ctrlKey && e.key === "y")) {
           e.preventDefault(); // Prevent browser's default redo
-          gobanEditorRef.current.handleRedo();
+          gobanEditorRef.current.redo();
         } else if (e.key === "ArrowDown") {
           e.preventDefault();
           // Select the first game if none is selected, or the next one if possible
@@ -182,9 +182,9 @@ export default function App() {
         }
       } else if (selectedGame != null && gobanViewerRef.current) {
         if (e.key === "ArrowLeft") {
-          gobanViewerRef.current.handlePrevMove();
+          gobanViewerRef.current.prevMove();
         } else if (e.key === "ArrowRight") {
-          gobanViewerRef.current.handleNextMove();
+          gobanViewerRef.current.nextMove();
         } else if (e.key === "ArrowDown") {
           e.preventDefault();
           // Select the next game in the list, if any

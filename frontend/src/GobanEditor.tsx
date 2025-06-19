@@ -228,8 +228,8 @@ export type GobanEditorProps = {
 };
 
 export type GobanEditorRef = {
-  handleUndo: () => void;
-  handleRedo: () => void;
+  undo: () => void;
+  redo: () => void;
 };
 
 const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
@@ -247,21 +247,21 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
       undefined,
     );
 
-    const handleUndo = useCallback(() => {
+    const undo = useCallback(() => {
       dispatch({ type: "UNDO" });
     }, [dispatch]);
 
-    const handleRedo = useCallback(() => {
+    const redo = useCallback(() => {
       dispatch({ type: "REDO" });
     }, [dispatch]);
 
     useImperativeHandle(
       ref,
       () => ({
-        handleUndo,
-        handleRedo,
+        undo,
+        redo,
       }),
-      [handleUndo, handleRedo],
+      [undo, redo],
     );
 
     useEffect(() => {
@@ -392,7 +392,7 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
                 <Button
                   size="xl"
                   variant="outline"
-                  onClick={handleUndo}
+                  onClick={undo}
                   disabled={state.historyIndex === 0}
                 >
                   <img src={undoSvg} width={24} height={24} />
@@ -400,7 +400,7 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
                 <Button
                   size="xl"
                   variant="outline"
-                  onClick={handleRedo}
+                  onClick={redo}
                   disabled={state.historyIndex === state.history.length - 1}
                 >
                   <img src={redoSvg} width={24} height={24} />

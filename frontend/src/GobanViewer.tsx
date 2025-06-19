@@ -52,8 +52,8 @@ export type GobanViewerProps = {
 };
 
 export type GobanViewerRef = {
-  handlePrevMove: () => void;
-  handleNextMove: () => void;
+  prevMove: () => void;
+  nextMove: () => void;
 };
 
 const clampMoveNumber = (moveNumber: number, max: number) => {
@@ -209,13 +209,13 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
       }
     }, [game]);
 
-    const handlePrevMove = useCallback(() => {
+    const prevMove = useCallback(() => {
       setMoveNumber(
         clampMoveNumber(moveNumber - 1, game.moves_transformed.length),
       );
     }, [moveNumber, setMoveNumber, game.moves_transformed.length]);
 
-    const handleNextMove = useCallback(() => {
+    const nextMove = useCallback(() => {
       setMoveNumber(
         clampMoveNumber(moveNumber + 1, game.moves_transformed.length),
       );
@@ -224,10 +224,10 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
     useImperativeHandle(
       ref,
       () => ({
-        handlePrevMove,
-        handleNextMove,
+        prevMove,
+        nextMove,
       }),
-      [handlePrevMove, handleNextMove],
+      [prevMove, nextMove],
     );
 
     useEffect(() => {
