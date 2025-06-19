@@ -120,6 +120,7 @@ export default function GamesList({
   const [showOverlay, setShowOverlay] = useState(false);
   const [overlayStartTime, setOverlayStartTime] = useState<number | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   useEffect(() => {
     let showTimer: NodeJS.Timeout;
@@ -176,6 +177,17 @@ export default function GamesList({
     };
   }, [hasMore, isSearching, onLoadMore]);
 
+  useEffect(() => {
+    if (!selectedGame) return;
+    const idx = games.findIndex((g) => g.path === selectedGame.path);
+    if (idx !== -1 && itemRefs.current[idx]) {
+      itemRefs.current[idx]?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [selectedGame, games]);
+
   return (
     <div className="flex flex-col w-full">
       <div className="space-y-2 pr-2 relative">
@@ -185,6 +197,9 @@ export default function GamesList({
               <div ref={loadMoreRef} className="h-0" />
             )}
             <div
+              ref={(el) => {
+                itemRefs.current[index] = el;
+              }}
               data-selected={selectedGame?.path === game.path}
               className="bg-white hover:bg-secondary data-[selected=true]:bg-highlight cursor-default rounded-md border p-2"
               onClick={() => onSelectGame(game)}

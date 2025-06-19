@@ -152,12 +152,60 @@ export default function App() {
         } else if (e.key === "ArrowRight" || (e.ctrlKey && e.key === "y")) {
           e.preventDefault(); // Prevent browser's default redo
           gobanEditorRef.current.handleRedo();
+        } else if (e.key === "ArrowDown") {
+          e.preventDefault();
+          // Select the first game if none is selected, or the next one if possible
+          if (games.length > 0) {
+            setSelectedGame(games[0]);
+          }
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          // If a game is selected, select the previous one if possible
+          if (selectedGame !== null && games.length > 0) {
+            const idx = games.findIndex(
+              // @ts-expect-error ts can't infer the right type for g
+              (g: Game) => g.path === selectedGame.path,
+            );
+            if (idx > 0) {
+              setSelectedGame(games[idx - 1]);
+            }
+          }
+        }
+      } else if (selectedGame === null) {
+        // If no game is selected and ArrowDown is pressed, select the first game
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          if (games.length > 0) {
+            setSelectedGame(games[0]);
+          }
         }
       } else if (selectedGame !== null && gobanViewerRef.current) {
         if (e.key === "ArrowLeft") {
           gobanViewerRef.current.handlePrevMove();
         } else if (e.key === "ArrowRight") {
           gobanViewerRef.current.handleNextMove();
+        } else if (e.key === "ArrowDown") {
+          e.preventDefault();
+          // Select the next game in the list, if any
+          if (selectedGame !== null && games.length > 0) {
+            const idx = (games as Game[]).findIndex(
+              (g) => g.path === selectedGame.path,
+            );
+            if (idx !== -1 && idx < games.length - 1) {
+              setSelectedGame(games[idx + 1]);
+            }
+          }
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          // Select the previous game in the list, if any
+          if (selectedGame !== null && games.length > 0) {
+            const idx = (games as Game[]).findIndex(
+              (g) => g.path === selectedGame.path,
+            );
+            if (idx > 0) {
+              setSelectedGame(games[idx - 1]);
+            }
+          }
         }
       }
     };
@@ -166,7 +214,7 @@ export default function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [selectedGame]);
+  }, [selectedGame, games]);
 
   return (
     <div className="flex flex-gap-100">
