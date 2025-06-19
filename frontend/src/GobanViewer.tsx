@@ -17,12 +17,16 @@ import chevronFirstSvg from "./assets/icons/chevron-first.svg";
 import chevronLastSvg from "./assets/icons/chevron-last.svg";
 import chevronLeftSvg from "./assets/icons/chevron-left.svg";
 import chevronRightSvg from "./assets/icons/chevron-right.svg";
+import circleBlackSvg from "./assets/icons/circle-black.svg";
+import circleWhiteSvg from "./assets/icons/circle-white.svg";
+import eraserSvg from "./assets/icons/eraser.svg";
 import overlappingCirclesBlackSvg from "./assets/icons/overlapping-circles-black.svg";
 import overlappingCirclesBlackSwitchedSvg from "./assets/icons/overlapping-circles-black-switched.svg";
 import overlappingCirclesWhiteSvg from "./assets/icons/overlapping-circles-white.svg";
 import overlappingCirclesWhiteSwitchedSvg from "./assets/icons/overlapping-circles-white-switched.svg";
 import {
   emptyBoard,
+  BrushMode,
   type BoardPosition,
   type SabakiMove,
   SabakiColor,
@@ -68,6 +72,7 @@ const clampMoveNumber = (moveNumber: number, max: number) => {
 
 type GobanViewerAction =
   | { type: "TOGGLE_ALTERNATE_COLOR" }
+  | { type: "SET_BRUSH_MODE"; payload: BrushMode }
   | { type: "SET_MOVE_NUMBER"; payload: number }
   | { type: "UPDATE_BOARD"; payload: BoardPosition }
   | { type: "MOUSE_ENTER"; payload: Vertex }
@@ -75,6 +80,7 @@ type GobanViewerAction =
 
 type GobanViewerState = {
   alternateBrushColor: SabakiColor;
+  brushMode: BrushMode;
   moveNumber: number;
   stagingBoard: BoardPosition;
   currentBoard: BoardPosition;
@@ -82,16 +88,41 @@ type GobanViewerState = {
 
 const initialViewerState: GobanViewerState = {
   alternateBrushColor: SabakiColor.Black,
+  brushMode: BrushMode.Alternate,
   moveNumber: 0,
   stagingBoard: emptyBoard,
   currentBoard: emptyBoard,
 };
 
+function getHoverStoneColor(
+  brushMode: BrushMode,
+  alternateBrushColor: SabakiColor,
+): SabakiSign {
+  if (brushMode === BrushMode.Alternate) {
+    return alternateBrushColor;
+  } else if (brushMode === BrushMode.Black) {
+    return SabakiSign.Black;
+  } else if (brushMode === BrushMode.White) {
+    return SabakiSign.White;
+  } else if (brushMode === BrushMode.Remove) {
+    return SabakiSign.Empty;
+  }
+  return alternateBrushColor;
+}
+
 function stageHoverStone(state: GobanViewerState, vertex: Vertex) {
   const [x, y] = vertex;
   const stone = state.currentBoard[y][x];
 
-  // Only show hover stone on empty positions
+  // For remove mode, show preview even on occupied positions
+  if (state.brushMode === BrushMode.Remove) {
+    // Create a copy of the current board for staging
+    state.stagingBoard = state.currentBoard.map((row) => [...row]);
+    state.stagingBoard[y][x] = SabakiSign.Empty;
+    return;
+  }
+
+  // Only show hover stone on empty positions for other modes
   if (stone !== SabakiSign.Empty) {
     state.stagingBoard = state.currentBoard;
     return;
@@ -100,8 +131,14 @@ function stageHoverStone(state: GobanViewerState, vertex: Vertex) {
   // Create a copy of the current board for staging
   state.stagingBoard = state.currentBoard.map((row) => [...row]);
 
-  // Add the hover stone
-  state.stagingBoard[y][x] = state.alternateBrushColor;
+  // Add the hover stone based on brush mode
+  const hoverColor = getHoverStoneColor(
+    state.brushMode,
+    state.alternateBrushColor,
+  );
+  if (hoverColor !== SabakiSign.Empty) {
+    state.stagingBoard[y][x] = hoverColor;
+  }
 }
 
 function gobanViewerReducer(
@@ -114,6 +151,10 @@ function gobanViewerReducer(
         state.alternateBrushColor === SabakiSign.Black
           ? SabakiSign.White
           : SabakiSign.Black;
+      return;
+    }
+    case "SET_BRUSH_MODE": {
+      state.brushMode = action.payload;
       return;
     }
     case "SET_MOVE_NUMBER": {
@@ -271,13 +312,23 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
               <Toggle
                 size="xl"
                 onClick={() => {
-                  dispatch({
-                    type: "TOGGLE_ALTERNATE_COLOR",
-                  });
+                  if (state.brushMode === BrushMode.Alternate) {
+                    dispatch({
+                      type: "TOGGLE_ALTERNATE_COLOR",
+                    });
+                  } else {
+                    dispatch({
+                      type: "SET_BRUSH_MODE",
+                      payload: BrushMode.Alternate,
+                    });
+                  }
                   setHoveringAlternateBrush(false);
                 }}
-                pressed={false}
-                onMouseEnter={() => setHoveringAlternateBrush(true)}
+                pressed={state.brushMode === BrushMode.Alternate}
+                onMouseEnter={() =>
+                  state.brushMode === BrushMode.Alternate &&
+                  setHoveringAlternateBrush(true)
+                }
                 onMouseLeave={() => setHoveringAlternateBrush(false)}
               >
                 <img
@@ -293,6 +344,36 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
                   width={32}
                   height={32}
                 />
+              </Toggle>
+              <Toggle
+                size="xl"
+                onClick={() =>
+                  dispatch({ type: "SET_BRUSH_MODE", payload: BrushMode.Black })
+                }
+                pressed={state.brushMode === BrushMode.Black}
+              >
+                <img src={circleBlackSvg} width={32} height={32} />
+              </Toggle>
+              <Toggle
+                size="xl"
+                onClick={() =>
+                  dispatch({ type: "SET_BRUSH_MODE", payload: BrushMode.White })
+                }
+                pressed={state.brushMode === BrushMode.White}
+              >
+                <img src={circleWhiteSvg} width={32} height={32} />
+              </Toggle>
+              <Toggle
+                size="xl"
+                onClick={() =>
+                  dispatch({
+                    type: "SET_BRUSH_MODE",
+                    payload: BrushMode.Remove,
+                  })
+                }
+                pressed={state.brushMode === BrushMode.Remove}
+              >
+                <img src={eraserSvg} width={32} height={32} />
               </Toggle>
             </div>
             <div>
