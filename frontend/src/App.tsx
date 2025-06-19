@@ -52,6 +52,7 @@ export default function App() {
   const [hasMore, setHasMore] = useState(true);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
   const [playerCounts, setPlayerCounts] = useState<Record<number, number>>({});
+  const [moveNumbers, setMoveNumbers] = useState<Record<string, number>>({});
   const pageSize = 20;
 
   const gobanEditorRef = useRef<{
@@ -161,7 +162,7 @@ export default function App() {
         } else if (e.key === "ArrowUp") {
           e.preventDefault();
           // If a game is selected, select the previous one if possible
-          if (selectedGame !== null && games.length > 0) {
+          if (selectedGame != null && games.length > 0) {
             const idx = games.findIndex(
               // @ts-expect-error ts can't infer the right type for g
               (g: Game) => g.path === selectedGame.path,
@@ -171,7 +172,7 @@ export default function App() {
             }
           }
         }
-      } else if (selectedGame === null) {
+      } else if (selectedGame == null) {
         // If no game is selected and ArrowDown is pressed, select the first game
         if (e.key === "ArrowDown") {
           e.preventDefault();
@@ -179,7 +180,7 @@ export default function App() {
             setSelectedGame(games[0]);
           }
         }
-      } else if (selectedGame !== null && gobanViewerRef.current) {
+      } else if (selectedGame != null && gobanViewerRef.current) {
         if (e.key === "ArrowLeft") {
           gobanViewerRef.current.handlePrevMove();
         } else if (e.key === "ArrowRight") {
@@ -187,7 +188,7 @@ export default function App() {
         } else if (e.key === "ArrowDown") {
           e.preventDefault();
           // Select the next game in the list, if any
-          if (selectedGame !== null && games.length > 0) {
+          if (selectedGame != null && games.length > 0) {
             const idx = (games as Game[]).findIndex(
               (g) => g.path === selectedGame.path,
             );
@@ -216,6 +217,15 @@ export default function App() {
     };
   }, [selectedGame, games]);
 
+  const getCurrentMoveNumber = (game: Game | null) => {
+    if (!game) return -1;
+    return moveNumbers[game.path] ?? game.last_move_matched;
+  };
+
+  const handleSetMoveNumber = (game: Game, moveNumber: number) => {
+    setMoveNumbers((prev) => ({ ...prev, [game.path]: moveNumber }));
+  };
+
   return (
     <div className="flex flex-gap-100">
       <div className="sticky top-0 h-screen">
@@ -238,6 +248,10 @@ export default function App() {
               ref={gobanViewerRef}
               game={selectedGame || emptyGame}
               vertexSize={vertexSize}
+              moveNumber={getCurrentMoveNumber(selectedGame)}
+              setMoveNumber={(moveNumber) => {
+                if (selectedGame) handleSetMoveNumber(selectedGame, moveNumber);
+              }}
             />
           </div>
         </div>

@@ -33,6 +33,7 @@ function calculateBoardPosition(
   }
   for (let i = 0; i <= moveNumber; i++) {
     const move = moves[i];
+    if (!move) break;
     sgb = sgb.makeMove(move.color, [move.point.x, move.point.y]);
   }
   return sgb.signMap;
@@ -41,6 +42,8 @@ function calculateBoardPosition(
 export type GobanViewerProps = {
   game: Game;
   vertexSize: number;
+  moveNumber: number;
+  setMoveNumber: (moveNumber: number) => void;
 };
 
 export type GobanViewerRef = {
@@ -48,9 +51,15 @@ export type GobanViewerRef = {
   handleNextMove: () => void;
 };
 
+const clampMoveNumber = (moveNumber: number, max: number) => {
+  if (max === 0) return -1;
+  if (moveNumber < 0) return 0;
+  if (moveNumber >= max) return max - 1;
+  return moveNumber;
+};
+
 const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
-  ({ game, vertexSize }, ref) => {
-    const [moveNumber, setMoveNumberState] = useState(game.last_move_matched);
+  ({ game, vertexSize, moveNumber, setMoveNumber }, ref) => {
     const [markerMap, setMarkerMap] = useState<Map<Marker | null>>(
       emptyBoard.map((row) => row.map(() => null)),
     );
@@ -75,28 +84,17 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
       }
     }, [game.moves_transformed, moveNumber]);
 
-    const setMoveNumber = useCallback(
-      (moveNumber: number) => {
-        if (game.moves_transformed.length === 0) {
-          // For games with no moves, keep moveNumber at -1
-          moveNumber = -1;
-        } else if (moveNumber < 0) {
-          moveNumber = 0;
-        } else if (moveNumber >= game.moves_transformed.length) {
-          moveNumber = game.moves_transformed.length - 1;
-        }
-        setMoveNumberState(moveNumber);
-      },
-      [setMoveNumberState, game.moves_transformed.length],
-    );
-
     const handlePrevMove = useCallback(() => {
-      setMoveNumber(moveNumber - 1);
-    }, [moveNumber, setMoveNumber]);
+      setMoveNumber(
+        clampMoveNumber(moveNumber - 1, game.moves_transformed.length),
+      );
+    }, [moveNumber, setMoveNumber, game.moves_transformed.length]);
 
     const handleNextMove = useCallback(() => {
-      setMoveNumber(moveNumber + 1);
-    }, [moveNumber, setMoveNumber]);
+      setMoveNumber(
+        clampMoveNumber(moveNumber + 1, game.moves_transformed.length),
+      );
+    }, [moveNumber, setMoveNumber, game.moves_transformed.length]);
 
     useImperativeHandle(
       ref,
@@ -108,9 +106,8 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
     );
 
     useEffect(() => {
-      setMoveNumber(game.last_move_matched);
       setMoves(game.moves_transformed.map(toSabakiMove));
-    }, [game, setMoveNumber, setMoves]);
+    }, [game, setMoves]);
 
     useEffect(() => {
       setBoard(calculateBoardPosition(moves, moveNumber));
@@ -129,7 +126,14 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
                   max={game.moves_transformed.length}
                   step={1}
                   value={moveNumber + 1}
-                  onChange={(e) => setMoveNumber(parseInt(e.target.value) - 1)}
+                  onChange={(e) =>
+                    setMoveNumber(
+                      clampMoveNumber(
+                        parseInt(e.target.value) - 1,
+                        game.moves_transformed.length,
+                      ),
+                    )
+                  }
                 />
               </div>
               <div className="flex flex-col gap-1 mb-1">
@@ -137,7 +141,11 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
                   size="xl"
                   variant="outline"
                   disabled={moveNumber === 0}
-                  onClick={() => setMoveNumber(0)}
+                  onClick={() =>
+                    setMoveNumber(
+                      clampMoveNumber(0, game.moves_transformed.length),
+                    )
+                  }
                 >
                   <img src={chevronFirstSvg} width={24} height={24} />
                 </Button>
@@ -145,7 +153,14 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
                   size="xl"
                   variant="outline"
                   disabled={moveNumber === 0}
-                  onClick={() => setMoveNumber(moveNumber - 1)}
+                  onClick={() =>
+                    setMoveNumber(
+                      clampMoveNumber(
+                        moveNumber - 1,
+                        game.moves_transformed.length,
+                      ),
+                    )
+                  }
                 >
                   <img src={chevronLeftSvg} width={24} height={24} />
                 </Button>
@@ -153,15 +168,29 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
                   size="xl"
                   variant="outline"
                   disabled={moveNumber === game.moves_transformed.length - 1}
-                  onClick={() => setMoveNumber(moveNumber + 1)}
+                  onClick={() =>
+                    setMoveNumber(
+                      clampMoveNumber(
+                        moveNumber + 1,
+                        game.moves_transformed.length,
+                      ),
+                    )
+                  }
                 >
                   <img src={chevronRightSvg} width={24} height={24} />
                 </Button>
                 <Button
                   size="xl"
                   variant="outline"
-                  disabled={moveNumber === 999}
-                  onClick={() => setMoveNumber(999)}
+                  disabled={moveNumber === game.moves_transformed.length - 1}
+                  onClick={() =>
+                    setMoveNumber(
+                      clampMoveNumber(
+                        game.moves_transformed.length - 1,
+                        game.moves_transformed.length,
+                      ),
+                    )
+                  }
                 >
                   <img src={chevronLastSvg} width={24} height={24} />
                 </Button>
