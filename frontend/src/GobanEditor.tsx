@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Toggle } from "@/components/ui/toggle";
 import SabakiGoBoard from "@sabaki/go-board";
 import { Goban, type Vertex, type Map, type Marker } from "@calm-go/shudan";
 import "@calm-go/shudan/css/goban.css";
@@ -15,16 +14,10 @@ import { useImmerReducer } from "use-immer";
 import "./GobanCommon.css";
 import "./GobanEditor.css";
 
-import circleBlackSvg from "./assets/icons/circle-black.svg";
-import circleWhiteSvg from "./assets/icons/circle-white.svg";
-import eraserSvg from "./assets/icons/eraser.svg";
-import overlappingCirclesBlackSvg from "./assets/icons/overlapping-circles-black.svg";
-import overlappingCirclesBlackSwitchedSvg from "./assets/icons/overlapping-circles-black-switched.svg";
-import overlappingCirclesWhiteSvg from "./assets/icons/overlapping-circles-white.svg";
-import overlappingCirclesWhiteSwitchedSvg from "./assets/icons/overlapping-circles-white-switched.svg";
 import redoSvg from "./assets/icons/redo.svg";
 import trashSvg from "./assets/icons/trash.svg";
 import undoSvg from "./assets/icons/undo.svg";
+import BrushToolbar from "./BrushToolbar";
 import {
   boardsEqual,
   BrushMode,
@@ -254,9 +247,6 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
       undefined,
     );
 
-    const [isHoveringAlternateBrush, setHoveringAlternateBrush] =
-      useState<boolean>(false);
-
     const handleUndo = useCallback(() => {
       dispatch({ type: "UNDO" });
     }, [dispatch]);
@@ -387,74 +377,16 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
       <div className="flex flex-row gap-2 GobanEditor" style={{ maxHeight }}>
         <div className="ml-2 mb-2 mt-2">
           <div className="flex flex-col justify-between h-full">
-            <div className="flex flex-col gap-1">
-              <Toggle
-                size="xl"
-                onClick={() => {
-                  if (state.brushMode === BrushMode.Alternate) {
-                    dispatch({
-                      type: "TOGGLE_ALTERNATE_COLOR",
-                    });
-                  } else {
-                    dispatch({
-                      type: "SET_BRUSH_MODE",
-                      payload: BrushMode.Alternate,
-                    });
-                  }
-                  setHoveringAlternateBrush(false);
-                }}
-                pressed={state.brushMode === BrushMode.Alternate}
-                onMouseEnter={() =>
-                  state.brushMode === BrushMode.Alternate &&
-                  setHoveringAlternateBrush(true)
-                }
-                onMouseLeave={() => setHoveringAlternateBrush(false)}
-              >
-                <img
-                  src={
-                    isHoveringAlternateBrush
-                      ? state.alternateBrushColor === SabakiSign.Black
-                        ? overlappingCirclesBlackSwitchedSvg
-                        : overlappingCirclesWhiteSwitchedSvg
-                      : state.alternateBrushColor === SabakiSign.Black
-                        ? overlappingCirclesBlackSvg
-                        : overlappingCirclesWhiteSvg
-                  }
-                  width={32}
-                  height={32}
-                />
-              </Toggle>
-              <Toggle
-                size="xl"
-                onClick={() =>
-                  dispatch({ type: "SET_BRUSH_MODE", payload: BrushMode.Black })
-                }
-                pressed={state.brushMode === BrushMode.Black}
-              >
-                <img src={circleBlackSvg} width={32} height={32} />
-              </Toggle>
-              <Toggle
-                size="xl"
-                onClick={() =>
-                  dispatch({ type: "SET_BRUSH_MODE", payload: BrushMode.White })
-                }
-                pressed={state.brushMode === BrushMode.White}
-              >
-                <img src={circleWhiteSvg} width={32} height={32} />
-              </Toggle>
-              <Toggle
-                size="xl"
-                onClick={() =>
-                  dispatch({
-                    type: "SET_BRUSH_MODE",
-                    payload: BrushMode.Remove,
-                  })
-                }
-                pressed={state.brushMode === BrushMode.Remove}
-              >
-                <img src={eraserSvg} width={32} height={32} />
-              </Toggle>
-            </div>
+            <BrushToolbar
+              brushMode={state.brushMode}
+              alternateBrushColor={state.alternateBrushColor}
+              onSetBrushMode={(brushMode) =>
+                dispatch({ type: "SET_BRUSH_MODE", payload: brushMode })
+              }
+              onToggleAlternateColor={() =>
+                dispatch({ type: "TOGGLE_ALTERNATE_COLOR" })
+              }
+            />
             <div>
               <div className="flex flex-col gap-1 mb-1">
                 <Button
