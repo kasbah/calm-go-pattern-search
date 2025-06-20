@@ -44,13 +44,6 @@ function calculateBoardPosition(
   return sgb.signMap;
 }
 
-export type GobanViewerProps = {
-  game: Game;
-  vertexSize: number;
-  moveNumber: number;
-  setMoveNumber: (moveNumber: number) => void;
-};
-
 export type GobanViewerRef = {
   prevMove: () => void;
   nextMove: () => void;
@@ -170,8 +163,27 @@ function gobanViewerReducer(
   }
 }
 
+export type GobanViewerProps = {
+  game: Game;
+  vertexSize: number;
+  moveNumber: number;
+  setMoveNumber: (moveNumber: number) => void;
+  onChangeBrushMode: (mode: BrushMode) => void;
+  brushMode: BrushMode;
+};
+
 const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
-  ({ game, vertexSize, moveNumber, setMoveNumber }, ref) => {
+  (
+    {
+      game,
+      vertexSize,
+      moveNumber,
+      setMoveNumber,
+      onChangeBrushMode,
+      brushMode,
+    },
+    ref,
+  ) => {
     const [state, dispatch] = useImmerReducer(
       gobanViewerReducer,
       initialViewerState,
@@ -238,6 +250,10 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
       setBoard(calculateBoardPosition(moves, moveNumber));
     }, [moves, moveNumber]);
 
+    useEffect(() => {
+      dispatch({ type: "SET_BRUSH_MODE", payload: brushMode });
+    }, [brushMode, dispatch]);
+
     // Update staging board when the main board changes
     useEffect(() => {
       dispatch({ type: "SET_MOVE_NUMBER", payload: moveNumber });
@@ -257,7 +273,13 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
           dispatch({ type: "TOGGLE_ALTERNATE_COLOR" });
         }
       }
-    }, [board, moveNumber, game.moves_transformed]);
+    }, [
+      board,
+      moveNumber,
+      game.moves_transformed,
+      dispatch,
+      state.alternateBrushColor,
+    ]);
 
     // Update display board and dimmed vertices based on staging
     useEffect(() => {
@@ -302,9 +324,7 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
             <BrushToolbar
               brushMode={state.brushMode}
               alternateBrushColor={state.alternateBrushColor}
-              onSetBrushMode={(brushMode) =>
-                dispatch({ type: "SET_BRUSH_MODE", payload: brushMode })
-              }
+              onSetBrushMode={onChangeBrushMode}
               onToggleAlternateColor={() =>
                 dispatch({ type: "TOGGLE_ALTERNATE_COLOR" })
               }

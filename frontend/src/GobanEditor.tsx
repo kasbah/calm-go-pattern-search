@@ -66,7 +66,7 @@ const initialState: GobanEditorState = {
 };
 
 function stageVertexChange(state: GobanEditorState, vertex: Vertex) {
-  // change the vertex to the right color stone or remove it
+  // change the vertex to the right color stone or remove it(brushMode) => onChangeBrushMode(brushMode)
   // depending on the brush and the mouse state
   const [x, y] = vertex;
   const stone = state.board[y][x];
@@ -225,6 +225,8 @@ export type GobanEditorProps = {
   vertexSize: number;
   nextMoves: Array<{ x: number; y: number }>;
   onChangeBrushColor: (color: SabakiColor) => void;
+  onChangeBrushMode: (mode: BrushMode) => void;
+  brushMode: BrushMode;
 };
 
 export type GobanEditorRef = {
@@ -233,7 +235,17 @@ export type GobanEditorRef = {
 };
 
 const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
-  ({ onUpdateBoard, vertexSize, nextMoves, onChangeBrushColor }, ref) => {
+  (
+    {
+      onUpdateBoard,
+      vertexSize,
+      nextMoves,
+      onChangeBrushColor,
+      onChangeBrushMode,
+      brushMode,
+    },
+    ref,
+  ) => {
     const [state, dispatch] = useImmerReducer(gobanEditorReducer, initialState);
     const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
     const [displayBoard, setDisplayBoard] = useState<BoardPosition>(emptyBoard);
@@ -278,6 +290,10 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
         );
       }
     }, [state.alternateBrushColor, setBrushColor, state.brushMode]);
+
+    useEffect(() => {
+      dispatch({ type: "SET_BRUSH_MODE", payload: brushMode });
+    }, [brushMode, dispatch]);
 
     useEffect(() => {
       onChangeBrushColor(brushColor);
@@ -380,9 +396,7 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
             <BrushToolbar
               brushMode={state.brushMode}
               alternateBrushColor={state.alternateBrushColor}
-              onSetBrushMode={(brushMode) =>
-                dispatch({ type: "SET_BRUSH_MODE", payload: brushMode })
-              }
+              onSetBrushMode={onChangeBrushMode}
               onToggleAlternateColor={() =>
                 dispatch({ type: "TOGGLE_ALTERNATE_COLOR" })
               }

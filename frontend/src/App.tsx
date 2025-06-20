@@ -5,7 +5,12 @@ import GobanEditor from "./GobanEditor";
 import GobanViewer from "./GobanViewer";
 import PlayerSearch from "./PlayerSearch";
 import TinyGoban from "./TinyGoban";
-import { emptyBoard, SabakiColor, type BoardPosition } from "./sabaki-types";
+import {
+  BrushMode,
+  emptyBoard,
+  SabakiColor,
+  type BoardPosition,
+} from "./sabaki-types";
 import {
   toWasmSearch,
   type Game,
@@ -48,6 +53,7 @@ export default function App() {
   );
   const [isSearching, setIsSearching] = useState(false);
   const [brushColor, setBrushColor] = useState<SabakiColor>(SabakiColor.Black);
+  const [brushMode, setBrushMode] = useState<BrushMode>(BrushMode.Alternate);
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
@@ -87,7 +93,6 @@ export default function App() {
           [positionBuf.buffer],
         );
         setCurrentPage(0);
-        setGames([]);
         setHasMore(true);
       }, 0);
     }
@@ -237,6 +242,8 @@ export default function App() {
               ref={gobanEditorRef}
               onUpdateBoard={setBoard}
               onChangeBrushColor={setBrushColor}
+              onChangeBrushMode={setBrushMode}
+              brushMode={brushMode}
               vertexSize={vertexSize}
               nextMoves={isSearching ? [] : nextMoves}
             />
@@ -248,6 +255,8 @@ export default function App() {
               ref={gobanViewerRef}
               game={selectedGame || emptyGame}
               vertexSize={vertexSize}
+              onChangeBrushMode={setBrushMode}
+              brushMode={brushMode}
               moveNumber={getCurrentMoveNumber(selectedGame)}
               setMoveNumber={(moveNumber) => {
                 if (selectedGame) handleSetMoveNumber(selectedGame, moveNumber);
