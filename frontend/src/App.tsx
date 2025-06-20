@@ -1,8 +1,8 @@
 import { useWindowSize } from "@reach/window-size";
 import { useEffect, useRef, useState } from "react";
 import GamesList from "./GamesList";
-import GobanEditor from "./GobanEditor";
-import GobanViewer from "./GobanViewer";
+import EditorGoban from "./EditorGoban";
+import ViewerGoban from "./ViewerGoban";
 import PlayerSearch from "./PlayerSearch";
 import TinyGoban from "./TinyGoban";
 import {
@@ -61,11 +61,11 @@ export default function App() {
   const [moveNumbers, setMoveNumbers] = useState<Record<string, number>>({});
   const pageSize = 20;
 
-  const gobanEditorRef = useRef<{
+  const editorGobanRef = useRef<{
     undo: () => void;
     redo: () => void;
   } | null>(null);
-  const gobanViewerRef = useRef<{
+  const viewerGobanRef = useRef<{
     prevMove: () => void;
     nextMove: () => void;
   } | null>(null);
@@ -151,13 +151,13 @@ export default function App() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (selectedGame === null && gobanEditorRef.current) {
+      if (selectedGame === null && editorGobanRef.current) {
         if (e.key === "ArrowLeft" || (e.ctrlKey && e.key === "z")) {
           e.preventDefault(); // Prevent browser's default undo
-          gobanEditorRef.current.undo();
+          editorGobanRef.current.undo();
         } else if (e.key === "ArrowRight" || (e.ctrlKey && e.key === "y")) {
           e.preventDefault(); // Prevent browser's default redo
-          gobanEditorRef.current.redo();
+          editorGobanRef.current.redo();
         } else if (e.key === "ArrowDown") {
           e.preventDefault();
           // Select the first game if none is selected, or the next one if possible
@@ -185,11 +185,11 @@ export default function App() {
             setSelectedGame(games[0]);
           }
         }
-      } else if (selectedGame != null && gobanViewerRef.current) {
+      } else if (selectedGame != null && viewerGobanRef.current) {
         if (e.key === "ArrowLeft") {
-          gobanViewerRef.current.prevMove();
+          viewerGobanRef.current.prevMove();
         } else if (e.key === "ArrowRight") {
-          gobanViewerRef.current.nextMove();
+          viewerGobanRef.current.nextMove();
         } else if (e.key === "ArrowDown") {
           e.preventDefault();
           // Select the next game in the list, if any
@@ -238,8 +238,8 @@ export default function App() {
           <div
             className={`goban-editor-wrapper ${selectedGame ? "goban-editor-hidden" : "goban-editor-visible"}`}
           >
-            <GobanEditor
-              ref={gobanEditorRef}
+            <EditorGoban
+              ref={editorGobanRef}
               onUpdateBoard={setBoard}
               onChangeBrushColor={setBrushColor}
               onChangeBrushMode={setBrushMode}
@@ -251,14 +251,14 @@ export default function App() {
           <div
             className={`goban-viewer-wrapper ${selectedGame ? "goban-viewer-visible" : "goban-viewer-hidden"}`}
           >
-            <GobanViewer
-              ref={gobanViewerRef}
+            <ViewerGoban
+              ref={viewerGobanRef}
               game={selectedGame || emptyGame}
               vertexSize={vertexSize}
               onChangeBrushMode={setBrushMode}
               brushMode={brushMode}
               moveNumber={getCurrentMoveNumber(selectedGame)}
-              setMoveNumber={(moveNumber) => {
+              setMoveNumber={(moveNumber: number) => {
                 if (selectedGame) handleSetMoveNumber(selectedGame, moveNumber);
               }}
             />

@@ -11,7 +11,7 @@ import { useImmerReducer } from "use-immer";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import "./GobanCommon.css";
-import "./GobanViewer.css";
+import "./ViewerGoban.css";
 import chevronFirstSvg from "./assets/icons/chevron-first.svg";
 import chevronLastSvg from "./assets/icons/chevron-last.svg";
 import chevronLeftSvg from "./assets/icons/chevron-left.svg";
@@ -44,7 +44,7 @@ function calculateBoardPosition(
   return sgb.signMap;
 }
 
-export type GobanViewerRef = {
+export type ViewerGobanRef = {
   prevMove: () => void;
   nextMove: () => void;
 };
@@ -56,7 +56,7 @@ const clampMoveNumber = (moveNumber: number, max: number) => {
   return moveNumber;
 };
 
-type GobanViewerAction =
+type ViewerGobanAction =
   | { type: "TOGGLE_ALTERNATE_COLOR" }
   | { type: "SET_BRUSH_MODE"; payload: BrushMode }
   | { type: "SET_MOVE_NUMBER"; payload: number }
@@ -64,7 +64,7 @@ type GobanViewerAction =
   | { type: "MOUSE_ENTER"; payload: Vertex }
   | { type: "MOUSE_LEAVE"; payload: Vertex };
 
-type GobanViewerState = {
+type ViewerGobanState = {
   alternateBrushColor: SabakiColor;
   brushMode: BrushMode;
   moveNumber: number;
@@ -72,7 +72,7 @@ type GobanViewerState = {
   currentBoard: BoardPosition;
 };
 
-const initialViewerState: GobanViewerState = {
+const initialViewerState: ViewerGobanState = {
   alternateBrushColor: SabakiColor.Black,
   brushMode: BrushMode.Alternate,
   moveNumber: 0,
@@ -96,7 +96,7 @@ function getHoverStoneColor(
   return alternateBrushColor;
 }
 
-function stageHoverStone(state: GobanViewerState, vertex: Vertex) {
+function stageHoverStone(state: ViewerGobanState, vertex: Vertex) {
   const [x, y] = vertex;
   const stone = state.currentBoard[y][x];
 
@@ -127,9 +127,9 @@ function stageHoverStone(state: GobanViewerState, vertex: Vertex) {
   }
 }
 
-function gobanViewerReducer(
-  state: GobanViewerState,
-  action: GobanViewerAction,
+function viewerGobanReducer(
+  state: ViewerGobanState,
+  action: ViewerGobanAction,
 ): void {
   switch (action.type) {
     case "TOGGLE_ALTERNATE_COLOR": {
@@ -163,7 +163,7 @@ function gobanViewerReducer(
   }
 }
 
-export type GobanViewerProps = {
+export type ViewerGobanProps = {
   game: Game;
   vertexSize: number;
   moveNumber: number;
@@ -172,7 +172,7 @@ export type GobanViewerProps = {
   brushMode: BrushMode;
 };
 
-const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
+const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
   (
     {
       game,
@@ -185,7 +185,7 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
     ref,
   ) => {
     const [state, dispatch] = useImmerReducer(
-      gobanViewerReducer,
+      viewerGobanReducer,
       initialViewerState,
     );
     const [markerMap, setMarkerMap] = useState<Map<Marker | null>>(
@@ -318,7 +318,7 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
     );
 
     return (
-      <div className="flex flex-row gap-2 GobanViewer" style={{ maxHeight }}>
+      <div className="flex flex-row gap-2 ViewerGoban" style={{ maxHeight }}>
         <div className="ml-2 mb-2 mt-2">
           <div className="flex flex-col justify-between h-full">
             <BrushToolbar
@@ -427,4 +427,4 @@ const GobanViewer = forwardRef<GobanViewerRef, GobanViewerProps>(
   },
 );
 
-export default GobanViewer;
+export default ViewerGoban;

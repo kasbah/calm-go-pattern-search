@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { BoardPosition } from "./sabaki-types";
 
 import "./GobanCommon.css";
-import "./GobanEditor.css";
+import "./EditorGoban.css";
 import "./TinyGoban.css";
 
 type TinyGobanProps = {

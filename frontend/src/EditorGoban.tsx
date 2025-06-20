@@ -12,7 +12,7 @@ import {
 } from "react";
 import { useImmerReducer } from "use-immer";
 import "./GobanCommon.css";
-import "./GobanEditor.css";
+import "./EditorGoban.css";
 
 import redoSvg from "./assets/icons/redo.svg";
 import trashSvg from "./assets/icons/trash.svg";
@@ -32,7 +32,7 @@ type HistoryEntry = {
   moveSign: SabakiSign;
 };
 
-type GobanEditorAction =
+type EditorGobanAction =
   | { type: "SET_BRUSH_MODE"; payload: BrushMode }
   | { type: "UNDO" }
   | { type: "REDO" }
@@ -43,7 +43,7 @@ type GobanEditorAction =
   | { type: "MOUSE_LEAVE"; payload: Vertex }
   | { type: "TOGGLE_ALTERNATE_COLOR" };
 
-type GobanEditorState = {
+type EditorGobanState = {
   board: BoardPosition;
   stagingBoard: BoardPosition;
   lastStagedSign: SabakiSign;
@@ -54,7 +54,7 @@ type GobanEditorState = {
   isMouseDown: boolean;
 };
 
-const initialState: GobanEditorState = {
+const initialState: EditorGobanState = {
   board: emptyBoard,
   stagingBoard: emptyBoard,
   lastStagedSign: SabakiSign.Empty,
@@ -65,7 +65,7 @@ const initialState: GobanEditorState = {
   isMouseDown: false,
 };
 
-function stageVertexChange(state: GobanEditorState, vertex: Vertex) {
+function stageVertexChange(state: EditorGobanState, vertex: Vertex) {
   // change the vertex to the right color stone or remove it(brushMode) => onChangeBrushMode(brushMode)
   // depending on the brush and the mouse state
   const [x, y] = vertex;
@@ -114,9 +114,9 @@ function getNextSign(
   throw new Error("Unknown brush mode");
 }
 
-function gobanEditorReducer(
-  state: GobanEditorState,
-  action: GobanEditorAction,
+function editorGobanReducer(
+  state: EditorGobanState,
+  action: EditorGobanAction,
 ): void {
   switch (action.type) {
     case "MOUSE_DOWN": {
@@ -220,7 +220,7 @@ function gobanEditorReducer(
   }
 }
 
-export type GobanEditorProps = {
+export type EditorGobanProps = {
   onUpdateBoard: (board: BoardPosition) => void;
   vertexSize: number;
   nextMoves: Array<{ x: number; y: number }>;
@@ -229,12 +229,12 @@ export type GobanEditorProps = {
   brushMode: BrushMode;
 };
 
-export type GobanEditorRef = {
+export type EditorGobanRef = {
   undo: () => void;
   redo: () => void;
 };
 
-const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
+const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
   (
     {
       onUpdateBoard,
@@ -246,7 +246,7 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
     },
     ref,
   ) => {
-    const [state, dispatch] = useImmerReducer(gobanEditorReducer, initialState);
+    const [state, dispatch] = useImmerReducer(editorGobanReducer, initialState);
     const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
     const [displayBoard, setDisplayBoard] = useState<BoardPosition>(emptyBoard);
     const [markerMap, setMarkerMap] = useState<Map<Marker | null>>(
@@ -390,7 +390,7 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
     const maxHeight = Math.min(window.innerHeight, window.innerWidth * 0.5);
 
     return (
-      <div className="flex flex-row gap-2 GobanEditor" style={{ maxHeight }}>
+      <div className="flex flex-row gap-2 EditorGoban" style={{ maxHeight }}>
         <div className="ml-2 mb-2 mt-2">
           <div className="flex flex-col justify-between h-full">
             <BrushToolbar
@@ -450,4 +450,4 @@ const GobanEditor = forwardRef<GobanEditorRef, GobanEditorProps>(
   },
 );
 
-export default GobanEditor;
+export default EditorGoban;
