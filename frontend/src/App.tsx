@@ -1,10 +1,10 @@
 import { useWindowSize } from "@reach/window-size";
 import { useEffect, useRef, useState } from "react";
-import GamesList from "./GamesList";
 import EditorGoban from "./EditorGoban";
-import ViewerGoban from "./ViewerGoban";
+import GamesList from "./GamesList";
 import PlayerSearch from "./PlayerSearch";
-import TinyGoban from "./TinyGoban";
+import TinyEditorGoban from "./TinyEditorGoban";
+import ViewerGoban from "./ViewerGoban";
 import {
   BrushMode,
   emptyBoard,
@@ -280,7 +280,7 @@ export default function App() {
                   onClick={() => setSelectedGame(null)}
                   className="tiny-goban-clickable"
                 >
-                  <TinyGoban vertexSize={tinyVertexSize} board={board} />
+                  <TinyEditorGoban vertexSize={tinyVertexSize} board={board} />
                 </div>
               )}
             </div>

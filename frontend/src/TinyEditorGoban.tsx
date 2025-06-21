@@ -5,14 +5,14 @@ import type { BoardPosition } from "./sabaki-types";
 
 import "./EditorGoban.css";
 import "./goban-common.css";
-import "./TinyGoban.css";
+import "./TinyEditorGoban.css";
 
 type TinyGobanProps = {
   vertexSize: number;
   board: BoardPosition;
 };
 
-export default function TinyGoban({ vertexSize, board }: TinyGobanProps) {
+export default function TinyEditorGoban({ vertexSize, board }: TinyGobanProps) {
   const [isHovering, setIsHovering] = useState(false);
   return (
     <div
