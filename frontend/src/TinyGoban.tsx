@@ -3,8 +3,8 @@ import "@calm-go/shudan/css/goban.css";
 import { useState } from "react";
 import type { BoardPosition } from "./sabaki-types";
 
-import "./GobanCommon.css";
 import "./EditorGoban.css";
+import "./goban-common.css";
 import "./TinyGoban.css";
 
 type TinyGobanProps = {
@@ -16,7 +16,7 @@ export default function TinyGoban({ vertexSize, board }: TinyGobanProps) {
   const [isHovering, setIsHovering] = useState(false);
   return (
     <div
-      className="TinyGoban"
+      className="TinyGoban EditorGoban"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       data-hovering={isHovering}

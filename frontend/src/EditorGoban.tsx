@@ -1,22 +1,16 @@
 import { Button } from "@/components/ui/button";
-import SabakiGoBoard from "@sabaki/go-board";
-import { Goban, type Vertex, type Map, type Marker } from "@calm-go/shudan";
+import { Goban, type Map, type Marker, type Vertex } from "@calm-go/shudan";
 import "@calm-go/shudan/css/goban.css";
+import SabakiGoBoard from "@sabaki/go-board";
 import {
   forwardRef,
   useCallback,
   useEffect,
-  useState,
   useImperativeHandle,
   useRef,
+  useState,
 } from "react";
 import { useImmerReducer } from "use-immer";
-import "./GobanCommon.css";
-import "./EditorGoban.css";
-
-import redoSvg from "./assets/icons/redo.svg";
-import trashSvg from "./assets/icons/trash.svg";
-import undoSvg from "./assets/icons/undo.svg";
 import BrushToolbar from "./BrushToolbar";
 import {
   boardsEqual,
@@ -26,6 +20,13 @@ import {
   SabakiSign,
   type BoardPosition,
 } from "./sabaki-types";
+
+import "./EditorGoban.css";
+import "./goban-common.css";
+
+import redoSvg from "./assets/icons/redo.svg";
+import trashSvg from "./assets/icons/trash.svg";
+import undoSvg from "./assets/icons/undo.svg";
 
 type HistoryEntry = {
   board: BoardPosition;

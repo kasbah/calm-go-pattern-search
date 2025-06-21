@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -118,95 +117,5 @@
   }
   body {
     @apply bg-background text-foreground;
-  }
-}
-
-/* Goban transition styles */
-.goban-transition-container {
-  position: relative;
-}
-
-.goban-editor-wrapper {
-  transition: opacity 0.3s ease-in-out;
-}
-
-.goban-viewer-wrapper {
-  transition: opacity 0.8s ease-in-out;
-}
-
-.goban-editor-visible,
-.goban-viewer-visible {
-  opacity: 1;
-  position: relative;
-}
-
-.goban-editor-hidden,
-.goban-viewer-hidden {
-  opacity: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-}
-
-.tiny-goban-container {
-  transition:
-    opacity 0.3s ease-in-out,
-    transform 0.3s ease-in-out;
-  transform-origin: center;
-}
-
-.tiny-goban-visible {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.tiny-goban-hidden {
-  opacity: 0;
-  transform: scale(1.05);
-  pointer-events: none;
-}
-
-.tiny-goban-clickable {
-  cursor: pointer;
-  transition: transform 0.1s ease-in-out;
-  border-radius: 8px;
-  padding: 4px;
-}
-
-/* Respect user's motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  .goban-editor-wrapper,
-  .goban-viewer-wrapper,
-  .tiny-goban-container,
-  .tiny-goban-clickable {
-    transition: none;
-  }
-
-  .goban-editor-visible,
-  .goban-viewer-visible {
-    opacity: 1;
-    position: static;
-    display: block;
-  }
-
-  .goban-editor-hidden,
-  .goban-viewer-hidden {
-    display: none;
-  }
-
-  .tiny-goban-visible {
-    opacity: 1;
-    transform: none;
-  }
-
-  .tiny-goban-hidden {
-    opacity: 0;
-    transform: none;
-  }
-
-  .tiny-goban-clickable:hover {
-    transform: none;
-    box-shadow: none;
   }
 }

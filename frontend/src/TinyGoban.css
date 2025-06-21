@@ -12,4 +12,28 @@
     --shudan-white-background-color: black;
     --shudan-white-foreground-color: black;
   }
+  .tiny-goban-container {
+    transition:
+      opacity 0.3s ease-in-out,
+      transform 0.3s ease-in-out;
+    transform-origin: center;
+  }
+
+  .tiny-goban-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .tiny-goban-hidden {
+    opacity: 0;
+    transform: scale(1.05);
+    pointer-events: none;
+  }
+
+  .tiny-goban-clickable {
+    cursor: pointer;
+    transition: transform 0.1s ease-in-out;
+    border-radius: 8px;
+    padding: 4px;
+  }
 }

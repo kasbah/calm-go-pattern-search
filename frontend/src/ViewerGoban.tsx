@@ -1,31 +1,33 @@
-import { Goban, type Marker, type Map, type Vertex } from "@calm-go/shudan";
+import { Goban, type Map, type Marker, type Vertex } from "@calm-go/shudan";
 import GoBoard from "@sabaki/go-board";
 import {
   forwardRef,
   useCallback,
   useEffect,
-  useState,
   useImperativeHandle,
+  useState,
 } from "react";
 import { useImmerReducer } from "use-immer";
+import BrushToolbar from "./BrushToolbar";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
-import "./GobanCommon.css";
+import {
+  BrushMode,
+  emptyBoard,
+  SabakiColor,
+  SabakiSign,
+  type BoardPosition,
+  type SabakiMove,
+} from "./sabaki-types";
+import { toSabakiMove, type Game } from "./wasm-search-types";
+
+import "./goban-common.css";
 import "./ViewerGoban.css";
+
 import chevronFirstSvg from "./assets/icons/chevron-first.svg";
 import chevronLastSvg from "./assets/icons/chevron-last.svg";
 import chevronLeftSvg from "./assets/icons/chevron-left.svg";
 import chevronRightSvg from "./assets/icons/chevron-right.svg";
-import BrushToolbar from "./BrushToolbar";
-import {
-  emptyBoard,
-  BrushMode,
-  type BoardPosition,
-  type SabakiMove,
-  SabakiColor,
-  SabakiSign,
-} from "./sabaki-types";
-import { toSabakiMove, type Game } from "./wasm-search-types";
 
 function calculateBoardPosition(
   moves: Array<SabakiMove>,

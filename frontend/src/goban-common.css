@@ -1,0 +1,101 @@
+@import "tw-animate-css";
+
+.shudan-ghost::before {
+  width: 0.8em !important;
+  height: 0.8em !important;
+}
+
+.shudan-goban-image {
+  user-select: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+}
+
+.shudan-goban {
+  user-select: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+}
+
+.shudan-stone-image.shudan-sign_-1 {
+  background-image: url("./assets/custom_white_stone.svg");
+}
+
+.shudan-stone-image.shudan-sign_1 {
+  background-image: url("./assets/custom_black_stone.svg");
+}
+
+.shudan-stone::before {
+  background: none !important;
+}
+
+/* Goban transition styles */
+.goban-transition-container {
+  position: relative;
+}
+
+.goban-editor-wrapper {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.goban-viewer-wrapper {
+  transition: opacity 0.8s ease-in-out;
+}
+
+.goban-editor-visible,
+.goban-viewer-visible {
+  opacity: 1;
+  position: relative;
+}
+
+.goban-editor-hidden,
+.goban-viewer-hidden {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .goban-editor-wrapper,
+  .goban-viewer-wrapper,
+  .tiny-goban-container,
+  .tiny-goban-clickable {
+    transition: none;
+  }
+
+  .goban-editor-visible,
+  .goban-viewer-visible {
+    opacity: 1;
+    position: static;
+    display: block;
+  }
+
+  .goban-editor-hidden,
+  .goban-viewer-hidden {
+    display: none;
+  }
+
+  .tiny-goban-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .tiny-goban-hidden {
+    opacity: 0;
+    transform: none;
+  }
+
+  .tiny-goban-clickable:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
