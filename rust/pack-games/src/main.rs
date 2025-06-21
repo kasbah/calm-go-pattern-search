@@ -4,9 +4,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufReader;
 
-use calm_go_patterns_common::baduk::{
-    GoBoard, Player, pack_games,
-};
+use calm_go_patterns_common::baduk::{GoBoard, Player, pack_games};
 
 mod load_sgfs;
 use load_sgfs::load_all_sgfs;
@@ -159,5 +157,3 @@ fn update_player_names_with_games_count(player_id_counts: &HashMap<i16, usize>) 
     serde_json::to_writer_pretty(output_file, &json)
         .expect("Failed to write updated player names JSON");
 }
-
-

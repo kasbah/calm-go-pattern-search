@@ -1,4 +1,7 @@
-use std::collections::{BTreeMap, HashSet};
+use rayon::prelude::*;
+use std::collections::HashSet;
+use std::sync::Mutex;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 use calm_go_patterns_common::baduk::{
     Game, GameResult, Placement, Player, Rank, Rules, SgfDate, all_rotations,
@@ -22,17 +25,27 @@ struct PlayersAndDateKey {
 pub fn find_duplicates(
     games_vec: Vec<(String, Game)>,
 ) -> (Vec<(String, Game)>, HashSet<PossiblePlayerAlias>) {
-    let mut possible_aliases = HashSet::new();
-    let mut unique_games = BTreeMap::<Vec<Placement>, (String, Game)>::new();
+    let possible_aliases = Mutex::new(HashSet::new());
+    let unique_games = Mutex::new(Vec::<(Vec<Placement>, (String, Game))>::new());
 
-    println!("Removing duplicates...");
-    for (path, game) in games_vec {
-        let mut is_duplicate = false;
+    println!("Removing duplicates from {} games...", games_vec.len());
 
+    let processed_count = AtomicUsize::new(0);
+    let total_games = games_vec.len();
+
+    games_vec.into_par_iter().for_each(|(path, game)| {
         assert!(game.moves.len() > 10, "Not enough moves in game");
 
-        for position in all_rotations(&game.moves) {
-            if let Some((_existing_path, existing_game)) = unique_games.get_mut(&position) {
+        let rotations = all_rotations(&game.moves);
+
+        let mut is_duplicate = false;
+
+        for position in rotations {
+            let mut unique_games_guard = unique_games.lock().unwrap();
+            if let Some((_existing_moves, (_existing_path, existing_game))) = unique_games_guard
+                .iter_mut()
+                .find(|(moves, _)| *moves == position)
+            {
                 is_duplicate = true;
 
                 // Record possible aliases before merging
@@ -40,20 +53,26 @@ pub fn find_duplicates(
                     (&existing_game.player_black, &game.player_black)
                 {
                     if id1 != id2 {
-                        possible_aliases.insert(PossiblePlayerAlias {
-                            id1: *id1,
-                            id2: *id2,
-                        });
+                        possible_aliases
+                            .lock()
+                            .unwrap()
+                            .insert(PossiblePlayerAlias {
+                                id1: *id1,
+                                id2: *id2,
+                            });
                     }
                 }
                 if let (Player::Id(id1, _), Player::Id(id2, _)) =
                     (&existing_game.player_white, &game.player_white)
                 {
                     if id1 != id2 {
-                        possible_aliases.insert(PossiblePlayerAlias {
-                            id1: *id1,
-                            id2: *id2,
-                        });
+                        possible_aliases
+                            .lock()
+                            .unwrap()
+                            .insert(PossiblePlayerAlias {
+                                id1: *id1,
+                                id2: *id2,
+                            });
                     }
                 }
 
@@ -63,46 +82,74 @@ pub fn find_duplicates(
         }
 
         if !is_duplicate {
-            unique_games.insert(game.moves.clone(), (path, game.clone()));
+            unique_games
+                .lock()
+                .unwrap()
+                .push((game.moves.clone(), (path, game.clone())));
         }
-    }
+
+        let current = processed_count.fetch_add(1, Ordering::Relaxed) + 1;
+        if current % 1000 == 0 || current == total_games {
+            println!("Processed {}/{} games", current, total_games);
+        }
+    });
+
+    let unique_games = unique_games.into_inner().unwrap();
+    let possible_aliases = possible_aliases.into_inner().unwrap();
 
     println!("Found {} unique games", unique_games.len());
 
     println!("Second deduplication pass (players, date, first 50 moves)...");
-    let mut games_by_date: BTreeMap<PlayersAndDateKey, (String, Game)> = BTreeMap::new();
-    let mut final_unique_games = Vec::new();
+    let games_by_date = Mutex::new(Vec::<(PlayersAndDateKey, (String, Game))>::new());
 
-    for (_moves, (path, game)) in unique_games {
-        let first_50_moves: Vec<_> = game.moves.iter().take(50).cloned().collect();
-        let player_black = match &game.player_black {
-            Player::Id(id, ..) => Some(*id),
-            _ => None,
-        };
-        let player_white = match &game.player_white {
-            Player::Id(id, ..) => Some(*id),
-            _ => None,
-        };
+    let processed_count_second = AtomicUsize::new(0);
+    let total_unique_games = unique_games.len();
 
-        let key = PlayersAndDateKey {
-            player_black,
-            player_white,
-            date: game.date.clone(),
-            first_50_moves,
-        };
+    unique_games
+        .into_par_iter()
+        .for_each(|(_moves, (path, game))| {
+            let first_50_moves: Vec<_> = game.moves.iter().take(50).cloned().collect();
+            let player_black = match &game.player_black {
+                Player::Id(id, ..) => Some(*id),
+                _ => None,
+            };
+            let player_white = match &game.player_white {
+                Player::Id(id, ..) => Some(*id),
+                _ => None,
+            };
 
-        if let Some((_existing_path, existing_game)) = games_by_date.get_mut(&key) {
-            merge_games(existing_game, &game);
-        } else {
-            // New unique game
-            games_by_date.insert(key, (path, game));
-        }
-    }
+            let key = PlayersAndDateKey {
+                player_black,
+                player_white,
+                date: game.date.clone(),
+                first_50_moves,
+            };
+
+            let mut games_by_date_guard = games_by_date.lock().unwrap();
+            if let Some((_existing_key, (_existing_path, existing_game))) =
+                games_by_date_guard.iter_mut().find(|(k, _)| *k == key)
+            {
+                merge_games(existing_game, &game);
+            } else {
+                games_by_date_guard.push((key, (path, game)));
+            }
+
+            let current = processed_count_second.fetch_add(1, Ordering::Relaxed) + 1;
+            if current % 500 == 0 || current == total_unique_games {
+                println!(
+                    "Second pass: processed {}/{} games",
+                    current, total_unique_games
+                );
+            }
+        });
+
+    let games_by_date = games_by_date.into_inner().unwrap();
 
     // Convert back to the format expected by the rest of the code
-    for (_key, (path, game)) in games_by_date {
-        final_unique_games.push((path, game));
-    }
+    let final_unique_games: Vec<(String, Game)> = games_by_date
+        .into_par_iter()
+        .map(|(_key, (path, game))| (path, game))
+        .collect();
 
     println!(
         "After second deduplication: {} unique games",

@@ -7,8 +7,8 @@ use std::io::BufReader;
 use std::path::PathBuf;
 
 use calm_go_patterns_common::baduk::{
-    BOARD_SIZE, Color, Game, GameResult, Placement, Player, Point, Rank,
-    parse_komi, parse_rank, parse_rules, parse_sgf_date, parse_sgf_result,
+    BOARD_SIZE, Color, Game, GameResult, Placement, Player, Point, Rank, parse_komi, parse_rank,
+    parse_rules, parse_sgf_date, parse_sgf_result,
 };
 
 pub fn load_all_sgfs(sgf_folder: &PathBuf) -> Vec<(String, Game)> {
