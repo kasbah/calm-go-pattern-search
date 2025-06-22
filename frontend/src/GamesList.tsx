@@ -246,6 +246,7 @@ export default function GamesList({
   const [overlayStartTime, setOverlayStartTime] = useState<number | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const previousSelectedGamePath = useRef<string | null>(null);
 
   useEffect(() => {
     let showTimer: NodeJS.Timeout;
@@ -303,13 +304,21 @@ export default function GamesList({
   }, [hasMore, isSearching, onLoadMore]);
 
   useEffect(() => {
-    if (!selectedGame) return;
-    const idx = games.findIndex((g) => g.path === selectedGame.path);
-    if (idx !== -1 && itemRefs.current[idx]) {
-      itemRefs.current[idx]?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
+    if (!selectedGame) {
+      previousSelectedGamePath.current = null;
+      return;
+    }
+
+    // Only scroll if the selected game actually changed
+    if (selectedGame.path !== previousSelectedGamePath.current) {
+      previousSelectedGamePath.current = selectedGame.path;
+      const idx = games.findIndex((g) => g.path === selectedGame.path);
+      if (idx !== -1 && itemRefs.current[idx]) {
+        itemRefs.current[idx]?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
     }
   }, [selectedGame, games]);
 
