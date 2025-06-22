@@ -60,8 +60,10 @@ function formatDate(date: SgfDate | null): string | null {
 }
 
 function formatResult(result: GameResult | null): string {
-  console.log(result);
   if (!result) return "Unknown";
+  if (result === "Draw") return "Draw";
+  if (result === "Void") return "Void";
+  if (result.Unknown) return result.Unknown;
   if (result.Player) {
     const [color, score] = result.Player;
     const colorStr = color === "Black" ? "B" : "W";
@@ -72,9 +74,6 @@ function formatResult(result: GameResult | null): string {
     if (score.Points) return `${colorStr}+${score.Points.toFixed(1)}`;
     return `${colorStr}+?`;
   }
-  if (result.Draw) return "Draw";
-  if (result.Void) return "Void";
-  if (result.Unknown) return result.Unknown;
   return "Unknown";
 }
 
@@ -389,7 +388,7 @@ function GameItem({
                     Move {game.last_move_matched + 1} / {game.moves.length}
                   </div>
                   <div className="flex justify-end items-center">
-                    <div
+                    <button
                       className="mr-2 flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
                       title={`Click to ${
                         shouldShowResult ? "hide" : "reveal"
@@ -397,7 +396,8 @@ function GameItem({
                       onClick={() => setShouldShowResult(!shouldShowResult)}
                     >
                       <span className="text-base text-gray-600">Result:</span>
-                      {shouldShowResult ? (
+                      {shouldShowResult ||
+                      game.result.hasOwnProperty("Unknown") ? (
                         <span className="text-base font-medium">
                           {formatResult(game.result)}
                         </span>
@@ -408,7 +408,7 @@ function GameItem({
                           className="w-5 h-5 text-gray-600"
                         />
                       )}
-                    </div>
+                    </button>
                   </div>
                 </div>
               </div>

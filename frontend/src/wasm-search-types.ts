@@ -23,12 +23,15 @@ export type SgfDate = {
 
 export type Score = "Resignation" | "Timeout" | "Forfeit" | { Points: number };
 
-export type GameResult = {
-  Player?: ["Black" | "White", Score | null, string];
-  Draw?: boolean;
-  Void?: boolean;
-  Unknown?: string;
-};
+export type GameResult =
+  | "Draw"
+  | "Void"
+  | { Unknown: string; Player: undefined; Points: undefined }
+  | {
+      Unknown: undefined;
+      Player: [string, Score | null, string];
+      Points: number;
+    };
 
 export type Rank = {
   Kyu?: number;

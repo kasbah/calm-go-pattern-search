@@ -43,7 +43,7 @@ const emptyGame: Game = {
   rank_white: { Custom: "" },
   komi: null,
   rules: null,
-  result: { Void: true },
+  result: "Void",
 };
 
 export default function App() {
