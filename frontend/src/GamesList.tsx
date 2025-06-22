@@ -14,7 +14,9 @@ import type {
 } from "./wasm-search-types";
 
 import badgeInfoIcon from "@/assets/icons/badge-info.svg";
+import circleBlackIcon from "@/assets/icons/circle-black.svg";
 import circleBlackSlashWhiteIcon from "@/assets/icons/circle-black-slash-white.svg";
+import circleWhiteIcon from "@/assets/icons/circle-white.svg";
 import flipHorizontalIcon from "@/assets/icons/flip-horizontal.svg";
 import { Separator } from "./components/ui/separator";
 
@@ -70,12 +72,12 @@ function formatResult(result: GameResult | null): string {
 }
 
 function formatRank(rank: Rank | null): string {
-  if (!rank) return "Unknown";
+  if (!rank) return "(?)";
   if (rank.Kyu) return `${rank.Kyu}k`;
   if (rank.Dan) return `${rank.Dan}d`;
-  if (rank.Pro) return `${rank.Pro}p`;
-  if (rank.Custom) return rank.Custom;
-  return "Unknown";
+  if (rank.Pro) return `${rank.Pro}P`;
+  if (rank.Custom) return `(${rank.Custom})`;
+  return "(?)";
 }
 
 function formatRules(rules: Rules | null): string {
@@ -167,7 +169,7 @@ function GameItem({
         <div
           data-selected={isSelected}
           className={cn(
-            "bg-white hover:bg-gray-50 data-[selected=true]:bg-secondary p-2 pr-4",
+            "bg-white hover:bg-gray-50 data-[selected=true]:bg-secondary p-4 pr-6",
             "cursor-pointer",
           )}
           onClick={() => onSelect(game)}
@@ -195,12 +197,67 @@ function GameItem({
             <div className="flex-1 flex flex-col justify-between">
               <div className="text-sm">
                 <div className="flex justify-between items-start">
-                  <h2 className="text-xl font-medium">
-                    {getPlayerName(game.player_black)}{" "}
-                    {formatRank(game.rank_black)} (B) vs{" "}
-                    {getPlayerName(game.player_white)}{" "}
-                    {formatRank(game.rank_white)} (W)
-                  </h2>
+                  <table className="text-lg font-medium">
+                    <tbody>
+                      <tr className="align-top">
+                        <td className="pr-12">
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={circleBlackIcon}
+                                alt="Black"
+                                className="w-5 h-5"
+                              />
+                              {getPlayerName(game.player_black)}{" "}
+                              {formatRank(game.rank_black)}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={circleWhiteIcon}
+                                alt="White"
+                                className="w-5 h-5"
+                              />
+                              {getPlayerName(game.player_white)}{" "}
+                              {formatRank(game.rank_white)}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="pr-8">
+                          {game.event && (
+                            <div className="flex flex-col">
+                              <div className="font-medium">{game.event}</div>
+                              {game.round && (
+                                <div className="text-gray-500 text-sm">
+                                  Round: {game.round}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </td>
+                        <td className="pr-8"></td>
+                      </tr>
+                      {(game.date || game.location) && (
+                        <tr className="align-top">
+                          <td className="pr-8"></td>
+                          <td className="pr-8">
+                            <div className="flex flex-col gap-1">
+                              {game.date && (
+                                <div className="font-medium">
+                                  {formatDate(game.date)}
+                                </div>
+                              )}
+                              {game.location && (
+                                <div className="text-gray-500 text-sm">
+                                  Location: {game.location}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="pr-8"></td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                   <div className="flex items-center gap-2">
                     {game.is_mirrored && (
                       <img
@@ -224,39 +281,10 @@ function GameItem({
                 </div>
 
                 {showResults && (
-                  <div className="text-lg font-medium">
+                  <div className="text-lg font-medium mt-2">
                     Result: {formatResult(game.result)}
                   </div>
                 )}
-              </div>
-
-              <div className="">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    {game.event && (
-                      <h3 className="font-medium text-lg">{game.event}</h3>
-                    )}
-                  </div>
-                  <div>
-                    {game.date && (
-                      <h3 className="font-medium text-lg">
-                        {formatDate(game.date)}
-                      </h3>
-                    )}
-                  </div>
-                  <div>
-                    {game.round && (
-                      <div className="text-gray-500">Round: {game.round}</div>
-                    )}
-                  </div>
-                  <div>
-                    {game.location && (
-                      <div className="text-gray-500">
-                        Location: {game.location}
-                      </div>
-                    )}
-                  </div>
-                </div>
               </div>
 
               <div className="mb-2">
