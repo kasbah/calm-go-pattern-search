@@ -9,6 +9,7 @@ import type {
 } from "./wasm-search-types";
 import catRunning from "@/assets/cat_running.webp";
 import playerNames from "../../rust/pack-games/python-player-name-aliases/player_names.json";
+import TinyGobanViewer from "./TinyGobanViewer";
 
 // Import types from playerSearch.ts to avoid duplication
 import type { PlayerAlias, PlayerAliasLanguage } from "./playerSearch";
@@ -201,53 +202,66 @@ export default function GamesList({
                 itemRefs.current[index] = el;
               }}
               data-selected={selectedGame?.path === game.path}
-              className="bg-white hover:bg-secondary data-[selected=true]:bg-highlight cursor-default rounded-md border p-2"
+              className="bg-white hover:bg-gray-50 data-[selected=true]:bg-secondary cursor-default rounded-md border p-2"
               onClick={() => onSelectGame(game)}
             >
-              <div className="text-sm p-2">
-                <div className="flex justify-between items-start mb-2">
-                  <h2 className="text-xl font-medium">
-                    {getPlayerName(game.player_black)}{" "}
-                    {formatRank(game.rank_black)} (B) vs{" "}
-                    {getPlayerName(game.player_white)}{" "}
-                    {formatRank(game.rank_white)} (W)
-                  </h2>
-                  <div className="text-gray-500">{index + 1}</div>
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <TinyGobanViewer game={game} vertexSize={12} />
                 </div>
+                <div className="flex-1">
+                  <div className="text-sm p-2">
+                    <div className="flex justify-between items-start mb-2">
+                      <h2 className="text-xl font-medium">
+                        {getPlayerName(game.player_black)}{" "}
+                        {formatRank(game.rank_black)} (B) vs{" "}
+                        {getPlayerName(game.player_white)}{" "}
+                        {formatRank(game.rank_white)} (W)
+                      </h2>
+                      <div className="text-gray-500">{index + 1}</div>
+                    </div>
 
-                <div className="text-lg font-medium mb-2">
-                  Result: {formatResult(game.result)}
-                </div>
-              </div>
-
-              {/* Game Metadata */}
-              <div className="mb-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <h3 className="font-medium text-lg">{game.event || "N/A"}</h3>
-                  <h3 className="font-medium text-lg">
-                    {formatDate(game.date)}
-                  </h3>
-                  <div>Round: {game.round || "N/A"}</div>
-                  <div>Location: {game.location || "N/A"}</div>
-                  <div>Rules: {formatRules(game.rules)}</div>
-                  <div>Komi: {game.komi?.toFixed(1) || "N/A"}</div>
-                </div>
-              </div>
-
-              {/* Match Information */}
-              <div className="mb-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>Matched Within Move: {game.last_move_matched + 1}</div>
-                  <div>Rotation: {rotationToString(game.rotation)}</div>
-                  <div>Mirrored: {game.is_mirrored ? "Yes" : "No"}</div>
-                  <div>Colors Inverted: {game.is_inverted ? "Yes" : "No"}</div>
-                  <div>
-                    Correct Area Size: {game.all_empty_correctly_within}
+                    <div className="text-lg font-medium mb-2">
+                      Result: {formatResult(game.result)}
+                    </div>
                   </div>
-                  <div>Total Moves: {game.moves.length}</div>
+
+                  {/* Game Metadata */}
+                  <div className="mb-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <h3 className="font-medium text-lg">
+                        {game.event || "N/A"}
+                      </h3>
+                      <h3 className="font-medium text-lg">
+                        {formatDate(game.date)}
+                      </h3>
+                      <div>Round: {game.round || "N/A"}</div>
+                      <div>Location: {game.location || "N/A"}</div>
+                      <div>Rules: {formatRules(game.rules)}</div>
+                      <div>Komi: {game.komi?.toFixed(1) || "N/A"}</div>
+                    </div>
+                  </div>
+
+                  {/* Match Information */}
+                  <div className="mb-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        Matched Within Move: {game.last_move_matched + 1}
+                      </div>
+                      <div>Rotation: {rotationToString(game.rotation)}</div>
+                      <div>Mirrored: {game.is_mirrored ? "Yes" : "No"}</div>
+                      <div>
+                        Colors Inverted: {game.is_inverted ? "Yes" : "No"}
+                      </div>
+                      <div>
+                        Correct Area Size: {game.all_empty_correctly_within}
+                      </div>
+                      <div>Total Moves: {game.moves.length}</div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-500">{game.path}</div>
                 </div>
               </div>
-              <div className="text-sm text-gray-500">{game.path}</div>
             </div>
           </div>
         ))}
