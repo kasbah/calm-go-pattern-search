@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="24"
+   height="24"
+   viewBox="0 0 24 24"
+   fill="none"
+   stroke="currentColor"
+   stroke-width="2"
+   stroke-linecap="round"
+   stroke-linejoin="round"
+   class="lucide lucide-trophy-icon lucide-trophy"
+   version="1.1"
+   id="svg6"
+   sodipodi:docname="trophy-crossed-out.svg"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs6" />
+  <sodipodi:namedview
+     id="namedview6"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="34.596915"
+     inkscape:cx="17.935125"
+     inkscape:cy="6.8647739"
+     inkscape:window-width="1920"
+     inkscape:window-height="1063"
+     inkscape:window-x="0"
+     inkscape:window-y="17"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg6" />
+  <path
+     d="M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978"
+     id="path1" />
+  <path
+     d="M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978"
+     id="path2" />
+  <path
+     d="M18 9h1.5a1 1 0 0 0 0-5H18"
+     id="path3" />
+  <path
+     d="M4 22h16"
+     id="path4" />
+  <path
+     d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z"
+     id="path5" />
+  <path
+     d="M6 9H4.5a1 1 0 0 1 0-5H6"
+     id="path6" />
+  <path
+     id="line3-6"
+     style="stroke-width:2.48932"
+     d="M 5.1922293,1.4085962 18.902744,15.30697"
+     sodipodi:nodetypes="cc" />
+  <path
+     style="baseline-shift:baseline;display:inline;overflow:visible;opacity:1;vector-effect:none;fill:#e4e4e4;stroke:none;stroke-linecap:butt;stroke-linejoin:miter;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
+     d="M 9.7555177,0.82025653 6.3517633,0.81567108 8.523392,3.0378243 11.512353,3.0606424 Z"
+     id="path29"
+     sodipodi:nodetypes="ccccc" />
+  <path
+     style="baseline-shift:baseline;display:inline;overflow:visible;vector-effect:none;fill:#e4e4e4;stroke:none;stroke-linecap:butt;stroke-linejoin:miter;enable-background:accumulate;stop-color:#000000"
+     d="m 17.011231,8.9203592 -0.140223,1.2021758 -0.355606,0.981905 1.724871,1.742383 0.47926,-0.934872 0.442271,-0.888597 z"
+     id="path29-1"
+     sodipodi:nodetypes="ccccccc" />
+</svg>

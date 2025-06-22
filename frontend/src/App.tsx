@@ -1,21 +1,27 @@
 import { useWindowSize } from "@reach/window-size";
 import { useEffect, useRef, useState } from "react";
+import { Label } from "./components/ui/label";
+import { Separator } from "./components/ui/separator";
+import { Toggle } from "./components/ui/toggle";
 import EditorGoban from "./EditorGoban";
 import GamesList from "./GamesList";
 import PlayerSearch from "./PlayerSearch";
-import TinyEditorGoban from "./TinyEditorGoban";
-import ViewerGoban from "./ViewerGoban";
 import {
   BrushMode,
   emptyBoard,
   SabakiColor,
   type BoardPosition,
 } from "./sabaki-types";
+import TinyEditorGoban from "./TinyEditorGoban";
+import ViewerGoban from "./ViewerGoban";
 import {
   toWasmSearch,
   type Game,
   type SearchReturn,
 } from "./wasm-search-types";
+
+import trophyCrossedOutSvg from "./assets/icons/trophy-crossed-out.svg";
+import trophySvg from "./assets/icons/trophy.svg";
 
 const emptyGame: Game = {
   path: "",
@@ -59,6 +65,7 @@ export default function App() {
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
   const [playerCounts, setPlayerCounts] = useState<Record<number, number>>({});
   const [moveNumbers, setMoveNumbers] = useState<Record<string, number>>({});
+  const [showResults, setShowResults] = useState(false);
   const pageSize = 20;
 
   const editorGobanRef = useRef<{
@@ -236,7 +243,9 @@ export default function App() {
       <div className="sticky top-0 h-screen">
         <div className="goban-transition-container">
           <div
-            className={`goban-editor-wrapper ${selectedGame ? "goban-editor-hidden" : "goban-editor-visible"}`}
+            className={`goban-editor-wrapper ${
+              selectedGame ? "goban-editor-hidden" : "goban-editor-visible"
+            }`}
           >
             <EditorGoban
               ref={editorGobanRef}
@@ -249,7 +258,9 @@ export default function App() {
             />
           </div>
           <div
-            className={`goban-viewer-wrapper ${selectedGame ? "goban-viewer-visible" : "goban-viewer-hidden"}`}
+            className={`goban-viewer-wrapper ${
+              selectedGame ? "goban-viewer-visible" : "goban-viewer-hidden"
+            }`}
           >
             <ViewerGoban
               ref={viewerGobanRef}
@@ -266,10 +277,14 @@ export default function App() {
         </div>
       </div>
       <div className="flex flex-col ml-4 w-full">
-        <div className="sticky top-0 bg-white z-10 pt-4 pb-4 mr-2">
+        <div className="sticky top-0 bg-white z-10 pt-4 mr-2">
           <div className="flex flex-row">
             <div
-              className={`mr-10 w-1/3 tiny-goban-container ${selectedGame != null ? "tiny-goban-visible" : "tiny-goban-hidden"}`}
+              className={`mr-10 w-1/3 tiny-goban-container ${
+                selectedGame != null
+                  ? "tiny-goban-visible"
+                  : "tiny-goban-hidden"
+              }`}
               style={{
                 minHeight: tinyVertexSize * 21,
                 minWidth: tinyVertexSize * 21,
@@ -290,10 +305,44 @@ export default function App() {
                 playerCounts={playerCounts}
                 isLoading={isSearching}
               />
-              <div className="flex justify-end">{totalNumberOfGames} games</div>
+              <div className="flex items-center justify-end mt-2 space-x-3">
+                <Separator orientation="vertical" />
+                <div
+                  className="flex items-center cursor-pointer min-w-[160px]"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowResults((showResults) => !showResults);
+                  }}
+                >
+                  <div className="min-w-[120px]">
+                    <Label htmlFor="results-toggle" className="cursor-pointer">
+                      {showResults ? "Results Shown" : "Results Hidden"}
+                    </Label>
+                  </div>
+                  <Toggle
+                    id="results-toggle"
+                    size="lg"
+                    pressed={!showResults}
+                    className="cursor-pointer"
+                  >
+                    <img
+                      src={showResults ? trophySvg : trophyCrossedOutSvg}
+                      width={24}
+                      height={24}
+                      alt="Trophy icon"
+                    />
+                  </Toggle>
+                </div>
+                <Separator orientation="vertical" />
+                <Label className="min-w-[120px]">
+                  {totalNumberOfGames} Games
+                </Label>
+              </div>
             </div>
           </div>
+          <Separator className="mt-2" />
         </div>
+
         <GamesList
           games={games}
           onSelectGame={setSelectedGame}
@@ -301,6 +350,7 @@ export default function App() {
           isSearching={isSearching}
           onLoadMore={loadMore}
           hasMore={hasMore}
+          showResults={showResults}
         />
       </div>
     </div>

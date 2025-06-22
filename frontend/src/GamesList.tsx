@@ -30,7 +30,9 @@ function formatDate(date: SgfDate | null): string {
   if (!date) return "N/A";
   if (date.YearMonthDay) {
     const [year, month, day] = date.YearMonthDay;
-    return `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+    return `${year}-${month.toString().padStart(2, "0")}-${day
+      .toString()
+      .padStart(2, "0")}`;
   }
   if (date.YearMonth) {
     const [year, month] = date.YearMonth;
@@ -108,6 +110,7 @@ export type GamesListProps = {
   isSearching: boolean;
   onLoadMore: () => void;
   hasMore: boolean;
+  showResults: boolean;
 };
 
 type GameItemProps = {
@@ -115,9 +118,16 @@ type GameItemProps = {
   index: number;
   isSelected: boolean;
   onSelect: (game: Game) => void;
+  showResults: boolean;
 };
 
-function GameItem({ game, index, isSelected, onSelect }: GameItemProps) {
+function GameItem({
+  game,
+  index,
+  isSelected,
+  onSelect,
+  showResults,
+}: GameItemProps) {
   const [isVisible, setIsVisible] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
 
@@ -147,7 +157,7 @@ function GameItem({ game, index, isSelected, onSelect }: GameItemProps) {
   }, []);
 
   return (
-    <div ref={itemRef} className="mb-2">
+    <div ref={itemRef} className="mb-2 mt-5 pr-4 pl-4">
       <div
         data-selected={isSelected}
         className="bg-white hover:bg-gray-50 data-[selected=true]:bg-secondary cursor-default rounded-md border p-2"
@@ -185,9 +195,11 @@ function GameItem({ game, index, isSelected, onSelect }: GameItemProps) {
                 <div className="text-gray-500">{index + 1}</div>
               </div>
 
-              <div className="text-lg font-medium mb-2">
-                Result: {formatResult(game.result)}
-              </div>
+              {showResults && (
+                <div className="text-lg font-medium mb-2">
+                  Result: {formatResult(game.result)}
+                </div>
+              )}
             </div>
 
             {/* Game Metadata */}
@@ -228,6 +240,7 @@ export default function GamesList({
   isSearching,
   onLoadMore,
   hasMore,
+  showResults,
 }: GamesListProps) {
   const [showOverlay, setShowOverlay] = useState(false);
   const [overlayStartTime, setOverlayStartTime] = useState<number | null>(null);
@@ -325,6 +338,7 @@ export default function GamesList({
                 index={index}
                 isSelected={selectedGame?.path === game.path}
                 onSelect={handleSelectGame}
+                showResults={showResults}
               />
             </div>
           </div>
