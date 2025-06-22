@@ -142,11 +142,14 @@ function GameItem({
   showAllResults,
 }: GameItemProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [isShownWhenAllHidden, setShowWhenAllHidden] = useState(false);
-  const [isHiddenWhenAllShown, setHiddenWhenAllShown] = useState(false);
+  const [shouldShowResult, setShouldShowResult] = useState(showAllResults);
   const [isInfoPopoverOpen, setInfoPopOverOpen] = useState(false);
   const [isInfoPinned, setInfoPinned] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setShouldShowResult(showAllResults);
+  }, [showAllResults]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -388,29 +391,13 @@ function GameItem({
                   <div className="flex justify-end items-center">
                     <div
                       className="mr-2 flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
-                      title={`Click to ${(showAllResults && !isHiddenWhenAllShown) || (!showAllResults && isShownWhenAllHidden) ? "hide" : "reveal"} result`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (showAllResults) {
-                          if (!isHiddenWhenAllShown) {
-                            setShowWhenAllHidden(false);
-                            setHiddenWhenAllShown(true);
-                          } else {
-                            setHiddenWhenAllShown(false);
-                          }
-                        } else {
-                          if (!isShownWhenAllHidden) {
-                            setHiddenWhenAllShown(false);
-                            setShowWhenAllHidden(true);
-                          } else {
-                            setShowWhenAllHidden(false);
-                          }
-                        }
-                      }}
+                      title={`Click to ${
+                        shouldShowResult ? "hide" : "reveal"
+                      } result`}
+                      onClick={() => setShouldShowResult(!shouldShowResult)}
                     >
                       <span className="text-base text-gray-600">Result:</span>
-                      {(showAllResults && !isHiddenWhenAllShown) ||
-                      (!showAllResults && isShownWhenAllHidden) ? (
+                      {shouldShowResult ? (
                         <span className="text-base font-medium">
                           {formatResult(game.result)}
                         </span>
