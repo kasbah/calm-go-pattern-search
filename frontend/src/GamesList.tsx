@@ -123,7 +123,7 @@ export type GamesListProps = {
   isSearching: boolean;
   onLoadMore: () => void;
   hasMore: boolean;
-  showResults: boolean;
+  showAllResults: boolean;
 };
 
 type GameItemProps = {
@@ -131,7 +131,7 @@ type GameItemProps = {
   index: number;
   isSelected: boolean;
   onSelect: (game: Game) => void;
-  showResults: boolean;
+  showAllResults: boolean;
 };
 
 function GameItem({
@@ -139,12 +139,13 @@ function GameItem({
   index,
   isSelected,
   onSelect,
-  showResults,
+  showAllResults,
 }: GameItemProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [showResult, setShowResult] = useState(false);
-  const [popoverOpen, setPopoverOpen] = useState(false);
-  const [isPinned, setIsPinned] = useState(false);
+  const [isShownWhenAllHidden, setShowWhenAllHidden] = useState(false);
+  const [isHiddenWhenAllShown, setHiddenWhenAllShown] = useState(false);
+  const [isInfoPopoverOpen, setInfoPopOverOpen] = useState(false);
+  const [isInfoPinned, setInfoPinned] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -155,7 +156,7 @@ function GameItem({
       },
       {
         root: null,
-        rootMargin: "100px", // Load slightly before coming into view
+        rootMargin: "200px",
         threshold: 0,
       },
     );
@@ -237,14 +238,14 @@ function GameItem({
                               <div className="font-medium flex items-center gap-2">
                                 {game.event}
                                 <Popover
-                                  open={popoverOpen}
+                                  open={isInfoPopoverOpen}
                                   onOpenChange={(open) => {
-                                    if (!isPinned) {
-                                      setPopoverOpen(open);
-                                    } else if (!open && isPinned) {
+                                    if (!isInfoPinned) {
+                                      setInfoPopOverOpen(open);
+                                    } else if (!open && isInfoPinned) {
                                       // If someone tries to close a pinned popover, unpin it
-                                      setIsPinned(false);
-                                      setPopoverOpen(false);
+                                      setInfoPinned(false);
+                                      setInfoPopOverOpen(false);
                                     }
                                   }}
                                 >
@@ -254,27 +255,29 @@ function GameItem({
                                       alt="Game details"
                                       className={cn(
                                         "w-5 h-5 cursor-pointer hover:text-gray-800",
-                                        isPinned
+                                        isInfoPinned
                                           ? "text-blue-600"
                                           : "text-gray-600",
                                       )}
                                       title={
-                                        isPinned
+                                        isInfoPinned
                                           ? "Click to unpin"
                                           : "Hover for details, click to pin"
                                       }
                                       onMouseEnter={() => {
-                                        if (!isPinned) setPopoverOpen(true);
+                                        if (!isInfoPinned)
+                                          setInfoPopOverOpen(true);
                                       }}
                                       onMouseLeave={() => {
-                                        if (!isPinned) setPopoverOpen(false);
+                                        if (!isInfoPinned)
+                                          setInfoPopOverOpen(false);
                                       }}
                                       onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        const newPinnedState = !isPinned;
-                                        setIsPinned(newPinnedState);
-                                        setPopoverOpen(true);
+                                        const newPinnedState = !isInfoPinned;
+                                        setInfoPinned(newPinnedState);
+                                        setInfoPopOverOpen(true);
                                       }}
                                     />
                                   </PopoverTrigger>
@@ -283,10 +286,12 @@ function GameItem({
                                     align="start"
                                     side="top"
                                     onMouseEnter={() => {
-                                      if (!isPinned) setPopoverOpen(true);
+                                      if (!isInfoPinned)
+                                        setInfoPopOverOpen(true);
                                     }}
                                     onMouseLeave={() => {
-                                      if (!isPinned) setPopoverOpen(false);
+                                      if (!isInfoPinned)
+                                        setInfoPopOverOpen(false);
                                     }}
                                     onClick={(e) => e.stopPropagation()}
                                   >
@@ -383,15 +388,29 @@ function GameItem({
                   <div className="flex justify-end items-center">
                     <div
                       className="mr-2 flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
-                      title={`Click to ${showResult ? "hide" : "reveal"} result`}
+                      title={`Click to ${(showAllResults && !isHiddenWhenAllShown) || (!showAllResults && isShownWhenAllHidden) ? "hide" : "reveal"} result`}
                       onClick={(e) => {
-                        e.stopPropagation();
-                        setShowResult(!showResult);
+                        e.preventDefault();
+                        if (showAllResults) {
+                          if (!isHiddenWhenAllShown) {
+                            setShowWhenAllHidden(false);
+                            setHiddenWhenAllShown(true);
+                          } else {
+                            setHiddenWhenAllShown(false);
+                          }
+                        } else {
+                          if (!isShownWhenAllHidden) {
+                            setHiddenWhenAllShown(false);
+                            setShowWhenAllHidden(true);
+                          } else {
+                            setShowWhenAllHidden(false);
+                          }
+                        }
                       }}
                     >
                       <span className="text-base text-gray-600">Result:</span>
-                      {(showResults && !showResult) ||
-                      (!showResults && showResult) ? (
+                      {(showAllResults && !isHiddenWhenAllShown) ||
+                      (!showAllResults && isShownWhenAllHidden) ? (
                         <span className="text-base font-medium">
                           {formatResult(game.result)}
                         </span>
@@ -422,7 +441,7 @@ export default function GamesList({
   isSearching,
   onLoadMore,
   hasMore,
-  showResults,
+  showAllResults,
 }: GamesListProps) {
   const [showOverlay, setShowOverlay] = useState(false);
   const [overlayStartTime, setOverlayStartTime] = useState<number | null>(null);
@@ -547,7 +566,7 @@ export default function GamesList({
                 index={index}
                 isSelected={selectedGame?.path === game.path}
                 onSelect={handleSelectGame}
-                showResults={showResults}
+                showAllResults={showAllResults}
               />
             </div>
           </div>

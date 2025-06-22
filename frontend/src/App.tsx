@@ -350,7 +350,7 @@ export default function App() {
           isSearching={isSearching}
           onLoadMore={loadMore}
           hasMore={hasMore}
-          showResults={showResults}
+          showAllResults={showResults}
         />
       </div>
     </div>
