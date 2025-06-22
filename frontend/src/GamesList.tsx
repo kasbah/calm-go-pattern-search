@@ -247,6 +247,8 @@ export default function GamesList({
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
   const previousSelectedGamePath = useRef<string | null>(null);
+  const previousGamesLength = useRef<number>(0);
+  const previousFirstGamePath = useRef<string | null>(null);
 
   useEffect(() => {
     let showTimer: NodeJS.Timeout;
@@ -302,6 +304,22 @@ export default function GamesList({
       }
     };
   }, [hasMore, isSearching, onLoadMore]);
+
+  // Scroll to top when games list changes (new search), but not for infinite scroll
+  useEffect(() => {
+    const currentFirstGamePath = games.length > 0 ? games[0].path : null;
+    const isNewSearch =
+      games.length < previousGamesLength.current ||
+      (games.length > 0 &&
+        currentFirstGamePath !== previousFirstGamePath.current);
+
+    if (isNewSearch && games.length > 0) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    previousGamesLength.current = games.length;
+    previousFirstGamePath.current = currentFirstGamePath;
+  }, [games]);
 
   useEffect(() => {
     if (!selectedGame) {
