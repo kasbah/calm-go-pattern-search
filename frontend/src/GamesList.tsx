@@ -18,6 +18,7 @@ import circleBlackIcon from "@/assets/icons/circle-black.svg";
 import circleBlackSlashWhiteIcon from "@/assets/icons/circle-black-slash-white.svg";
 import circleWhiteIcon from "@/assets/icons/circle-white.svg";
 import flipHorizontalIcon from "@/assets/icons/flip-horizontal.svg";
+import trophyCrossedOutIcon from "@/assets/icons/trophy-crossed-out.svg";
 import { Separator } from "./components/ui/separator";
 
 function rotationToString(rotation: number) {
@@ -136,6 +137,7 @@ function GameItem({
 }: GameItemProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const [showResult, setShowResult] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -225,7 +227,53 @@ function GameItem({
                         <td className="pr-8">
                           {game.event && (
                             <div className="flex flex-col">
-                              <div className="font-medium">{game.event}</div>
+                              <div className="font-medium flex items-center gap-2">
+                                {game.event}
+                                <div className="relative">
+                                  <img
+                                    src={badgeInfoIcon}
+                                    alt="Game details"
+                                    className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800"
+                                    title="Game details"
+                                    onMouseEnter={() => setShowPopup(true)}
+                                    onMouseLeave={() => setShowPopup(false)}
+                                  />
+                                  {showPopup && (
+                                    <div className="absolute left-0 bottom-6 z-50 bg-white border border-gray-300 rounded-lg shadow-lg p-3 min-w-64 text-sm">
+                                      <div className="space-y-1">
+                                        <div>
+                                          <strong>Komi:</strong>{" "}
+                                          {game.komi !== null
+                                            ? game.komi
+                                            : "Unknown"}
+                                        </div>
+                                        <div>
+                                          <strong>Rules:</strong>{" "}
+                                          {formatRules(game.rules)}
+                                        </div>
+                                        <div>
+                                          <strong>SGF Source:</strong>{" "}
+                                          {game.path}
+                                        </div>
+                                        <div>
+                                          <strong>Search Score:</strong>{" "}
+                                          {game.score}
+                                        </div>
+                                        <div>
+                                          <strong>
+                                            Empty correctly within:
+                                          </strong>{" "}
+                                          {game.all_empty_correctly_within}
+                                        </div>
+                                        <div>
+                                          <strong>Rotation:</strong>{" "}
+                                          {rotationToString(game.rotation)}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                               {game.round && (
                                 <div className="text-gray-500 text-sm">
                                   Round: {game.round}
@@ -279,12 +327,6 @@ function GameItem({
                     <div className="text-gray-500">{index + 1}</div>
                   </div>
                 </div>
-
-                {showResults && (
-                  <div className="text-lg font-medium mt-2">
-                    Result: {formatResult(game.result)}
-                  </div>
-                )}
               </div>
 
               <div className="mb-2">
@@ -293,41 +335,26 @@ function GameItem({
                     Move {game.last_move_matched + 1} / {game.moves.length}
                   </div>
                   <div className="flex justify-end items-center">
-                    <div className="relative">
-                      <img
-                        src={badgeInfoIcon}
-                        alt="Game details"
-                        className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800"
-                        title="Game details"
-                        onMouseEnter={() => setShowPopup(true)}
-                        onMouseLeave={() => setShowPopup(false)}
-                      />
-                      {showPopup && (
-                        <div className="absolute right-0 bottom-6 z-50 bg-white border border-gray-300 rounded-lg shadow-lg p-3 min-w-64 text-sm">
-                          <div className="space-y-1">
-                            <div>
-                              <strong>Komi:</strong>{" "}
-                              {game.komi !== null ? game.komi : "Unknown"}
-                            </div>
-                            <div>
-                              <strong>Rules:</strong> {formatRules(game.rules)}
-                            </div>
-                            <div>
-                              <strong>SGF Source:</strong> {game.path}
-                            </div>
-                            <div>
-                              <strong>Search Score:</strong> {game.score}
-                            </div>
-                            <div>
-                              <strong>Empty correctly within:</strong>{" "}
-                              {game.all_empty_correctly_within}
-                            </div>
-                            <div>
-                              <strong>Rotation:</strong>{" "}
-                              {rotationToString(game.rotation)}
-                            </div>
-                          </div>
-                        </div>
+                    <div
+                      className="mr-2 flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
+                      title="Click to toggle result"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowResult(!showResult);
+                      }}
+                    >
+                      <span className="text-base text-gray-600">Result:</span>
+                      {(showResults && !showResult) ||
+                      (!showResults && showResult) ? (
+                        <span className="text-base font-medium">
+                          {formatResult(game.result)}
+                        </span>
+                      ) : (
+                        <img
+                          src={trophyCrossedOutIcon}
+                          alt="Result"
+                          className="w-5 h-5 text-gray-600"
+                        />
                       )}
                     </div>
                   </div>
