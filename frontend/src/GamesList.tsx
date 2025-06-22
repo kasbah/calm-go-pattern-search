@@ -16,6 +16,7 @@ import type {
 import badgeInfoIcon from "@/assets/icons/badge-info.svg";
 import circleBlackSlashWhiteIcon from "@/assets/icons/circle-black-slash-white.svg";
 import flipHorizontalIcon from "@/assets/icons/flip-horizontal.svg";
+import { Separator } from "./components/ui/separator";
 
 function rotationToString(rotation: number) {
   if (rotation === 0) {
@@ -51,7 +52,7 @@ function formatDate(date: SgfDate | null): string | null {
 }
 
 function formatResult(result: GameResult | null): string {
-  if (!result) return "N/A";
+  if (!result) return "Unknown";
   if (result.Player) {
     const [color, score] = result.Player;
     const colorStr = color === "Black" ? "B" : "W";
@@ -65,26 +66,26 @@ function formatResult(result: GameResult | null): string {
   if (result.Draw) return "Draw";
   if (result.Void) return "Void";
   if (result.Unknown) return result.Unknown;
-  return "N/A";
+  return "Unknown";
 }
 
 function formatRank(rank: Rank | null): string {
-  if (!rank) return "N/A";
+  if (!rank) return "Unknown";
   if (rank.Kyu) return `${rank.Kyu}k`;
   if (rank.Dan) return `${rank.Dan}d`;
   if (rank.Pro) return `${rank.Pro}p`;
   if (rank.Custom) return rank.Custom;
-  return "N/A";
+  return "Unknown";
 }
 
 function formatRules(rules: Rules | null): string {
-  if (!rules) return "N/A";
+  if (!rules) return "Unknown";
   if (rules.Chinese) return "Chinese";
   if (rules.Japanese) return "Japanese";
   if (rules.Korean) return "Korean";
   if (rules.Ing) return "Ing";
   if (rules.Custom) return rules.Custom;
-  return "N/A";
+  return "Unknown";
 }
 
 function getPlayerName(player: Player): string {
@@ -161,145 +162,146 @@ function GameItem({
   }, []);
 
   return (
-    <div ref={itemRef} className="mb-2 mt-5 pr-4 pl-4">
-      <div
-        data-selected={isSelected}
-        className={cn(
-          "bg-white hover:bg-gray-50 data-[selected=true]:bg-secondary",
-          "rounded-md border p-2 cursor-pointer",
-        )}
-        onClick={() => onSelect(game)}
-      >
-        <div className="flex gap-4">
-          <div className="flex-shrink-0">
-            {isVisible ? (
-              <TinyGobanViewer game={game} vertexSize={11} />
-            ) : (
-              <div
-                style={{
-                  width: 11 * 19 + 8,
-                  height: 11 * 19 + 8,
-                  backgroundColor: "#f3f4f6",
-                  borderRadius: "4px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#9ca3af",
-                  fontSize: "12px",
-                }}
-              />
-            )}
-          </div>
-          <div className="flex-1">
-            <div className="text-sm p-2">
-              <div className="flex justify-between items-start mb-2">
-                <h2 className="text-xl font-medium">
-                  {getPlayerName(game.player_black)}{" "}
-                  {formatRank(game.rank_black)} (B) vs{" "}
-                  {getPlayerName(game.player_white)}{" "}
-                  {formatRank(game.rank_white)} (W)
-                </h2>
-                <div className="flex items-center gap-2">
-                  {game.is_mirrored && (
-                    <img
-                      src={flipHorizontalIcon}
-                      alt="Mirrored"
-                      className="w-5 h-5 text-gray-600"
-                      title="The game is mirrored to match the pattern"
-                    />
-                  )}
-                  {game.is_inverted && (
-                    <img
-                      src={circleBlackSlashWhiteIcon}
-                      alt="Colors inverted"
-                      className="w-5 h-5 text-gray-600"
-                      title="Colors are inverted to match the pattern"
-                    />
-                  )}
-
-                  <div className="text-gray-500">{index + 1}</div>
-                </div>
-              </div>
-
-              {showResults && (
-                <div className="text-lg font-medium mb-2">
-                  Result: {formatResult(game.result)}
-                </div>
+    <>
+      <div ref={itemRef}>
+        <div
+          data-selected={isSelected}
+          className={cn(
+            "bg-white hover:bg-gray-50 data-[selected=true]:bg-secondary p-2 pr-4",
+            "cursor-pointer",
+          )}
+          onClick={() => onSelect(game)}
+        >
+          <div className="flex gap-4">
+            <div className="flex-shrink-0">
+              {isVisible ? (
+                <TinyGobanViewer game={game} vertexSize={11} />
+              ) : (
+                <div
+                  style={{
+                    width: 11 * 19 + 8,
+                    height: 11 * 19 + 8,
+                    backgroundColor: "#f3f4f6",
+                    borderRadius: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#9ca3af",
+                    fontSize: "12px",
+                  }}
+                />
               )}
             </div>
+            <div className="flex-1 flex flex-col justify-between">
+              <div className="text-sm">
+                <div className="flex justify-between items-start">
+                  <h2 className="text-xl font-medium">
+                    {getPlayerName(game.player_black)}{" "}
+                    {formatRank(game.rank_black)} (B) vs{" "}
+                    {getPlayerName(game.player_white)}{" "}
+                    {formatRank(game.rank_white)} (W)
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    {game.is_mirrored && (
+                      <img
+                        src={flipHorizontalIcon}
+                        alt="Mirrored"
+                        className="w-5 h-5 text-gray-600"
+                        title="The game is mirrored to match the pattern"
+                      />
+                    )}
+                    {game.is_inverted && (
+                      <img
+                        src={circleBlackSlashWhiteIcon}
+                        alt="Colors inverted"
+                        className="w-5 h-5 text-gray-600"
+                        title="Colors are inverted to match the pattern"
+                      />
+                    )}
 
-            <div className="mb-2">
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  {game.event && (
-                    <h3 className="font-medium text-lg">{game.event}</h3>
-                  )}
+                    <div className="text-gray-500">{index + 1}</div>
+                  </div>
                 </div>
-                <div>
-                  {game.date && (
-                    <h3 className="font-medium text-lg">
-                      {formatDate(game.date)}
-                    </h3>
-                  )}
-                </div>
-                <div>
-                  {game.round && (
-                    <div className="text-gray-500">Round: {game.round}</div>
-                  )}
-                </div>
-                <div>
-                  {game.location && (
-                    <div className="text-gray-500">
-                      Location: {game.location}
-                    </div>
-                  )}
-                </div>
+
+                {showResults && (
+                  <div className="text-lg font-medium">
+                    Result: {formatResult(game.result)}
+                  </div>
+                )}
               </div>
-            </div>
 
-            {/* Match Information */}
-            <div className="mb-2">
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  Move {game.last_move_matched + 1} / {game.moves.length}
-                </div>
-                <div className="flex justify-end">
-                  <div className="relative">
-                    <img
-                      src={badgeInfoIcon}
-                      alt="Game details"
-                      className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800"
-                      title="Game details"
-                      onMouseEnter={() => setShowPopup(true)}
-                      onMouseLeave={() => setShowPopup(false)}
-                    />
-                    {showPopup && (
-                      <div className="absolute right-0 bottom-6 z-50 bg-white border border-gray-300 rounded-lg shadow-lg p-3 min-w-64 text-sm">
-                        <div className="space-y-1">
-                          <div>
-                            <strong>Komi:</strong>{" "}
-                            {game.komi !== null ? game.komi : "N/A"}
-                          </div>
-                          <div>
-                            <strong>Rules:</strong> {formatRules(game.rules)}
-                          </div>
-                          <div>
-                            <strong>Path:</strong> {game.path}
-                          </div>
-                          <div>
-                            <strong>Score:</strong> {game.score}
-                          </div>
-                          <div>
-                            <strong>Empty correctly within:</strong>{" "}
-                            {game.all_empty_correctly_within}
-                          </div>
-                          <div>
-                            <strong>Rotation:</strong>{" "}
-                            {rotationToString(game.rotation)}
-                          </div>
-                        </div>
+              <div className="">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    {game.event && (
+                      <h3 className="font-medium text-lg">{game.event}</h3>
+                    )}
+                  </div>
+                  <div>
+                    {game.date && (
+                      <h3 className="font-medium text-lg">
+                        {formatDate(game.date)}
+                      </h3>
+                    )}
+                  </div>
+                  <div>
+                    {game.round && (
+                      <div className="text-gray-500">Round: {game.round}</div>
+                    )}
+                  </div>
+                  <div>
+                    {game.location && (
+                      <div className="text-gray-500">
+                        Location: {game.location}
                       </div>
                     )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    Move {game.last_move_matched + 1} / {game.moves.length}
+                  </div>
+                  <div className="flex justify-end items-center">
+                    <div className="relative">
+                      <img
+                        src={badgeInfoIcon}
+                        alt="Game details"
+                        className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800"
+                        title="Game details"
+                        onMouseEnter={() => setShowPopup(true)}
+                        onMouseLeave={() => setShowPopup(false)}
+                      />
+                      {showPopup && (
+                        <div className="absolute right-0 bottom-6 z-50 bg-white border border-gray-300 rounded-lg shadow-lg p-3 min-w-64 text-sm">
+                          <div className="space-y-1">
+                            <div>
+                              <strong>Komi:</strong>{" "}
+                              {game.komi !== null ? game.komi : "Unknown"}
+                            </div>
+                            <div>
+                              <strong>Rules:</strong> {formatRules(game.rules)}
+                            </div>
+                            <div>
+                              <strong>SGF Source:</strong> {game.path}
+                            </div>
+                            <div>
+                              <strong>Search Score:</strong> {game.score}
+                            </div>
+                            <div>
+                              <strong>Empty correctly within:</strong>{" "}
+                              {game.all_empty_correctly_within}
+                            </div>
+                            <div>
+                              <strong>Rotation:</strong>{" "}
+                              {rotationToString(game.rotation)}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -307,7 +309,8 @@ function GameItem({
           </div>
         </div>
       </div>
-    </div>
+      <Separator />
+    </>
   );
 }
 
@@ -427,7 +430,7 @@ export default function GamesList({
 
   return (
     <div className="flex flex-col w-full">
-      <div className="space-y-0 pr-2 relative">
+      <div className="relative">
         {games.map((game, index) => (
           <div key={game.path}>
             {index === games.length - 5 && (
