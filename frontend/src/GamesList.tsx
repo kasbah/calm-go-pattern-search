@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import type {
   Game,
   SgfDate,
@@ -110,6 +110,117 @@ export type GamesListProps = {
   hasMore: boolean;
 };
 
+type GameItemProps = {
+  game: Game;
+  index: number;
+  isSelected: boolean;
+  onSelect: (game: Game) => void;
+};
+
+function GameItem({ game, index, isSelected, onSelect }: GameItemProps) {
+  const [isVisible, setIsVisible] = useState(false);
+  const itemRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        setIsVisible(entry.isIntersecting);
+      },
+      {
+        root: null,
+        rootMargin: "100px", // Load slightly before coming into view
+        threshold: 0,
+      },
+    );
+
+    const currentRef = itemRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
+
+  return (
+    <div ref={itemRef} className="mb-2">
+      <div
+        data-selected={isSelected}
+        className="bg-white hover:bg-gray-50 data-[selected=true]:bg-secondary cursor-default rounded-md border p-2"
+        onClick={() => onSelect(game)}
+      >
+        <div className="flex gap-4">
+          <div className="flex-shrink-0">
+            {isVisible ? (
+              <TinyGobanViewer game={game} vertexSize={12} />
+            ) : (
+              <div
+                style={{
+                  width: 12 * 19 + 8,
+                  height: 12 * 19 + 8,
+                  backgroundColor: "#f3f4f6",
+                  borderRadius: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#9ca3af",
+                  fontSize: "12px",
+                }}
+              />
+            )}
+          </div>
+          <div className="flex-1">
+            <div className="text-sm p-2">
+              <div className="flex justify-between items-start mb-2">
+                <h2 className="text-xl font-medium">
+                  {getPlayerName(game.player_black)}{" "}
+                  {formatRank(game.rank_black)} (B) vs{" "}
+                  {getPlayerName(game.player_white)}{" "}
+                  {formatRank(game.rank_white)} (W)
+                </h2>
+                <div className="text-gray-500">{index + 1}</div>
+              </div>
+
+              <div className="text-lg font-medium mb-2">
+                Result: {formatResult(game.result)}
+              </div>
+            </div>
+
+            {/* Game Metadata */}
+            <div className="mb-2">
+              <div className="grid grid-cols-2 gap-2">
+                <h3 className="font-medium text-lg">{game.event || "N/A"}</h3>
+                <h3 className="font-medium text-lg">{formatDate(game.date)}</h3>
+                <div>Round: {game.round || "N/A"}</div>
+                <div>Location: {game.location || "N/A"}</div>
+                <div>Rules: {formatRules(game.rules)}</div>
+                <div>Komi: {game.komi?.toFixed(1) || "N/A"}</div>
+              </div>
+            </div>
+
+            {/* Match Information */}
+            <div className="mb-2">
+              <div className="grid grid-cols-2 gap-2">
+                <div>Matched Within Move: {game.last_move_matched + 1}</div>
+                <div>Rotation: {rotationToString(game.rotation)}</div>
+                <div>Mirrored: {game.is_mirrored ? "Yes" : "No"}</div>
+                <div>Colors Inverted: {game.is_inverted ? "Yes" : "No"}</div>
+                <div>Correct Area Size: {game.all_empty_correctly_within}</div>
+                <div>Total Moves: {game.moves.length}</div>
+              </div>
+            </div>
+            <div className="text-sm text-gray-500">{game.path}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function GamesList({
   games,
   onSelectGame,
@@ -189,9 +300,16 @@ export default function GamesList({
     }
   }, [selectedGame, games]);
 
+  const handleSelectGame = useCallback(
+    (game: Game) => {
+      onSelectGame(game);
+    },
+    [onSelectGame],
+  );
+
   return (
     <div className="flex flex-col w-full">
-      <div className="space-y-2 pr-2 relative">
+      <div className="space-y-0 pr-2 relative">
         {games.map((game, index) => (
           <div key={game.path}>
             {index === games.length - 5 && (
@@ -201,67 +319,13 @@ export default function GamesList({
               ref={(el) => {
                 itemRefs.current[index] = el;
               }}
-              data-selected={selectedGame?.path === game.path}
-              className="bg-white hover:bg-gray-50 data-[selected=true]:bg-secondary cursor-default rounded-md border p-2"
-              onClick={() => onSelectGame(game)}
             >
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <TinyGobanViewer game={game} vertexSize={12} />
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm p-2">
-                    <div className="flex justify-between items-start mb-2">
-                      <h2 className="text-xl font-medium">
-                        {getPlayerName(game.player_black)}{" "}
-                        {formatRank(game.rank_black)} (B) vs{" "}
-                        {getPlayerName(game.player_white)}{" "}
-                        {formatRank(game.rank_white)} (W)
-                      </h2>
-                      <div className="text-gray-500">{index + 1}</div>
-                    </div>
-
-                    <div className="text-lg font-medium mb-2">
-                      Result: {formatResult(game.result)}
-                    </div>
-                  </div>
-
-                  {/* Game Metadata */}
-                  <div className="mb-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <h3 className="font-medium text-lg">
-                        {game.event || "N/A"}
-                      </h3>
-                      <h3 className="font-medium text-lg">
-                        {formatDate(game.date)}
-                      </h3>
-                      <div>Round: {game.round || "N/A"}</div>
-                      <div>Location: {game.location || "N/A"}</div>
-                      <div>Rules: {formatRules(game.rules)}</div>
-                      <div>Komi: {game.komi?.toFixed(1) || "N/A"}</div>
-                    </div>
-                  </div>
-
-                  {/* Match Information */}
-                  <div className="mb-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        Matched Within Move: {game.last_move_matched + 1}
-                      </div>
-                      <div>Rotation: {rotationToString(game.rotation)}</div>
-                      <div>Mirrored: {game.is_mirrored ? "Yes" : "No"}</div>
-                      <div>
-                        Colors Inverted: {game.is_inverted ? "Yes" : "No"}
-                      </div>
-                      <div>
-                        Correct Area Size: {game.all_empty_correctly_within}
-                      </div>
-                      <div>Total Moves: {game.moves.length}</div>
-                    </div>
-                  </div>
-                  <div className="text-sm text-gray-500">{game.path}</div>
-                </div>
-              </div>
+              <GameItem
+                game={game}
+                index={index}
+                isSelected={selectedGame?.path === game.path}
+                onSelect={handleSelectGame}
+              />
             </div>
           </div>
         ))}
