@@ -21,12 +21,7 @@ export type SgfDate = {
   Custom?: string;
 };
 
-export type Score = {
-  Resignation?: boolean;
-  Timeout?: boolean;
-  Forfeit?: boolean;
-  Points?: number;
-};
+export type Score = "Resignation" | "Timeout" | "Forfeit" | { Points: number };
 
 export type GameResult = {
   Player?: ["Black" | "White", Score | null, string];

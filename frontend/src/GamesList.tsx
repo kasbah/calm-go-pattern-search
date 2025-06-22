@@ -60,14 +60,15 @@ function formatDate(date: SgfDate | null): string | null {
 }
 
 function formatResult(result: GameResult | null): string {
+  console.log(result);
   if (!result) return "Unknown";
   if (result.Player) {
     const [color, score] = result.Player;
     const colorStr = color === "Black" ? "B" : "W";
     if (!score) return `${colorStr}+?`;
-    if (score.Resignation) return `${colorStr}+Resign`;
-    if (score.Timeout) return `${colorStr}+Timeout`;
-    if (score.Forfeit) return `${colorStr}+Forfeit`;
+    if (score === "Resignation") return `${colorStr}+Resign`;
+    if (score === "Timeout") return `${colorStr}+Timeout`;
+    if (score === "Forfeit") return `${colorStr}+Forfeit`;
     if (score.Points) return `${colorStr}+${score.Points.toFixed(1)}`;
     return `${colorStr}+?`;
   }
