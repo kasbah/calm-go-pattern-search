@@ -1,18 +1,21 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import type {
-  Game,
-  SgfDate,
-  GameResult,
-  Rank,
-  Rules,
-  Player,
-} from "./wasm-search-types";
 import catRunning from "@/assets/cat_running.webp";
+import { useCallback, useEffect, useRef, useState } from "react";
 import playerNames from "../../rust/pack-games/python-player-name-aliases/player_names.json";
 import TinyGobanViewer from "./TinyGobanViewer";
-
-// Import types from playerSearch.ts to avoid duplication
+import { cn } from "./lib/utils";
 import type { PlayerAlias, PlayerAliasLanguage } from "./playerSearch";
+import type {
+  Game,
+  GameResult,
+  Player,
+  Rank,
+  Rules,
+  SgfDate,
+} from "./wasm-search-types";
+
+import badgeInfoIcon from "@/assets/icons/badge-info.svg";
+import circleBlackSlashWhiteIcon from "@/assets/icons/circle-black-slash-white.svg";
+import flipHorizontalIcon from "@/assets/icons/flip-horizontal.svg";
 
 function rotationToString(rotation: number) {
   if (rotation === 0) {
@@ -26,8 +29,8 @@ function rotationToString(rotation: number) {
   }
 }
 
-function formatDate(date: SgfDate | null): string {
-  if (!date) return "N/A";
+function formatDate(date: SgfDate | null): string | null {
+  if (!date) return null;
   if (date.YearMonthDay) {
     const [year, month, day] = date.YearMonthDay;
     return `${year}-${month.toString().padStart(2, "0")}-${day
@@ -44,7 +47,7 @@ function formatDate(date: SgfDate | null): string {
   if (date.Custom) {
     return date.Custom;
   }
-  return "N/A";
+  return null;
 }
 
 function formatResult(result: GameResult | null): string {
@@ -129,6 +132,7 @@ function GameItem({
   showResults,
 }: GameItemProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -160,18 +164,21 @@ function GameItem({
     <div ref={itemRef} className="mb-2 mt-5 pr-4 pl-4">
       <div
         data-selected={isSelected}
-        className="bg-white hover:bg-gray-50 data-[selected=true]:bg-secondary cursor-default rounded-md border p-2"
+        className={cn(
+          "bg-white hover:bg-gray-50 data-[selected=true]:bg-secondary",
+          "rounded-md border p-2 cursor-pointer",
+        )}
         onClick={() => onSelect(game)}
       >
         <div className="flex gap-4">
           <div className="flex-shrink-0">
             {isVisible ? (
-              <TinyGobanViewer game={game} vertexSize={12} />
+              <TinyGobanViewer game={game} vertexSize={11} />
             ) : (
               <div
                 style={{
-                  width: 12 * 19 + 8,
-                  height: 12 * 19 + 8,
+                  width: 11 * 19 + 8,
+                  height: 11 * 19 + 8,
                   backgroundColor: "#f3f4f6",
                   borderRadius: "4px",
                   display: "flex",
@@ -192,7 +199,26 @@ function GameItem({
                   {getPlayerName(game.player_white)}{" "}
                   {formatRank(game.rank_white)} (W)
                 </h2>
-                <div className="text-gray-500">{index + 1}</div>
+                <div className="flex items-center gap-2">
+                  {game.is_mirrored && (
+                    <img
+                      src={flipHorizontalIcon}
+                      alt="Mirrored"
+                      className="w-5 h-5 text-gray-600"
+                      title="The game is mirrored to match the pattern"
+                    />
+                  )}
+                  {game.is_inverted && (
+                    <img
+                      src={circleBlackSlashWhiteIcon}
+                      alt="Colors inverted"
+                      className="w-5 h-5 text-gray-600"
+                      title="Colors are inverted to match the pattern"
+                    />
+                  )}
+
+                  <div className="text-gray-500">{index + 1}</div>
+                </div>
               </div>
 
               {showResults && (
@@ -202,30 +228,82 @@ function GameItem({
               )}
             </div>
 
-            {/* Game Metadata */}
             <div className="mb-2">
               <div className="grid grid-cols-2 gap-2">
-                <h3 className="font-medium text-lg">{game.event || "N/A"}</h3>
-                <h3 className="font-medium text-lg">{formatDate(game.date)}</h3>
-                <div>Round: {game.round || "N/A"}</div>
-                <div>Location: {game.location || "N/A"}</div>
-                <div>Rules: {formatRules(game.rules)}</div>
-                <div>Komi: {game.komi?.toFixed(1) || "N/A"}</div>
+                <div>
+                  {game.event && (
+                    <h3 className="font-medium text-lg">{game.event}</h3>
+                  )}
+                </div>
+                <div>
+                  {game.date && (
+                    <h3 className="font-medium text-lg">
+                      {formatDate(game.date)}
+                    </h3>
+                  )}
+                </div>
+                <div>
+                  {game.round && (
+                    <div className="text-gray-500">Round: {game.round}</div>
+                  )}
+                </div>
+                <div>
+                  {game.location && (
+                    <div className="text-gray-500">
+                      Location: {game.location}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
             {/* Match Information */}
             <div className="mb-2">
               <div className="grid grid-cols-2 gap-2">
-                <div>Matched Within Move: {game.last_move_matched + 1}</div>
-                <div>Rotation: {rotationToString(game.rotation)}</div>
-                <div>Mirrored: {game.is_mirrored ? "Yes" : "No"}</div>
-                <div>Colors Inverted: {game.is_inverted ? "Yes" : "No"}</div>
-                <div>Correct Area Size: {game.all_empty_correctly_within}</div>
-                <div>Total Moves: {game.moves.length}</div>
+                <div>
+                  Move {game.last_move_matched + 1} / {game.moves.length}
+                </div>
+                <div className="flex justify-end">
+                  <div className="relative">
+                    <img
+                      src={badgeInfoIcon}
+                      alt="Game details"
+                      className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800"
+                      title="Game details"
+                      onMouseEnter={() => setShowPopup(true)}
+                      onMouseLeave={() => setShowPopup(false)}
+                    />
+                    {showPopup && (
+                      <div className="absolute right-0 bottom-6 z-50 bg-white border border-gray-300 rounded-lg shadow-lg p-3 min-w-64 text-sm">
+                        <div className="space-y-1">
+                          <div>
+                            <strong>Komi:</strong>{" "}
+                            {game.komi !== null ? game.komi : "N/A"}
+                          </div>
+                          <div>
+                            <strong>Rules:</strong> {formatRules(game.rules)}
+                          </div>
+                          <div>
+                            <strong>Path:</strong> {game.path}
+                          </div>
+                          <div>
+                            <strong>Score:</strong> {game.score}
+                          </div>
+                          <div>
+                            <strong>Empty correctly within:</strong>{" "}
+                            {game.all_empty_correctly_within}
+                          </div>
+                          <div>
+                            <strong>Rotation:</strong>{" "}
+                            {rotationToString(game.rotation)}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="text-sm text-gray-500">{game.path}</div>
           </div>
         </div>
       </div>
@@ -370,8 +448,6 @@ export default function GamesList({
             </div>
           </div>
         ))}
-
-        {/* Search overlay */}
         {showOverlay && (
           <div
             className="absolute inset-0 flex items-center justify-center z-10"
