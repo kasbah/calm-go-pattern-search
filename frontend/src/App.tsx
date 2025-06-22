@@ -314,7 +314,7 @@ export default function App() {
                     setShowResults((showResults) => !showResults);
                   }}
                 >
-                  <div className="min-w-[120px]">
+                  <div className="min-w-[120px] flex justify-right">
                     <Label htmlFor="results-toggle" className="cursor-pointer">
                       {showResults ? "Results Shown" : "Results Hidden"}
                     </Label>

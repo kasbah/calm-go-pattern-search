@@ -20,6 +20,11 @@ import circleWhiteIcon from "@/assets/icons/circle-white.svg";
 import flipHorizontalIcon from "@/assets/icons/flip-horizontal.svg";
 import trophyCrossedOutIcon from "@/assets/icons/trophy-crossed-out.svg";
 import { Separator } from "./components/ui/separator";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "./components/ui/popover";
 
 function rotationToString(rotation: number) {
   if (rotation === 0) {
@@ -59,12 +64,12 @@ function formatResult(result: GameResult | null): string {
   if (result.Player) {
     const [color, score] = result.Player;
     const colorStr = color === "Black" ? "B" : "W";
-    if (!score) return `${colorStr}+R`;
-    if (score.Resignation) return `${colorStr}+R`;
-    if (score.Timeout) return `${colorStr}+T`;
-    if (score.Forfeit) return `${colorStr}+F`;
+    if (!score) return `${colorStr}+?`;
+    if (score.Resignation) return `${colorStr}+Resign`;
+    if (score.Timeout) return `${colorStr}+Timeout`;
+    if (score.Forfeit) return `${colorStr}+Forfeit`;
     if (score.Points) return `${colorStr}+${score.Points.toFixed(1)}`;
-    return `${colorStr}+R`;
+    return `${colorStr}+?`;
   }
   if (result.Draw) return "Draw";
   if (result.Void) return "Void";
@@ -136,8 +141,9 @@ function GameItem({
   showResults,
 }: GameItemProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [showPopup, setShowPopup] = useState(false);
   const [showResult, setShowResult] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -229,50 +235,89 @@ function GameItem({
                             <div className="flex flex-col">
                               <div className="font-medium flex items-center gap-2">
                                 {game.event}
-                                <div className="relative">
-                                  <img
-                                    src={badgeInfoIcon}
-                                    alt="Game details"
-                                    className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800"
-                                    title="Game details"
-                                    onMouseEnter={() => setShowPopup(true)}
-                                    onMouseLeave={() => setShowPopup(false)}
-                                  />
-                                  {showPopup && (
-                                    <div className="absolute left-0 bottom-6 z-50 bg-white border border-gray-300 rounded-lg shadow-lg p-3 min-w-64 text-sm">
-                                      <div className="space-y-1">
-                                        <div>
-                                          <strong>Komi:</strong>{" "}
-                                          {game.komi !== null
-                                            ? game.komi
-                                            : "Unknown"}
-                                        </div>
-                                        <div>
-                                          <strong>Rules:</strong>{" "}
-                                          {formatRules(game.rules)}
-                                        </div>
-                                        <div>
-                                          <strong>SGF Source:</strong>{" "}
-                                          {game.path}
-                                        </div>
-                                        <div>
-                                          <strong>Search Score:</strong>{" "}
-                                          {game.score}
-                                        </div>
-                                        <div>
-                                          <strong>
-                                            Empty correctly within:
-                                          </strong>{" "}
-                                          {game.all_empty_correctly_within}
-                                        </div>
-                                        <div>
-                                          <strong>Rotation:</strong>{" "}
-                                          {rotationToString(game.rotation)}
-                                        </div>
+                                <Popover
+                                  open={popoverOpen}
+                                  onOpenChange={(open) => {
+                                    if (!isPinned) {
+                                      setPopoverOpen(open);
+                                    } else if (!open && isPinned) {
+                                      // If someone tries to close a pinned popover, unpin it
+                                      setIsPinned(false);
+                                      setPopoverOpen(false);
+                                    }
+                                  }}
+                                >
+                                  <PopoverTrigger asChild>
+                                    <img
+                                      src={badgeInfoIcon}
+                                      alt="Game details"
+                                      className={cn(
+                                        "w-5 h-5 cursor-pointer hover:text-gray-800",
+                                        isPinned
+                                          ? "text-blue-600"
+                                          : "text-gray-600",
+                                      )}
+                                      title={
+                                        isPinned
+                                          ? "Click to unpin"
+                                          : "Hover for details, click to pin"
+                                      }
+                                      onMouseEnter={() => {
+                                        if (!isPinned) setPopoverOpen(true);
+                                      }}
+                                      onMouseLeave={() => {
+                                        if (!isPinned) setPopoverOpen(false);
+                                      }}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const newPinnedState = !isPinned;
+                                        setIsPinned(newPinnedState);
+                                        setPopoverOpen(true);
+                                      }}
+                                    />
+                                  </PopoverTrigger>
+                                  <PopoverContent
+                                    className={cn("w-64 text-sm")}
+                                    align="start"
+                                    side="top"
+                                    onMouseEnter={() => {
+                                      if (!isPinned) setPopoverOpen(true);
+                                    }}
+                                    onMouseLeave={() => {
+                                      if (!isPinned) setPopoverOpen(false);
+                                    }}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <div className="space-y-1">
+                                      <div>
+                                        <strong>Komi:</strong>{" "}
+                                        {game.komi !== null
+                                          ? game.komi
+                                          : "Unknown"}
+                                      </div>
+                                      <div>
+                                        <strong>Rules:</strong>{" "}
+                                        {formatRules(game.rules)}
+                                      </div>
+                                      <div>
+                                        <strong>SGF Source:</strong> {game.path}
+                                      </div>
+                                      <div>
+                                        <strong>Search Score:</strong>{" "}
+                                        {game.score}
+                                      </div>
+                                      <div>
+                                        <strong>Empty correctly within:</strong>{" "}
+                                        {game.all_empty_correctly_within}
+                                      </div>
+                                      <div>
+                                        <strong>Rotation:</strong>{" "}
+                                        {rotationToString(game.rotation)}
                                       </div>
                                     </div>
-                                  )}
-                                </div>
+                                  </PopoverContent>
+                                </Popover>
                               </div>
                               {game.round && (
                                 <div className="text-gray-500 text-sm">
@@ -337,7 +382,7 @@ function GameItem({
                   <div className="flex justify-end items-center">
                     <div
                       className="mr-2 flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
-                      title="Click to toggle result"
+                      title={`Click to ${showResult ? "hide" : "reveal"} result`}
                       onClick={(e) => {
                         e.stopPropagation();
                         setShowResult(!showResult);
