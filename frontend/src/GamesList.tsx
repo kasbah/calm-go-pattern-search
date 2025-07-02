@@ -397,7 +397,10 @@ function GameItem({
                     >
                       <span className="text-base text-gray-600">Result:</span>
                       {shouldShowResult ||
-                      game.result.hasOwnProperty("Unknown") ? (
+                      Object.prototype.hasOwnProperty.call(
+                        game.result,
+                        "Unknown",
+                      ) ? (
                         <span className="text-base font-medium">
                           {formatResult(game.result)}
                         </span>

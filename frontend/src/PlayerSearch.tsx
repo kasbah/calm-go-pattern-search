@@ -6,6 +6,7 @@ import cancelSvg from "@/assets/icons/cancel.svg";
 import circleBlackSvg from "@/assets/icons/circle-black.svg";
 import circleWhiteSvg from "@/assets/icons/circle-white.svg";
 import circleBlackOrWhiteSvg from "@/assets/icons/circle-black-or-white.svg";
+import chevronDownSvg from "@/assets/icons/chevron-down.svg";
 
 type PlayerColor = "black" | "white" | "any";
 
@@ -325,8 +326,8 @@ function PlayerInput({
           )}
           onClick={() => handleColorSelect("black")}
         >
-          <img src={circleBlackSvg} alt="Black" className="h-4 w-4" />
-          <span className="text-sm">Black</span>
+          <img src={circleBlackSvg} alt="Black" className="h-5 w-5" />
+          <span className="text-base">Black</span>
         </button>
         <button
           className={cn(
@@ -335,8 +336,8 @@ function PlayerInput({
           )}
           onClick={() => handleColorSelect("white")}
         >
-          <img src={circleWhiteSvg} alt="White" className="h-4 w-4" />
-          <span className="text-sm">White</span>
+          <img src={circleWhiteSvg} alt="White" className="h-5 w-5" />
+          <span className="text-base">White</span>
         </button>
         <button
           className={cn(
@@ -345,8 +346,8 @@ function PlayerInput({
           )}
           onClick={() => handleColorSelect("any")}
         >
-          <img src={circleBlackOrWhiteSvg} alt="Any" className="h-4 w-4" />
-          <span className="text-sm">Any</span>
+          <img src={circleBlackOrWhiteSvg} alt="Any" className="h-5 w-5" />
+          <span className="text-base">Any</span>
         </button>
       </div>
     );
@@ -359,8 +360,8 @@ function PlayerInput({
           onClick={() => setShowColorDropdown(!showColorDropdown)}
           className={cn(
             "absolute left-2 top-1/2 -translate-y-1/2",
-            "h-7 w-7 rounded-sm opacity-70 hover:opacity-100",
-            "flex items-center justify-center",
+            "h-7 w-9 rounded-sm opacity-70 hover:opacity-100",
+            "flex items-center justify-center gap-0.5",
             "text-muted-foreground hover:text-foreground",
             "transition-opacity",
             "cursor-pointer",
@@ -368,6 +369,11 @@ function PlayerInput({
           )}
           type="button"
         >
+          <img
+            src={chevronDownSvg}
+            alt="Dropdown"
+            className="h-3 w-3 opacity-70"
+          />
           <img
             src={
               color === "black"
@@ -394,7 +400,7 @@ function PlayerInput({
             }
           }}
           className={cn(
-            "pl-10 pr-8 h-12",
+            "pl-12 pr-8 h-12",
             selectedPlayer && "bg-accent/20 border-primary",
           )}
         />
