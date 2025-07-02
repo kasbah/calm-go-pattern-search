@@ -359,7 +359,7 @@ function PlayerInput({
           onClick={() => setShowColorDropdown(!showColorDropdown)}
           className={cn(
             "absolute left-2 top-1/2 -translate-y-1/2",
-            "h-6 w-6 rounded-sm opacity-70 hover:opacity-100",
+            "h-7 w-7 rounded-sm opacity-70 hover:opacity-100",
             "flex items-center justify-center",
             "text-muted-foreground hover:text-foreground",
             "transition-opacity",
@@ -377,7 +377,7 @@ function PlayerInput({
                   : circleBlackOrWhiteSvg
             }
             alt="Color"
-            className="h-5 w-5"
+            className="h-6 w-6"
           />
         </button>
         <Input
@@ -394,7 +394,7 @@ function PlayerInput({
             }
           }}
           className={cn(
-            "pl-10 pr-8",
+            "pl-10 pr-8 h-12",
             selectedPlayer && "bg-accent/20 border-primary",
           )}
         />
@@ -403,7 +403,7 @@ function PlayerInput({
             onClick={deletePlayer}
             className={cn(
               "absolute right-2 top-1/2 -translate-y-1/2",
-              "h-5 w-5 rounded-sm opacity-70 hover:opacity-100",
+              "h-6 w-6 rounded-sm opacity-70 hover:opacity-100",
               "flex items-center justify-center",
               "text-muted-foreground hover:text-foreground",
               "transition-opacity",
@@ -412,7 +412,7 @@ function PlayerInput({
             type="button"
             tabIndex={-1}
           >
-            <img src={cancelSvg} alt="Clear" className="h-4 w-4" />
+            <img src={cancelSvg} alt="Clear" className="h-5 w-5" />
           </button>
         )}
       </div>
