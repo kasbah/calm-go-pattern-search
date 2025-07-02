@@ -270,8 +270,8 @@ function PlayerInput({
       <div
         ref={suggestionsRef}
         className={cn(
-          "absolute z-50 w-full bg-background border",
-          "rounded-md shadow-md mt-1 max-h-64",
+          "absolute z-50 w-screen max-w-[50vw] bg-background border",
+          "rounded-md shadow-md mt-1 max-h-96 right-0",
           "overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground/20",
           "scrollbar-track-transparent",
         )}
@@ -289,14 +289,14 @@ function PlayerInput({
             tabIndex={0}
           >
             <div className="flex items-center justify-between">
-              <div className="font-medium text-sm">{player.name}</div>
-              <div className="text-xs text-muted-foreground/60 ml-2 flex-shrink-0">
+              <div className="font-medium text-base">{player.name}</div>
+              <div className="text-sm text-muted-foreground/60 ml-2 flex-shrink-0">
                 {(playerCounts?.[player.id] ?? player.gamesCount) > 0 &&
                   `${playerCounts?.[player.id] ?? player.gamesCount} games`}
               </div>
             </div>
             {player.aliases.length > 1 && (
-              <div className="text-xs text-muted-foreground/70 truncate">
+              <div className="text-sm text-muted-foreground/70 truncate">
                 {player.aliases.slice(0, 10).join(", ")}
                 {player.aliases.length > 10 && "..."}
               </div>
@@ -464,37 +464,39 @@ export default function PlayerSearch({
   }, [state.color1, state.color2, onColorChange]);
 
   return (
-    <div className="space-y-3 mb-3">
-      <PlayerInput
-        placeholder="Player 1"
-        selectedPlayer={state.player1}
-        onPlayerSelect={(player) =>
-          dispatch({ type: "SELECT_PLAYER_1", player })
-        }
-        playerCounts={playerCounts}
-        isLoading={isLoading}
-        color={state.color1}
-        onColorChange={(color) => dispatch({ type: "SET_COLOR_1", color })}
-        onTempDelete={() => dispatch({ type: "TEMP_DELETE_PLAYER_1" })}
-        onRestore={() => dispatch({ type: "RESTORE_PLAYER_1" })}
-      />
+    <div className="flex flex-col items-center mb-3 mt-10">
+      <div className="w-full max-w-xs space-y-3">
+        <PlayerInput
+          placeholder="Player 1"
+          selectedPlayer={state.player1}
+          onPlayerSelect={(player) =>
+            dispatch({ type: "SELECT_PLAYER_1", player })
+          }
+          playerCounts={playerCounts}
+          isLoading={isLoading}
+          color={state.color1}
+          onColorChange={(color) => dispatch({ type: "SET_COLOR_1", color })}
+          onTempDelete={() => dispatch({ type: "TEMP_DELETE_PLAYER_1" })}
+          onRestore={() => dispatch({ type: "RESTORE_PLAYER_1" })}
+        />
 
-      <div className="text-sm font-medium text-foreground mb-3 text-center">
-        vs
+        <div className="text-sm font-medium text-foreground mb-3 text-center">
+          vs
+        </div>
+        <PlayerInput
+          placeholder="Player 2"
+          selectedPlayer={state.player2}
+          onPlayerSelect={(player) =>
+            dispatch({ type: "SELECT_PLAYER_2", player })
+          }
+          playerCounts={playerCounts}
+          isLoading={isLoading}
+          color={state.color2}
+          onColorChange={(color) => dispatch({ type: "SET_COLOR_2", color })}
+          onTempDelete={() => dispatch({ type: "TEMP_DELETE_PLAYER_2" })}
+          onRestore={() => dispatch({ type: "RESTORE_PLAYER_2" })}
+        />
       </div>
-      <PlayerInput
-        placeholder="Player 2"
-        selectedPlayer={state.player2}
-        onPlayerSelect={(player) =>
-          dispatch({ type: "SELECT_PLAYER_2", player })
-        }
-        playerCounts={playerCounts}
-        isLoading={isLoading}
-        color={state.color2}
-        onColorChange={(color) => dispatch({ type: "SET_COLOR_2", color })}
-        onTempDelete={() => dispatch({ type: "TEMP_DELETE_PLAYER_2" })}
-        onRestore={() => dispatch({ type: "RESTORE_PLAYER_2" })}
-      />
     </div>
   );
 }
