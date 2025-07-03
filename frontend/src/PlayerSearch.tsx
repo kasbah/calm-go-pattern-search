@@ -464,7 +464,7 @@ export default function PlayerSearch({
   }, [state.color1, state.color2, onColorChange]);
 
   return (
-    <div className="flex flex-col items-center mb-3 mt-10">
+    <div className="flex flex-col items-center justify-center mb-3 mr-50">
       <div className="w-full max-w-xs space-y-3">
         <PlayerInput
           placeholder="Player 1"

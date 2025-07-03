@@ -1,10 +1,13 @@
 import { useWindowSize } from "@reach/window-size";
 import { useEffect, useRef, useState } from "react";
+
 import { Label } from "./components/ui/label";
 import { Separator } from "./components/ui/separator";
 import { Toggle } from "./components/ui/toggle";
 import EditorGoban from "./EditorGoban";
 import GamesList from "./GamesList";
+import { cn } from "./lib/utils";
+import NextMovesList from "./NextMovesList";
 import PlayerSearch from "./PlayerSearch";
 import {
   BrushMode,
@@ -12,7 +15,6 @@ import {
   SabakiColor,
   type BoardPosition,
 } from "./sabaki-types";
-import NextMovesList from "./NextMovesList";
 import TinyEditorGoban from "./TinyEditorGoban";
 import ViewerGoban from "./ViewerGoban";
 import {
@@ -51,7 +53,6 @@ const emptyGame: Game = {
 export default function App() {
   const windowSize = useWindowSize();
   const vertexSize = windowSize.width * 0.02;
-  const tinyVertexSize = windowSize.width * 0.007;
   const [board, setBoard] = useState<BoardPosition>(emptyBoard);
   const [games, setGames] = useState<Array<Game>>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
@@ -67,6 +68,8 @@ export default function App() {
   const [moveNumbers, setMoveNumbers] = useState<Record<string, number>>({});
   const [showResults, setShowResults] = useState(false);
   const pageSize = 20;
+
+  const tinyVertexSize = 12;
 
   const editorGobanRef = useRef<{
     undo: () => void;
@@ -276,14 +279,14 @@ export default function App() {
       </div>
       <div className="flex flex-col ml-4 w-full">
         <div className="sticky top-0 bg-white z-10 pt-4 mr-2">
-          <div className="flex flex-row">
+          <div className="flex justify-between">
             {selectedGame != null ? (
               <div
-                className={`mr-10 ${
+                className={cn(
                   selectedGame != null
                     ? "tiny-goban-visible"
-                    : "next-moves-visible"
-                }`}
+                    : "next-moves-visible",
+                )}
                 style={{
                   height: tinyVertexSize * 21,
                   width: tinyVertexSize * 21,
@@ -303,7 +306,7 @@ export default function App() {
                 brushColor={brushColor}
               />
             )}
-            <div className="w-full flex flex-col justify-between">
+            <div className="flex flex-col justify-between">
               <PlayerSearch
                 onPlayerSelect={setSelectedPlayerIds}
                 playerCounts={playerCounts}

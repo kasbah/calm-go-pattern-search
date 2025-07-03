@@ -13,7 +13,7 @@ export default function NextMovesList({
   brushColor,
 }: NextMovesListProps) {
   return (
-    <div className="grid grid-flow-col grid-rows-5 h-[282px] max-h-[282px] w-[500px] gap-2">
+    <div className="grid grid-flow-col grid-rows-5 h-[252px] max-h-[252px] w-[334px] max-w-[334px] gap-2">
       {nextMoves.length > 0 && !isLoading && (
         <div className="text-lg font-bold text-gray-900 flex items-center pl-4">
           Next moves
