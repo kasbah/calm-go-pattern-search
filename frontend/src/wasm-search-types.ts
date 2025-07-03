@@ -77,9 +77,14 @@ export type Game = {
   result: GameResult;
 };
 
+export type NextMove = {
+  point: { x: number; y: number };
+  game_count: number;
+};
+
 export type SearchReturn = {
   num_results: number;
-  next_moves: Array<{ x: number; y: number }>;
+  next_moves: Array<NextMove>;
   results: Array<Game>;
   total_pages: number;
   current_page: number;

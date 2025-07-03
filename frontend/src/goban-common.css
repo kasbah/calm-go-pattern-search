@@ -94,6 +94,11 @@
     transform: none;
   }
 
+  .next-moves-visible {
+    opacity: 1;
+    transform: none;
+  }
+
   .tiny-goban-clickable:hover {
     transform: none;
     box-shadow: none;

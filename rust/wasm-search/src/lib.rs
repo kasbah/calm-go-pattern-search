@@ -61,6 +61,12 @@ pub struct SearchResult {
     result: GameResult,
 }
 
+#[derive(Serialize, Deserialize, Clone)]
+pub struct NextMove {
+    point: Point,
+    game_count: usize,
+}
+
 fn get_moves_rotation(query_rotation: &Rotation) -> Rotation {
     // rotating the moves the opposite to the query position
     match query_rotation {
@@ -82,8 +88,8 @@ fn get_next_moves(
     results: &[SearchResult],
     position: &[Placement],
     next_color: Color,
-) -> Vec<Point> {
-    let mut next_moves_map: HashMap<Placement, usize> = HashMap::new();
+) -> Vec<NextMove> {
+    let mut next_moves_map: HashMap<Placement, (usize, usize)> = HashMap::new();
     let moves_ahead = 2;
     for result in results {
         let mut mult: usize = if result.last_move_matched == position.len() - 1 {
@@ -104,10 +110,11 @@ fn get_next_moves(
                                 Color::White
                             };
                         }
-                        if let Some(n) = next_moves_map.get(&move_) {
-                            next_moves_map.insert(move_, n + mult + moves_ahead - i);
+                        if let Some((score, count)) = next_moves_map.get(&move_) {
+                            next_moves_map
+                                .insert(move_, (score + mult + moves_ahead - i, *count + 1));
                         } else {
-                            next_moves_map.insert(move_, mult + moves_ahead - i);
+                            next_moves_map.insert(move_, (mult + moves_ahead - i, 1));
                         }
                     }
                 }
@@ -122,13 +129,19 @@ fn get_next_moves(
         .collect::<Vec<_>>();
 
     next_moves.sort_by(|a, b| b.1.cmp(a.1));
-    next_moves.into_iter().map(|(m, _)| m.point).collect()
+    next_moves
+        .into_iter()
+        .map(|(m, (_, count))| NextMove {
+            point: m.point,
+            game_count: *count,
+        })
+        .collect()
 }
 
 #[derive(Serialize, Deserialize)]
 struct WasmSearchReturn {
     num_results: usize,
-    next_moves: Vec<Point>,
+    next_moves: Vec<NextMove>,
     results: Vec<SearchResult>,
     total_pages: usize,
     current_page: usize,

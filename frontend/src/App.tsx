@@ -12,11 +12,13 @@ import {
   SabakiColor,
   type BoardPosition,
 } from "./sabaki-types";
+import NextMovesList from "./NextMovesList";
 import TinyEditorGoban from "./TinyEditorGoban";
 import ViewerGoban from "./ViewerGoban";
 import {
   toWasmSearch,
   type Game,
+  type NextMove,
   type SearchReturn,
 } from "./wasm-search-types";
 
@@ -54,9 +56,7 @@ export default function App() {
   const [games, setGames] = useState<Array<Game>>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [totalNumberOfGames, setTotalNumberOfGames] = useState(0);
-  const [nextMoves, setNextMoves] = useState<Array<{ x: number; y: number }>>(
-    [],
-  );
+  const [nextMoves, setNextMoves] = useState<Array<NextMove>>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [brushColor, setBrushColor] = useState<SabakiColor>(SabakiColor.Black);
   const [brushMode, setBrushMode] = useState<BrushMode>(BrushMode.Alternate);
@@ -254,7 +254,7 @@ export default function App() {
               onChangeBrushMode={setBrushMode}
               brushMode={brushMode}
               vertexSize={vertexSize}
-              nextMoves={isSearching ? [] : nextMoves}
+              nextMoves={isSearching ? [] : nextMoves.map((move) => move.point)}
             />
           </div>
           <div
@@ -279,26 +279,32 @@ export default function App() {
       <div className="flex flex-col ml-4 w-full">
         <div className="sticky top-0 bg-white z-10 pt-4 mr-2">
           <div className="flex flex-row">
-            <div
-              className={`mr-10 w-1/3 tiny-goban-container ${
-                selectedGame != null
-                  ? "tiny-goban-visible"
-                  : "tiny-goban-hidden"
-              }`}
-              style={{
-                minHeight: tinyVertexSize * 21,
-                minWidth: tinyVertexSize * 21,
-              }}
-            >
-              {selectedGame != null && (
+            {selectedGame != null ? (
+              <div
+                className={`mr-10 ${
+                  selectedGame != null
+                    ? "tiny-goban-visible"
+                    : "next-moves-visible"
+                }`}
+                style={{
+                  height: tinyVertexSize * 21,
+                  width: tinyVertexSize * 21,
+                }}
+              >
                 <div
                   onClick={() => setSelectedGame(null)}
                   className="tiny-goban-clickable"
                 >
                   <TinyEditorGoban vertexSize={tinyVertexSize} board={board} />
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <NextMovesList
+                nextMoves={nextMoves}
+                isLoading={isSearching}
+                brushColor={brushColor}
+              />
+            )}
             <div className="w-full flex flex-col justify-between">
               <PlayerSearch
                 onPlayerSelect={setSelectedPlayerIds}
