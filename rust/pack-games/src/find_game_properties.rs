@@ -122,7 +122,7 @@ fn main() {
         let mut sorted_ha: Vec<_> = ha_counts.into_iter().collect();
         sorted_ha.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
         for (value, count) in sorted_ha {
-            println!("'{}': {} occurrences", value, count);
+            println!("'{value}': {count} occurrences");
         }
     }
 
@@ -131,7 +131,7 @@ fn main() {
         let mut sorted_ff: Vec<_> = ff_counts.into_iter().collect();
         sorted_ff.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
         for (value, count) in sorted_ff {
-            println!("'{}': {} occurrences", value, count);
+            println!("'{value}': {count} occurrences");
         }
     }
 
@@ -140,7 +140,7 @@ fn main() {
         let mut sorted_gm: Vec<_> = gm_counts.into_iter().collect();
         sorted_gm.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
         for (value, count) in sorted_gm {
-            println!("'{}': {} occurrences", value, count);
+            println!("'{value}': {count} occurrences");
         }
     }
 
@@ -149,7 +149,7 @@ fn main() {
         let mut sorted_gn: Vec<_> = gn_counts.into_iter().collect();
         sorted_gn.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
         for (value, count) in sorted_gn {
-            println!("'{}': {} occurrences", value, count);
+            println!("'{value}': {count} occurrences");
         }
     }
 
@@ -157,16 +157,16 @@ fn main() {
     for (i, (file_path, ha, ff, gm, gn)) in properties_vec.iter().take(20).enumerate() {
         println!("{}. {}", i + 1, file_path);
         if let Some(ha_val) = ha {
-            println!("   HA[{}]", ha_val);
+            println!("   HA[{ha_val}]");
         }
         if let Some(ff_val) = ff {
-            println!("   FF[{}]", ff_val);
+            println!("   FF[{ff_val}]");
         }
         if let Some(gm_val) = gm {
-            println!("   GM[{}]", gm_val);
+            println!("   GM[{gm_val}]");
         }
         if let Some(gn_val) = gn {
-            println!("   GN[{}]", gn_val);
+            println!("   GN[{gn_val}]");
         }
     }
 

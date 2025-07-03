@@ -29,7 +29,7 @@ pub fn load_all_sgfs(sgf_folder: &PathBuf) -> Vec<(String, Game)> {
             if !blocklist.contains(&rel_path) {
                 paths.push(path.clone());
             } else {
-                println!("Skipping blocked path: {}", rel_path);
+                println!("Skipping blocked path: {rel_path}");
             }
         }
     }

@@ -341,10 +341,10 @@ pub enum Rank {
 impl fmt::Display for Rank {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Rank::Kyu(n) => write!(f, "{}k", n),
-            Rank::Dan(n) => write!(f, "{}d", n),
-            Rank::Pro(n) => write!(f, "{}P", n),
-            Rank::Custom(s) => write!(f, "{}", s),
+            Rank::Kyu(n) => write!(f, "{n}k"),
+            Rank::Dan(n) => write!(f, "{n}d"),
+            Rank::Pro(n) => write!(f, "{n}P"),
+            Rank::Custom(s) => write!(f, "{s}"),
         }
     }
 }

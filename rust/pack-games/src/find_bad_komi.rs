@@ -83,7 +83,7 @@ fn main() {
         sorted_komi.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0))); // Sort by count descending, then by komi value ascending
 
         for (komi_value, count) in sorted_komi {
-            println!("'{}': {} occurrences", komi_value, count);
+            println!("'{komi_value}': {count} occurrences");
         }
 
         println!("\n=== FIRST 20 EXAMPLES ===");

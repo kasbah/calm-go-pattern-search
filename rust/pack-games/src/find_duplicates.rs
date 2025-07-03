@@ -90,7 +90,7 @@ pub fn find_duplicates(
 
         let current = processed_count.fetch_add(1, Ordering::Relaxed) + 1;
         if current % 1000 == 0 || current == total_games {
-            println!("Processed {}/{} games", current, total_games);
+            println!("Processed {current}/{total_games} games");
         }
     });
 
@@ -136,10 +136,7 @@ pub fn find_duplicates(
 
             let current = processed_count_second.fetch_add(1, Ordering::Relaxed) + 1;
             if current % 500 == 0 || current == total_unique_games {
-                println!(
-                    "Second pass: processed {}/{} games",
-                    current, total_unique_games
-                );
+                println!("Second pass: processed {current}/{total_unique_games} games");
             }
         });
 

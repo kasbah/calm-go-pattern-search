@@ -145,7 +145,7 @@ fn main() {
         sorted_unparsed.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0))); // Sort by count descending, then by result ascending
 
         for (result, count) in sorted_unparsed {
-            println!("'{}': {} occurrences", result, count);
+            println!("'{result}': {count} occurrences");
         }
     }
 
@@ -154,6 +154,6 @@ fn main() {
     sorted_results.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0))); // Sort by count descending, then by result name ascending
 
     for (result, count) in sorted_results {
-        println!("{}: {} occurrences", result, count);
+        println!("{result}: {count} occurrences");
     }
 }

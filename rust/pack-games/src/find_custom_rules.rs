@@ -53,7 +53,7 @@ fn main() {
             Rules::Japanese => "Japanese".to_string(),
             Rules::Korean => "Korean".to_string(),
             Rules::Ing => "Ing".to_string(),
-            Rules::Custom(custom_rule) => format!("Custom: '{}'", custom_rule),
+            Rules::Custom(custom_rule) => format!("Custom: '{custom_rule}'"),
         };
         *rule_counts.entry(rule_key).or_insert(0) += 1;
     }
@@ -74,6 +74,6 @@ fn main() {
     sorted_rules.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0))); // Sort by count descending, then by rule name ascending
 
     for (rule, count) in sorted_rules {
-        println!("{}: {} occurrences", rule, count);
+        println!("{rule}: {count} occurrences");
     }
 }
