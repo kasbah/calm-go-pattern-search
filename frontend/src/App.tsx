@@ -266,8 +266,6 @@ export default function App() {
               ref={viewerGobanRef}
               game={selectedGame || emptyGame}
               vertexSize={vertexSize}
-              onChangeBrushMode={setBrushMode}
-              brushMode={brushMode}
               moveNumber={getCurrentMoveNumber(selectedGame)}
               setMoveNumber={(moveNumber: number) => {
                 if (selectedGame) handleSetMoveNumber(selectedGame, moveNumber);
