@@ -382,6 +382,10 @@ export default function App() {
         <GamesList
           games={games}
           onSelectGame={setSelectedGame}
+          onSelectGameAtMove={(game, moveNumber) => {
+            setSelectedGame(game);
+            handleSetMoveNumber(game, moveNumber);
+          }}
           selectedGame={selectedGame}
           isSearching={isSearching}
           onLoadMore={loadMore}

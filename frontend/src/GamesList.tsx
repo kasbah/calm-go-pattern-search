@@ -117,6 +117,7 @@ function getPlayerName(player: Player): string {
 export type GamesListProps = {
   games: Array<Game>;
   onSelectGame: (game: Game | null) => void;
+  onSelectGameAtMove?: (game: Game, moveNumber: number) => void;
   selectedGame: Game | null;
   isSearching: boolean;
   onLoadMore: () => void;
@@ -129,6 +130,7 @@ type GameItemProps = {
   index: number;
   isSelected: boolean;
   onSelect: (game: Game) => void;
+  onSelectAtMove?: (game: Game, moveNumber: number) => void;
   showAllResults: boolean;
 };
 
@@ -137,6 +139,7 @@ function GameItem({
   index,
   isSelected,
   onSelect,
+  onSelectAtMove,
   showAllResults,
 }: GameItemProps) {
   const [isVisible, setIsVisible] = useState(false);
@@ -388,7 +391,19 @@ function GameItem({
               <div className="mb-2">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    Move {game.last_move_matched + 1} / {game.moves.length}
+                    <span
+                      className="cursor-pointer hover:underline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (onSelectAtMove) {
+                          onSelectAtMove(game, game.last_move_matched);
+                        }
+                      }}
+                      title="Click to view game at this move"
+                    >
+                      Move {game.last_move_matched + 1}
+                    </span>{" "}
+                    / {game.moves.length}
                   </div>
                   <div className="flex justify-end items-center">
                     <button
@@ -430,6 +445,7 @@ function GameItem({
 export default function GamesList({
   games,
   onSelectGame,
+  onSelectGameAtMove,
   selectedGame,
   isSearching,
   onLoadMore,
@@ -559,6 +575,7 @@ export default function GamesList({
                 index={index}
                 isSelected={selectedGame?.path === game.path}
                 onSelect={handleSelectGame}
+                onSelectAtMove={onSelectGameAtMove}
                 showAllResults={showAllResults}
               />
             </div>
