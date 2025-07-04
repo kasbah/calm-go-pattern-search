@@ -251,8 +251,6 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
         </div>
         <div>
           <Goban
-            animateStonePlacement={false}
-            fuzzyStonePlacement={false}
             vertexSize={vertexSize}
             showCoordinates={true}
             signMap={board}

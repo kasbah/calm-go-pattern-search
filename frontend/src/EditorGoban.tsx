@@ -468,8 +468,6 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
         </div>
         <div>
           <Goban
-            animateStonePlacement={false}
-            fuzzyStonePlacement={false}
             vertexSize={vertexSize}
             showCoordinates={true}
             signMap={displayBoard}

@@ -21,13 +21,7 @@ export default function TinyEditorGoban({ vertexSize, board }: TinyGobanProps) {
       onMouseLeave={() => setIsHovering(false)}
       data-hovering={isHovering}
     >
-      <Goban
-        animateStonePlacement={false}
-        fuzzyStonePlacement={false}
-        vertexSize={vertexSize}
-        showCoordinates={false}
-        signMap={board}
-      />
+      <Goban vertexSize={vertexSize} showCoordinates={false} signMap={board} />
     </div>
   );
 }

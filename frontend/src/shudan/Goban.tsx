@@ -2,12 +2,8 @@ import React, { Component, memo } from "react";
 import classnames from "classnames";
 
 import {
-  random,
-  readjustShifts,
-  neighborhood,
   vertexEquals,
   vertexEvents,
-  diffSignMap,
   range,
   getHoshis,
   type Vertex,
@@ -68,10 +64,6 @@ export interface GobanProps {
   coordX?: (x: number) => string | number;
   coordY?: (y: number) => string | number;
 
-  fuzzyStonePlacement?: boolean;
-  animateStonePlacement?: boolean;
-  animationDuration?: number;
-
   signMap?: Map<0 | 1 | -1>;
   markerMap?: Map<Marker | null>;
   paintMap?: Map<0 | 1 | -1>;
@@ -101,13 +93,10 @@ interface GobanState {
   height: number;
   rangeX: [number, number];
   rangeY: [number, number];
-  animatedVertices: Vertex[];
-  clearAnimatedVerticesHandler: NodeJS.Timeout | null;
+
   xs: number[];
   ys: number[];
   hoshis: Vertex[];
-  shiftMap: number[][];
-  randomMap: number[][];
 }
 
 class GobanComponent extends Component<GobanProps, GobanState> {
@@ -120,42 +109,11 @@ class GobanComponent extends Component<GobanProps, GobanState> {
       height: 0,
       rangeX: [0, Infinity],
       rangeY: [0, Infinity],
-      animatedVertices: [],
-      clearAnimatedVerticesHandler: null,
+
       xs: [],
       ys: [],
       hoshis: [],
-      shiftMap: [],
-      randomMap: [],
     };
-  }
-
-  componentDidUpdate() {
-    if (
-      this.props.animateStonePlacement &&
-      !this.state.clearAnimatedVerticesHandler &&
-      this.state.animatedVertices.length > 0
-    ) {
-      // Handle stone animation
-
-      for (const [x, y] of this.state.animatedVertices) {
-        this.state.shiftMap[y][x] = random(7) + 1;
-        readjustShifts(this.state.shiftMap, [x, y]);
-      }
-
-      this.setState({ shiftMap: this.state.shiftMap });
-
-      // Clear animation classes
-
-      this.setState({
-        clearAnimatedVerticesHandler: setTimeout(() => {
-          this.setState({
-            animatedVertices: [],
-            clearAnimatedVerticesHandler: null,
-          });
-        }, this.props.animationDuration ?? 200),
-      });
-    }
   }
 
   // Memoize vertex event handlers to prevent recreation
@@ -183,12 +141,8 @@ class GobanComponent extends Component<GobanProps, GobanState> {
       heatMap?: Map<HeatVertex | null>;
       markerMap?: Map<Marker | null>;
       ghostStoneMap?: Map<GhostStone | null>;
-      fuzzyStonePlacement?: boolean;
       selectedVertices: Vertex[];
       dimmedVertices: Vertex[];
-      animatedVertices: Vertex[];
-      shiftMap?: number[][];
-      randomMap?: number[][];
     },
   ) => {
     const {
@@ -197,12 +151,8 @@ class GobanComponent extends Component<GobanProps, GobanState> {
       heatMap,
       markerMap,
       ghostStoneMap,
-      fuzzyStonePlacement,
       selectedVertices,
       dimmedVertices,
-      animatedVertices,
-      shiftMap,
-      randomMap,
     } = props;
 
     const equalsVertex = (v: Vertex) => vertexEquals(v, [x, y]);
@@ -212,15 +162,12 @@ class GobanComponent extends Component<GobanProps, GobanState> {
       key: [x, y].join("-"),
       position: [x, y] as Vertex,
 
-      shift: fuzzyStonePlacement ? shiftMap?.[y]?.[x] : 0,
-      random: randomMap?.[y]?.[x],
       sign: signMap?.[y]?.[x],
 
       heat: heatMap?.[y]?.[x],
       marker: markerMap?.[y]?.[x],
       ghostStone: ghostStoneMap?.[y]?.[x],
       dimmed: dimmedVertices.some(equalsVertex),
-      animate: animatedVertices.some(equalsVertex),
 
       paint: paintMap?.[y]?.[x],
       paintLeft: paintMap?.[y]?.[x - 1],
@@ -245,17 +192,7 @@ class GobanComponent extends Component<GobanProps, GobanState> {
   };
 
   render() {
-    const {
-      width,
-      height,
-      rangeX,
-      rangeY,
-      xs,
-      ys,
-      hoshis,
-      shiftMap,
-      randomMap,
-    } = this.state;
+    const { width, height, rangeX, rangeY, xs, ys, hoshis } = this.state;
 
     const {
       innerProps = {},
@@ -268,15 +205,11 @@ class GobanComponent extends Component<GobanProps, GobanState> {
       heatMap,
       markerMap,
       ghostStoneMap,
-      fuzzyStonePlacement = false,
       showCoordinates = false,
       lines = [],
       selectedVertices = [],
       dimmedVertices = [],
     } = this.props;
-
-    const animatedVertices: Vertex[] =
-      this.state.animatedVertices.flatMap(neighborhood);
 
     // Memoize event handlers
     const eventHandlers = this.createVertexEventHandlers(this.props);
@@ -314,12 +247,8 @@ class GobanComponent extends Component<GobanProps, GobanState> {
       heatMap,
       markerMap,
       ghostStoneMap,
-      fuzzyStonePlacement,
       selectedVertices,
       dimmedVertices,
-      animatedVertices,
-      shiftMap,
-      randomMap,
     };
 
     return (
@@ -431,19 +360,8 @@ class GobanComponent extends Component<GobanProps, GobanState> {
     const height = signMap.length;
 
     if (state.width === width && state.height === height) {
-      let animatedVertices = state.animatedVertices;
-
-      if (
-        props.animateStonePlacement &&
-        props.fuzzyStonePlacement &&
-        state.clearAnimatedVerticesHandler == null
-      ) {
-        animatedVertices = diffSignMap(state.signMap, signMap);
-      }
-
       const result: Partial<GobanState> = {
         signMap,
-        animatedVertices,
       };
 
       if (
@@ -471,13 +389,9 @@ class GobanComponent extends Component<GobanProps, GobanState> {
       height,
       rangeX,
       rangeY,
-      animatedVertices: [],
-      clearAnimatedVerticesHandler: null,
       xs: range(width).slice(rangeX[0], rangeX[1] + 1),
       ys: range(height).slice(rangeY[0], rangeY[1] + 1),
       hoshis: getHoshis(width, height),
-      shiftMap: readjustShifts(signMap.map((row) => row.map((_) => random(8)))),
-      randomMap: signMap.map((row) => row.map((_) => random(4))),
     };
   }
 }
@@ -491,8 +405,6 @@ const Goban = memo(
       "busy",
       "vertexSize",
       "showCoordinates",
-      "fuzzyStonePlacement",
-      "animateStonePlacement",
       "id",
       "class",
       "className",

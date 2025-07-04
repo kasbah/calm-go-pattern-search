@@ -63,8 +63,6 @@ export default function TinyViewerGoban({
       data-hovering={isHovering}
     >
       <Goban
-        animateStonePlacement={false}
-        fuzzyStonePlacement={false}
         vertexSize={vertexSize}
         showCoordinates={false}
         signMap={board}

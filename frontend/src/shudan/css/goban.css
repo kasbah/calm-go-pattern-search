@@ -54,7 +54,6 @@
 /* Busy screen */
 
 .shudan-goban.shudan-busy::after {
-  animation: 2s linear -0.5s shudan-busy infinite;
   background-color: rgba(23, 10, 2, 0.1);
   background-image: linear-gradient(
     to right,
@@ -65,15 +64,6 @@
   background-size: 19em 100%;
   background-repeat: no-repeat;
   pointer-events: all;
-}
-
-@keyframes shudan-busy {
-  from {
-    background-position: -19em 0;
-  }
-  to {
-    background-position: calc(100% + 19em) 0;
-  }
 }
 
 /* Board grid */
@@ -123,36 +113,6 @@
   background-image: url("./stone_-1.svg");
 }
 
-/* Fuzzy stone placement */
-
-.shudan-vertex:not(.shudan-sign_0).shudan-animate .shudan-stone {
-  transition: transform 0.2s;
-}
-.shudan-vertex:not(.shudan-sign_0).shudan-shift_1 .shudan-stone {
-  transform: translate(-0.07em, 0);
-}
-.shudan-vertex:not(.shudan-sign_0).shudan-shift_2 .shudan-stone {
-  transform: translate(0, -0.07em);
-}
-.shudan-vertex:not(.shudan-sign_0).shudan-shift_3 .shudan-stone {
-  transform: translate(0.07em, 0);
-}
-.shudan-vertex:not(.shudan-sign_0).shudan-shift_4 .shudan-stone {
-  transform: translate(0, 0.07em);
-}
-.shudan-vertex:not(.shudan-sign_0).shudan-shift_5 .shudan-stone {
-  transform: translate(-0.04em, -0.04em);
-}
-.shudan-vertex:not(.shudan-sign_0).shudan-shift_6 .shudan-stone {
-  transform: translate(0.04em, -0.04em);
-}
-.shudan-vertex:not(.shudan-sign_0).shudan-shift_7 .shudan-stone {
-  transform: translate(0.04em, 0.04em);
-}
-.shudan-vertex:not(.shudan-sign_0).shudan-shift_8 .shudan-stone {
-  transform: translate(-0.04em, 0.04em);
-}
-
 /* Markers */
 
 .shudan-vertex .shudan-marker {
@@ -194,16 +154,6 @@
 
 .shudan-vertex.shudan-marker_loader .shudan-marker {
   stroke-dasharray: 1em;
-  animation: 1.5s linear 0s shudan-rotation infinite;
-}
-
-@keyframes shudan-rotation {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .shudan-vertex.shudan-marker_label .shudan-marker {

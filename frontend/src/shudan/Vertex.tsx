@@ -42,8 +42,7 @@ export interface HeatVertex {
 
 interface VertexProps {
   position: Vertex;
-  shift?: number;
-  random?: number;
+
   sign?: number;
   heat?: HeatVertex | null;
   paint?: number;
@@ -58,7 +57,6 @@ interface VertexProps {
   dimmed?: boolean;
   marker?: Marker | null;
   ghostStone?: GhostStone | null;
-  animate?: boolean;
   selected?: boolean;
   selectedLeft?: boolean;
   selectedRight?: boolean;
@@ -83,8 +81,7 @@ interface VertexProps {
 const VertexComponent = memo(function Vertex(props: VertexProps) {
   const {
     position,
-    shift,
-    random,
+
     sign,
     heat,
     paint,
@@ -99,7 +96,6 @@ const VertexComponent = memo(function Vertex(props: VertexProps) {
     dimmed,
     marker,
     ghostStone,
-    animate,
     selected,
     selectedLeft,
     selectedRight,
@@ -208,13 +204,11 @@ const VertexComponent = memo(function Vertex(props: VertexProps) {
     () =>
       classnames(
         "shudan-vertex",
-        `shudan-random_${random}`,
+
         `shudan-sign_${sign}`,
         {
-          [`shudan-shift_${shift}`]: !!shift,
           [`shudan-heat_${!!heat && heat.strength}`]: !!heat,
           "shudan-dimmed": dimmed,
-          "shudan-animate": animate,
 
           [`shudan-paint_${paint && paint > 0 ? 1 : -1}`]: !!paint,
           "shudan-paintedleft":
@@ -243,12 +237,9 @@ const VertexComponent = memo(function Vertex(props: VertexProps) {
         },
       ),
     [
-      random,
       sign,
-      shift,
       heat,
       dimmed,
-      animate,
       paint,
       paintLeft,
       paintRight,
@@ -350,7 +341,7 @@ const VertexComponent = memo(function Vertex(props: VertexProps) {
             className={classnames(
               "shudan-inner",
               "shudan-stone-image",
-              `shudan-random_${random}`,
+
               `shudan-sign_${sign}`,
             )}
             style={absoluteStyle()}
@@ -400,8 +391,6 @@ function areEqual(prevProps: VertexProps, nextProps: VertexProps): boolean {
 
   // Check primitive props
   const primitiveProps: (keyof VertexProps)[] = [
-    "shift",
-    "random",
     "sign",
     "paint",
     "paintLeft",
@@ -413,7 +402,6 @@ function areEqual(prevProps: VertexProps, nextProps: VertexProps): boolean {
     "paintBottomLeft",
     "paintBottomRight",
     "dimmed",
-    "animate",
     "selected",
     "selectedLeft",
     "selectedRight",
