@@ -197,6 +197,7 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                       clampMoveNumber(0, game.moves_transformed.length),
                     )
                   }
+                  title="Go to first move"
                 >
                   <img src={chevronFirstSvg} width={24} height={24} />
                 </Button>
@@ -212,6 +213,7 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                       ),
                     )
                   }
+                  title="Go to previous move"
                 >
                   <img src={chevronLeftSvg} width={24} height={24} />
                 </Button>
@@ -227,6 +229,7 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                       ),
                     )
                   }
+                  title="Go to next move"
                 >
                   <img src={chevronRightSvg} width={24} height={24} />
                 </Button>
@@ -242,6 +245,7 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                       ),
                     )
                   }
+                  title="Go to last move"
                 >
                   <img src={chevronLastSvg} width={24} height={24} />
                 </Button>

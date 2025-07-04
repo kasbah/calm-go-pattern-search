@@ -402,8 +402,19 @@ function GameItem({
                       title="Click to view game at this move"
                     >
                       Move {game.last_move_matched + 1}
-                    </span>{" "}
-                    / {game.moves.length}
+                    </span>
+                    {" / "}
+                    <span
+                      className="cursor-pointer hover:underline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (onSelectAtMove) {
+                          onSelectAtMove(game, game.moves.length);
+                        }
+                      }}
+                    >
+                      {game.moves.length}
+                    </span>
                   </div>
                   <div className="flex justify-end items-center">
                     <button
