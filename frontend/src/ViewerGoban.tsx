@@ -6,9 +6,8 @@ import {
   useEffect,
   useImperativeHandle,
   useMemo,
-  useState,
 } from "react";
-import { useImmerReducer } from "use-immer";
+import { useImmer, useImmerReducer } from "use-immer";
 
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
@@ -99,15 +98,16 @@ export type ViewerGobanProps = {
 
 const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
   ({ gameSelection, vertexSize, setGameSelection }, ref) => {
+    console.log(gameSelection?.game.path, gameSelection?.moveNumber);
     const [, dispatch] = useImmerReducer(
       viewerGobanReducer,
       initialViewerState,
     );
-    const [markerMap, setMarkerMap] = useState<Map<Marker | null>>(
+    const [markerMap, setMarkerMap] = useImmer<Map<Marker | null>>(
       emptyBoard.map((row) => row.map(() => null)),
     );
     const maxHeight = Math.min(window.innerHeight, window.innerWidth * 0.5);
-    const [moves, setMoves] = useState<Array<SabakiMove>>(
+    const [moves, setMoves] = useImmer<Array<SabakiMove>>(
       gameSelection?.game.moves_transformed.map(toSabakiMove) || [],
     );
     const board = useMemo(() => {
@@ -115,27 +115,38 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
     }, [moves, gameSelection?.moveNumber]);
 
     useEffect(() => {
-      const mm: Map<Marker | null> = emptyBoard.map((row) =>
-        row.map(() => null),
-      );
-      if (gameSelection) {
-        const lastMove =
-          gameSelection.game.moves_transformed[gameSelection.moveNumber];
-        if (lastMove !== undefined) {
-          mm[lastMove.point.y][lastMove.point.x] = {
-            type: "circle",
-          };
-          setMarkerMap(mm);
+      setMarkerMap((draft) => {
+        // Clear all markers first
+        draft.forEach((row, y) => {
+          row.forEach((_, x) => {
+            draft[y][x] = null;
+          });
+        });
+
+        if (gameSelection) {
+          const lastMove =
+            gameSelection.game.moves_transformed[gameSelection.moveNumber];
+          if (lastMove !== undefined) {
+            draft[lastMove.point.y][lastMove.point.x] = {
+              type: "circle",
+            };
+          }
         }
-      }
-    }, [gameSelection]);
+      });
+    }, [gameSelection, setMarkerMap]);
 
     // Clear markers when the game is about to be hidden (gameSelection becomes null or empty)
     useEffect(() => {
       if (!gameSelection || !gameSelection.game.path) {
-        setMarkerMap(emptyBoard.map((row) => row.map(() => null)));
+        setMarkerMap((draft) => {
+          draft.forEach((row, y) => {
+            row.forEach((_, x) => {
+              draft[y][x] = null;
+            });
+          });
+        });
       }
-    }, [gameSelection]);
+    }, [gameSelection, setMarkerMap]);
 
     const prevMove = useCallback(() => {
       if (gameSelection) {
@@ -171,7 +182,9 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
     );
 
     useEffect(() => {
-      setMoves(gameSelection?.game.moves_transformed.map(toSabakiMove) || []);
+      setMoves(
+        () => gameSelection?.game.moves_transformed.map(toSabakiMove) || [],
+      );
     }, [gameSelection, setMoves]);
 
     // Update board when the main board changes
