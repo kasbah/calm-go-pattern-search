@@ -1,5 +1,7 @@
 # Calm Go Pattern Search | https://patterns.calmgo.games
 
+🚧 _Work in Progress_ 🚧
+
 A pattern search for the ancient [game of Go](<https://en.wikipedia.org/wiki/Go_(game)>).
 
 - Play / draw stone patterns on the board and find pro and high-ranked amateur games with similar positions
