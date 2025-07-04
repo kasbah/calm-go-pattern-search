@@ -244,7 +244,6 @@ All props are optional. The following props are supported:
 
   The string specified in `label` is shown as tooltip by default if `tooltip` is
   not given. Shudan provides styles for the following types:
-
   - `'circle'`
   - `'cross'`
   - `'triangle'`
@@ -275,7 +274,6 @@ All props are optional. The following props are supported:
 
   `sign` can be `-1` (white stone), `0` (empty field), or `1` (black stone).
   Shudan provides styles for the following types:
-
   - `'good'`
   - `'interesting'`
   - `'doubtful'`

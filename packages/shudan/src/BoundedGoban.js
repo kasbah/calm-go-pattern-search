@@ -1,75 +1,128 @@
-import { createElement as h, Component } from "react";
+import {
+  createElement as h,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+  memo,
+} from "react";
 import Goban from "./Goban.js";
 
-export default class BoundedGoban extends Component {
-  constructor(props) {
-    super(props);
+const BoundedGoban = memo(function BoundedGoban(props) {
+  const {
+    showCoordinates,
+    maxWidth,
+    maxHeight,
+    maxVertexSize = Infinity,
+    rangeX,
+    rangeY,
+    signMap,
+    onResized = () => {},
+    innerProps = {},
+    style = {},
+    ...otherProps
+  } = props;
 
-    this.state = {
-      vertexSize: 1,
-      visibility: "hidden",
-    };
-  }
+  const [vertexSize, setVertexSize] = useState(1);
+  const [visibility, setVisibility] = useState("hidden");
+  const elementRef = useRef(null);
+  const { ref: innerRef = () => {} } = innerProps;
 
-  componentDidMount() {
-    this.componentDidUpdate();
-  }
+  // Memoize dependencies for useEffect
+  const rangeXString = useMemo(() => JSON.stringify(rangeX), [rangeX]);
+  const rangeYString = useMemo(() => JSON.stringify(rangeY), [rangeY]);
+  const signMapDimensions = useMemo(
+    () => ({
+      height: signMap.length,
+      width: (signMap[0] || []).length,
+    }),
+    [signMap],
+  );
 
-  componentDidUpdate(prevProps) {
-    let {
-      showCoordinates,
-      maxWidth,
-      maxHeight,
-      maxVertexSize,
-      rangeX,
-      rangeY,
-      signMap,
-      onResized = () => {},
-    } = this.props;
+  // Memoize the resize calculation
+  const calculateVertexSize = useCallback(() => {
+    if (!elementRef.current) return 1;
 
-    if (
-      this.state.visibility !== "visible" ||
-      showCoordinates !== prevProps.showCoordinates ||
-      maxWidth !== prevProps.maxWidth ||
-      maxHeight !== prevProps.maxHeight ||
-      maxVertexSize !== prevProps.maxVertexSize ||
-      JSON.stringify(rangeX) !== JSON.stringify(prevProps.rangeX) ||
-      JSON.stringify(rangeY) !== JSON.stringify(prevProps.rangeY) ||
-      signMap.length !== prevProps.signMap.length ||
-      (signMap[0] || []).length !== (prevProps.signMap[0] || []).length
-    ) {
-      let { offsetWidth, offsetHeight } = this.element;
-      let scale = Math.min(maxWidth / offsetWidth, maxHeight / offsetHeight);
-      let vertexSize = Math.max(Math.floor(this.state.vertexSize * scale), 1);
+    const { offsetWidth, offsetHeight } = elementRef.current;
+    const scale = Math.min(maxWidth / offsetWidth, maxHeight / offsetHeight);
+    return Math.max(Math.floor(vertexSize * scale), 1);
+  }, [maxWidth, maxHeight, vertexSize]);
 
-      if (this.state.vertexSize !== vertexSize) {
-        this.setState({ vertexSize }, onResized);
+  // Handle resize and visibility logic
+  useEffect(() => {
+    const shouldUpdate =
+      visibility !== "visible" ||
+      (elementRef.current && visibility === "visible");
+
+    if (shouldUpdate && elementRef.current) {
+      const newVertexSize = calculateVertexSize();
+
+      if (vertexSize !== newVertexSize) {
+        setVertexSize(newVertexSize);
+        onResized();
       }
 
-      if (this.state.visibility !== "visible") {
-        this.setState({ visibility: "visible" });
+      if (visibility !== "visible") {
+        setVisibility("visible");
       }
     }
-  }
+  }, [
+    showCoordinates,
+    maxWidth,
+    maxHeight,
+    maxVertexSize,
+    rangeXString,
+    rangeYString,
+    signMapDimensions.height,
+    signMapDimensions.width,
+    visibility,
+    vertexSize,
+    calculateVertexSize,
+    onResized,
+  ]);
 
-  render() {
-    let { innerProps = {}, style = {}, maxVertexSize = Infinity } = this.props;
-    let { ref: innerRef = () => {} } = innerProps;
+  // Memoize the ref callback
+  const refCallback = useCallback(
+    (el) => {
+      innerRef(el);
+      elementRef.current = el;
+    },
+    [innerRef],
+  );
 
-    return h(Goban, {
-      ...this.props,
+  // Memoize the final style object
+  const finalStyle = useMemo(
+    () => ({
+      visibility,
+      ...style,
+    }),
+    [visibility, style],
+  );
 
-      innerProps: {
-        ...innerProps,
-        ref: (el) => (innerRef(el), (this.element = el)),
-      },
+  // Memoize the inner props
+  const finalInnerProps = useMemo(
+    () => ({
+      ...innerProps,
+      ref: refCallback,
+    }),
+    [innerProps, refCallback],
+  );
 
-      style: {
-        visibility: this.state.visibility,
-        ...style,
-      },
+  return h(Goban, {
+    ...otherProps,
+    showCoordinates,
+    maxWidth,
+    maxHeight,
+    maxVertexSize,
+    rangeX,
+    rangeY,
+    signMap,
+    onResized,
+    innerProps: finalInnerProps,
+    style: finalStyle,
+    vertexSize: Math.min(vertexSize, maxVertexSize),
+  });
+});
 
-      vertexSize: Math.min(this.state.vertexSize, maxVertexSize),
-    });
-  }
-}
+export default BoundedGoban;

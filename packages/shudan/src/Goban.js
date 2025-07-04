@@ -1,4 +1,10 @@
-import { createElement as h, Component } from "react";
+import {
+  createElement as h,
+  Component,
+  memo,
+  useMemo,
+  useCallback,
+} from "react";
 import classnames from "classnames";
 
 import {
@@ -16,7 +22,31 @@ import Grid from "./Grid.js";
 import Vertex from "./Vertex.js";
 import Line from "./Line.js";
 
-export default class Goban extends Component {
+// Static styles to avoid recreation
+const contentStyle = {
+  position: "relative",
+};
+
+const verticesStyle = {
+  position: "absolute",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  zIndex: 1,
+};
+
+const linesStyle = {
+  position: "absolute",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  pointerEvents: "none",
+  zIndex: 2,
+};
+
+class GobanComponent extends Component {
   constructor(props) {
     super(props);
 
@@ -51,6 +81,69 @@ export default class Goban extends Component {
     }
   }
 
+  // Memoize vertex event handlers to prevent recreation
+  createVertexEventHandlers = (eventHandlers) => {
+    return vertexEvents.reduce((acc, eventName) => {
+      acc[`on${eventName}`] = eventHandlers[`onVertex${eventName}`];
+      return acc;
+    }, {});
+  };
+
+  // Memoize vertex creation to prevent unnecessary re-renders
+  createVertex = (x, y, props) => {
+    const {
+      signMap,
+      paintMap,
+      heatMap,
+      markerMap,
+      ghostStoneMap,
+      fuzzyStonePlacement,
+      selectedVertices,
+      dimmedVertices,
+      animatedVertices,
+      shiftMap,
+      randomMap,
+    } = props;
+
+    const equalsVertex = (v) => vertexEquals(v, [x, y]);
+    const selected = selectedVertices.some(equalsVertex);
+
+    return {
+      key: [x, y].join("-"),
+      position: [x, y],
+
+      shift: fuzzyStonePlacement ? shiftMap?.[y]?.[x] : 0,
+      random: randomMap?.[y]?.[x],
+      sign: signMap?.[y]?.[x],
+
+      heat: heatMap?.[y]?.[x],
+      marker: markerMap?.[y]?.[x],
+      ghostStone: ghostStoneMap?.[y]?.[x],
+      dimmed: dimmedVertices.some(equalsVertex),
+      animate: animatedVertices.some(equalsVertex),
+
+      paint: paintMap?.[y]?.[x],
+      paintLeft: paintMap?.[y]?.[x - 1],
+      paintRight: paintMap?.[y]?.[x + 1],
+      paintTop: paintMap?.[y - 1]?.[x],
+      paintBottom: paintMap?.[y + 1]?.[x],
+      paintTopLeft: paintMap?.[y - 1]?.[x - 1],
+      paintTopRight: paintMap?.[y - 1]?.[x + 1],
+      paintBottomLeft: paintMap?.[y + 1]?.[x - 1],
+      paintBottomRight: paintMap?.[y + 1]?.[x + 1],
+
+      selected,
+      selectedLeft:
+        selected && selectedVertices.some((v) => vertexEquals(v, [x - 1, y])),
+      selectedRight:
+        selected && selectedVertices.some((v) => vertexEquals(v, [x + 1, y])),
+      selectedTop:
+        selected && selectedVertices.some((v) => vertexEquals(v, [x, y - 1])),
+      selectedBottom:
+        selected && selectedVertices.some((v) => vertexEquals(v, [x, y + 1])),
+    };
+  };
+
   render() {
     let { width, height, rangeX, rangeY, xs, ys, hoshis, shiftMap, randomMap } =
       this.state;
@@ -77,6 +170,50 @@ export default class Goban extends Component {
       ...this.state.animatedVertices.map(neighborhood),
     );
 
+    // Memoize event handlers
+    const eventHandlers = this.createVertexEventHandlers(this.props);
+
+    // Memoize container style
+    const containerStyle = {
+      display: "inline-grid",
+      gridTemplateRows: showCoordinates ? "1em 1fr 1em" : "1fr",
+      gridTemplateColumns: showCoordinates ? "1em 1fr 1em" : "1fr",
+      fontSize: vertexSize,
+      lineHeight: "1em",
+      ...(this.props.style ?? {}),
+    };
+
+    // Memoize content style
+    const currentContentStyle = {
+      ...contentStyle,
+      width: `${xs.length}em`,
+      height: `${ys.length}em`,
+      gridRow: showCoordinates ? "2" : "1",
+      gridColumn: showCoordinates ? "2" : "1",
+    };
+
+    // Memoize vertices style
+    const currentVerticesStyle = {
+      ...verticesStyle,
+      display: "grid",
+      gridTemplateColumns: `repeat(${xs.length}, 1em)`,
+      gridTemplateRows: `repeat(${ys.length}, 1em)`,
+    };
+
+    const vertexProps = {
+      signMap,
+      paintMap,
+      heatMap,
+      markerMap,
+      ghostStoneMap,
+      fuzzyStonePlacement,
+      selectedVertices,
+      dimmedVertices,
+      animatedVertices,
+      shiftMap,
+      randomMap,
+    };
+
     return h(
       "div",
       {
@@ -91,14 +228,7 @@ export default class Goban extends Component {
           },
           this.props.class ?? this.props.className,
         ),
-        style: {
-          display: "inline-grid",
-          gridTemplateRows: showCoordinates ? "1em 1fr 1em" : "1fr",
-          gridTemplateColumns: showCoordinates ? "1em 1fr 1em" : "1fr",
-          fontSize: vertexSize,
-          lineHeight: "1em",
-          ...(this.props.style ?? {}),
-        },
+        style: containerStyle,
       },
 
       showCoordinates &&
@@ -115,13 +245,7 @@ export default class Goban extends Component {
         "div",
         {
           className: "shudan-content",
-          style: {
-            position: "relative",
-            width: `${xs.length}em`,
-            height: `${ys.length}em`,
-            gridRow: showCoordinates ? "2" : "1",
-            gridColumn: showCoordinates ? "2" : "1",
-          },
+          style: currentContentStyle,
         },
 
         h(Grid, {
@@ -137,71 +261,13 @@ export default class Goban extends Component {
           "div",
           {
             className: "shudan-vertices",
-            style: {
-              display: "grid",
-              gridTemplateColumns: `repeat(${xs.length}, 1em)`,
-              gridTemplateRows: `repeat(${ys.length}, 1em)`,
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 1,
-            },
+            style: currentVerticesStyle,
           },
 
           ys.map((y) =>
             xs.map((x) => {
-              let equalsVertex = (v) => vertexEquals(v, [x, y]);
-              let selected = selectedVertices.some(equalsVertex);
-
-              return h(
-                Vertex,
-                Object.assign(
-                  {
-                    key: [x, y].join("-"),
-                    position: [x, y],
-
-                    shift: fuzzyStonePlacement ? shiftMap?.[y]?.[x] : 0,
-                    random: randomMap?.[y]?.[x],
-                    sign: signMap?.[y]?.[x],
-
-                    heat: heatMap?.[y]?.[x],
-                    marker: markerMap?.[y]?.[x],
-                    ghostStone: ghostStoneMap?.[y]?.[x],
-                    dimmed: dimmedVertices.some(equalsVertex),
-                    animate: animatedVertices.some(equalsVertex),
-
-                    paint: paintMap?.[y]?.[x],
-                    paintLeft: paintMap?.[y]?.[x - 1],
-                    paintRight: paintMap?.[y]?.[x + 1],
-                    paintTop: paintMap?.[y - 1]?.[x],
-                    paintBottom: paintMap?.[y + 1]?.[x],
-                    paintTopLeft: paintMap?.[y - 1]?.[x - 1],
-                    paintTopRight: paintMap?.[y - 1]?.[x + 1],
-                    paintBottomLeft: paintMap?.[y + 1]?.[x - 1],
-                    paintBottomRight: paintMap?.[y + 1]?.[x + 1],
-
-                    selected,
-                    selectedLeft:
-                      selected &&
-                      selectedVertices.some((v) => vertexEquals(v, [x - 1, y])),
-                    selectedRight:
-                      selected &&
-                      selectedVertices.some((v) => vertexEquals(v, [x + 1, y])),
-                    selectedTop:
-                      selected &&
-                      selectedVertices.some((v) => vertexEquals(v, [x, y - 1])),
-                    selectedBottom:
-                      selected &&
-                      selectedVertices.some((v) => vertexEquals(v, [x, y + 1])),
-                  },
-
-                  ...vertexEvents.map((e) => ({
-                    [`on${e}`]: this.props[`onVertex${e}`],
-                  })),
-                ),
-              );
+              const vertexData = this.createVertex(x, y, vertexProps);
+              return h(Vertex, { ...vertexData, ...eventHandlers });
             }),
           ),
         ),
@@ -210,15 +276,7 @@ export default class Goban extends Component {
           "svg",
           {
             className: "shudan-lines",
-            style: {
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              pointerEvents: "none",
-              zIndex: 2,
-            },
+            style: linesStyle,
           },
 
           h(
@@ -249,7 +307,100 @@ export default class Goban extends Component {
   }
 }
 
-Goban.getDerivedStateFromProps = function (props, state) {
+// Memoize the component to prevent unnecessary re-renders
+const Goban = memo(GobanComponent, (prevProps, nextProps) => {
+  // Custom comparison function for better performance
+  const primitiveProps = [
+    "busy",
+    "vertexSize",
+    "showCoordinates",
+    "fuzzyStonePlacement",
+    "animateStonePlacement",
+    "id",
+    "class",
+    "className",
+  ];
+
+  for (const prop of primitiveProps) {
+    if (prevProps[prop] !== nextProps[prop]) {
+      return false;
+    }
+  }
+
+  // Check array props
+  const arrayProps = [
+    "rangeX",
+    "rangeY",
+    "lines",
+    "selectedVertices",
+    "dimmedVertices",
+  ];
+  for (const prop of arrayProps) {
+    const prev = prevProps[prop];
+    const next = nextProps[prop];
+
+    if (prev !== next) {
+      if (!prev || !next || prev.length !== next.length) {
+        return false;
+      }
+
+      for (let i = 0; i < prev.length; i++) {
+        if (Array.isArray(prev[i])) {
+          if (!Array.isArray(next[i]) || prev[i].length !== next[i].length) {
+            return false;
+          }
+          for (let j = 0; j < prev[i].length; j++) {
+            if (prev[i][j] !== next[i][j]) {
+              return false;
+            }
+          }
+        } else if (prev[i] !== next[i]) {
+          return false;
+        }
+      }
+    }
+  }
+
+  // Check map props (2D arrays)
+  const mapProps = [
+    "signMap",
+    "markerMap",
+    "paintMap",
+    "ghostStoneMap",
+    "heatMap",
+  ];
+  for (const prop of mapProps) {
+    if (prevProps[prop] !== nextProps[prop]) {
+      return false;
+    }
+  }
+
+  // Check function props
+  const functionProps = [
+    "coordX",
+    "coordY",
+    ...vertexEvents.map((e) => `onVertex${e}`),
+  ];
+  for (const prop of functionProps) {
+    if (prevProps[prop] !== nextProps[prop]) {
+      return false;
+    }
+  }
+
+  // Check style and innerProps
+  if (
+    prevProps.style !== nextProps.style ||
+    prevProps.innerProps !== nextProps.innerProps
+  ) {
+    return false;
+  }
+
+  return true;
+});
+
+export default Goban;
+
+GobanComponent.getDerivedStateFromProps = function (props, state) {
   let { signMap = [], rangeX = [0, Infinity], rangeY = [0, Infinity] } = props;
 
   let width = signMap.length === 0 ? 0 : signMap[0].length;
