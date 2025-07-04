@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useState,
 } from "react";
 import { useImmerReducer } from "use-immer";
@@ -17,6 +18,11 @@ import {
   type SabakiMove,
 } from "./sabaki-types";
 import { toSabakiMove, type Game } from "./wasm-search-types";
+
+export type GameSelection = {
+  game: Game;
+  moveNumber: number;
+} | null;
 
 import "./goban-common.css";
 import "./ViewerGoban.css";
@@ -86,14 +92,13 @@ function viewerGobanReducer(
 }
 
 export type ViewerGobanProps = {
-  game: Game;
+  gameSelection: GameSelection;
   vertexSize: number;
-  moveNumber: number;
-  setMoveNumber: (moveNumber: number) => void;
+  setGameSelection: (gameSelection: GameSelection) => void;
 };
 
 const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
-  ({ game, vertexSize, moveNumber, setMoveNumber }, ref) => {
+  ({ gameSelection, vertexSize, setGameSelection }, ref) => {
     const [, dispatch] = useImmerReducer(
       viewerGobanReducer,
       initialViewerState,
@@ -103,43 +108,58 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
     );
     const maxHeight = Math.min(window.innerHeight, window.innerWidth * 0.5);
     const [moves, setMoves] = useState<Array<SabakiMove>>(
-      game.moves_transformed.map(toSabakiMove),
+      gameSelection?.game.moves_transformed.map(toSabakiMove) || [],
     );
-    const [board, setBoard] = useState<BoardPosition>(
-      calculateBoardPosition(moves, moveNumber),
-    );
+    const board = useMemo(() => {
+      return calculateBoardPosition(moves, gameSelection?.moveNumber ?? -1);
+    }, [moves, gameSelection?.moveNumber]);
 
     useEffect(() => {
       const mm: Map<Marker | null> = emptyBoard.map((row) =>
         row.map(() => null),
       );
-      const lastMove = game.moves_transformed[moveNumber];
-      if (lastMove !== undefined) {
-        mm[lastMove.point.y][lastMove.point.x] = {
-          type: "circle",
-        };
-        setMarkerMap(mm);
+      if (gameSelection) {
+        const lastMove =
+          gameSelection.game.moves_transformed[gameSelection.moveNumber];
+        if (lastMove !== undefined) {
+          mm[lastMove.point.y][lastMove.point.x] = {
+            type: "circle",
+          };
+          setMarkerMap(mm);
+        }
       }
-    }, [game.moves_transformed, moveNumber]);
+    }, [gameSelection]);
 
-    // Clear markers when the game is about to be hidden (game becomes null or empty)
+    // Clear markers when the game is about to be hidden (gameSelection becomes null or empty)
     useEffect(() => {
-      if (!game || !game.path) {
+      if (!gameSelection || !gameSelection.game.path) {
         setMarkerMap(emptyBoard.map((row) => row.map(() => null)));
       }
-    }, [game]);
+    }, [gameSelection]);
 
     const prevMove = useCallback(() => {
-      setMoveNumber(
-        clampMoveNumber(moveNumber - 1, game.moves_transformed.length),
-      );
-    }, [moveNumber, setMoveNumber, game.moves_transformed.length]);
+      if (gameSelection) {
+        setGameSelection({
+          game: gameSelection.game,
+          moveNumber: clampMoveNumber(
+            gameSelection.moveNumber - 1,
+            gameSelection.game.moves_transformed.length,
+          ),
+        });
+      }
+    }, [gameSelection, setGameSelection]);
 
     const nextMove = useCallback(() => {
-      setMoveNumber(
-        clampMoveNumber(moveNumber + 1, game.moves_transformed.length),
-      );
-    }, [moveNumber, setMoveNumber, game.moves_transformed.length]);
+      if (gameSelection) {
+        setGameSelection({
+          game: gameSelection.game,
+          moveNumber: clampMoveNumber(
+            gameSelection.moveNumber + 1,
+            gameSelection.game.moves_transformed.length,
+          ),
+        });
+      }
+    }, [gameSelection, setGameSelection]);
 
     useImperativeHandle(
       ref,
@@ -151,18 +171,17 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
     );
 
     useEffect(() => {
-      setMoves(game.moves_transformed.map(toSabakiMove));
-    }, [game, setMoves]);
-
-    useEffect(() => {
-      setBoard(calculateBoardPosition(moves, moveNumber));
-    }, [moves, moveNumber]);
+      setMoves(gameSelection?.game.moves_transformed.map(toSabakiMove) || []);
+    }, [gameSelection, setMoves]);
 
     // Update board when the main board changes
     useEffect(() => {
-      dispatch({ type: "SET_MOVE_NUMBER", payload: moveNumber });
+      dispatch({
+        type: "SET_MOVE_NUMBER",
+        payload: gameSelection?.moveNumber ?? -1,
+      });
       dispatch({ type: "UPDATE_BOARD", payload: board });
-    }, [board, moveNumber, dispatch]);
+    }, [board, gameSelection, dispatch]);
 
     return (
       <div className="flex flex-row gap-2 ViewerGoban" style={{ maxHeight }}>
@@ -174,29 +193,38 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                 <Input
                   type="number"
                   min={1}
-                  max={game.moves_transformed.length}
+                  max={gameSelection?.game.moves_transformed.length || 0}
                   step={1}
-                  value={moveNumber + 1}
-                  onChange={(e) =>
-                    setMoveNumber(
-                      clampMoveNumber(
-                        parseInt(e.target.value) - 1,
-                        game.moves_transformed.length,
-                      ),
-                    )
-                  }
+                  value={(gameSelection?.moveNumber ?? -1) + 1}
+                  onChange={(e) => {
+                    if (gameSelection) {
+                      setGameSelection({
+                        game: gameSelection.game,
+                        moveNumber: clampMoveNumber(
+                          parseInt(e.target.value) - 1,
+                          gameSelection.game.moves_transformed.length,
+                        ),
+                      });
+                    }
+                  }}
                 />
               </div>
               <div className="flex flex-col gap-1 mb-1">
                 <Button
                   size="xl"
                   variant="outline"
-                  disabled={moveNumber === 0}
-                  onClick={() =>
-                    setMoveNumber(
-                      clampMoveNumber(0, game.moves_transformed.length),
-                    )
-                  }
+                  disabled={!gameSelection || gameSelection.moveNumber === 0}
+                  onClick={() => {
+                    if (gameSelection) {
+                      setGameSelection({
+                        game: gameSelection.game,
+                        moveNumber: clampMoveNumber(
+                          0,
+                          gameSelection.game.moves_transformed.length,
+                        ),
+                      });
+                    }
+                  }}
                   title="Go to first move"
                 >
                   <img src={chevronFirstSvg} width={24} height={24} />
@@ -204,15 +232,18 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                 <Button
                   size="xl"
                   variant="outline"
-                  disabled={moveNumber === 0}
-                  onClick={() =>
-                    setMoveNumber(
-                      clampMoveNumber(
-                        moveNumber - 1,
-                        game.moves_transformed.length,
-                      ),
-                    )
-                  }
+                  disabled={!gameSelection || gameSelection.moveNumber === 0}
+                  onClick={() => {
+                    if (gameSelection) {
+                      setGameSelection({
+                        game: gameSelection.game,
+                        moveNumber: clampMoveNumber(
+                          gameSelection.moveNumber - 1,
+                          gameSelection.game.moves_transformed.length,
+                        ),
+                      });
+                    }
+                  }}
                   title="Go to previous move"
                 >
                   <img src={chevronLeftSvg} width={24} height={24} />
@@ -220,15 +251,22 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                 <Button
                   size="xl"
                   variant="outline"
-                  disabled={moveNumber === game.moves_transformed.length - 1}
-                  onClick={() =>
-                    setMoveNumber(
-                      clampMoveNumber(
-                        moveNumber + 1,
-                        game.moves_transformed.length,
-                      ),
-                    )
+                  disabled={
+                    !gameSelection ||
+                    gameSelection.moveNumber ===
+                      gameSelection.game.moves_transformed.length - 1
                   }
+                  onClick={() => {
+                    if (gameSelection) {
+                      setGameSelection({
+                        game: gameSelection.game,
+                        moveNumber: clampMoveNumber(
+                          gameSelection.moveNumber + 1,
+                          gameSelection.game.moves_transformed.length,
+                        ),
+                      });
+                    }
+                  }}
                   title="Go to next move"
                 >
                   <img src={chevronRightSvg} width={24} height={24} />
@@ -236,15 +274,22 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                 <Button
                   size="xl"
                   variant="outline"
-                  disabled={moveNumber === game.moves_transformed.length - 1}
-                  onClick={() =>
-                    setMoveNumber(
-                      clampMoveNumber(
-                        game.moves_transformed.length - 1,
-                        game.moves_transformed.length,
-                      ),
-                    )
+                  disabled={
+                    !gameSelection ||
+                    gameSelection.moveNumber ===
+                      gameSelection.game.moves_transformed.length - 1
                   }
+                  onClick={() => {
+                    if (gameSelection) {
+                      setGameSelection({
+                        game: gameSelection.game,
+                        moveNumber: clampMoveNumber(
+                          gameSelection.game.moves_transformed.length - 1,
+                          gameSelection.game.moves_transformed.length,
+                        ),
+                      });
+                    }
+                  }}
                   title="Go to last move"
                 >
                   <img src={chevronLastSvg} width={24} height={24} />

@@ -1,5 +1,6 @@
 import { useWindowSize } from "@reach/window-size";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useImmer } from "use-immer";
 
 import { Label } from "./components/ui/label";
 import { Separator } from "./components/ui/separator";
@@ -16,7 +17,7 @@ import {
   type BoardPosition,
 } from "./sabaki-types";
 import TinyEditorGoban from "./TinyEditorGoban";
-import ViewerGoban from "./ViewerGoban";
+import ViewerGoban, { type GameSelection } from "./ViewerGoban";
 import {
   toWasmSearch,
   type Game,
@@ -27,47 +28,24 @@ import {
 import trophyCrossedOutSvg from "./assets/icons/trophy-crossed-out.svg";
 import trophySvg from "./assets/icons/trophy.svg";
 
-const emptyGame: Game = {
-  path: "",
-  score: 0,
-  last_move_matched: -1,
-  rotation: 0,
-  is_inverted: false,
-  is_mirrored: false,
-  all_empty_correctly_within: 0,
-  moves: [],
-  moves_transformed: [],
-  event: "",
-  round: "",
-  location: "",
-  date: null,
-  player_black: { Unknown: "" },
-  player_white: { Unknown: "" },
-  rank_black: { Custom: "" },
-  rank_white: { Custom: "" },
-  komi: null,
-  rules: null,
-  result: "Void",
-};
-
 export default function App() {
   const windowSize = useWindowSize();
   const vertexSize = windowSize.width * 0.02;
-  const [board, setBoard] = useState<BoardPosition>(emptyBoard);
-  const [games, setGames] = useState<Array<Game>>([]);
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [board, setBoard] = useImmer<BoardPosition>(emptyBoard);
+  const [games, setGames] = useImmer<Array<Game>>([]);
+  const [gameSelection, setGameSelection] = useImmer<GameSelection>(null);
   const [totalNumberOfGames, setTotalNumberOfGames] = useState(0);
-  const [nextMoves, setNextMoves] = useState<Array<NextMove>>([]);
+  const [nextMoves, setNextMoves] = useImmer<Array<NextMove>>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [brushColor, setBrushColor] = useState<SabakiColor>(SabakiColor.Black);
   const [brushMode, setBrushMode] = useState<BrushMode>(BrushMode.Alternate);
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
-  const [playerCounts, setPlayerCounts] = useState<Record<number, number>>({});
-  const [moveNumbers, setMoveNumbers] = useState<Record<string, number>>({});
+  const [selectedPlayerIds, setSelectedPlayerIds] = useImmer<number[]>([]);
+  const [playerCounts, setPlayerCounts] = useImmer<Record<number, number>>({});
+  const [moveNumbers, setMoveNumbers] = useImmer<Record<string, number>>({});
   const [showResults, setShowResults] = useState(false);
-  const [previewStone, setPreviewStone] = useState<{
+  const [previewStone, setPreviewStone] = useImmer<{
     x: number;
     y: number;
   } | null>(null);
@@ -151,22 +129,31 @@ export default function App() {
           player_counts,
         } = JSON.parse(jsonText) as SearchReturn;
         if (current_page === 0) {
-          setGames(results);
+          setGames(() => results);
         } else {
-          setGames((prev) => [...prev, ...results]);
+          setGames((draft) => {
+            draft.push(...results);
+          });
         }
         setTotalNumberOfGames(num_results);
-        setNextMoves(next_moves);
+        setNextMoves(() => next_moves);
         setCurrentPage(current_page);
         setHasMore(current_page < total_pages - 1);
-        setPlayerCounts(player_counts);
+        setPlayerCounts(() => player_counts);
       }
     };
-  }, []);
+  }, [setGames, setNextMoves, setPlayerCounts]);
+
+  const getCurrentMoveNumber = useCallback(
+    (game: Game) => {
+      return moveNumbers[game.path] ?? game.last_move_matched;
+    },
+    [moveNumbers],
+  );
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (selectedGame === null && editorGobanRef.current) {
+      if (gameSelection === null && editorGobanRef.current) {
         if (e.key === "ArrowLeft" || (e.ctrlKey && e.key === "z")) {
           e.preventDefault(); // Prevent browser's default undo
           editorGobanRef.current.undo();
@@ -177,30 +164,39 @@ export default function App() {
           e.preventDefault();
           // Select the first game if none is selected, or the next one if possible
           if (games.length > 0) {
-            setSelectedGame(games[0]);
+            setGameSelection(() => ({
+              game: games[0],
+              moveNumber: getCurrentMoveNumber(games[0]),
+            }));
           }
         } else if (e.key === "ArrowUp") {
           e.preventDefault();
           // If a game is selected, select the previous one if possible
-          if (selectedGame != null && games.length > 0) {
+          if (gameSelection != null && games.length > 0) {
             const idx = games.findIndex(
               // @ts-expect-error ts can't infer the right type for g
-              (g: Game) => g.path === selectedGame.path,
+              (g: Game) => g.path === gameSelection.game.path,
             );
             if (idx > 0) {
-              setSelectedGame(games[idx - 1]);
+              setGameSelection(() => ({
+                game: games[idx - 1],
+                moveNumber: getCurrentMoveNumber(games[idx - 1]),
+              }));
             }
           }
         }
-      } else if (selectedGame == null) {
+      } else if (gameSelection == null) {
         // If no game is selected and ArrowDown is pressed, select the first game
         if (e.key === "ArrowDown") {
           e.preventDefault();
           if (games.length > 0) {
-            setSelectedGame(games[0]);
+            setGameSelection(() => ({
+              game: games[0],
+              moveNumber: getCurrentMoveNumber(games[0]),
+            }));
           }
         }
-      } else if (selectedGame != null && viewerGobanRef.current) {
+      } else if (gameSelection != null && viewerGobanRef.current) {
         if (e.key === "ArrowLeft") {
           viewerGobanRef.current.prevMove();
         } else if (e.key === "ArrowRight") {
@@ -208,23 +204,29 @@ export default function App() {
         } else if (e.key === "ArrowDown") {
           e.preventDefault();
           // Select the next game in the list, if any
-          if (selectedGame != null && games.length > 0) {
+          if (gameSelection != null && games.length > 0) {
             const idx = (games as Game[]).findIndex(
-              (g) => g.path === selectedGame.path,
+              (g) => g.path === gameSelection.game.path,
             );
             if (idx !== -1 && idx < games.length - 1) {
-              setSelectedGame(games[idx + 1]);
+              setGameSelection(() => ({
+                game: games[idx + 1],
+                moveNumber: getCurrentMoveNumber(games[idx + 1]),
+              }));
             }
           }
         } else if (e.key === "ArrowUp") {
           e.preventDefault();
           // Select the previous game in the list, if any
-          if (selectedGame !== null && games.length > 0) {
+          if (gameSelection !== null && games.length > 0) {
             const idx = (games as Game[]).findIndex(
-              (g) => g.path === selectedGame.path,
+              (g) => g.path === gameSelection.game.path,
             );
             if (idx > 0) {
-              setSelectedGame(games[idx - 1]);
+              setGameSelection(() => ({
+                game: games[idx - 1],
+                moveNumber: getCurrentMoveNumber(games[idx - 1]),
+              }));
             }
           }
         }
@@ -235,34 +237,41 @@ export default function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [selectedGame, games]);
-
-  const getCurrentMoveNumber = (game: Game | null) => {
-    if (!game) return -1;
-    return moveNumbers[game.path] ?? game.last_move_matched;
-  };
+  }, [gameSelection, games, getCurrentMoveNumber, setGameSelection]);
 
   const handleSetMoveNumber = (game: Game, moveNumber: number) => {
-    setMoveNumbers((prev) => ({ ...prev, [game.path]: moveNumber }));
+    setGameSelection(() => ({ game, moveNumber }));
+    setMoveNumbers((draft) => {
+      draft[game.path] = moveNumber;
+    });
+  };
+
+  const handleSetGameSelection = (newGameSelection: GameSelection) => {
+    setGameSelection(() => newGameSelection);
+    if (newGameSelection) {
+      setMoveNumbers((draft) => {
+        draft[newGameSelection.game.path] = newGameSelection.moveNumber;
+      });
+    }
   };
 
   const handleMoveHover = (point: { x: number; y: number }) => {
-    setPreviewStone(point);
+    setPreviewStone(() => point);
   };
 
   const handleMoveUnhover = () => {
-    setPreviewStone(null);
+    setPreviewStone(() => null);
   };
 
   const handleMoveClick = (point: { x: number; y: number }) => {
-    setPreviewStone(null);
+    setPreviewStone(() => null);
     if (editorGobanRef.current) {
       editorGobanRef.current.commitMove(point);
     }
   };
 
   const handleCommitMove = (_point: { x: number; y: number }) => {
-    setPreviewStone(null);
+    setPreviewStone(() => null);
   };
 
   return (
@@ -271,12 +280,12 @@ export default function App() {
         <div className="goban-transition-container">
           <div
             className={`goban-editor-wrapper ${
-              selectedGame ? "goban-editor-hidden" : "goban-editor-visible"
+              gameSelection ? "goban-editor-hidden" : "goban-editor-visible"
             }`}
           >
             <EditorGoban
               ref={editorGobanRef}
-              onUpdateBoard={setBoard}
+              onUpdateBoard={(board) => setBoard(() => board)}
               onChangeBrushColor={setBrushColor}
               onChangeBrushMode={setBrushMode}
               brushMode={brushMode}
@@ -288,17 +297,14 @@ export default function App() {
           </div>
           <div
             className={`goban-viewer-wrapper ${
-              selectedGame ? "goban-viewer-visible" : "goban-viewer-hidden"
+              gameSelection ? "goban-viewer-visible" : "goban-viewer-hidden"
             }`}
           >
             <ViewerGoban
               ref={viewerGobanRef}
-              game={selectedGame || emptyGame}
+              gameSelection={gameSelection}
               vertexSize={vertexSize}
-              moveNumber={getCurrentMoveNumber(selectedGame)}
-              setMoveNumber={(moveNumber: number) => {
-                if (selectedGame) handleSetMoveNumber(selectedGame, moveNumber);
-              }}
+              setGameSelection={handleSetGameSelection}
             />
           </div>
         </div>
@@ -306,10 +312,10 @@ export default function App() {
       <div className="flex flex-col ml-4 w-full">
         <div className="sticky top-0 bg-white z-10 pt-4 mr-2">
           <div className="flex justify-between">
-            {selectedGame != null ? (
+            {gameSelection != null ? (
               <div
                 className={cn(
-                  selectedGame != null
+                  gameSelection != null
                     ? "tiny-goban-visible"
                     : "next-moves-visible",
                 )}
@@ -319,7 +325,7 @@ export default function App() {
                 }}
               >
                 <div
-                  onClick={() => setSelectedGame(null)}
+                  onClick={() => setGameSelection(() => null)}
                   className="tiny-goban-clickable"
                 >
                   <TinyEditorGoban vertexSize={tinyVertexSize} board={board} />
@@ -381,12 +387,17 @@ export default function App() {
 
         <GamesList
           games={games}
-          onSelectGame={setSelectedGame}
+          onSelectGame={(game) =>
+            game &&
+            setGameSelection(() => ({
+              game,
+              moveNumber: getCurrentMoveNumber(game),
+            }))
+          }
           onSelectGameAtMove={(game, moveNumber) => {
-            setSelectedGame(game);
             handleSetMoveNumber(game, moveNumber);
           }}
-          selectedGame={selectedGame}
+          selectedGame={gameSelection?.game || null}
           isSearching={isSearching}
           onLoadMore={loadMore}
           hasMore={hasMore}
