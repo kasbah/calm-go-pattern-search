@@ -112,8 +112,8 @@ const Marker = memo(function Marker({
     if (type === "circle" || type === "loader" || type === "point") {
       return (
         <circle
-          cx={0.484}
-          cy={0.484}
+          cx={0.48}
+          cy={0.48}
           r={type === "point" ? 0.18 : 0.25}
           vectorEffect="non-scaling-stroke"
         />
