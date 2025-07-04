@@ -1,4 +1,4 @@
-# Calm Go Pattern Search | https://patterns.calmgo.games
+# Calm Go Pattern Search | [patterns.calmgo.games](https://patterns.calmgo.games)
 
 🚧 _Work in Progress_ 🚧
 
