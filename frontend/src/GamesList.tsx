@@ -123,6 +123,7 @@ export type GamesListProps = {
   onLoadMore: () => void;
   hasMore: boolean;
   showAllResults: boolean;
+  moveNumbers: Record<string, number>;
 };
 
 type GameItemProps = {
@@ -132,6 +133,7 @@ type GameItemProps = {
   onSelect: (game: Game) => void;
   onSelectAtMove?: (game: Game, moveNumber: number) => void;
   showAllResults: boolean;
+  moveNumbers: Record<string, number>;
 };
 
 function GameItem({
@@ -141,6 +143,7 @@ function GameItem({
   onSelect,
   onSelectAtMove,
   showAllResults,
+  moveNumbers,
 }: GameItemProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [shouldShowResult, setShouldShowResult] = useState(showAllResults);
@@ -195,7 +198,11 @@ function GameItem({
               }}
             >
               {isVisible ? (
-                <TinyViewerGoban game={game} vertexSize={11} />
+                <TinyViewerGoban
+                  game={game}
+                  vertexSize={11}
+                  moveNumber={moveNumbers[game.path] ?? game.last_move_matched}
+                />
               ) : (
                 <div
                   style={{
@@ -391,6 +398,7 @@ function GameItem({
               <div className="mb-2">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
+                    <span className="text-gray-500 text-sm">matched: </span>
                     <span
                       className="cursor-pointer hover:underline"
                       onClick={(e) => {
@@ -462,6 +470,7 @@ export default function GamesList({
   onLoadMore,
   hasMore,
   showAllResults,
+  moveNumbers,
 }: GamesListProps) {
   const [showOverlay, setShowOverlay] = useState(false);
   const [overlayStartTime, setOverlayStartTime] = useState<number | null>(null);
@@ -588,6 +597,7 @@ export default function GamesList({
                 onSelect={handleSelectGame}
                 onSelectAtMove={onSelectGameAtMove}
                 showAllResults={showAllResults}
+                moveNumbers={moveNumbers}
               />
             </div>
           </div>

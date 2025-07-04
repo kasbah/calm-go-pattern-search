@@ -391,6 +391,7 @@ export default function App() {
           onLoadMore={loadMore}
           hasMore={hasMore}
           showAllResults={showResults}
+          moveNumbers={moveNumbers}
         />
       </div>
     </div>

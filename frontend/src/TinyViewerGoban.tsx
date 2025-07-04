@@ -32,28 +32,30 @@ function calculateBoardPosition(
 type TinyViewerGobanProps = {
   game: Game;
   vertexSize: number;
+  moveNumber: number;
 };
 
 export default function TinyViewerGoban({
   game,
   vertexSize,
+  moveNumber,
 }: TinyViewerGobanProps) {
   const [isHovering, setIsHovering] = useState(false);
   const board = useMemo(() => {
     const moves = game.moves_transformed.map(toSabakiMove);
-    return calculateBoardPosition(moves, game.last_move_matched);
-  }, [game.moves_transformed, game.last_move_matched]);
+    return calculateBoardPosition(moves, moveNumber);
+  }, [game.moves_transformed, moveNumber]);
 
   const markerMap = useMemo((): Map<Marker | null> => {
     const mm: Map<Marker | null> = emptyBoard.map((row) => row.map(() => null));
-    const lastMove = game.moves_transformed[game.last_move_matched];
+    const lastMove = game.moves_transformed[moveNumber];
     if (lastMove !== undefined) {
       mm[lastMove.point.y][lastMove.point.x] = {
         type: "circle",
       } as Marker;
     }
     return mm;
-  }, [game.moves_transformed, game.last_move_matched]);
+  }, [game.moves_transformed, moveNumber]);
 
   return (
     <div
