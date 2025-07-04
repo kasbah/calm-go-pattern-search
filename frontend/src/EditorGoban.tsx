@@ -228,11 +228,14 @@ export type EditorGobanProps = {
   onChangeBrushColor: (color: SabakiColor) => void;
   onChangeBrushMode: (mode: BrushMode) => void;
   brushMode: BrushMode;
+  previewStone?: { x: number; y: number } | null;
+  onCommitMove?: (point: { x: number; y: number }) => void;
 };
 
 export type EditorGobanRef = {
   undo: () => void;
   redo: () => void;
+  commitMove: (point: { x: number; y: number }) => void;
 };
 
 const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
@@ -244,6 +247,8 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
       onChangeBrushColor,
       onChangeBrushMode,
       brushMode,
+      previewStone,
+      onCommitMove,
     },
     ref,
   ) => {
@@ -256,6 +261,7 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
     const [brushColor, setBrushColor] = useState<SabakiColor>(
       SabakiColor.Black,
     );
+
     const markerTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
       undefined,
     );
@@ -268,13 +274,24 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
       dispatch({ type: "REDO" });
     }, [dispatch]);
 
+    const handleCommitMove = useCallback(
+      (point: { x: number; y: number }) => {
+        const vertex: Vertex = [point.x, point.y];
+        dispatch({ type: "MOUSE_DOWN", payload: vertex });
+        dispatch({ type: "MOUSE_UP" });
+        onCommitMove?.(point);
+      },
+      [dispatch, onCommitMove],
+    );
+
     useImperativeHandle(
       ref,
       () => ({
         undo,
         redo,
+        commitMove: handleCommitMove,
       }),
-      [undo, redo],
+      [undo, redo, handleCommitMove],
     );
 
     useEffect(() => {
@@ -350,6 +367,15 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
           if (stagingStone !== boardStone) {
             dimmed.push([x, y]);
           }
+
+          // Show preview stone if it's at this position
+          if (previewStone && previewStone.x === x && previewStone.y === y) {
+            dimmed.push([x, y]);
+            return brushColor === SabakiColor.Black
+              ? SabakiSign.Black
+              : SabakiSign.White;
+          }
+
           if (stagingStone !== SabakiSign.Empty) {
             return stagingStone;
           }
@@ -361,7 +387,7 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
       );
       setDisplayBoard(display);
       setDimmedVertices(dimmed);
-    }, [state.board, state.stagingBoard]);
+    }, [state.board, state.stagingBoard, previewStone, brushColor]);
 
     const handleVertexMouseEnter = useCallback(
       (_e: React.MouseEvent, vertex: Vertex) => {
@@ -379,9 +405,17 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
 
     const handleMouseDown = useCallback(
       (_e: React.MouseEvent, vertex: Vertex) => {
+        const [x, y] = vertex;
+
+        // Check if this is a click on a preview stone
+        if (previewStone && previewStone.x === x && previewStone.y === y) {
+          handleCommitMove(previewStone);
+          return;
+        }
+
         dispatch({ type: "MOUSE_DOWN", payload: vertex });
       },
-      [dispatch],
+      [dispatch, previewStone, handleCommitMove],
     );
 
     const handleClearBoard = useCallback(() => {

@@ -5,12 +5,18 @@ interface NextMovesListProps {
   nextMoves: NextMove[];
   isLoading?: boolean;
   brushColor: SabakiColor;
+  onMoveHover?: (point: { x: number; y: number }) => void;
+  onMoveUnhover?: () => void;
+  onMoveClick?: (point: { x: number; y: number }) => void;
 }
 
 export default function NextMovesList({
   nextMoves,
   isLoading = false,
   brushColor,
+  onMoveHover,
+  onMoveUnhover,
+  onMoveClick,
 }: NextMovesListProps) {
   return (
     <div className="grid grid-flow-col grid-rows-5 h-[252px] max-h-[252px] w-[334px] max-w-[334px] gap-2">
@@ -45,7 +51,10 @@ export default function NextMovesList({
           return (
             <div
               key={index}
-              className="flex justify-start items-center px-2 py-1 bg-gray-50 rounded hover:bg-gray-100 transition-colors w-[160px] max-w-[160px] max-h-[42px]"
+              className="flex justify-start items-center px-2 py-1 bg-gray-50 rounded hover:bg-gray-100 transition-colors w-[160px] max-w-[160px] max-h-[42px] cursor-pointer"
+              onMouseEnter={() => onMoveHover?.(move.point)}
+              onMouseLeave={() => onMoveUnhover?.()}
+              onClick={() => onMoveClick?.(move.point)}
             >
               <div
                 className="w-[24px] h-[24px] flex items-center justify-center"

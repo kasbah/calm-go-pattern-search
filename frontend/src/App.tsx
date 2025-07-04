@@ -67,6 +67,10 @@ export default function App() {
   const [playerCounts, setPlayerCounts] = useState<Record<number, number>>({});
   const [moveNumbers, setMoveNumbers] = useState<Record<string, number>>({});
   const [showResults, setShowResults] = useState(false);
+  const [previewStone, setPreviewStone] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const pageSize = 20;
 
   const tinyVertexSize = 12;
@@ -74,6 +78,7 @@ export default function App() {
   const editorGobanRef = useRef<{
     undo: () => void;
     redo: () => void;
+    commitMove: (point: { x: number; y: number }) => void;
   } | null>(null);
   const viewerGobanRef = useRef<{
     prevMove: () => void;
@@ -241,6 +246,25 @@ export default function App() {
     setMoveNumbers((prev) => ({ ...prev, [game.path]: moveNumber }));
   };
 
+  const handleMoveHover = (point: { x: number; y: number }) => {
+    setPreviewStone(point);
+  };
+
+  const handleMoveUnhover = () => {
+    setPreviewStone(null);
+  };
+
+  const handleMoveClick = (point: { x: number; y: number }) => {
+    setPreviewStone(null);
+    if (editorGobanRef.current) {
+      editorGobanRef.current.commitMove(point);
+    }
+  };
+
+  const handleCommitMove = (_point: { x: number; y: number }) => {
+    setPreviewStone(null);
+  };
+
   return (
     <div className="flex flex-gap-100">
       <div className="sticky top-0 h-screen">
@@ -258,6 +282,8 @@ export default function App() {
               brushMode={brushMode}
               vertexSize={vertexSize}
               nextMoves={isSearching ? [] : nextMoves.map((move) => move.point)}
+              previewStone={previewStone}
+              onCommitMove={handleCommitMove}
             />
           </div>
           <div
@@ -304,6 +330,9 @@ export default function App() {
                 nextMoves={nextMoves}
                 isLoading={isSearching}
                 brushColor={brushColor}
+                onMoveHover={handleMoveHover}
+                onMoveUnhover={handleMoveUnhover}
+                onMoveClick={handleMoveClick}
               />
             )}
             <div className="flex flex-col justify-between">
