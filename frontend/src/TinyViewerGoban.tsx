@@ -1,5 +1,5 @@
-import { Goban, type Map, type Marker } from "@calm-go/shudan";
-import "@calm-go/shudan/css/goban.css";
+import { Goban, type Map, type Marker } from "./shudan";
+import "./shudan/css/goban.css";
 import SabakiGoBoard from "@sabaki/go-board";
 import { useMemo, useState } from "react";
 import {

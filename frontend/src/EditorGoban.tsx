@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Goban, type Map, type Marker, type Vertex } from "@calm-go/shudan";
-import "@calm-go/shudan/css/goban.css";
+import { Goban, type Map, type Marker, type Vertex } from "./shudan";
+import "./shudan/css/goban.css";
 import SabakiGoBoard from "@sabaki/go-board";
 import {
   forwardRef,

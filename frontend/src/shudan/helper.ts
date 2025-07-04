@@ -1,4 +1,8 @@
+export type Vertex = [x: number, y: number];
+export type Map<T> = T[][];
+
 export const alpha = "ABCDEFGHJKLMNOPQRSTUVWXYZ";
+
 export const vertexEvents = [
   "Click",
   "MouseDown",
@@ -11,19 +15,22 @@ export const vertexEvents = [
   "PointerMove",
   "PointerEnter",
   "PointerLeave",
-];
+] as const;
 
-export const avg = (xs) =>
+export type VertexEvent = (typeof vertexEvents)[number];
+
+export const avg = (xs: number[]): number =>
   xs.length === 0 ? 0 : xs.reduce((sum, x) => sum + x, 0) / xs.length;
 
-export const range = (n) =>
+export const range = (n: number): number[] =>
   Array(n)
     .fill(0)
     .map((_, i) => i);
 
-export const random = (n) => Math.floor(Math.random() * (n + 1));
+export const random = (n: number): number =>
+  Math.floor(Math.random() * (n + 1));
 
-export const neighborhood = ([x, y]) => [
+export const neighborhood = ([x, y]: Vertex): Vertex[] => [
   [x, y],
   [x - 1, y],
   [x + 1, y],
@@ -31,22 +38,25 @@ export const neighborhood = ([x, y]) => [
   [x, y + 1],
 ];
 
-export const vertexEquals = ([x1, y1], [x2, y2]) => x1 === x2 && y1 === y2;
+export const vertexEquals = ([x1, y1]: Vertex, [x2, y2]: Vertex): boolean =>
+  x1 === x2 && y1 === y2;
 
-export const lineEquals = ([v1, w1], [v2, w2]) =>
-  vertexEquals(v1, v2) && vertexEquals(w1, w2);
+export const lineEquals = (
+  [v1, w1]: [Vertex, Vertex],
+  [v2, w2]: [Vertex, Vertex],
+): boolean => vertexEquals(v1, v2) && vertexEquals(w1, w2);
 
-export const signEquals = (...xs) =>
+export const signEquals = (...xs: number[]): boolean =>
   xs.length === 0 ? true : xs.every((x) => Math.sign(x) === Math.sign(xs[0]));
 
-export function getHoshis(width, height) {
+export function getHoshis(width: number, height: number): Vertex[] {
   if (Math.min(width, height) <= 6) return [];
 
-  let [nearX, nearY] = [width, height].map((x) => (x >= 13 ? 3 : 2));
-  let [farX, farY] = [width - nearX - 1, height - nearY - 1];
-  let [middleX, middleY] = [width, height].map((x) => (x - 1) / 2);
+  const [nearX, nearY] = [width, height].map((x) => (x >= 13 ? 3 : 2));
+  const [farX, farY] = [width - nearX - 1, height - nearY - 1];
+  const [middleX, middleY] = [width, height].map((x) => (x - 1) / 2);
 
-  let result = [
+  const result: Vertex[] = [
     [nearX, farY],
     [farX, nearY],
     [farX, farY],
@@ -63,7 +73,10 @@ export function getHoshis(width, height) {
   return result;
 }
 
-export function readjustShifts(shiftMap, vertex = null) {
+export function readjustShifts(
+  shiftMap: number[][],
+  vertex: Vertex | null = null,
+): number[][] {
   if (vertex == null) {
     for (let y = 0; y < shiftMap.length; y++) {
       for (let x = 0; x < shiftMap[0].length; x++) {
@@ -71,10 +84,10 @@ export function readjustShifts(shiftMap, vertex = null) {
       }
     }
   } else {
-    let [x, y] = vertex;
-    let direction = shiftMap[y][x];
+    const [x, y] = vertex;
+    const direction = shiftMap[y][x];
 
-    let data = [
+    const data: [number[], Vertex, number[]][] = [
       // Left
       [
         [1, 5, 8],
@@ -101,7 +114,7 @@ export function readjustShifts(shiftMap, vertex = null) {
       ],
     ];
 
-    for (let [directions, [qx, qy], removeShifts] of data) {
+    for (const [directions, [qx, qy], removeShifts] of data) {
       if (!directions.includes(direction)) continue;
 
       if (shiftMap[qy] && removeShifts.includes(shiftMap[qy][qx])) {
@@ -113,7 +126,7 @@ export function readjustShifts(shiftMap, vertex = null) {
   return shiftMap;
 }
 
-export function diffSignMap(before, after) {
+export function diffSignMap<T>(before: Map<T>, after: Map<T>): Vertex[] {
   if (
     before === after ||
     before.length === 0 ||
@@ -123,7 +136,7 @@ export function diffSignMap(before, after) {
     return [];
   }
 
-  let result = [];
+  const result: Vertex[] = [];
 
   for (let y = 0; y < before.length; y++) {
     for (let x = 0; x < before[0].length; x++) {

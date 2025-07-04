@@ -37,7 +37,6 @@
     "fmt:check": "prettier --check ."
   },
   "dependencies": {
-    "@calm-go/shudan": "*",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-popover": "^1.1.14",
     "@radix-ui/react-scroll-area": "^1.2.9",

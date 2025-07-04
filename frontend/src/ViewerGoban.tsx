@@ -1,4 +1,4 @@
-import { Goban, type Map, type Marker } from "@calm-go/shudan";
+import { Goban, type Map, type Marker } from "./shudan";
 import GoBoard from "@sabaki/go-board";
 import {
   forwardRef,

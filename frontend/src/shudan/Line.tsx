@@ -1,12 +1,19 @@
-import { createElement as h, memo, useMemo } from "react";
-import { vertexEquals } from "./helper.js";
+import { memo, useMemo } from "react";
+import { vertexEquals, type Vertex } from "./helper";
 
-const Line = memo(function Line(props) {
-  const { v1, v2, type = "line", vertexSize } = props;
+interface LineProps {
+  v1: Vertex;
+  v2: Vertex;
+  type?: "line" | "arrow";
+  vertexSize: number;
+}
 
-  // Early return for same vertices
-  if (vertexEquals(v1, v2)) return null;
-
+const Line = memo(function Line({
+  v1,
+  v2,
+  type = "line",
+  vertexSize,
+}: LineProps) {
   // Memoize expensive calculations
   const calculations = useMemo(() => {
     const [pos1, pos2] = [v1, v2].map((v) => v.map((x) => x * vertexSize));
@@ -43,11 +50,12 @@ const Line = memo(function Line(props) {
     return `rotate(${angle} ${left} ${top}) translate(${-length / 2} 0)`;
   }, [calculations]);
 
-  return h("path", {
-    className: `shudan-${type}`,
-    d: pathData,
-    transform,
-  });
+  // Early return for same vertices
+  if (vertexEquals(v1, v2)) return null;
+
+  return (
+    <path className={`shudan-${type}`} d={pathData} transform={transform} />
+  );
 });
 
 export default Line;

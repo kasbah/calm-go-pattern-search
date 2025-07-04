@@ -1,5 +1,5 @@
-import { Goban } from "@calm-go/shudan";
-import "@calm-go/shudan/css/goban.css";
+import { Goban } from "./shudan";
+import "./shudan/css/goban.css";
 import { useState } from "react";
 import type { BoardPosition } from "./sabaki-types";
 

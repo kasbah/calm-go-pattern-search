@@ -1,15 +1,14 @@
-import {
-  createElement as h,
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useMemo,
-  memo,
-} from "react";
-import Goban from "./Goban.js";
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
+import Goban, { type GobanProps } from "./Goban";
 
-const BoundedGoban = memo(function BoundedGoban(props) {
+export type BoundedGobanProps = Omit<GobanProps, "vertexSize"> & {
+  maxWidth: number;
+  maxHeight: number;
+  maxVertexSize?: number;
+  onResized?: () => void;
+};
+
+const BoundedGoban = memo(function BoundedGoban(props: BoundedGobanProps) {
   const {
     showCoordinates,
     maxWidth,
@@ -25,17 +24,20 @@ const BoundedGoban = memo(function BoundedGoban(props) {
   } = props;
 
   const [vertexSize, setVertexSize] = useState(1);
-  const [visibility, setVisibility] = useState("hidden");
-  const elementRef = useRef(null);
-  const { ref: innerRef = () => {} } = innerProps;
+  const [visibility, setVisibility] = useState<"hidden" | "visible">("hidden");
+  const elementRef = useRef<HTMLDivElement>(null);
+  const { ref: innerRef = () => {} } =
+    innerProps as React.HTMLAttributes<HTMLDivElement> & {
+      ref?: React.Ref<HTMLDivElement>;
+    };
 
   // Memoize dependencies for useEffect
   const rangeXString = useMemo(() => JSON.stringify(rangeX), [rangeX]);
   const rangeYString = useMemo(() => JSON.stringify(rangeY), [rangeY]);
   const signMapDimensions = useMemo(
     () => ({
-      height: signMap.length,
-      width: (signMap[0] || []).length,
+      height: signMap?.length || 0,
+      width: (signMap?.[0] || []).length,
     }),
     [signMap],
   );
@@ -84,8 +86,10 @@ const BoundedGoban = memo(function BoundedGoban(props) {
 
   // Memoize the ref callback
   const refCallback = useCallback(
-    (el) => {
-      innerRef(el);
+    (el: HTMLDivElement | null) => {
+      if (typeof innerRef === "function") {
+        innerRef(el);
+      }
       elementRef.current = el;
     },
     [innerRef],
@@ -109,20 +113,18 @@ const BoundedGoban = memo(function BoundedGoban(props) {
     [innerProps, refCallback],
   );
 
-  return h(Goban, {
-    ...otherProps,
-    showCoordinates,
-    maxWidth,
-    maxHeight,
-    maxVertexSize,
-    rangeX,
-    rangeY,
-    signMap,
-    onResized,
-    innerProps: finalInnerProps,
-    style: finalStyle,
-    vertexSize: Math.min(vertexSize, maxVertexSize),
-  });
+  return (
+    <Goban
+      {...otherProps}
+      showCoordinates={showCoordinates}
+      rangeX={rangeX}
+      rangeY={rangeY}
+      signMap={signMap}
+      innerProps={finalInnerProps}
+      style={finalStyle}
+      vertexSize={Math.min(vertexSize, maxVertexSize)}
+    />
+  );
 });
 
 export default BoundedGoban;
