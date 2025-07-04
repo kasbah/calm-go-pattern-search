@@ -1,4 +1,4 @@
-.TinyGoban[data-hovering="true"] {
+.TinyGoban.EditorGoban[data-hovering="true"] {
   .shudan-goban {
     cursor: pointer;
     --shudan-board-border-color: white;

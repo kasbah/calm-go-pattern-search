@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import playerNames from "../../rust/pack-games/python-player-name-aliases/player_names.json";
-import TinyGobanViewer from "./TinyGobanViewer";
+import TinyViewerGoban from "./TinyViewerGoban";
 import { cn } from "./lib/utils";
 import type { PlayerAlias, PlayerAliasLanguage } from "./playerSearch";
 import type {
@@ -181,14 +181,18 @@ function GameItem({
           data-selected={isSelected}
           className={cn(
             "bg-white hover:bg-gray-50 data-[selected=true]:bg-secondary p-4 pr-6",
-            "cursor-pointer",
           )}
-          onClick={() => onSelect(game)}
         >
           <div className="flex gap-4">
-            <div className="flex-shrink-0">
+            <div
+              className="flex-shrink-0 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(game);
+              }}
+            >
               {isVisible ? (
-                <TinyGobanViewer game={game} vertexSize={11} />
+                <TinyViewerGoban game={game} vertexSize={11} />
               ) : (
                 <div
                   style={{

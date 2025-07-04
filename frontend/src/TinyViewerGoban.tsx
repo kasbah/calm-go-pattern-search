@@ -1,7 +1,7 @@
 import { Goban, type Map, type Marker } from "@calm-go/shudan";
 import "@calm-go/shudan/css/goban.css";
 import SabakiGoBoard from "@sabaki/go-board";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   emptyBoard,
   type BoardPosition,
@@ -11,7 +11,7 @@ import { toSabakiMove, type Game } from "./wasm-search-types";
 
 import "./ViewerGoban.css";
 import "./goban-common.css";
-import "./TinyEditorGoban.css";
+import "./TinyViewerGoban.css";
 
 function calculateBoardPosition(
   moves: Array<SabakiMove>,
@@ -29,15 +29,16 @@ function calculateBoardPosition(
   return sgb.signMap;
 }
 
-type TinyGobanViewerProps = {
+type TinyViewerGobanProps = {
   game: Game;
   vertexSize: number;
 };
 
-export default function TinyGobanViewer({
+export default function TinyViewerGoban({
   game,
   vertexSize,
-}: TinyGobanViewerProps) {
+}: TinyViewerGobanProps) {
+  const [isHovering, setIsHovering] = useState(false);
   const board = useMemo(() => {
     const moves = game.moves_transformed.map(toSabakiMove);
     return calculateBoardPosition(moves, game.last_move_matched);
@@ -55,7 +56,12 @@ export default function TinyGobanViewer({
   }, [game.moves_transformed, game.last_move_matched]);
 
   return (
-    <div className="TinyGoban ViewerGoban">
+    <div
+      className="TinyGoban ViewerGoban"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      data-hovering={isHovering}
+    >
       <Goban
         animateStonePlacement={false}
         fuzzyStonePlacement={false}

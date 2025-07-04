@@ -1,0 +1,15 @@
+.TinyGoban.ViewerGoban[data-hovering="true"] {
+  .shudan-goban {
+    cursor: pointer;
+    --color-highlight-dark: rgb(255, 231, 231);
+    --shudan-board-border-color: white;
+
+    --shudan-board-background-color: var(--color-highlight-dark);
+    --shudan-board-foreground-color: #333;
+
+    --shudan-black-background-color: var(--color-highlight-dark);
+    --shudan-black-foreground-color: var(--color-highlight-dark);
+    --shudan-white-background-color: black;
+    --shudan-white-foreground-color: black;
+  }
+}
