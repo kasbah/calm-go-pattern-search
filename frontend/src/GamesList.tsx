@@ -1,4 +1,3 @@
-import catRunning from "@/assets/cat_running.webp";
 import { useCallback, useEffect, useRef, useState } from "react";
 import playerNames from "../../rust/pack-games/python-player-name-aliases/player_names.json";
 import TinyGobanViewer from "./TinyGobanViewer";
@@ -566,11 +565,7 @@ export default function GamesList({
             className="absolute inset-0 flex items-center justify-center z-10"
             style={{ backgroundColor: "rgba(255, 255, 255, 0.5)" }}
           >
-            <img
-              src={catRunning}
-              alt="Loading..."
-              className="w-64 h-64 object-contain"
-            />
+            Loading...
           </div>
         )}
       </div>
