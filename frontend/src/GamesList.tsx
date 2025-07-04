@@ -539,7 +539,7 @@ export default function GamesList({
 
   return (
     <div className="flex flex-col w-full">
-      <div className="relative">
+      <div className="relative min-h-[600px]">
         {games.map((game, index) => (
           <div key={game.path}>
             {index === games.length - 5 && (
@@ -562,7 +562,7 @@ export default function GamesList({
         ))}
         {showOverlay && (
           <div
-            className="absolute inset-0 flex items-center justify-center z-10"
+            className="absolute inset-0 flex items-center justify-center z-[5]"
             style={{ backgroundColor: "rgba(255, 255, 255, 0.5)" }}
           >
             Loading...
