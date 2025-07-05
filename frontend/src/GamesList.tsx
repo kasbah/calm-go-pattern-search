@@ -440,7 +440,7 @@ function GameItem({
                       onClick={(e) => {
                         e.stopPropagation();
                         if (onSelectAtMove) {
-                          onSelectAtMove(game, game.moves.length);
+                          onSelectAtMove(game, game.moves.length - 1);
                         }
                       }}
                     >
