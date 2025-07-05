@@ -6,6 +6,7 @@ import { Label } from "./components/ui/label";
 import { Separator } from "./components/ui/separator";
 import { Toggle } from "./components/ui/toggle";
 import EditorGoban from "./EditorGoban";
+import GameInfo from "./GameInfo";
 import GamesList from "./GamesList";
 import { cn } from "./lib/utils";
 import NextMovesList from "./NextMovesList";
@@ -31,8 +32,8 @@ import trophySvg from "./assets/icons/trophy.svg";
 export default function App() {
   const windowSize = useWindowSize();
   const vertexSize = Math.min(
-    windowSize.height * 0.046,
-    windowSize.width * 0.023,
+    windowSize.height * 0.04,
+    windowSize.width * 0.02,
   );
   const [board, setBoard] = useImmer<BoardPosition>(emptyBoard);
   const [games, setGames] = useImmer<Array<Game>>([]);
@@ -309,6 +310,14 @@ export default function App() {
               vertexSize={vertexSize}
               setGameSelection={handleSetGameSelection}
             />
+            {gameSelection && (
+              <GameInfo
+                game={gameSelection.game}
+                onSelectAtMove={handleSetMoveNumber}
+                showAllResults={showResults}
+                vertexSize={vertexSize}
+              />
+            )}
           </div>
         </div>
       </div>

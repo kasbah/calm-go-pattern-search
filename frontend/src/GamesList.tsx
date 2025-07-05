@@ -627,6 +627,7 @@ export default function GamesList({
               }}
             >
               <GameItem
+                key={game.path}
                 game={game}
                 index={index}
                 isSelected={selectedGame?.path === game.path}
