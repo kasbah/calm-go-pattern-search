@@ -2,6 +2,8 @@ import { Goban } from "./shudan";
 import "./shudan/css/goban.css";
 import { useState } from "react";
 import type { BoardPosition } from "./sabaki-types";
+import { Button } from "./components/ui/button";
+import trashSvg from "./assets/icons/trash.svg";
 
 import "./EditorGoban.css";
 import "./goban-common.css";
@@ -10,18 +12,44 @@ import "./TinyEditorGoban.css";
 type TinyGobanProps = {
   vertexSize: number;
   board: BoardPosition;
+  onClearBoard: () => void;
 };
 
-export default function TinyEditorGoban({ vertexSize, board }: TinyGobanProps) {
+export default function TinyEditorGoban({
+  vertexSize,
+  board,
+  onClearBoard,
+}: TinyGobanProps) {
   const [isHovering, setIsHovering] = useState(false);
+  const [isTrashHovering, setIsTrashHovering] = useState(false);
   return (
     <div
-      className="TinyGoban EditorGoban"
+      className="TinyGoban EditorGoban flex items-center h-full"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       data-hovering={isHovering}
+      data-trash-hovering={isTrashHovering}
     >
-      <Goban vertexSize={vertexSize} showCoordinates={false} signMap={board} />
+      <div className="tiny-goban-clickable h-full">
+        <Goban
+          vertexSize={vertexSize}
+          showCoordinates={false}
+          signMap={board}
+        />
+      </div>
+      <div className="ml-1 h-[236px]">
+        <Button
+          size="xl"
+          variant="outline"
+          className="cursor-pointer"
+          onClick={onClearBoard}
+          title="Clear board"
+          onMouseEnter={() => setIsTrashHovering(true)}
+          onMouseLeave={() => setIsTrashHovering(false)}
+        >
+          <img src={trashSvg} width={24} height={24} alt="Clear board" />
+        </Button>
+      </div>
     </div>
   );
 }

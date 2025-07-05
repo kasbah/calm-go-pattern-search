@@ -236,6 +236,7 @@ export type EditorGobanRef = {
   undo: () => void;
   redo: () => void;
   commitMove: (point: { x: number; y: number }) => void;
+  clearBoard: () => void;
 };
 
 const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
@@ -284,14 +285,19 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
       [dispatch, onCommitMove],
     );
 
+    const clearBoard = useCallback(() => {
+      dispatch({ type: "CLEAR_BOARD" });
+    }, [dispatch]);
+
     useImperativeHandle(
       ref,
       () => ({
         undo,
         redo,
         commitMove: handleCommitMove,
+        clearBoard,
       }),
-      [undo, redo, handleCommitMove],
+      [undo, redo, handleCommitMove, clearBoard],
     );
 
     useEffect(() => {

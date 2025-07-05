@@ -61,6 +61,7 @@ export default function App() {
     undo: () => void;
     redo: () => void;
     commitMove: (point: { x: number; y: number }) => void;
+    clearBoard: () => void;
   } | null>(null);
   const viewerGobanRef = useRef<{
     prevMove: () => void;
@@ -278,6 +279,13 @@ export default function App() {
     setPreviewStone(() => null);
   };
 
+  const handleClearBoard = () => {
+    if (editorGobanRef.current) {
+      editorGobanRef.current.clearBoard();
+    }
+    setGameSelection(() => null);
+  };
+
   return (
     <div className="flex flex-gap-100">
       <div className="sticky top-0 h-screen pt-3">
@@ -325,22 +333,20 @@ export default function App() {
         <div className="sticky top-0 bg-white z-10 pt-4 mr-2">
           <div className="flex justify-between">
             {gameSelection != null ? (
-              <div
-                className={cn(
-                  gameSelection != null
-                    ? "tiny-goban-visible"
-                    : "next-moves-visible",
-                )}
-                style={{
-                  height: tinyVertexSize * 21,
-                  width: tinyVertexSize * 21,
-                }}
-              >
+              <div className="flex items-center">
                 <div
+                  className={cn(
+                    gameSelection != null
+                      ? "tiny-goban-visible"
+                      : "next-moves-visible",
+                  )}
                   onClick={() => setGameSelection(() => null)}
-                  className="tiny-goban-clickable"
                 >
-                  <TinyEditorGoban vertexSize={tinyVertexSize} board={board} />
+                  <TinyEditorGoban
+                    vertexSize={tinyVertexSize}
+                    board={board}
+                    onClearBoard={handleClearBoard}
+                  />
                 </div>
               </div>
             ) : (
