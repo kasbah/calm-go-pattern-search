@@ -146,6 +146,7 @@ function GameItem({
   showAllResults,
   moveNumbers,
 }: GameItemProps) {
+  const [isVisible, setIsVisible] = useState(false);
   const [shouldShowResult, setShouldShowResult] = useState(showAllResults);
   const [isInfoPopoverOpen, setInfoPopOverOpen] = useState(false);
   const [isInfoPinned, setInfoPinned] = useState(false);
@@ -154,6 +155,31 @@ function GameItem({
   useEffect(() => {
     setShouldShowResult(showAllResults);
   }, [showAllResults]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        setIsVisible(entry.isIntersecting);
+      },
+      {
+        root: null,
+        rootMargin: "200px",
+        threshold: 0,
+      },
+    );
+
+    const currentRef = itemRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
 
   return (
     <>
@@ -172,11 +198,27 @@ function GameItem({
                 onSelect(game);
               }}
             >
-              <TinyViewerGoban
-                game={game}
-                vertexSize={11}
-                moveNumber={moveNumbers[game.path] ?? game.last_move_matched}
-              />
+              {isVisible ? (
+                <TinyViewerGoban
+                  game={game}
+                  vertexSize={11}
+                  moveNumber={moveNumbers[game.path] ?? game.last_move_matched}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: 11 * 19 + 7.5,
+                    height: 11 * 19 + 9.75,
+                    backgroundColor: "#f3f4f6",
+                    borderRadius: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#9ca3af",
+                    fontSize: "12px",
+                  }}
+                />
+              )}
             </div>
             <div className="flex-1 flex flex-col justify-between">
               <div className="text-sm">
