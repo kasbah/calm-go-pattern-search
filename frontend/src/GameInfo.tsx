@@ -23,6 +23,9 @@ export default function GameInfo({
   showAllResults,
   vertexSize,
 }: GameInfoProps) {
+  const totalWidth = vertexSize * 19 + 70;
+  const maxPlayerWidth = Math.floor(totalWidth * 0.45);
+
   return (
     <div
       className="mt-2 text-lg ml-20 overflow-hidden"
@@ -34,8 +37,13 @@ export default function GameInfo({
       <div className="flex gap-6 min-w-0">
         {/* Players */}
         <div className="flex flex-col flex-shrink-0 justify-between min-w-0">
-          <PlayerDisplay game={game} color="black" />
-          <PlayerDisplay game={game} color="white" className="mb-[6px]" />
+          <PlayerDisplay game={game} color="black" maxWidth={maxPlayerWidth} />
+          <PlayerDisplay
+            game={game}
+            color="white"
+            className="mb-[6px]"
+            maxWidth={maxPlayerWidth}
+          />
         </div>
 
         {/* Rest of info in two rows */}

@@ -27,20 +27,33 @@ export type PlayerDisplayProps = {
   game: Game;
   color: "black" | "white";
   className?: string;
+  maxWidth?: number;
 };
 
-export function PlayerDisplay({ game, color, className }: PlayerDisplayProps) {
+export function PlayerDisplay({
+  game,
+  color,
+  className,
+  maxWidth,
+}: PlayerDisplayProps) {
   const isBlack = color === "black";
   const player = isBlack ? game.player_black : game.player_white;
   const rank = isBlack ? game.rank_black : game.rank_white;
   const icon = isBlack ? circleBlackIcon : circleWhiteIcon;
   const alt = isBlack ? "Black" : "White";
 
+  const playerName = getPlayerName(player);
+  const playerRank = formatRank(rank);
+
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <img src={icon} alt={alt} className="w-5 h-5" />
-      <span className="font-medium truncate">
-        {getPlayerName(player)}, {formatRank(rank)}
+    <div
+      className={cn("flex items-center gap-2", className)}
+      style={maxWidth ? { maxWidth: `${maxWidth}px` } : undefined}
+      title={`${playerName}, ${playerRank}`}
+    >
+      <img src={icon} alt={alt} className="w-5 h-5 flex-shrink-0" />
+      <span className="font-medium truncate min-w-0">
+        {`${playerName}, ${playerRank}`}
       </span>
     </div>
   );
