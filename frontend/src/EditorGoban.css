@@ -27,3 +27,9 @@
     display: none;
   }
 }
+
+.EditorGoban[data-trash-hovering="true"] {
+  .shudan-goban {
+    opacity: 0.6;
+  }
+}

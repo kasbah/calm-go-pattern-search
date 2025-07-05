@@ -41,7 +41,7 @@ export default function TinyEditorGoban({
           signMap={board}
         />
       </div>
-      <div className="ml-1 h-[236px]">
+      <div className="ml-1 h-[230px]">
         <Button
           size="xl"
           variant="outline"

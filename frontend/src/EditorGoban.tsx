@@ -262,6 +262,7 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
     const [brushColor, setBrushColor] = useState<SabakiColor>(
       SabakiColor.Black,
     );
+    const [isTrashHovering, setIsTrashHovering] = useState(false);
 
     const markerTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
       undefined,
@@ -431,7 +432,11 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
     const maxHeight = Math.min(window.innerHeight, window.innerWidth * 0.5);
 
     return (
-      <div className="flex flex-row gap-2 EditorGoban" style={{ maxHeight }}>
+      <div
+        className="flex flex-row gap-2 EditorGoban"
+        style={{ maxHeight }}
+        data-trash-hovering={isTrashHovering}
+      >
         <div className="ml-2 mb-2 mt-2">
           <div className="flex flex-col justify-between h-full">
             <BrushToolbar
@@ -467,6 +472,8 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
                 variant="outline"
                 onClick={handleClearBoard}
                 disabled={boardsEqual(state.board, emptyBoard)}
+                onMouseEnter={() => setIsTrashHovering(true)}
+                onMouseLeave={() => setIsTrashHovering(false)}
               >
                 <img src={trashSvg} width={24} height={24} />
               </Button>
