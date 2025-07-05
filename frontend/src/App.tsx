@@ -279,7 +279,7 @@ export default function App() {
 
   return (
     <div className="flex flex-gap-100">
-      <div className="sticky top-3 h-screen">
+      <div className="sticky top-0 h-screen pt-3">
         <div className="goban-transition-container">
           <div
             className={`goban-editor-wrapper ${
