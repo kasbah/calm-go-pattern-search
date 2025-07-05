@@ -16,6 +16,7 @@ import badgeInfoIcon from "@/assets/icons/badge-info.svg";
 import circleBlackIcon from "@/assets/icons/circle-black.svg";
 import circleBlackSlashWhiteIcon from "@/assets/icons/circle-black-slash-white.svg";
 import circleWhiteIcon from "@/assets/icons/circle-white.svg";
+import fileDownIcon from "@/assets/icons/file-down.svg";
 import flipHorizontalIcon from "@/assets/icons/flip-horizontal.svg";
 import trophyCrossedOutIcon from "@/assets/icons/trophy-crossed-out.svg";
 import { Separator } from "./components/ui/separator";
@@ -375,9 +376,9 @@ function GameItem({
                       {game.moves.length}
                     </span>
                   </div>
-                  <div className="flex justify-end items-center">
+                  <div className="flex justify-end items-center gap-2">
                     <button
-                      className="mr-2 flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
+                      className="flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
                       title={`Click to ${
                         shouldShowResult ? "hide" : "reveal"
                       } result`}
@@ -400,6 +401,19 @@ function GameItem({
                         />
                       )}
                     </button>
+                    <a
+                      href={`/sgfs/${game.path}.sgf`}
+                      download={`${game.path}.sgf`}
+                      className="flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
+                      title="Download SGF game record"
+                    >
+                      SGF
+                      <img
+                        src={fileDownIcon}
+                        alt="Download icon"
+                        className="w-5 h-5 text-gray-600"
+                      />
+                    </a>
                   </div>
                 </div>
               </div>
