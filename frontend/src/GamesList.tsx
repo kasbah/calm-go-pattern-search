@@ -271,7 +271,7 @@ function GameItem({
               )}
             </div>
             <div className="flex-1 flex flex-col justify-between">
-              <div className="flex gap-5 justify-between items-start w-full">
+              <div className="flex gap-5 justify-between items-start w-full h-full pb-3">
                 <div className="flex flex-shrink-0 flex-col gap-2 text-lg font-medium">
                   <div className="flex items-center gap-2 whitespace-nowrap">
                     <img
@@ -294,7 +294,7 @@ function GameItem({
                     {formatRank(game.rank_white)}
                   </div>
                 </div>
-                <div className="flex flex-1 flex-col items-end text-right mb-3">
+                <div className="flex flex-1 flex-col justify-between items-end text-right h-full">
                   <div className="flex flex-col">
                     {game.event && (
                       <div className="text-lg font-medium">{game.event}</div>
@@ -303,17 +303,15 @@ function GameItem({
                       {game.round ? `Round: ${game.round}` : "\u00A0"}
                     </div>
                   </div>
-                  <div className="flex flex-col gap-1 mt-2 text-gray-600">
+                  <div className="flex flex-col gap-1 mt-2">
                     {game.date && (
                       <div className="text-lg font-medium">
                         {formatDate(game.date)}
                       </div>
                     )}
-                    {game.location && (
-                      <div className="text-gray-500 text-sm">
-                        Location: {game.location}
-                      </div>
-                    )}
+                    <div className="text-gray-500 text-sm">
+                      {game.location ? `Location: ${game.location}` : "\u00A0"}
+                    </div>
                   </div>
                 </div>
                 <div className="flex flex-none items-center justify-end gap-2 min-w-[100px] ml-3">
