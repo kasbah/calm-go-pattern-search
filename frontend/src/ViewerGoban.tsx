@@ -1,13 +1,7 @@
 import { Goban, type Map, type Marker } from "./shudan";
 import GoBoard from "@sabaki/go-board";
-import {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-} from "react";
-import { useImmer, useImmerReducer } from "use-immer";
+import { forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
+import { useImmer } from "use-immer";
 
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
@@ -60,36 +54,6 @@ const clampMoveNumber = (moveNumber: number, max: number) => {
   return moveNumber;
 };
 
-type ViewerGobanAction =
-  | { type: "SET_MOVE_NUMBER"; payload: number }
-  | { type: "UPDATE_BOARD"; payload: BoardPosition };
-
-type ViewerGobanState = {
-  moveNumber: number;
-  currentBoard: BoardPosition;
-};
-
-const initialViewerState: ViewerGobanState = {
-  moveNumber: 0,
-  currentBoard: emptyBoard,
-};
-
-function viewerGobanReducer(
-  state: ViewerGobanState,
-  action: ViewerGobanAction,
-): void {
-  switch (action.type) {
-    case "SET_MOVE_NUMBER": {
-      state.moveNumber = action.payload;
-      return;
-    }
-    case "UPDATE_BOARD": {
-      state.currentBoard = action.payload;
-      return;
-    }
-  }
-}
-
 export type ViewerGobanProps = {
   gameSelection: GameSelection;
   vertexSize: number;
@@ -98,21 +62,11 @@ export type ViewerGobanProps = {
 
 const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
   ({ gameSelection, vertexSize, setGameSelection }, ref) => {
-    console.log(gameSelection?.game.path, gameSelection?.moveNumber);
-    const [, dispatch] = useImmerReducer(
-      viewerGobanReducer,
-      initialViewerState,
-    );
+    const [currentBoard, setCurrentBoard] = useImmer<BoardPosition>(emptyBoard);
     const [markerMap, setMarkerMap] = useImmer<Map<Marker | null>>(
       emptyBoard.map((row) => row.map(() => null)),
     );
     const maxHeight = Math.min(window.innerHeight, window.innerWidth * 0.5);
-    const [moves, setMoves] = useImmer<Array<SabakiMove>>(
-      gameSelection?.game.moves_transformed.map(toSabakiMove) || [],
-    );
-    const board = useMemo(() => {
-      return calculateBoardPosition(moves, gameSelection?.moveNumber ?? -1);
-    }, [moves, gameSelection?.moveNumber]);
 
     useEffect(() => {
       setMarkerMap((draft) => {
@@ -182,19 +136,14 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
     );
 
     useEffect(() => {
-      setMoves(
-        () => gameSelection?.game.moves_transformed.map(toSabakiMove) || [],
+      const moves =
+        gameSelection?.game.moves_transformed.map(toSabakiMove) || [];
+      const newBoard = calculateBoardPosition(
+        moves,
+        gameSelection?.moveNumber ?? -1,
       );
-    }, [gameSelection, setMoves]);
-
-    // Update board when the main board changes
-    useEffect(() => {
-      dispatch({
-        type: "SET_MOVE_NUMBER",
-        payload: gameSelection?.moveNumber ?? -1,
-      });
-      dispatch({ type: "UPDATE_BOARD", payload: board });
-    }, [board, gameSelection, dispatch]);
+      setCurrentBoard(() => newBoard);
+    }, [gameSelection, setCurrentBoard]);
 
     return (
       <div className="flex flex-row gap-2 ViewerGoban" style={{ maxHeight }}>
@@ -315,7 +264,7 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
           <Goban
             vertexSize={vertexSize}
             showCoordinates={true}
-            signMap={board}
+            signMap={currentBoard}
             markerMap={markerMap}
           />
         </div>
