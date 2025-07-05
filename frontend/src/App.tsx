@@ -30,7 +30,10 @@ import trophySvg from "./assets/icons/trophy.svg";
 
 export default function App() {
   const windowSize = useWindowSize();
-  const vertexSize = windowSize.width * 0.02;
+  const vertexSize = Math.min(
+    windowSize.height * 0.046,
+    windowSize.width * 0.023,
+  );
   const [board, setBoard] = useImmer<BoardPosition>(emptyBoard);
   const [games, setGames] = useImmer<Array<Game>>([]);
   const [gameSelection, setGameSelection] = useImmer<GameSelection>(null);
@@ -276,7 +279,7 @@ export default function App() {
 
   return (
     <div className="flex flex-gap-100">
-      <div className="sticky top-0 h-screen">
+      <div className="sticky top-3 h-screen">
         <div className="goban-transition-container">
           <div
             className={`goban-editor-wrapper ${
