@@ -483,8 +483,8 @@ export default function GamesList({
       },
       {
         root: null,
-        rootMargin: "0px",
-        threshold: 0.1,
+        rootMargin: "1000px",
+        threshold: 0.5,
       },
     );
 

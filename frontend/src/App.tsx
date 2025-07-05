@@ -52,7 +52,7 @@ export default function App() {
     x: number;
     y: number;
   } | null>(null);
-  const pageSize = 20;
+  const pageSize = 40;
 
   const tinyVertexSize = 12;
 
