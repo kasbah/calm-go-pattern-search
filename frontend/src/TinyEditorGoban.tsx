@@ -2,6 +2,7 @@ import { Goban } from "./shudan";
 import "./shudan/css/goban.css";
 import { useState } from "react";
 import type { BoardPosition } from "./sabaki-types";
+import { boardsEqual, emptyBoard } from "./sabaki-types";
 import { Button } from "./components/ui/button";
 import trashSvg from "./assets/icons/trash.svg";
 
@@ -22,6 +23,7 @@ export default function TinyEditorGoban({
 }: TinyGobanProps) {
   const [isHovering, setIsHovering] = useState(false);
   const [isTrashHovering, setIsTrashHovering] = useState(false);
+  const isBoardEmpty = boardsEqual(board, emptyBoard);
   return (
     <div
       className="TinyGoban EditorGoban flex items-center h-full"
@@ -46,6 +48,7 @@ export default function TinyEditorGoban({
           title="Clear board"
           onMouseEnter={() => setIsTrashHovering(true)}
           onMouseLeave={() => setIsTrashHovering(false)}
+          disabled={isBoardEmpty}
         >
           <img src={trashSvg} width={24} height={24} alt="Clear board" />
         </Button>

@@ -466,6 +466,7 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
                 color="red"
                 variant="outline"
                 onClick={handleClearBoard}
+                disabled={boardsEqual(state.board, emptyBoard)}
               >
                 <img src={trashSvg} width={24} height={24} />
               </Button>
