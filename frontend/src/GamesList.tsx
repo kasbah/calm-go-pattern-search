@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type JSX, useCallback, useEffect, useRef, useState } from "react";
 import playerNames from "../../rust/pack-games/python-player-name-aliases/player_names.json";
 import TinyViewerGoban from "./TinyViewerGoban";
 import { cn } from "./lib/utils";
@@ -38,24 +38,74 @@ function rotationToString(rotation: number) {
   }
 }
 
-function formatDate(date: SgfDate | null): string | null {
+function formatDate(date: SgfDate | null): JSX.Element | null {
   if (!date) return null;
+
+  const getMonthName = (month: number): string => {
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    return monthNames[month - 1] || month.toString();
+  };
+
+  const getOrdinalDay = (day: number): string => {
+    const suffix = (day: number): string => {
+      if (day >= 11 && day <= 13) return "th";
+      switch (day % 10) {
+        case 1:
+          return "st";
+        case 2:
+          return "nd";
+        case 3:
+          return "rd";
+        default:
+          return "th";
+      }
+    };
+    return `${day}${suffix(day)}`;
+  };
+
   if (date.YearMonthDay) {
     const [year, month, day] = date.YearMonthDay;
-    return `${year}-${month.toString().padStart(2, "0")}-${day
-      .toString()
-      .padStart(2, "0")}`;
+    return (
+      <>
+        <span>
+          {getOrdinalDay(day)} of {getMonthName(month)}, {year}
+        </span>
+      </>
+    );
   }
+
   if (date.YearMonth) {
     const [year, month] = date.YearMonth;
-    return `${year}-${month.toString().padStart(2, "0")}`;
+    return (
+      <>
+        <span>
+          {getMonthName(month)}, {year}
+        </span>
+      </>
+    );
   }
+
   if (date.Year) {
-    return date.Year.toString();
+    return <span>{date.Year.toString()}</span>;
   }
+
   if (date.Custom) {
-    return date.Custom;
+    return <span>{date.Custom}</span>;
   }
+
   return null;
 }
 
@@ -81,7 +131,7 @@ function formatRank(rank: Rank | null): string {
   if (!rank) return "(?)";
   if (rank.Kyu) return `${rank.Kyu}k`;
   if (rank.Dan) return `${rank.Dan}d`;
-  if (rank.Pro) return `${rank.Pro}P`;
+  if (rank.Pro) return `${rank.Pro}p`;
   if (rank.Custom) return `(${rank.Custom})`;
   return "(?)";
 }
@@ -221,166 +271,147 @@ function GameItem({
               )}
             </div>
             <div className="flex-1 flex flex-col justify-between">
-              <div className="text-sm">
-                <div className="flex justify-between items-start">
-                  <table className="text-lg font-medium w-full">
-                    <tbody>
-                      <tr className="align-top">
-                        <td className="pr-12">
-                          <div className="flex flex-col gap-2">
-                            <div className="flex items-center gap-2">
-                              <img
-                                src={circleBlackIcon}
-                                alt="Black"
-                                className="w-5 h-5"
-                              />
-                              {getPlayerName(game.player_black)}{" "}
-                              {formatRank(game.rank_black)}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <img
-                                src={circleWhiteIcon}
-                                alt="White"
-                                className="w-5 h-5"
-                              />
-                              {getPlayerName(game.player_white)}{" "}
-                              {formatRank(game.rank_white)}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-right">
-                          {game.event && (
-                            <div className="flex flex-col">
-                              <div className="font-medium">{game.event}</div>
-                              {game.round && (
-                                <div className="text-gray-500 text-sm">
-                                  Round: {game.round}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </td>
-                        <td className="pr-8"></td>
-                      </tr>
-                      {(game.date || game.location) && (
-                        <tr className="align-top">
-                          <td></td>
-                          <td className="text-right">
-                            <div className="flex flex-col gap-1">
-                              {game.date && (
-                                <div className="font-medium">
-                                  {formatDate(game.date)}
-                                </div>
-                              )}
-                              {game.location && (
-                                <div className="text-gray-500 text-sm">
-                                  Location: {game.location}
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                          <td className="pr-8"></td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                  <div className="flex items-center justify-end gap-2 min-w-[100px]">
-                    {game.is_mirrored && (
-                      <img
-                        src={flipHorizontalIcon}
-                        alt="Mirrored"
-                        className="w-5 h-5 text-gray-600"
-                        title="The game is mirrored to match the pattern"
-                      />
+              <div className="flex gap-5 justify-between items-start w-full">
+                <div className="flex-1 flex-col gap-2 text-lg font-medium">
+                  <div className="flex items-center gap-2 whitespace-nowrap">
+                    <img
+                      src={circleBlackIcon}
+                      alt="Black"
+                      className="w-5 h-5"
+                    />
+                    {getPlayerName(game.player_black)}
+                    {", "}
+                    {formatRank(game.rank_black)}
+                  </div>
+                  <div className="flex items-center gap-2 whitespace-nowrap">
+                    <img
+                      src={circleWhiteIcon}
+                      alt="White"
+                      className="w-5 h-5"
+                    />
+                    {getPlayerName(game.player_white)}
+                    {", "}
+                    {formatRank(game.rank_white)}
+                  </div>
+                </div>
+                <div className="flex flex-shrink-0 flex-col items-end text-right max-w-[200px] mb-3">
+                  <div className="flex flex-col">
+                    {game.event && (
+                      <div className="text-lg font-medium">{game.event}</div>
                     )}
-                    {game.is_inverted && (
-                      <img
-                        src={circleBlackSlashWhiteIcon}
-                        alt="Colors inverted"
-                        className="w-5 h-5 text-gray-600"
-                        title="Colors are inverted to match the pattern"
-                      />
+                    <div className="text-gray-500 text-sm">
+                      {game.round ? `Round: ${game.round}` : "\u00A0"}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1 mt-2 text-gray-600">
+                    {game.date && (
+                      <div className="text-lg font-medium">
+                        {formatDate(game.date)}
+                      </div>
                     )}
-                    <Popover
-                      open={isInfoPopoverOpen}
-                      onOpenChange={(open) => {
-                        if (!isInfoPinned) {
-                          setInfoPopOverOpen(open);
-                        } else if (!open && isInfoPinned) {
-                          // If someone tries to close a pinned popover, unpin it
-                          setInfoPinned(false);
-                          setInfoPopOverOpen(false);
+                    {game.location && (
+                      <div className="text-gray-500 text-sm">
+                        Location: {game.location}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-none items-center justify-end gap-2 min-w-[100px] ml-3">
+                  {game.is_mirrored && (
+                    <img
+                      src={flipHorizontalIcon}
+                      alt="Mirrored"
+                      className="w-5 h-5 text-gray-600"
+                      title="The game is mirrored to match the pattern"
+                    />
+                  )}
+                  {game.is_inverted && (
+                    <img
+                      src={circleBlackSlashWhiteIcon}
+                      alt="Colors inverted"
+                      className="w-5 h-5 text-gray-600"
+                      title="Colors are inverted to match the pattern"
+                    />
+                  )}
+                  <Popover
+                    open={isInfoPopoverOpen}
+                    onOpenChange={(open) => {
+                      if (!isInfoPinned) {
+                        setInfoPopOverOpen(open);
+                      } else if (!open && isInfoPinned) {
+                        // If someone tries to close a pinned popover, unpin it
+                        setInfoPinned(false);
+                        setInfoPopOverOpen(false);
+                      }
+                    }}
+                  >
+                    <PopoverTrigger asChild>
+                      <img
+                        src={badgeInfoIcon}
+                        alt="Game details"
+                        className={cn(
+                          "w-5 h-5 cursor-pointer hover:text-gray-800",
+                          isInfoPinned ? "text-blue-600" : "text-gray-600",
+                        )}
+                        title={
+                          isInfoPinned
+                            ? "Click to unpin"
+                            : "Hover for details, click to pin"
                         }
-                      }}
-                    >
-                      <PopoverTrigger asChild>
-                        <img
-                          src={badgeInfoIcon}
-                          alt="Game details"
-                          className={cn(
-                            "w-5 h-5 cursor-pointer hover:text-gray-800",
-                            isInfoPinned ? "text-blue-600" : "text-gray-600",
-                          )}
-                          title={
-                            isInfoPinned
-                              ? "Click to unpin"
-                              : "Hover for details, click to pin"
-                          }
-                          onMouseEnter={() => {
-                            if (!isInfoPinned) setInfoPopOverOpen(true);
-                          }}
-                          onMouseLeave={() => {
-                            if (!isInfoPinned) setInfoPopOverOpen(false);
-                          }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            const newPinnedState = !isInfoPinned;
-                            setInfoPinned(newPinnedState);
-                            setInfoPopOverOpen(true);
-                          }}
-                        />
-                      </PopoverTrigger>
-                      <PopoverContent
-                        className={cn("w-64 text-sm")}
-                        align="start"
-                        side="top"
                         onMouseEnter={() => {
                           if (!isInfoPinned) setInfoPopOverOpen(true);
                         }}
                         onMouseLeave={() => {
                           if (!isInfoPinned) setInfoPopOverOpen(false);
                         }}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="space-y-1">
-                          <div>
-                            <strong>Komi:</strong>{" "}
-                            {game.komi !== null ? game.komi : "Unknown"}
-                          </div>
-                          <div>
-                            <strong>Rules:</strong> {formatRules(game.rules)}
-                          </div>
-                          <div>
-                            <strong>SGF Source:</strong> {game.path}
-                          </div>
-                          <div>
-                            <strong>Search Score:</strong> {game.score}
-                          </div>
-                          <div>
-                            <strong>Empty correctly within:</strong>{" "}
-                            {game.all_empty_correctly_within}
-                          </div>
-                          <div>
-                            <strong>Rotation:</strong>{" "}
-                            {rotationToString(game.rotation)}
-                          </div>
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const newPinnedState = !isInfoPinned;
+                          setInfoPinned(newPinnedState);
+                          setInfoPopOverOpen(true);
+                        }}
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className={cn("w-64 text-sm")}
+                      align="start"
+                      side="top"
+                      onMouseEnter={() => {
+                        if (!isInfoPinned) setInfoPopOverOpen(true);
+                      }}
+                      onMouseLeave={() => {
+                        if (!isInfoPinned) setInfoPopOverOpen(false);
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="space-y-1">
+                        <div>
+                          <strong>Komi:</strong>{" "}
+                          {game.komi !== null ? game.komi : "Unknown"}
                         </div>
-                      </PopoverContent>
-                    </Popover>
+                        <div>
+                          <strong>Rules:</strong> {formatRules(game.rules)}
+                        </div>
+                        <div>
+                          <strong>SGF Source:</strong> {game.path}
+                        </div>
+                        <div>
+                          <strong>Search Score:</strong> {game.score}
+                        </div>
+                        <div>
+                          <strong>Empty correctly within:</strong>{" "}
+                          {game.all_empty_correctly_within}
+                        </div>
+                        <div>
+                          <strong>Rotation:</strong>{" "}
+                          {rotationToString(game.rotation)}
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
 
-                    <div className="text-gray-500">{index + 1}</div>
-                  </div>
+                  <div className="text-gray-500">{index + 1}</div>
                 </div>
               </div>
 
