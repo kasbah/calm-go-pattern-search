@@ -12,9 +12,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    tailwindcss({
-      config: "./tailwind.config.js",
-    }),
+    tailwindcss(),
     wasm(),
     topLevelAwait(),
     checker({ typescript: true }),
