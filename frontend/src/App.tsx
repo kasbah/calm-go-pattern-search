@@ -32,7 +32,7 @@ import trophySvg from "./assets/icons/trophy.svg";
 export default function App() {
   const windowSize = useWindowSize();
   const vertexSize = Math.min(
-    windowSize.height * 0.04,
+    windowSize.height * 0.035,
     windowSize.width * 0.02,
   );
   const [board, setBoard] = useImmer<BoardPosition>(emptyBoard);
