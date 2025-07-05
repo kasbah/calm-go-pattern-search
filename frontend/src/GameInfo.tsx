@@ -186,37 +186,47 @@ export default function GameInfo({
 
   return (
     <div
-      className="mt-4 text-lg ml-20"
-      style={{width: `${vertexSize * 20}px`}}
+      className="mt-2 text-lg ml-20 overflow-hidden"
+      style={{
+        width: vertexSize * 19 + 70,
+        maxHeight: `calc(95vh - ${vertexSize * 19 + 70}px)`,
+      }}
     >
-      <div className="flex gap-6 flex-wrap">
+      <div className="flex gap-6 min-w-0">
         {/* Players */}
-        <div className="flex flex-col flex-shrink-0 justify-between flex-wrap">
+        <div className="flex flex-col flex-shrink-0 justify-between min-w-0">
           <div className="flex items-center gap-2">
             <img src={circleBlackIcon} alt="Black" className="w-5 h-5" />
-            <span className="font-medium whitespace-nowrap">
+            <span className="font-medium truncate">
               {getPlayerName(game.player_black)}, {formatRank(game.rank_black)}
             </span>
           </div>
           <div className="flex items-center gap-2 mb-[6px]">
             <img src={circleWhiteIcon} alt="White" className="w-5 h-5" />
-            <span className="font-medium whitespace-nowrap">
+            <span className="font-medium truncate">
               {getPlayerName(game.player_white)}, {formatRank(game.rank_white)}
             </span>
           </div>
         </div>
 
         {/* Rest of info in two rows */}
-        <div className="flex flex-col flex-1 justify-between">
+        <div className="flex flex-col flex-1 justify-between min-w-0">
           {/* First row - Event/Date and Icons */}
-          <div className="flex items-center gap-4 justify-between">
-            <div className="flex flex-col">
-              {game.event && <div className="font-medium">{game.event}</div>}
+          <div className="flex items-center gap-2 justify-between">
+            <div className="flex flex-col min-w-0 flex-1">
+              {game.event && (
+                <div
+                  className="font-medium truncate max-w-full"
+                  title={game.event}
+                >
+                  {game.event}
+                </div>
+              )}
               <div className="text-gray-500 text-sm">
                 {game.round ? `Round: ${game.round}` : "\u00A0"}
               </div>
             </div>
-            <div className="flex flex-col text-right">
+            <div className="flex flex-col text-left justify-left flex-shrink-0">
               {game.date && (
                 <div className="font-medium">{formatDate(game.date)}</div>
               )}
@@ -224,7 +234,7 @@ export default function GameInfo({
                 {game.location ? `Location: ${game.location}` : "\u00A0"}
               </div>
             </div>
-            <div className="flex items-center gap-2 flex-wrap w-[80px] min-w-[80px]">
+            <div className="flex items-center gap-2 w-[80px] min-w-[80px] justify-end mr-2">
               {game.is_mirrored && (
                 <img
                   src={flipHorizontalIcon}
@@ -321,8 +331,8 @@ export default function GameInfo({
           </div>
 
           {/* Second row - Move Information and Actions */}
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center justify-between gap-4 text-base">
+            <div className="flex items-center gap-2">
               <span className="text-gray-500">Matched:</span>
               <span
                 className="cursor-pointer hover:underline"
@@ -349,7 +359,7 @@ export default function GameInfo({
                 {game.moves.length}
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-base">
               <button
                 className="flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
                 title={`Click to ${shouldShowResult ? "hide" : "reveal"} result`}
@@ -374,14 +384,14 @@ export default function GameInfo({
               <a
                 href={`/sgfs/${game.path}.sgf`}
                 download={`${game.path}.sgf`}
-                className="flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
+                className="flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded justify-end"
                 title="Download SGF game record"
               >
                 <span className="">SGF</span>
                 <img
                   src={fileDownIcon}
                   alt="Download icon"
-                  className="w-4 h-4 text-gray-600"
+                  className="w-5 h-5 text-gray-600"
                 />
               </a>
             </div>
