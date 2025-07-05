@@ -3,27 +3,17 @@ import TinyViewerGoban from "./TinyViewerGoban";
 import { cn } from "./lib/utils";
 import type { Game } from "./wasm-search-types";
 import {
-  formatDate,
-  formatResult,
-  formatRank,
-  formatRules,
-  getPlayerName,
-  rotationToString,
-} from "./utils/gameFormatters";
+  PlayerDisplay,
+  GameIcons,
+  GameInfoPopover,
+  MoveInfoCompact,
+  GameResult,
+  SGFDownload,
+  GameEventInfoList,
+  GameDateLocationList,
+} from "./GameDisplayComponents";
 
-import badgeInfoIcon from "@/assets/icons/badge-info.svg";
-import circleBlackIcon from "@/assets/icons/circle-black.svg";
-import circleBlackSlashWhiteIcon from "@/assets/icons/circle-black-slash-white.svg";
-import circleWhiteIcon from "@/assets/icons/circle-white.svg";
-import fileDownIcon from "@/assets/icons/file-down.svg";
-import flipHorizontalIcon from "@/assets/icons/flip-horizontal.svg";
-import trophyCrossedOutIcon from "@/assets/icons/trophy-crossed-out.svg";
 import { Separator } from "./components/ui/separator";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "./components/ui/popover";
 
 export type GamesListProps = {
   games: Array<Game>;
@@ -57,14 +47,7 @@ function GameItem({
   moveNumbers,
 }: GameItemProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [shouldShowResult, setShouldShowResult] = useState(showAllResults);
-  const [isInfoPopoverOpen, setInfoPopOverOpen] = useState(false);
-  const [isInfoPinned, setInfoPinned] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setShouldShowResult(showAllResults);
-  }, [showAllResults]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -133,142 +116,24 @@ function GameItem({
             <div className="flex-1 flex flex-col justify-between">
               <div className="flex gap-5 justify-between items-start w-full h-full pb-3">
                 <div className="flex flex-shrink-0 flex-col gap-2 text-lg font-medium">
-                  <div className="flex items-center gap-2 whitespace-nowrap">
-                    <img
-                      src={circleBlackIcon}
-                      alt="Black"
-                      className="w-5 h-5"
-                    />
-                    {getPlayerName(game.player_black)}
-                    {", "}
-                    {formatRank(game.rank_black)}
-                  </div>
-                  <div className="flex items-center gap-2 whitespace-nowrap">
-                    <img
-                      src={circleWhiteIcon}
-                      alt="White"
-                      className="w-5 h-5"
-                    />
-                    {getPlayerName(game.player_white)}
-                    {", "}
-                    {formatRank(game.rank_white)}
-                  </div>
+                  <PlayerDisplay
+                    game={game}
+                    color="black"
+                    className="whitespace-nowrap"
+                  />
+                  <PlayerDisplay
+                    game={game}
+                    color="white"
+                    className="whitespace-nowrap"
+                  />
                 </div>
                 <div className="flex flex-1 flex-col justify-between items-end text-right h-full">
-                  <div className="flex flex-col">
-                    {game.event && (
-                      <div className="text-lg font-medium">{game.event}</div>
-                    )}
-                    <div className="text-gray-500 text-sm">
-                      {game.round ? `Round: ${game.round}` : "\u00A0"}
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1 mt-2">
-                    {game.date && (
-                      <div className="text-lg font-medium">
-                        {formatDate(game.date)}
-                      </div>
-                    )}
-                    <div className="text-gray-500 text-sm">
-                      {game.location ? `Location: ${game.location}` : "\u00A0"}
-                    </div>
-                  </div>
+                  <GameEventInfoList game={game} />
+                  <GameDateLocationList game={game} className="mt-2" />
                 </div>
                 <div className="flex flex-none items-center justify-end gap-2 min-w-[100px] ml-3">
-                  {game.is_mirrored && (
-                    <img
-                      src={flipHorizontalIcon}
-                      alt="Mirrored"
-                      className="w-5 h-5 text-gray-600"
-                      title="The game is mirrored to match the pattern"
-                    />
-                  )}
-                  {game.is_inverted && (
-                    <img
-                      src={circleBlackSlashWhiteIcon}
-                      alt="Colors inverted"
-                      className="w-5 h-5 text-gray-600"
-                      title="Colors are inverted to match the pattern"
-                    />
-                  )}
-                  <Popover
-                    open={isInfoPopoverOpen}
-                    onOpenChange={(open) => {
-                      if (!isInfoPinned) {
-                        setInfoPopOverOpen(open);
-                      } else if (!open && isInfoPinned) {
-                        // If someone tries to close a pinned popover, unpin it
-                        setInfoPinned(false);
-                        setInfoPopOverOpen(false);
-                      }
-                    }}
-                  >
-                    <PopoverTrigger asChild>
-                      <img
-                        src={badgeInfoIcon}
-                        alt="Game details"
-                        className={cn(
-                          "w-5 h-5 cursor-pointer hover:text-gray-800",
-                          isInfoPinned ? "text-blue-600" : "text-gray-600",
-                        )}
-                        title={
-                          isInfoPinned
-                            ? "Click to unpin"
-                            : "Hover for details, click to pin"
-                        }
-                        onMouseEnter={() => {
-                          if (!isInfoPinned) setInfoPopOverOpen(true);
-                        }}
-                        onMouseLeave={() => {
-                          if (!isInfoPinned) setInfoPopOverOpen(false);
-                        }}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          const newPinnedState = !isInfoPinned;
-                          setInfoPinned(newPinnedState);
-                          setInfoPopOverOpen(true);
-                        }}
-                      />
-                    </PopoverTrigger>
-                    <PopoverContent
-                      className={cn("w-64 text-sm")}
-                      align="start"
-                      side="top"
-                      onMouseEnter={() => {
-                        if (!isInfoPinned) setInfoPopOverOpen(true);
-                      }}
-                      onMouseLeave={() => {
-                        if (!isInfoPinned) setInfoPopOverOpen(false);
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="space-y-1">
-                        <div>
-                          <strong>Komi:</strong>{" "}
-                          {game.komi !== null ? game.komi : "Unknown"}
-                        </div>
-                        <div>
-                          <strong>Rules:</strong> {formatRules(game.rules)}
-                        </div>
-                        <div>
-                          <strong>SGF Source:</strong> {game.path}
-                        </div>
-                        <div>
-                          <strong>Search Score:</strong> {game.score}
-                        </div>
-                        <div>
-                          <strong>Empty correctly within:</strong>{" "}
-                          {game.all_empty_correctly_within}
-                        </div>
-                        <div>
-                          <strong>Rotation:</strong>{" "}
-                          {rotationToString(game.rotation)}
-                        </div>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-
+                  <GameIcons game={game} />
+                  <GameInfoPopover game={game} />
                   <div className="text-gray-500">{index + 1}</div>
                 </div>
               </div>
@@ -276,75 +141,18 @@ function GameItem({
               <div className="mb-2">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <span className="text-gray-500">Matched: </span>
-                    <span
-                      className="cursor-pointer hover:underline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (onSelectAtMove) {
-                          onSelectAtMove(game, game.last_move_matched);
-                        }
-                      }}
-                      title="Click to view game at this move"
-                    >
-                      Move {game.last_move_matched + 1}
-                    </span>
-                    <span
-                      className="text-gray-300 text-2xl"
-                      style={{ position: "relative", top: 3 }}
-                    >
-                      {" / "}
-                    </span>
-                    <span
-                      className="cursor-pointer hover:underline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (onSelectAtMove) {
-                          onSelectAtMove(game, game.moves.length - 1);
-                        }
-                      }}
-                    >
-                      {game.moves.length}
-                    </span>
+                    <MoveInfoCompact
+                      game={game}
+                      onSelectAtMove={onSelectAtMove}
+                    />
                   </div>
                   <div className="flex justify-end items-center gap-2">
-                    <button
-                      className="flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
-                      title={`Click to ${
-                        shouldShowResult ? "hide" : "reveal"
-                      } result`}
-                      onClick={() => setShouldShowResult(!shouldShowResult)}
-                    >
-                      <span className="text-base text-gray-600">Result:</span>
-                      {shouldShowResult ||
-                      Object.prototype.hasOwnProperty.call(
-                        game.result,
-                        "Unknown",
-                      ) ? (
-                        <span className="text-base font-medium">
-                          {formatResult(game.result)}
-                        </span>
-                      ) : (
-                        <img
-                          src={trophyCrossedOutIcon}
-                          alt="Result"
-                          className="w-5 h-5 text-gray-600"
-                        />
-                      )}
-                    </button>
-                    <a
-                      href={`/sgfs/${game.path}.sgf`}
-                      download={`${game.path}.sgf`}
-                      className="flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
-                      title="Download SGF game record"
-                    >
-                      SGF
-                      <img
-                        src={fileDownIcon}
-                        alt="Download icon"
-                        className="w-5 h-5 text-gray-600"
-                      />
-                    </a>
+                    <GameResult
+                      game={game}
+                      showAllResults={showAllResults}
+                      className="text-base"
+                    />
+                    <SGFDownload game={game} />
                   </div>
                 </div>
               </div>
