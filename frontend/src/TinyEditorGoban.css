@@ -1,5 +1,4 @@
 .TinyGoban.EditorGoban {
-  cursor: pointer;
   transition: transform 0.1s ease-in-out;
   border-radius: 8px;
   padding: 4px;
@@ -48,8 +47,4 @@
 .next-moves-visible {
   opacity: 1;
   transform: scale(1);
-}
-
-.tiny-goban-clickable {
-  cursor: pointer;
 }

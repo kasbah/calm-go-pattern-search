@@ -6,7 +6,7 @@
   "scripts": {
     "wasm": "wasm-pack build ./rust/wasm-search --target web",
     "clippy": "cargo clippy --all-targets --all-features",
-    "fmt": "cargo fmt && prettier --write .",
+    "fmt": "cargo fmt && yarn workspace frontend run fmt",
     "fmt:check": "cargo fmt --check && prettier --check .",
     "cfx": "cargo clippy --all-targets --all-features --fix --allow-dirty && cargo fmt",
     "lint": "yarn workspace frontend run lint",

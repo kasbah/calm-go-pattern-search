@@ -27,12 +27,14 @@ export default function TinyEditorGoban({
   return (
     <div
       className="TinyGoban EditorGoban flex items-center h-full"
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
       data-hovering={isHovering}
       data-trash-hovering={isTrashHovering}
     >
-      <div className="tiny-goban-clickable h-full">
+      <div
+        className="tiny-goban-clickable h-full cursor-pointer"
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      >
         <Goban
           vertexSize={vertexSize}
           showCoordinates={false}
@@ -43,8 +45,7 @@ export default function TinyEditorGoban({
         <Button
           size="xl"
           variant="outline"
-          className="cursor-pointer"
-          onClick={onClearBoard}
+          onClick={() => !isBoardEmpty && onClearBoard()}
           title="Clear board"
           onMouseEnter={() => setIsTrashHovering(true)}
           onMouseLeave={() => setIsTrashHovering(false)}
