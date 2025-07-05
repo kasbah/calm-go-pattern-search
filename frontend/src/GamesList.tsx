@@ -223,7 +223,7 @@ function GameItem({
             <div className="flex-1 flex flex-col justify-between">
               <div className="text-sm">
                 <div className="flex justify-between items-start">
-                  <table className="text-lg font-medium">
+                  <table className="text-lg font-medium w-full">
                     <tbody>
                       <tr className="align-top">
                         <td className="pr-12">
@@ -248,7 +248,7 @@ function GameItem({
                             </div>
                           </div>
                         </td>
-                        <td className="pr-8">
+                        <td className="text-right">
                           {game.event && (
                             <div className="flex flex-col">
                               <div className="font-medium">{game.event}</div>
@@ -264,8 +264,8 @@ function GameItem({
                       </tr>
                       {(game.date || game.location) && (
                         <tr className="align-top">
-                          <td className="pr-8"></td>
-                          <td className="pr-8">
+                          <td></td>
+                          <td className="text-right">
                             <div className="flex flex-col gap-1">
                               {game.date && (
                                 <div className="font-medium">
@@ -284,7 +284,7 @@ function GameItem({
                       )}
                     </tbody>
                   </table>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-end gap-2 min-w-[100px]">
                     {game.is_mirrored && (
                       <img
                         src={flipHorizontalIcon}
