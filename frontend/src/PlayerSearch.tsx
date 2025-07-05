@@ -270,7 +270,7 @@ function PlayerInput({
       <div
         ref={suggestionsRef}
         className={cn(
-          "absolute z-50 w-screen max-w-[50vw] bg-background border",
+          "absolute z-50 w-screen max-w-[60vw] bg-background border",
           "rounded-md shadow-md mt-1 max-h-96 right-0",
           "overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground/20",
           "scrollbar-track-transparent",
@@ -280,7 +280,7 @@ function PlayerInput({
           <div
             key={player.id}
             className={cn(
-              "px-3 py-2 cursor-pointer border-b last:border-b-0 transition-colors",
+              "px-4 py-3 cursor-pointer border-b last:border-b-0 transition-colors",
               "hover:bg-accent hover:text-accent-foreground",
               "focus:bg-accent focus:text-accent-foreground focus:outline-none",
             )}
@@ -289,14 +289,14 @@ function PlayerInput({
             tabIndex={0}
           >
             <div className="flex items-center justify-between">
-              <div className="font-medium text-base">{player.name}</div>
-              <div className="text-sm text-muted-foreground/60 ml-2 flex-shrink-0">
+              <div className="font-medium text-lg">{player.name}</div>
+              <div className="text-base text-muted-foreground/60 ml-2 flex-shrink-0">
                 {(playerCounts?.[player.id] ?? player.gamesCount) > 0 &&
                   `${playerCounts?.[player.id] ?? player.gamesCount} games`}
               </div>
             </div>
             {player.aliases.length > 1 && (
-              <div className="text-sm text-muted-foreground/70 truncate">
+              <div className="text-base text-muted-foreground/70 truncate">
                 {player.aliases.slice(0, 10).join(", ")}
                 {player.aliases.length > 10 && "..."}
               </div>
@@ -314,40 +314,40 @@ function PlayerInput({
       <div
         ref={colorDropdownRef}
         className={cn(
-          "absolute z-50 left-0 mt-1 w-32 bg-background border",
+          "absolute z-50 left-0 mt-1 w-36 bg-background border",
           "rounded-md shadow-md",
           "overflow-hidden",
         )}
       >
         <button
           className={cn(
-            "w-full px-3 py-2 flex items-center gap-2 hover:bg-accent",
+            "w-full px-4 py-3 flex items-center gap-2 hover:bg-accent",
             "transition-colors",
           )}
           onClick={() => handleColorSelect("black")}
         >
-          <img src={circleBlackSvg} alt="Black" className="h-5 w-5" />
-          <span className="text-base">Black</span>
+          <img src={circleBlackSvg} alt="Black" className="h-6 w-6" />
+          <span className="text-lg">Black</span>
         </button>
         <button
           className={cn(
-            "w-full px-3 py-2 flex items-center gap-2 hover:bg-accent",
+            "w-full px-4 py-3 flex items-center gap-2 hover:bg-accent",
             "transition-colors",
           )}
           onClick={() => handleColorSelect("white")}
         >
-          <img src={circleWhiteSvg} alt="White" className="h-5 w-5" />
-          <span className="text-base">White</span>
+          <img src={circleWhiteSvg} alt="White" className="h-6 w-6" />
+          <span className="text-lg">White</span>
         </button>
         <button
           className={cn(
-            "w-full px-3 py-2 flex items-center gap-2 hover:bg-accent",
+            "w-full px-4 py-3 flex items-center gap-2 hover:bg-accent",
             "transition-colors",
           )}
           onClick={() => handleColorSelect("any")}
         >
-          <img src={circleBlackOrWhiteSvg} alt="Any" className="h-5 w-5" />
-          <span className="text-base">Any</span>
+          <img src={circleBlackOrWhiteSvg} alt="Any" className="h-6 w-6" />
+          <span className="text-lg">Any</span>
         </button>
       </div>
     );
@@ -359,8 +359,8 @@ function PlayerInput({
         <button
           onClick={() => setShowColorDropdown(!showColorDropdown)}
           className={cn(
-            "absolute left-2 top-1/2 -translate-y-1/2",
-            "h-7 w-9 rounded-sm opacity-70 hover:opacity-100",
+            "absolute left-3 top-1/2 -translate-y-1/2",
+            "h-8 w-10 rounded-sm opacity-70 hover:opacity-100",
             "flex items-center justify-center gap-0.5",
             "text-muted-foreground hover:text-foreground",
             "transition-opacity",
@@ -372,7 +372,7 @@ function PlayerInput({
           <img
             src={chevronDownSvg}
             alt="Dropdown"
-            className="h-3 w-3 opacity-70"
+            className="h-4 w-4 opacity-70"
           />
           <img
             src={
@@ -383,7 +383,7 @@ function PlayerInput({
                   : circleBlackOrWhiteSvg
             }
             alt="Color"
-            className="h-6 w-6"
+            className="h-7 w-7"
           />
         </button>
         <Input
@@ -400,7 +400,7 @@ function PlayerInput({
             }
           }}
           className={cn(
-            "pl-12 pr-8 h-12",
+            "pl-14 pr-10 h-14 text-lg",
             selectedPlayer && "bg-accent/20 border-primary",
           )}
         />
@@ -408,8 +408,8 @@ function PlayerInput({
           <button
             onClick={deletePlayer}
             className={cn(
-              "absolute right-2 top-1/2 -translate-y-1/2",
-              "h-6 w-6 rounded-sm opacity-70 hover:opacity-100",
+              "absolute right-3 top-1/2 -translate-y-1/2",
+              "h-7 w-7 rounded-sm opacity-70 hover:opacity-100",
               "flex items-center justify-center",
               "text-muted-foreground hover:text-foreground",
               "transition-opacity",
@@ -418,7 +418,7 @@ function PlayerInput({
             type="button"
             tabIndex={-1}
           >
-            <img src={cancelSvg} alt="Clear" className="h-5 w-5" />
+            <img src={cancelSvg} alt="Clear" className="h-6 w-6" />
           </button>
         )}
       </div>
@@ -464,8 +464,8 @@ export default function PlayerSearch({
   }, [state.color1, state.color2, onColorChange]);
 
   return (
-    <div className="flex flex-col items-center justify-center mb-3 mr-50">
-      <div className="w-full max-w-xs space-y-3">
+    <div className="flex flex-col items-center justify-center mb-6 mr-50 mt-10">
+      <div className="w-full max-w-md space-y-4">
         <PlayerInput
           placeholder="Player 1"
           selectedPlayer={state.player1}
@@ -480,7 +480,7 @@ export default function PlayerSearch({
           onRestore={() => dispatch({ type: "RESTORE_PLAYER_1" })}
         />
 
-        <div className="text-sm font-medium text-foreground mb-3 text-center">
+        <div className="text-lg font-medium text-foreground mb-4 text-center">
           vs
         </div>
         <PlayerInput
