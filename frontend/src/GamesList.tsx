@@ -208,96 +208,7 @@ function GameItem({
                         <td className="pr-8">
                           {game.event && (
                             <div className="flex flex-col">
-                              <div className="font-medium flex items-center gap-2">
-                                {game.event}
-                                <Popover
-                                  open={isInfoPopoverOpen}
-                                  onOpenChange={(open) => {
-                                    if (!isInfoPinned) {
-                                      setInfoPopOverOpen(open);
-                                    } else if (!open && isInfoPinned) {
-                                      // If someone tries to close a pinned popover, unpin it
-                                      setInfoPinned(false);
-                                      setInfoPopOverOpen(false);
-                                    }
-                                  }}
-                                >
-                                  <PopoverTrigger asChild>
-                                    <img
-                                      src={badgeInfoIcon}
-                                      alt="Game details"
-                                      className={cn(
-                                        "w-5 h-5 cursor-pointer hover:text-gray-800",
-                                        isInfoPinned
-                                          ? "text-blue-600"
-                                          : "text-gray-600",
-                                      )}
-                                      title={
-                                        isInfoPinned
-                                          ? "Click to unpin"
-                                          : "Hover for details, click to pin"
-                                      }
-                                      onMouseEnter={() => {
-                                        if (!isInfoPinned)
-                                          setInfoPopOverOpen(true);
-                                      }}
-                                      onMouseLeave={() => {
-                                        if (!isInfoPinned)
-                                          setInfoPopOverOpen(false);
-                                      }}
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        const newPinnedState = !isInfoPinned;
-                                        setInfoPinned(newPinnedState);
-                                        setInfoPopOverOpen(true);
-                                      }}
-                                    />
-                                  </PopoverTrigger>
-                                  <PopoverContent
-                                    className={cn("w-64 text-sm")}
-                                    align="start"
-                                    side="top"
-                                    onMouseEnter={() => {
-                                      if (!isInfoPinned)
-                                        setInfoPopOverOpen(true);
-                                    }}
-                                    onMouseLeave={() => {
-                                      if (!isInfoPinned)
-                                        setInfoPopOverOpen(false);
-                                    }}
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <div className="space-y-1">
-                                      <div>
-                                        <strong>Komi:</strong>{" "}
-                                        {game.komi !== null
-                                          ? game.komi
-                                          : "Unknown"}
-                                      </div>
-                                      <div>
-                                        <strong>Rules:</strong>{" "}
-                                        {formatRules(game.rules)}
-                                      </div>
-                                      <div>
-                                        <strong>SGF Source:</strong> {game.path}
-                                      </div>
-                                      <div>
-                                        <strong>Search Score:</strong>{" "}
-                                        {game.score}
-                                      </div>
-                                      <div>
-                                        <strong>Empty correctly within:</strong>{" "}
-                                        {game.all_empty_correctly_within}
-                                      </div>
-                                      <div>
-                                        <strong>Rotation:</strong>{" "}
-                                        {rotationToString(game.rotation)}
-                                      </div>
-                                    </div>
-                                  </PopoverContent>
-                                </Popover>
-                              </div>
+                              <div className="font-medium">{game.event}</div>
                               {game.round && (
                                 <div className="text-gray-500 text-sm">
                                   Round: {game.round}
@@ -347,6 +258,83 @@ function GameItem({
                         title="Colors are inverted to match the pattern"
                       />
                     )}
+                    <Popover
+                      open={isInfoPopoverOpen}
+                      onOpenChange={(open) => {
+                        if (!isInfoPinned) {
+                          setInfoPopOverOpen(open);
+                        } else if (!open && isInfoPinned) {
+                          // If someone tries to close a pinned popover, unpin it
+                          setInfoPinned(false);
+                          setInfoPopOverOpen(false);
+                        }
+                      }}
+                    >
+                      <PopoverTrigger asChild>
+                        <img
+                          src={badgeInfoIcon}
+                          alt="Game details"
+                          className={cn(
+                            "w-5 h-5 cursor-pointer hover:text-gray-800",
+                            isInfoPinned ? "text-blue-600" : "text-gray-600",
+                          )}
+                          title={
+                            isInfoPinned
+                              ? "Click to unpin"
+                              : "Hover for details, click to pin"
+                          }
+                          onMouseEnter={() => {
+                            if (!isInfoPinned) setInfoPopOverOpen(true);
+                          }}
+                          onMouseLeave={() => {
+                            if (!isInfoPinned) setInfoPopOverOpen(false);
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const newPinnedState = !isInfoPinned;
+                            setInfoPinned(newPinnedState);
+                            setInfoPopOverOpen(true);
+                          }}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className={cn("w-64 text-sm")}
+                        align="start"
+                        side="top"
+                        onMouseEnter={() => {
+                          if (!isInfoPinned) setInfoPopOverOpen(true);
+                        }}
+                        onMouseLeave={() => {
+                          if (!isInfoPinned) setInfoPopOverOpen(false);
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="space-y-1">
+                          <div>
+                            <strong>Komi:</strong>{" "}
+                            {game.komi !== null ? game.komi : "Unknown"}
+                          </div>
+                          <div>
+                            <strong>Rules:</strong> {formatRules(game.rules)}
+                          </div>
+                          <div>
+                            <strong>SGF Source:</strong> {game.path}
+                          </div>
+                          <div>
+                            <strong>Search Score:</strong> {game.score}
+                          </div>
+                          <div>
+                            <strong>Empty correctly within:</strong>{" "}
+                            {game.all_empty_correctly_within}
+                          </div>
+                          <div>
+                            <strong>Rotation:</strong>{" "}
+                            {rotationToString(game.rotation)}
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
 
                     <div className="text-gray-500">{index + 1}</div>
                   </div>
@@ -356,7 +344,7 @@ function GameItem({
               <div className="mb-2">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <span className="text-gray-500 text-sm">Matched: </span>
+                    <span className="text-gray-500">Matched: </span>
                     <span
                       className="cursor-pointer hover:underline"
                       onClick={(e) => {
@@ -369,7 +357,12 @@ function GameItem({
                     >
                       Move {game.last_move_matched + 1}
                     </span>
-                    {" / "}
+                    <span
+                      className="text-gray-300 text-2xl"
+                      style={{ position: "relative", top: 3 }}
+                    >
+                      {" / "}
+                    </span>
                     <span
                       className="cursor-pointer hover:underline"
                       onClick={(e) => {
