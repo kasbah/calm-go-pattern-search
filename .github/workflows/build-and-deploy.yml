@@ -43,9 +43,9 @@ jobs:
       - name: Pack games
         if: steps.cache-rust-artifacts.outputs.cache-hit != 'true'
         run: |
-          cd rust/pack-games/sgfs
+          cd frontend/public/sgfs
           ./extract.sh
-          cd ../python-player-name-aliases
+          cd ../../../rust/pack-games/python-player-name-aliases
           gzip -d *.gz
           cd ../
           cargo run --release
@@ -75,6 +75,11 @@ jobs:
           path: rust/wasm-search/pkg
           key: rust-artifacts-${{ needs.build-rust.outputs.rust-hash }}
           fail-on-cache-miss: true
+
+      - name: Unpack sgfs
+        run: |
+          cd frontend/public/sgfs
+          ./extract.sh
 
       - name: Unpack player_names.json
         run: cd rust/pack-games/python-player-name-aliases/ && gunzip player_names.json.gz

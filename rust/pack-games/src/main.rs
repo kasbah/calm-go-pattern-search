@@ -2,6 +2,7 @@ use rayon::prelude::*;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fs::File;
+use std::fs::canonicalize;
 use std::io::BufReader;
 
 use calm_go_patterns_common::baduk::{GoBoard, Player, pack_games};
@@ -14,7 +15,9 @@ use find_duplicates::find_duplicates;
 
 fn main() {
     let mut sgf_folder = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    sgf_folder.push("sgfs");
+    sgf_folder.push("../../frontend/public/sgfs");
+    sgf_folder = canonicalize(sgf_folder).unwrap();
+    println!("Loading games from '{sgf_folder:?}' ...");
 
     let games_vec = load_all_sgfs(&sgf_folder);
 

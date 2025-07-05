@@ -8,22 +8,6 @@ default-run = "pack-games"
 name = "pack-games"
 path = "src/main.rs"
 
-[[bin]]
-name = "find-custom-rules"
-path = "src/find_custom_rules.rs"
-
-[[bin]]
-name = "find-bad-komi"
-path = "src/find_bad_komi.rs"
-
-[[bin]]
-name = "find-game-properties"
-path = "src/find_game_properties.rs"
-
-[[bin]]
-name = "find-custom-results"
-path = "src/find_custom_results.rs"
-
 [dependencies]
 calm-go-patterns-common = { path = "../common" }
 jwalk = "0.8.1"
