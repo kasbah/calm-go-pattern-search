@@ -80,7 +80,7 @@ function GameItem({
         <div
           data-selected={isSelected}
           className={cn(
-            "bg-white hover:bg-gray-50 data-[selected=true]:bg-secondary p-4 pr-6",
+            "bg-white hover:bg-accent/25 data-[selected=true]:bg-secondary p-4 pr-6",
           )}
         >
           <div className="flex gap-4">
