@@ -5,11 +5,11 @@ import { Label } from "@/ui-primitives/label";
 import { Separator } from "@/ui-primitives/separator";
 import { Toggle } from "@/ui-primitives/toggle";
 import EditorGoban from "@/goban/editor-goban";
-import GameInfo from "./game-info";
-import GamesList from "./games-list";
+import GameInfo from "@/games/game-info";
+import GamesList from "@/games/games-list";
 import { cn } from "@/utils";
-import NextMovesList from "./next-moves-list";
-import PlayerSearch, { type PlayerSearchRef } from "./player-search";
+import NextMovesList from "@/next-moves-list";
+import PlayerSearch, { type PlayerSearchRef } from "@/player-search";
 import {
   BrushMode,
   emptyBoard,
