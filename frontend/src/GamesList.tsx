@@ -25,6 +25,7 @@ export type GamesListProps = {
   hasMore: boolean;
   showAllResults: boolean;
   moveNumbers: Record<string, number>;
+  onPlayerClick?: (playerId: number, color?: "black" | "white" | "any") => void;
 };
 
 type GameItemProps = {
@@ -35,6 +36,7 @@ type GameItemProps = {
   onSelectAtMove?: (game: Game, moveNumber: number) => void;
   showAllResults: boolean;
   moveNumbers: Record<string, number>;
+  onPlayerClick?: (playerId: number, color?: "black" | "white" | "any") => void;
 };
 
 function GameItem({
@@ -45,6 +47,7 @@ function GameItem({
   onSelectAtMove,
   showAllResults,
   moveNumbers,
+  onPlayerClick,
 }: GameItemProps) {
   const [isVisible, setIsVisible] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
@@ -120,11 +123,13 @@ function GameItem({
                     game={game}
                     color="black"
                     className="whitespace-nowrap"
+                    onPlayerClick={onPlayerClick}
                   />
                   <PlayerDisplay
                     game={game}
                     color="white"
                     className="whitespace-nowrap"
+                    onPlayerClick={onPlayerClick}
                   />
                 </div>
                 <div className="flex flex-1 flex-col justify-between items-end text-right h-full">
@@ -175,6 +180,7 @@ export default function GamesList({
   hasMore,
   showAllResults,
   moveNumbers,
+  onPlayerClick,
 }: GamesListProps) {
   const [showOverlay, setShowOverlay] = useState(false);
   const [overlayStartTime, setOverlayStartTime] = useState<number | null>(null);
@@ -303,6 +309,7 @@ export default function GamesList({
                 onSelectAtMove={onSelectGameAtMove}
                 showAllResults={showAllResults}
                 moveNumbers={moveNumbers}
+                onPlayerClick={onPlayerClick}
               />
             </div>
           </div>

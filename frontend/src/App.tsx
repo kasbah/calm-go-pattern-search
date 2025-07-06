@@ -10,7 +10,7 @@ import GameInfo from "./GameInfo";
 import GamesList from "./GamesList";
 import { cn } from "./lib/utils";
 import NextMovesList from "./NextMovesList";
-import PlayerSearch from "./PlayerSearch";
+import PlayerSearch, { type PlayerSearchRef } from "./PlayerSearch";
 import {
   BrushMode,
   emptyBoard,
@@ -71,6 +71,7 @@ export default function App() {
     prevMove: () => void;
     nextMove: () => void;
   } | null>(null);
+  const playerSearchRef = useRef<PlayerSearchRef>(null);
 
   const timer = useRef<NodeJS.Timeout | undefined>(undefined);
   useEffect(() => {
@@ -301,6 +302,13 @@ export default function App() {
     }
   };
 
+  const handlePlayerClick = useCallback(
+    (playerId: number, color?: "black" | "white" | "any") => {
+      playerSearchRef.current?.addPlayer(playerId, color);
+    },
+    [],
+  );
+
   return (
     <div className="flex flex-gap-100">
       <div className="sticky top-0 h-screen pt-3">
@@ -339,6 +347,7 @@ export default function App() {
                 onSelectAtMove={handleSetMoveNumber}
                 showAllResults={showResults}
                 vertexSize={vertexSize}
+                onPlayerClick={handlePlayerClick}
               />
             )}
           </div>
@@ -376,6 +385,7 @@ export default function App() {
             )}
             <div className="flex flex-col justify-between">
               <PlayerSearch
+                ref={playerSearchRef}
                 onPlayerSelect={setSelectedPlayerFilters}
                 playerCounts={playerCounts}
                 isLoading={isSearching}
@@ -436,6 +446,7 @@ export default function App() {
           hasMore={hasMore}
           showAllResults={showResults}
           moveNumbers={moveNumbers}
+          onPlayerClick={handlePlayerClick}
         />
       </div>
     </div>

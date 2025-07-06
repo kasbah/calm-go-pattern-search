@@ -28,6 +28,7 @@ export type PlayerDisplayProps = {
   color: "black" | "white";
   className?: string;
   maxWidth?: number;
+  onPlayerClick?: (playerId: number, color?: "black" | "white" | "any") => void;
 };
 
 export function PlayerDisplay({
@@ -35,6 +36,7 @@ export function PlayerDisplay({
   color,
   className,
   maxWidth,
+  onPlayerClick,
 }: PlayerDisplayProps) {
   const isBlack = color === "black";
   const player = isBlack ? game.player_black : game.player_white;
@@ -45,16 +47,58 @@ export function PlayerDisplay({
   const playerName = getPlayerName(player);
   const playerRank = formatRank(rank);
 
+  const [isCircleHovered, setIsCircleHovered] = useState(false);
+  const [isNameHovered, setIsNameHovered] = useState(false);
+
+  const handlePlayerNameClick = () => {
+    if (onPlayerClick && player.Id) {
+      onPlayerClick(player.Id[0], "any");
+    }
+  };
+
+  const handleCircleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onPlayerClick && player.Id) {
+      onPlayerClick(player.Id[0], color);
+    }
+  };
+
   return (
     <div
       className={cn("flex items-center gap-2", className)}
       style={maxWidth ? { maxWidth: `${maxWidth}px` } : undefined}
-      title={`${playerName}, ${playerRank}`}
     >
-      <img src={icon} alt={alt} className="w-5 h-5 flex-shrink-0" />
-      <span className="font-medium truncate min-w-0">
-        {`${playerName}, ${playerRank}`}
-      </span>
+      <div
+        className={cn(
+          "flex items-center gap-2 rounded border",
+          isCircleHovered ? "border-gray-400" : "border-transparent",
+        )}
+      >
+        <div
+          className={cn(
+            "w-7 h-7 flex-shrink-0 rounded flex items-center justify-center",
+            onPlayerClick && player.Id && "cursor-pointer",
+          )}
+          onClick={handleCircleClick}
+          onMouseEnter={() => setIsCircleHovered(true)}
+          onMouseLeave={() => setIsCircleHovered(false)}
+        >
+          <img src={icon} alt={alt} className="w-6 h-6" />
+        </div>
+        <span
+          className={cn(
+            "font-medium rounded border",
+            isNameHovered ? "border-gray-400" : "border-transparent",
+            onPlayerClick && player.Id && "cursor-pointer",
+          )}
+          onClick={handlePlayerNameClick}
+          onMouseEnter={() => setIsNameHovered(true)}
+          onMouseLeave={() => setIsNameHovered(false)}
+        >
+          {playerName},
+        </span>
+      </div>
+      <span className="font-medium truncate min-w-0">{playerRank}</span>
     </div>
   );
 }

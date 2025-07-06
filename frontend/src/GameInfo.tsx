@@ -15,6 +15,7 @@ export type GameInfoProps = {
   onSelectAtMove?: (game: Game, moveNumber: number) => void;
   showAllResults: boolean;
   vertexSize: number;
+  onPlayerClick?: (playerId: number, color?: "black" | "white" | "any") => void;
 };
 
 export default function GameInfo({
@@ -22,6 +23,7 @@ export default function GameInfo({
   onSelectAtMove,
   showAllResults,
   vertexSize,
+  onPlayerClick,
 }: GameInfoProps) {
   const totalWidth = vertexSize * 19 + 70;
   const maxPlayerWidth = Math.floor(totalWidth * 0.45);
@@ -37,12 +39,18 @@ export default function GameInfo({
       <div className="flex gap-6 min-w-0">
         {/* Players */}
         <div className="flex flex-col flex-shrink-0 justify-between min-w-0">
-          <PlayerDisplay game={game} color="black" maxWidth={maxPlayerWidth} />
+          <PlayerDisplay
+            game={game}
+            color="black"
+            maxWidth={maxPlayerWidth}
+            onPlayerClick={onPlayerClick}
+          />
           <PlayerDisplay
             game={game}
             color="white"
             className="mb-[6px]"
             maxWidth={maxPlayerWidth}
+            onPlayerClick={onPlayerClick}
           />
         </div>
 
