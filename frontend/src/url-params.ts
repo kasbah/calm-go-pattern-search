@@ -2,39 +2,24 @@ import { type BoardPosition, emptyBoard, SabakiSign } from "@/sabaki-types";
 
 /**
  * Serializes a board position to a compact URL-safe string
+ * Only encodes non-empty positions in format "A19b" where A19 is position and b/w is stone color
  */
 export function serializeBoardToUrl(board: BoardPosition): string {
-  // Convert 2D array to flat array
-  const flatBoard = board.flat();
+  const nonEmptyPositions: string[] = [];
+  const columns = "ABCDEFGHJKLMNOPQRST"; // Go board columns (no I)
 
-  // Use run-length encoding for compression
-  const encoded: string[] = [];
-  let currentValue = flatBoard[0];
-  let count = 1;
-
-  for (let i = 1; i < flatBoard.length; i++) {
-    if (flatBoard[i] === currentValue) {
-      count++;
-    } else {
-      // Encode current run
-      if (count === 1) {
-        encoded.push(currentValue.toString());
-      } else {
-        encoded.push(`${currentValue}x${count}`);
+  for (let y = 0; y < board.length; y++) {
+    for (let x = 0; x < board[y].length; x++) {
+      if (board[y][x] !== SabakiSign.Empty) {
+        const col = columns[x];
+        const row = (19 - y).toString(); // Go coordinates are bottom-up
+        const value = board[y][x] === SabakiSign.Black ? "b" : "w";
+        nonEmptyPositions.push(`${col}${row}${value}`);
       }
-      currentValue = flatBoard[i];
-      count = 1;
     }
   }
 
-  // Don't forget the last run
-  if (count === 1) {
-    encoded.push(currentValue.toString());
-  } else {
-    encoded.push(`${currentValue}x${count}`);
-  }
-
-  return encoded.join(".");
+  return nonEmptyPositions.join("-");
 }
 
 /**
@@ -46,33 +31,45 @@ export function deserializeBoardFromUrl(urlString: string): BoardPosition {
   }
 
   try {
-    const parts = urlString.split(".");
-    const flatBoard: SabakiSign[] = [];
+    // Start with empty board
+    const board: BoardPosition = Array(19)
+      .fill(null)
+      .map(() => Array(19).fill(SabakiSign.Empty));
 
-    for (const part of parts) {
-      if (part.includes("x")) {
-        // Run-length encoded
-        const [value, countStr] = part.split("x");
-        const count = parseInt(countStr, 10);
-        const signValue = parseInt(value, 10) as SabakiSign;
-        for (let i = 0; i < count; i++) {
-          flatBoard.push(signValue);
+    const columns = "ABCDEFGHJKLMNOPQRST"; // Go board columns (no I)
+
+    // Parse positions separated by dashes
+    const positions = urlString.split("-");
+    for (const position of positions) {
+      if (position.trim()) {
+        const col = position[0];
+        const x = columns.indexOf(col);
+
+        if (x === -1) continue;
+
+        // Extract row number and value (last character is value)
+        const rowStr = position.slice(1, -1);
+        const valueStr = position.slice(-1);
+
+        const row = parseInt(rowStr, 10);
+        const value =
+          valueStr === "b"
+            ? SabakiSign.Black
+            : valueStr === "w"
+              ? SabakiSign.White
+              : SabakiSign.Empty;
+        const y = 19 - row; // Convert to 0-based, top-down
+
+        if (
+          row >= 1 &&
+          row <= 19 &&
+          x >= 0 &&
+          x < 19 &&
+          (value === SabakiSign.Black || value === SabakiSign.White)
+        ) {
+          board[y][x] = value;
         }
-      } else {
-        // Single value
-        flatBoard.push(parseInt(part, 10) as SabakiSign);
       }
-    }
-
-    // Convert flat array back to 2D array (19x19)
-    const board: BoardPosition = [];
-    for (let y = 0; y < 19; y++) {
-      const row: SabakiSign[] = [];
-      for (let x = 0; x < 19; x++) {
-        const index = y * 19 + x;
-        row.push(flatBoard[index] || SabakiSign.Empty);
-      }
-      board.push(row);
     }
 
     return board;
@@ -87,7 +84,7 @@ export function deserializeBoardFromUrl(urlString: string): BoardPosition {
  */
 export function getBoardFromUrl(): BoardPosition {
   const urlParams = new URLSearchParams(window.location.search);
-  const boardParam = urlParams.get("board");
+  const boardParam = urlParams.get("pattern");
   return boardParam ? deserializeBoardFromUrl(boardParam) : emptyBoard;
 }
 
@@ -103,10 +100,10 @@ export function updateUrlWithBoard(board: BoardPosition): void {
   );
 
   if (isEmpty) {
-    urlParams.delete("board");
+    urlParams.delete("pattern");
   } else {
     const serialized = serializeBoardToUrl(board);
-    urlParams.set("board", serialized);
+    urlParams.set("pattern", serialized);
   }
 
   const newUrl = `${window.location.pathname}${urlParams.toString() ? "?" + urlParams.toString() : ""}`;
