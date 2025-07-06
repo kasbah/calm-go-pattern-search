@@ -23,6 +23,7 @@ import {
   toWasmSearch,
   type Game,
   type NextMove,
+  type PlayerFilter,
   type SearchReturn,
 } from "./wasm-search-types";
 
@@ -46,7 +47,9 @@ export default function App() {
   const [brushMode, setBrushMode] = useState<BrushMode>(BrushMode.Alternate);
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  const [selectedPlayerIds, setSelectedPlayerIds] = useImmer<number[]>([]);
+  const [selectedPlayerFilters, setSelectedPlayerFilters] = useImmer<
+    PlayerFilter[]
+  >([]);
   const [playerCounts, setPlayerCounts] = useImmer<Record<number, number>>({});
   const [moveNumbers, setMoveNumbers] = useImmer<Record<string, number>>({});
   const [showResults, setShowResults] = useState(false);
@@ -86,16 +89,16 @@ export default function App() {
               nextColor,
               page: 0,
               pageSize,
-              playerIds: selectedPlayerIds,
+              playerFilters: selectedPlayerFilters,
             },
           },
           [positionBuf.buffer],
         );
         setCurrentPage(0);
         setHasMore(true);
-      }, 0);
+      }, 300);
     }
-  }, [board, brushColor, selectedPlayerIds, isClearingBoard]);
+  }, [board, brushColor, selectedPlayerFilters, isClearingBoard]);
 
   const loadMore = () => {
     if (window.wasmSearchWorker !== undefined && !isSearching) {
@@ -111,7 +114,7 @@ export default function App() {
             nextColor,
             page: currentPage + 1,
             pageSize,
-            playerIds: selectedPlayerIds,
+            playerFilters: selectedPlayerFilters,
           },
         },
         [positionBuf.buffer],
@@ -373,7 +376,7 @@ export default function App() {
             )}
             <div className="flex flex-col justify-between">
               <PlayerSearch
-                onPlayerSelect={setSelectedPlayerIds}
+                onPlayerSelect={setSelectedPlayerFilters}
                 playerCounts={playerCounts}
                 isLoading={isSearching}
               />

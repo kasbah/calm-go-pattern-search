@@ -1,6 +1,7 @@
 import initWasm, {
   WasmSearch,
 } from "../../rust/wasm-search/pkg/wasm_search.js";
+import type { PlayerFilter } from "./wasm-search-types.js";
 
 let wasmInitialized = false;
 let queue: Array<{
@@ -8,7 +9,7 @@ let queue: Array<{
   nextColor: number;
   page: number;
   pageSize: number;
-  playerIds: number[];
+  playerFilters: PlayerFilter[];
 }> = [];
 let isSearching = false;
 
@@ -37,15 +38,18 @@ async function handleQueue() {
       nextColor,
       page = 0,
       pageSize = 10,
-      playerIds = [],
+      playerFilters = [],
     } = queue.pop()!;
     queue = [];
+    const playerFiltersJson = new TextEncoder().encode(
+      JSON.stringify(playerFilters),
+    );
     const results = await wasmSearch.search(
       positionBuf,
       nextColor,
       page,
       pageSize,
-      new Int16Array(playerIds),
+      new Uint8Array(playerFiltersJson),
     );
     // give the JS event loop a chance to add queries to the queue
     await new Promise((resolve) => setTimeout(resolve, 0));

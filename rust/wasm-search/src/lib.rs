@@ -61,6 +61,20 @@ pub struct SearchResult {
     result: GameResult,
 }
 
+/// Filter for matching players by ID and optionally by color
+///
+/// # Fields
+/// * `player_id` - The ID of the player to match
+/// * `color` - Optional color constraint:
+///   - `None` - Match player regardless of color (black or white)
+///   - `Some(Color::Black)` - Only match when player is playing black
+///   - `Some(Color::White)` - Only match when player is playing white
+#[derive(Serialize, Deserialize, Clone)]
+pub struct PlayerFilter {
+    player_id: i16,
+    color: Option<Color>,
+}
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct NextMove {
     point: Point,
@@ -162,6 +176,34 @@ impl WasmSearch {
         }
     }
 
+    /// Search for games matching the given position with optional player filtering
+    ///
+    /// # Parameters
+    /// * `position` - JSON-encoded Vec<Placement> representing the board position
+    /// * `next_color` - Color for next move (0 = Black, 1 = White)
+    /// * `page` - Page number for pagination (0-based)
+    /// * `page_size` - Number of results per page
+    /// * `player_filters_json` - JSON-encoded Vec<PlayerFilter> for filtering by players
+    ///   Pass empty array `[]` for no filtering, or array of PlayerFilter objects
+    ///   to require ALL specified players to be present in matching games
+    ///
+    /// # Example usage of player_filters_json:
+    /// ```
+    /// // No filtering - matches all games
+    /// []
+    ///
+    /// // Filter for games containing player ID 123 (any color)
+    /// [{"player_id": 123, "color": null}]
+    ///
+    /// // Filter for games where player ID 123 plays black
+    /// [{"player_id": 123, "color": "Black"}]
+    ///
+    /// // Filter for games where player ID 123 plays white
+    /// [{"player_id": 123, "color": "White"}]
+    ///
+    /// // Filter for games containing both player ID 123 (any color) and player ID 456 as white
+    /// [{"player_id": 123, "color": null}, {"player_id": 456, "color": "White"}]
+    /// ```
     #[wasm_bindgen]
     pub async fn search(
         &mut self,
@@ -169,20 +211,40 @@ impl WasmSearch {
         next_color: u8,
         page: usize,
         page_size: usize,
-        player_ids: Vec<i16>,
+        player_filters_json: Uint8Array,
     ) -> Uint8Array {
         let position_buf: Vec<u8> = position.to_vec();
         let position_decoded: Vec<Placement> = serde_json::from_slice(position_buf.as_slice())
             .expect("Failed to deserialize position");
+
+        let player_filters_buf: Vec<u8> = player_filters_json.to_vec();
+        let player_filters: Vec<PlayerFilter> =
+            serde_json::from_slice(player_filters_buf.as_slice())
+                .expect("Failed to deserialize player filters");
+
         let mut results = self.match_position(&position_decoded);
 
-        // Filter results by player IDs if provided (empty array means no filter)
-        // Games must contain ALL selected players
-        if !player_ids.is_empty() {
+        // Filter results by player filters if provided (empty array means no filter)
+        // Games must contain ALL selected players with specified colors
+        if !player_filters.is_empty() {
             results.retain(|result| {
-                player_ids.iter().all(|&id| {
-                    matches!(result.player_black, Player::Id(player_id, _) if player_id == id)
-                        || matches!(result.player_white, Player::Id(player_id, _) if player_id == id)
+                player_filters.iter().all(|filter| {
+                    let player_id = filter.player_id;
+                    match filter.color {
+                        None => {
+                            // Any color - check both black and white
+                            matches!(result.player_black, Player::Id(id, _) if id == player_id)
+                                || matches!(result.player_white, Player::Id(id, _) if id == player_id)
+                        }
+                        Some(Color::Black) => {
+                            // Black only
+                            matches!(result.player_black, Player::Id(id, _) if id == player_id)
+                        }
+                        Some(Color::White) => {
+                            // White only
+                            matches!(result.player_white, Player::Id(id, _) if id == player_id)
+                        }
+                    }
                 })
             });
         }
@@ -199,16 +261,17 @@ impl WasmSearch {
         let current_page = page.min(total_pages.saturating_sub(1));
         // Aggregate player counts from all results, excluding filtered players
         let mut player_counts: HashMap<i16, usize> = HashMap::new();
+        let filtered_player_ids: Vec<i16> = player_filters.iter().map(|f| f.player_id).collect();
         for result in &results {
             // Count black player (exclude if it's one of the filtered players)
             if let Player::Id(player_id, _) = &result.player_black {
-                if !player_ids.contains(player_id) {
+                if !filtered_player_ids.contains(player_id) {
                     *player_counts.entry(*player_id).or_insert(0) += 1;
                 }
             }
             // Count white player (exclude if it's one of the filtered players)
             if let Player::Id(player_id, _) = &result.player_white {
-                if !player_ids.contains(player_id) {
+                if !filtered_player_ids.contains(player_id) {
                     *player_counts.entry(*player_id).or_insert(0) += 1;
                 }
             }

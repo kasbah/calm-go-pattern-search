@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useReducer } from "react";
 import { Input } from "./components/ui/input";
 import { cn } from "./lib/utils";
 import { playerSearchEngine, type PlayerSuggestion } from "./playerSearch";
+import type { PlayerFilter } from "./wasm-search-types";
 import cancelSvg from "@/assets/icons/cancel.svg";
 import circleBlackSvg from "@/assets/icons/circle-black.svg";
 import circleWhiteSvg from "@/assets/icons/circle-white.svg";
@@ -429,7 +430,7 @@ function PlayerInput({
 }
 
 export type PlayerSearchProps = {
-  onPlayerSelect: (playerIds: number[]) => void;
+  onPlayerSelect: (playerFilters: PlayerFilter[]) => void;
   playerCounts?: Record<number, number>;
   isLoading: boolean;
   onColorChange?: (colors: [PlayerColor, PlayerColor]) => void;
@@ -453,11 +454,37 @@ export default function PlayerSearch({
   });
 
   useEffect(() => {
-    const newPlayerIds: number[] = [];
-    if (state.player1 != null) newPlayerIds.push(state.player1.id);
-    if (state.player2 != null) newPlayerIds.push(state.player2.id);
-    onPlayerSelect(newPlayerIds);
-  }, [state.player1, state.player2, onPlayerSelect]);
+    const newPlayerFilters: PlayerFilter[] = [];
+    if (state.player1 != null) {
+      newPlayerFilters.push({
+        player_id: state.player1.id,
+        color:
+          state.color1 === "any"
+            ? null
+            : state.color1 === "black"
+              ? "Black"
+              : "White",
+      });
+    }
+    if (state.player2 != null) {
+      newPlayerFilters.push({
+        player_id: state.player2.id,
+        color:
+          state.color2 === "any"
+            ? null
+            : state.color2 === "black"
+              ? "Black"
+              : "White",
+      });
+    }
+    onPlayerSelect(newPlayerFilters);
+  }, [
+    state.player1,
+    state.player2,
+    state.color1,
+    state.color2,
+    onPlayerSelect,
+  ]);
 
   useEffect(() => {
     onColorChange?.([state.color1, state.color2]);

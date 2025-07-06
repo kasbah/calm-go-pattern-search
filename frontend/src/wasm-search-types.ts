@@ -14,6 +14,11 @@ export type Placement = {
   point: Point;
 };
 
+export type PlayerFilter = {
+  player_id: number;
+  color: "Black" | "White" | null;
+};
+
 export type SgfDate = {
   YearMonthDay?: [number, number, number];
   YearMonth?: [number, number];
