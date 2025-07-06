@@ -8,9 +8,9 @@ import React, {
 import { Input } from "@/ui-primitives/input";
 import { cn } from "@/utils";
 import {
-  playerSearchEngine,
+  playerFuzzyMatcher,
   type PlayerSuggestion,
-} from "./player-search-engine";
+} from "./player-fuzzy-matcher";
 import type { PlayerFilter } from "@/wasm-search-types";
 import cancelSvg from "@/assets/icons/cancel.svg";
 import circleBlackSvg from "@/assets/icons/circle-black.svg";
@@ -246,7 +246,7 @@ function PlayerInput({
 
   useEffect(() => {
     if (showSuggestions && !isLoading) {
-      setSuggestions(playerSearchEngine.search(query, 100, playerCounts));
+      setSuggestions(playerFuzzyMatcher.match(query, 100, playerCounts));
     }
   }, [query, playerCounts, showSuggestions, isLoading]);
 
@@ -467,7 +467,7 @@ const PlayerFilterInputs = React.forwardRef<
   const addPlayer = useCallback(
     (playerId: number, color: "black" | "white" | "any" = "any") => {
       // Convert the player to a PlayerSuggestion
-      const existingPlayer = playerSearchEngine.getPlayerById(playerId);
+      const existingPlayer = playerFuzzyMatcher.getPlayerById(playerId);
       if (existingPlayer) {
         // Check if player is already selected and update their color
         if (state.player1?.id === playerId) {

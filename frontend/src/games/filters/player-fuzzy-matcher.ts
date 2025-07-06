@@ -34,7 +34,7 @@ export type PlayerSearchResult = {
   score: number;
 };
 
-class PlayerSearchEngine {
+class PlayerFuzzyMatcher {
   private fuse: Fuse<PlayerSuggestion>;
   private players: Array<PlayerSuggestion>;
 
@@ -97,7 +97,7 @@ class PlayerSearchEngine {
     return players;
   }
 
-  search(
+  match(
     query: string,
     limit: number,
     playerCounts?: Record<number, number>,
@@ -142,5 +142,4 @@ class PlayerSearchEngine {
   }
 }
 
-// Export a singleton instance
-export const playerSearchEngine = new PlayerSearchEngine();
+export const playerFuzzyMatcher = new PlayerFuzzyMatcher();
