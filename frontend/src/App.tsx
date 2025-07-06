@@ -41,6 +41,7 @@ export default function App() {
   const [totalNumberOfGames, setTotalNumberOfGames] = useState(0);
   const [nextMoves, setNextMoves] = useImmer<Array<NextMove>>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isClearingBoard, setIsClearingBoard] = useState(false);
   const [brushColor, setBrushColor] = useState<SabakiColor>(SabakiColor.Black);
   const [brushMode, setBrushMode] = useState<BrushMode>(BrushMode.Alternate);
   const [currentPage, setCurrentPage] = useState(0);
@@ -70,7 +71,7 @@ export default function App() {
 
   const timer = useRef<NodeJS.Timeout | undefined>(undefined);
   useEffect(() => {
-    if (window.wasmSearchWorker !== undefined) {
+    if (window.wasmSearchWorker !== undefined && !isClearingBoard) {
       setIsSearching(true);
       clearTimeout(timer.current);
       timer.current = setTimeout(() => {
@@ -94,7 +95,7 @@ export default function App() {
         setHasMore(true);
       }, 0);
     }
-  }, [board, brushColor, selectedPlayerIds]);
+  }, [board, brushColor, selectedPlayerIds, isClearingBoard]);
 
   const loadMore = () => {
     if (window.wasmSearchWorker !== undefined && !isSearching) {
@@ -281,9 +282,20 @@ export default function App() {
 
   const handleClearBoard = () => {
     if (editorGobanRef.current) {
+      // Set flag to prevent search during clear
+      setIsClearingBoard(true);
       editorGobanRef.current.clearBoard();
+      // Clear next moves to prevent flash
+      setNextMoves([]);
+      // Clear preview stone if any
+      setPreviewStone(null);
+      // Clear games to prevent showing stale results
+      setGames([]);
+      // Reset flag after a short delay to allow search to proceed
+      setTimeout(() => {
+        setIsClearingBoard(false);
+      }, 100);
     }
-    setGameSelection(() => null);
   };
 
   return (

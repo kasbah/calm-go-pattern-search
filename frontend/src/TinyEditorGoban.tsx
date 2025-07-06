@@ -23,12 +23,14 @@ export default function TinyEditorGoban({
 }: TinyGobanProps) {
   const [isHovering, setIsHovering] = useState(false);
   const [isTrashHovering, setIsTrashHovering] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const isBoardEmpty = boardsEqual(board, emptyBoard);
   return (
     <div
       className="TinyGoban EditorGoban flex items-center h-full"
       data-hovering={isHovering}
       data-trash-hovering={isTrashHovering}
+      data-clearing={isClearing}
     >
       <div
         className="tiny-goban-clickable h-full cursor-pointer"
@@ -52,7 +54,11 @@ export default function TinyEditorGoban({
         <Button
           size="xl"
           variant="outline"
-          onClick={() => onClearBoard()}
+          onClick={() => {
+            setIsClearing(true);
+            onClearBoard();
+            setTimeout(() => setIsClearing(false), 50);
+          }}
           title="Clear board"
           onMouseEnter={() => setIsTrashHovering(true)}
           onMouseLeave={() => setIsTrashHovering(false)}

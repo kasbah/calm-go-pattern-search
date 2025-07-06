@@ -26,6 +26,17 @@
   }
 }
 
+.TinyGoban.EditorGoban[data-clearing="true"] {
+  transition: none !important;
+
+  .shudan-goban,
+  .tiny-goban-container,
+  * {
+    transition: none !important;
+    opacity: 1 !important;
+  }
+}
+
 .tiny-goban-container {
   transition:
     opacity 0.3s ease-in-out,
