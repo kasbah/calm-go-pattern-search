@@ -42,7 +42,8 @@ type EditorGobanAction =
   | { type: "MOUSE_UP" }
   | { type: "MOUSE_ENTER"; payload: Vertex }
   | { type: "MOUSE_LEAVE"; payload: Vertex }
-  | { type: "TOGGLE_ALTERNATE_COLOR" };
+  | { type: "TOGGLE_ALTERNATE_COLOR" }
+  | { type: "SET_BOARD"; payload: BoardPosition };
 
 type EditorGobanState = {
   board: BoardPosition;
@@ -218,6 +219,15 @@ function editorGobanReducer(
           : SabakiSign.Black;
       return;
     }
+
+    case "SET_BOARD": {
+      state.board = action.payload;
+      state.stagingBoard = action.payload;
+      state.history = [{ board: action.payload, moveSign: SabakiSign.Empty }];
+      state.historyIndex = 0;
+      state.alternateBrushColor = SabakiSign.Black;
+      return;
+    }
   }
 }
 
@@ -237,6 +247,7 @@ export type EditorGobanRef = {
   redo: () => void;
   commitMove: (point: { x: number; y: number }) => void;
   clearBoard: () => void;
+  setBoard: (board: BoardPosition) => void;
 };
 
 const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
@@ -290,6 +301,13 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
       dispatch({ type: "CLEAR_BOARD" });
     }, [dispatch]);
 
+    const setBoard = useCallback(
+      (board: BoardPosition) => {
+        dispatch({ type: "SET_BOARD", payload: board });
+      },
+      [dispatch],
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -297,8 +315,9 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
         redo,
         commitMove: handleCommitMove,
         clearBoard,
+        setBoard,
       }),
-      [undo, redo, handleCommitMove, clearBoard],
+      [undo, redo, handleCommitMove, clearBoard, setBoard],
     );
 
     useEffect(() => {

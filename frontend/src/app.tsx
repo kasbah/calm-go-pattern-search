@@ -4,7 +4,7 @@ import { useImmer } from "use-immer";
 import { Label } from "@/ui-primitives/label";
 import { Separator } from "@/ui-primitives/separator";
 import { Toggle } from "@/ui-primitives/toggle";
-import EditorGoban from "@/goban/editor-goban";
+import EditorGoban, { type EditorGobanRef } from "@/goban/editor-goban";
 import GameInfo from "@/games/display/game-info";
 import GamesList from "@/games/display/games-list";
 import { cn } from "@/utils";
@@ -13,6 +13,7 @@ import PlayerFilterInputs, {
   type PlayerFilterInputsRef,
 } from "@/games/filters/player-filter-inputs";
 import {
+  boardsEqual,
   BrushMode,
   emptyBoard,
   SabakiColor,
@@ -27,6 +28,7 @@ import {
   type PlayerFilter,
   type SearchReturn,
 } from "@/wasm-search-types";
+import { getBoardFromUrl, updateUrlWithBoard } from "@/url-params";
 
 import trophyCrossedOutSvg from "./assets/icons/trophy-crossed-out.svg";
 import trophySvg from "./assets/icons/trophy.svg";
@@ -62,12 +64,7 @@ export default function App() {
 
   const tinyVertexSize = 12;
 
-  const editorGobanRef = useRef<{
-    undo: () => void;
-    redo: () => void;
-    commitMove: (point: { x: number; y: number }) => void;
-    clearBoard: () => void;
-  } | null>(null);
+  const editorGobanRef = useRef<EditorGobanRef | null>(null);
   const viewerGobanRef = useRef<{
     prevMove: () => void;
     nextMove: () => void;
@@ -75,6 +72,22 @@ export default function App() {
   const playerFilterInputsRef = useRef<PlayerFilterInputsRef>(null);
 
   const timer = useRef<NodeJS.Timeout | undefined>(undefined);
+
+  // Update URL when board changes
+  useEffect(() => {
+    if (!boardsEqual(board, emptyBoard)) {
+      updateUrlWithBoard(board);
+    }
+  }, [board]);
+
+  // Load initial board state from URL on component mount
+  useEffect(() => {
+    const urlBoard = getBoardFromUrl();
+    if (!boardsEqual(emptyBoard, urlBoard)) {
+      editorGobanRef.current?.setBoard(urlBoard);
+    }
+  }, []);
+
   useEffect(() => {
     if (window.wasmSearchWorker !== undefined && !isClearingBoard) {
       setIsSearching(true);
@@ -296,6 +309,8 @@ export default function App() {
       setPreviewStone(null);
       // Clear games to prevent showing stale results
       setGames([]);
+      // Update URL to remove board parameter
+      updateUrlWithBoard(emptyBoard);
       // Reset flag after a short delay to allow search to proceed
       setTimeout(() => {
         setIsClearingBoard(false);
