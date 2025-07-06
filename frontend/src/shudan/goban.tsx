@@ -11,14 +11,14 @@ import {
   type Map,
 } from "./helper";
 
-import { CoordX, CoordY } from "./Coord";
-import Grid from "./Grid";
+import { CoordX, CoordY } from "./coord";
+import Grid from "./grid";
 import VertexComponent, {
   type Marker,
   type GhostStone,
   type HeatVertex,
-} from "./Vertex";
-import Line from "./Line";
+} from "./vertex";
+import Line from "./line";
 
 // Static styles to avoid recreation
 const contentStyle: React.CSSProperties = {

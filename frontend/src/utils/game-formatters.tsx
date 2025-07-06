@@ -1,6 +1,6 @@
 import { type JSX } from "react";
 import playerNames from "../../../rust/pack-games/python-player-name-aliases/player_names.json";
-import type { PlayerAlias, PlayerAliasLanguage } from "../playerSearch";
+import type { PlayerAlias, PlayerAliasLanguage } from "../player-search-engine";
 import type {
   GameResult,
   Player,

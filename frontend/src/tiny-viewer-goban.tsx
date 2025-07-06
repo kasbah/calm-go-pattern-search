@@ -9,9 +9,9 @@ import {
 } from "@/sabaki-types";
 import { toSabakiMove, type Game } from "@/wasm-search-types";
 
-import "./ViewerGoban.css";
+import "./viewer-goban.css";
 import "./goban-common.css";
-import "./TinyViewerGoban.css";
+import "./tiny-viewer-goban.css";
 
 function calculateBoardPosition(
   moves: Array<SabakiMove>,

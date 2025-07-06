@@ -8,7 +8,7 @@ import {
   MoveInfo,
   GameResult,
   SGFDownload,
-} from "./GameDisplayComponents";
+} from "./game-display-components";
 
 export type GameInfoProps = {
   game: Game;

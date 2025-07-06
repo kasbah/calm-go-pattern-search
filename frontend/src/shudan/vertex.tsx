@@ -2,7 +2,7 @@ import React, { memo, useCallback, useMemo } from "react";
 import classnames from "classnames";
 
 import { avg, vertexEvents, signEquals, type Vertex } from "./helper";
-import MarkerComponent from "./Marker";
+import MarkerComponent from "./marker";
 
 const absoluteStyle = (zIndex?: number): React.CSSProperties => ({
   position: "absolute",

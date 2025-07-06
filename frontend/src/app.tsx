@@ -4,20 +4,20 @@ import { useImmer } from "use-immer";
 import { Label } from "./ui-primitives/label";
 import { Separator } from "./ui-primitives/separator";
 import { Toggle } from "./ui-primitives/toggle";
-import EditorGoban from "./EditorGoban";
-import GameInfo from "./GameInfo";
-import GamesList from "./GamesList";
+import EditorGoban from "./editor-goban";
+import GameInfo from "./game-info";
+import GamesList from "./games-list";
 import { cn } from "@/utils";
-import NextMovesList from "./NextMovesList";
-import PlayerSearch, { type PlayerSearchRef } from "./PlayerSearch";
+import NextMovesList from "./next-moves-list";
+import PlayerSearch, { type PlayerSearchRef } from "./player-search";
 import {
   BrushMode,
   emptyBoard,
   SabakiColor,
   type BoardPosition,
 } from "@/sabaki-types";
-import TinyEditorGoban from "./TinyEditorGoban";
-import ViewerGoban, { type GameSelection } from "./ViewerGoban";
+import TinyEditorGoban from "./tiny-editor-goban";
+import ViewerGoban, { type GameSelection } from "./viewer-goban";
 import {
   toWasmSearch,
   type Game,

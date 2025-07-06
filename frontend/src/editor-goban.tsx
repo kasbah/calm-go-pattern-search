@@ -11,7 +11,7 @@ import {
   useState,
 } from "react";
 import { useImmerReducer } from "use-immer";
-import BrushToolbar from "./BrushToolbar";
+import BrushToolbar from "./brush-toolbar";
 import {
   boardsEqual,
   BrushMode,
@@ -21,7 +21,7 @@ import {
   type BoardPosition,
 } from "@/sabaki-types";
 
-import "./EditorGoban.css";
+import "./editor-goban.css";
 import "./goban-common.css";
 
 import redoSvg from "./assets/icons/redo.svg";

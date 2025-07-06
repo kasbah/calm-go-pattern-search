@@ -9,7 +9,7 @@ import {
   getPlayerName,
   rotationToString,
   getPlayerAliases,
-} from "@/utils/gameFormatters";
+} from "@/utils/game-formatters";
 
 import badgeInfoIcon from "@/assets/icons/badge-info.svg";
 import circleBlackIcon from "@/assets/icons/circle-black.svg";

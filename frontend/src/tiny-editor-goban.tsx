@@ -6,9 +6,9 @@ import { boardsEqual, emptyBoard } from "@/sabaki-types";
 import { Button } from "./ui-primitives/button";
 import trashSvg from "./assets/icons/trash.svg";
 
-import "./EditorGoban.css";
+import "./editor-goban.css";
 import "./goban-common.css";
-import "./TinyEditorGoban.css";
+import "./tiny-editor-goban.css";
 
 type TinyGobanProps = {
   vertexSize: number;

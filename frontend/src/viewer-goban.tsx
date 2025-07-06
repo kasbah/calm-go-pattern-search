@@ -18,7 +18,7 @@ export type GameSelection = {
 } | null;
 
 import "./goban-common.css";
-import "./ViewerGoban.css";
+import "./viewer-goban.css";
 
 import chevronFirstSvg from "./assets/icons/chevron-first.svg";
 import chevronLastSvg from "./assets/icons/chevron-last.svg";

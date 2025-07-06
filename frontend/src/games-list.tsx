@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import TinyViewerGoban from "./TinyViewerGoban";
+import TinyViewerGoban from "./tiny-viewer-goban";
 import { cn } from "@/utils";
 import type { Game } from "@/wasm-search-types";
 import {
@@ -11,7 +11,7 @@ import {
   SGFDownload,
   GameEventInfoList,
   GameDateLocationList,
-} from "./GameDisplayComponents";
+} from "./game-display-components";
 
 import { Separator } from "./ui-primitives/separator";
 
