@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useMemo } from "react";
 import classnames from "classnames";
-import { deepImmerEquals } from "./immerUtils";
 
 import { avg, vertexEvents, signEquals, type Vertex } from "./helper";
 import MarkerComponent from "./Marker";
@@ -380,24 +379,18 @@ const VertexComponent = memo(function Vertex(props: VertexProps) {
   );
 });
 
-// Immer-aware comparison helper
-const compareProps = (prevValue: unknown, nextValue: unknown): boolean => {
-  return deepImmerEquals(prevValue, nextValue);
+// Simple shallow equality check
+const shallowEquals = (a: unknown, b: unknown): boolean => {
+  return a === b;
 };
 
 // Custom comparison function for React.memo
 function areEqual(prevProps: VertexProps, nextProps: VertexProps): boolean {
-  // Check if position changed (most common case)
-  if (
-    prevProps.position[0] !== nextProps.position[0] ||
-    prevProps.position[1] !== nextProps.position[1]
-  ) {
-    return false;
-  }
-
-  // Check primitive props
-  const primitiveProps: (keyof VertexProps)[] = [
+  // Simple shallow equality check for all props
+  const allProps: (keyof VertexProps)[] = [
+    "position",
     "sign",
+    "heat",
     "paint",
     "paintLeft",
     "paintRight",
@@ -408,31 +401,18 @@ function areEqual(prevProps: VertexProps, nextProps: VertexProps): boolean {
     "paintBottomLeft",
     "paintBottomRight",
     "dimmed",
+    "marker",
+    "ghostStone",
     "selected",
     "selectedLeft",
     "selectedRight",
     "selectedTop",
     "selectedBottom",
+    ...(vertexEvents.map((e) => `on${e}`) as (keyof VertexProps)[]),
   ];
 
-  for (const prop of primitiveProps) {
-    if (prevProps[prop] !== nextProps[prop]) {
-      return false;
-    }
-  }
-
-  // Check object props with Immer-aware comparison
-  const objectProps: (keyof VertexProps)[] = ["heat", "marker", "ghostStone"];
-  for (const prop of objectProps) {
-    if (!compareProps(prevProps[prop], nextProps[prop])) {
-      return false;
-    }
-  }
-
-  // Check event handlers
-  for (const eventName of vertexEvents) {
-    const handlerName = `on${eventName}` as keyof VertexProps;
-    if (prevProps[handlerName] !== nextProps[handlerName]) {
+  for (const prop of allProps) {
+    if (!shallowEquals(prevProps[prop], nextProps[prop])) {
       return false;
     }
   }

@@ -10,7 +10,7 @@ import {
   type Vertex,
   type Map,
 } from "./helper";
-import { deepImmerEquals } from "./immerUtils";
+
 import { CoordX, CoordY } from "./Coord";
 import Grid from "./Grid";
 import VertexComponent, {
@@ -392,77 +392,44 @@ class GobanComponent extends Component<GobanProps, GobanState> {
   }
 }
 
-// Immer-aware comparison helper
-const compareProps = (prevValue: unknown, nextValue: unknown): boolean => {
-  return deepImmerEquals(prevValue, nextValue);
+// Simple shallow equality check
+const shallowEquals = (a: unknown, b: unknown): boolean => {
+  return a === b;
 };
 
 // Memoize the component to prevent unnecessary re-renders
 const Goban = memo(
   GobanComponent,
   (prevProps: GobanProps, nextProps: GobanProps) => {
-    // Custom comparison function for better performance with Immer
-    const primitiveProps: (keyof GobanProps)[] = [
+    // Simple shallow equality check for all props
+    const allProps: (keyof GobanProps)[] = [
       "busy",
       "vertexSize",
       "showCoordinates",
       "id",
       "class",
       "className",
-    ];
-
-    for (const prop of primitiveProps) {
-      if (prevProps[prop] !== nextProps[prop]) {
-        return false;
-      }
-    }
-
-    // Check array props with Immer-aware comparison
-    const arrayProps: (keyof GobanProps)[] = [
       "rangeX",
       "rangeY",
       "lines",
       "selectedVertices",
       "dimmedVertices",
-    ];
-    for (const prop of arrayProps) {
-      if (!compareProps(prevProps[prop], nextProps[prop])) {
-        return false;
-      }
-    }
-
-    // Check map props (2D arrays) with Immer-aware comparison
-    const mapProps: (keyof GobanProps)[] = [
       "signMap",
       "markerMap",
       "paintMap",
       "ghostStoneMap",
       "heatMap",
-    ];
-    for (const prop of mapProps) {
-      if (!compareProps(prevProps[prop], nextProps[prop])) {
-        return false;
-      }
-    }
-
-    // Check function props
-    const functionProps = [
+      "style",
+      "innerProps",
       "coordX",
       "coordY",
       ...vertexEvents.map((e) => `onVertex${e}`),
     ] as (keyof GobanProps)[];
-    for (const prop of functionProps) {
-      if (prevProps[prop] !== nextProps[prop]) {
+
+    for (const prop of allProps) {
+      if (!shallowEquals(prevProps[prop], nextProps[prop])) {
         return false;
       }
-    }
-
-    // Check style and innerProps with Immer-aware comparison
-    if (
-      !compareProps(prevProps.style, nextProps.style) ||
-      !compareProps(prevProps.innerProps, nextProps.innerProps)
-    ) {
-      return false;
     }
 
     return true;

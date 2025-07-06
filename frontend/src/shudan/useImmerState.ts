@@ -1,6 +1,6 @@
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { useImmer } from "use-immer";
-import { produce, current, isDraft, type Draft } from "immer";
+import { produce, type Draft } from "immer";
 import { type Vertex, type Map } from "./helper";
 
 // Hook for managing Immer state with Shudan-specific utilities
@@ -92,43 +92,6 @@ export function resizeMap<T>(
       draft[y].length = width;
     }
   });
-}
-
-// Hook for memoizing values with Immer awareness
-export function useImmerMemo<T>(
-  factory: () => T,
-  deps: ReadonlyArray<unknown>,
-): T {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => {
-    return factory();
-  }, [factory, ...deps.map((dep) => (isDraft(dep) ? current(dep) : dep))]);
-}
-
-// Hook for memoizing callbacks with Immer awareness
-export function useImmerCallback<T extends (...args: unknown[]) => unknown>(
-  callback: T,
-  deps: ReadonlyArray<unknown>,
-): T {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useCallback(callback, [
-    callback,
-    ...deps.map((dep) => (isDraft(dep) ? current(dep) : dep)),
-  ]);
-}
-
-// Utility for creating a stable map reference
-export function useStableMap<T>(map: Map<T>): Map<T> {
-  return useMemo(() => {
-    return isDraft(map) ? current(map) : map;
-  }, [map]);
-}
-
-// Utility for creating a stable vertex array reference
-export function useStableVertices(vertices: Vertex[]): Vertex[] {
-  return useMemo(() => {
-    return isDraft(vertices) ? current(vertices) : vertices;
-  }, [vertices]);
 }
 
 // Utility for batch updating multiple maps
