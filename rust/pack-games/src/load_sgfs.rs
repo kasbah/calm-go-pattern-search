@@ -5,6 +5,7 @@ use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::BufReader;
 use std::path::PathBuf;
+use walkdir::WalkDir;
 
 use calm_go_patterns_common::baduk::{
     BOARD_SIZE, Color, Game, GameResult, Placement, Player, Point, Rank, parse_komi, parse_rank,
@@ -17,30 +18,19 @@ pub fn load_all_sgfs(sgf_folder: &PathBuf) -> Vec<(String, Game)> {
     let mut paths = Vec::new();
 
     println!("Loading games...");
-    for entry in jwalk::WalkDir::new(sgf_folder) {
-        let path = entry.expect("Failed to read directory entry").path();
-        if path.extension().is_some_and(|ext| ext == "sgf") {
-            let rel_path = path
-                .strip_prefix(sgf_folder)
-                .unwrap()
-                .with_extension("")
-                .to_string_lossy()
-                .into_owned();
-            if !blocklist.contains(&rel_path) {
-                paths.push(path.clone());
-            } else {
-                println!("Skipping blocked path: {rel_path}");
-            }
-        }
-    }
+    collect_sgf_files(sgf_folder, &mut paths, &blocklist);
     println!("Read directories");
+
+    for path in &paths {
+        println!("Loading {path:?} ...");
+    }
 
     let mut games_vec = paths
         .par_iter()
         .filter_map(|path| match std::fs::read_to_string(path) {
             Ok(file_data) => match load_sgf(path, &file_data) {
                 Ok((mut game, player_black, player_white)) => {
-                    // Replace player names with canonical names
+                    // Replace player names with id
                     game.player_black = find_player_id(&player_black, &player_aliases);
                     game.player_white = find_player_id(&player_white, &player_aliases);
                     let rel_path = path
@@ -67,6 +57,29 @@ pub fn load_all_sgfs(sgf_folder: &PathBuf) -> Vec<(String, Game)> {
     games_vec
 }
 
+fn collect_sgf_files(base_dir: &PathBuf, paths: &mut Vec<PathBuf>, blocklist: &HashSet<String>) {
+    for entry in WalkDir::new(base_dir)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.file_type().is_file())
+        .filter(|e| e.path().extension().is_some_and(|ext| ext == "sgf"))
+    {
+        let path = entry.path();
+        let rel_path = path
+            .strip_prefix(base_dir)
+            .unwrap()
+            .with_extension("")
+            .to_string_lossy()
+            .into_owned();
+
+        if !blocklist.contains(&rel_path) {
+            paths.push(path.to_path_buf());
+        } else {
+            println!("Skipping blocked path: {rel_path}");
+        }
+    }
+}
+
 fn load_player_aliases() -> HashMap<String, i16> {
     let mut aliases = HashMap::new();
     let file = File::open("python-player-name-aliases/player_names.json")
@@ -75,7 +88,6 @@ fn load_player_aliases() -> HashMap<String, i16> {
     let json: Value = serde_json::from_reader(reader).expect("Failed to parse player names JSON");
 
     for (canonical_name, data) in json.as_object().expect("Expected object").iter() {
-        // Add the canonical name itself as an alias
         let id = data
             .get("id")
             .expect("Missing id")
@@ -83,7 +95,6 @@ fn load_player_aliases() -> HashMap<String, i16> {
             .expect("Expected id to be an integer") as i16;
         aliases.insert(canonical_name.to_lowercase(), id);
 
-        // Add all aliases
         if let Some(aliases_array) = data.get("aliases").and_then(|a| a.as_array()) {
             for alias in aliases_array {
                 if let Some(name) = alias.get("name").and_then(|n| n.as_str()) {
