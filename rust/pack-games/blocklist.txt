@@ -4643,3 +4643,4 @@ andries-brouwer/games/Cho_Chikun/2010-12-11b
 andries-brouwer/games/Cho_Chikun/1995-12-00c
 andries-brouwer/games/Go_Seigen/1969-01-02
 andries-brouwer/games/Kisei/47/B1-08
+andries-brouwer/AlphaGo/LeeSedol/1c
