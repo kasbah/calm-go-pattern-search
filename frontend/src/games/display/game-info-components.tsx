@@ -11,8 +11,8 @@ import type {
 import type {
   PlayerAlias,
   PlayerAliasLanguage,
-} from "@/games-filters/player-search-engine";
-import playerNamesData from "../../../rust/pack-games/python-player-name-aliases/player_names.json";
+} from "@/games/filters/player-search-engine";
+import playerNamesData from "../../../../rust/pack-games/python-player-name-aliases/player_names.json";
 
 type PlayerData = {
   id: number;

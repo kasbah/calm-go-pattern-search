@@ -1,5 +1,5 @@
 import Fuse from "fuse.js";
-import playerNamesData from "../../../rust/pack-games/python-player-name-aliases/player_names.json";
+import playerNamesData from "../../../../rust/pack-games/python-player-name-aliases/player_names.json";
 
 export type PlayerAliasLanguage = {
   language: string;

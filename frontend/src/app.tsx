@@ -5,13 +5,13 @@ import { Label } from "@/ui-primitives/label";
 import { Separator } from "@/ui-primitives/separator";
 import { Toggle } from "@/ui-primitives/toggle";
 import EditorGoban from "@/goban/editor-goban";
-import GameInfo from "@/games/game-info";
-import GamesList from "@/games/games-list";
+import GameInfo from "@/games/display/game-info";
+import GamesList from "@/games/display/games-list";
 import { cn } from "@/utils";
 import NextMovesList from "@/next-moves-list";
 import PlayerFilterInputs, {
   type PlayerFilterInputsRef,
-} from "@/games-filters/player-filter-inputs";
+} from "@/games/filters/player-filter-inputs";
 import {
   BrushMode,
   emptyBoard,
