@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useMemo } from "react";
 import classnames from "classnames";
+import { deepImmerEquals } from "./immerUtils";
 
 import { avg, vertexEvents, signEquals, type Vertex } from "./helper";
 import MarkerComponent from "./Marker";
@@ -379,6 +380,11 @@ const VertexComponent = memo(function Vertex(props: VertexProps) {
   );
 });
 
+// Immer-aware comparison helper
+const compareProps = (prevValue: unknown, nextValue: unknown): boolean => {
+  return deepImmerEquals(prevValue, nextValue);
+};
+
 // Custom comparison function for React.memo
 function areEqual(prevProps: VertexProps, nextProps: VertexProps): boolean {
   // Check if position changed (most common case)
@@ -415,38 +421,11 @@ function areEqual(prevProps: VertexProps, nextProps: VertexProps): boolean {
     }
   }
 
-  // Check object props with shallow comparison
+  // Check object props with Immer-aware comparison
   const objectProps: (keyof VertexProps)[] = ["heat", "marker", "ghostStone"];
   for (const prop of objectProps) {
-    const prev = prevProps[prop];
-    const next = nextProps[prop];
-
-    if (prev !== next) {
-      // If both are objects, do shallow comparison
-      if (
-        prev &&
-        next &&
-        typeof prev === "object" &&
-        typeof next === "object"
-      ) {
-        const prevKeys = Object.keys(prev);
-        const nextKeys = Object.keys(next);
-
-        if (prevKeys.length !== nextKeys.length) {
-          return false;
-        }
-
-        for (const key of prevKeys) {
-          if (
-            (prev as Record<string, unknown>)[key] !==
-            (next as Record<string, unknown>)[key]
-          ) {
-            return false;
-          }
-        }
-      } else {
-        return false;
-      }
+    if (!compareProps(prevProps[prop], nextProps[prop])) {
+      return false;
     }
   }
 

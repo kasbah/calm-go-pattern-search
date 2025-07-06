@@ -1,8 +1,6 @@
 export { default as Goban } from "./Goban";
-export { default as BoundedGoban } from "./BoundedGoban";
 
 export type { GobanProps } from "./Goban";
-export type { BoundedGobanProps } from "./BoundedGoban";
 
 export type { Vertex, Map, VertexEvent } from "./helper";
 

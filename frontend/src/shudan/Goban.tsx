@@ -1,5 +1,6 @@
 import React, { Component, memo } from "react";
 import classnames from "classnames";
+import { produce } from "immer";
 
 import {
   vertexEquals,
@@ -9,6 +10,7 @@ import {
   type Vertex,
   type Map,
 } from "./helper";
+import { deepImmerEquals } from "./immerUtils";
 import { CoordX, CoordY } from "./Coord";
 import Grid from "./Grid";
 import VertexComponent, {
@@ -360,47 +362,46 @@ class GobanComponent extends Component<GobanProps, GobanState> {
     const height = signMap.length;
 
     if (state.width === width && state.height === height) {
-      const result: Partial<GobanState> = {
-        signMap,
-      };
+      return produce(state, (draft) => {
+        draft.signMap = signMap;
 
-      if (
-        !vertexEquals(state.rangeX as Vertex, rangeX as Vertex) ||
-        !vertexEquals(state.rangeY as Vertex, rangeY as Vertex)
-      ) {
-        // Range changed
-
-        Object.assign(result, {
-          rangeX,
-          rangeY,
-          xs: range(width).slice(rangeX[0], rangeX[1] + 1),
-          ys: range(height).slice(rangeY[0], rangeY[1] + 1),
-        });
-      }
-
-      return result;
+        if (
+          !vertexEquals(state.rangeX as Vertex, rangeX as Vertex) ||
+          !vertexEquals(state.rangeY as Vertex, rangeY as Vertex)
+        ) {
+          // Range changed
+          draft.rangeX = rangeX;
+          draft.rangeY = rangeY;
+          draft.xs = range(width).slice(rangeX[0], rangeX[1] + 1);
+          draft.ys = range(height).slice(rangeY[0], rangeY[1] + 1);
+        }
+      });
     }
 
     // Board size changed
-
-    return {
-      signMap,
-      width,
-      height,
-      rangeX,
-      rangeY,
-      xs: range(width).slice(rangeX[0], rangeX[1] + 1),
-      ys: range(height).slice(rangeY[0], rangeY[1] + 1),
-      hoshis: getHoshis(width, height),
-    };
+    return produce({} as GobanState, (draft) => {
+      draft.signMap = signMap;
+      draft.width = width;
+      draft.height = height;
+      draft.rangeX = rangeX;
+      draft.rangeY = rangeY;
+      draft.xs = range(width).slice(rangeX[0], rangeX[1] + 1);
+      draft.ys = range(height).slice(rangeY[0], rangeY[1] + 1);
+      draft.hoshis = getHoshis(width, height);
+    });
   }
 }
+
+// Immer-aware comparison helper
+const compareProps = (prevValue: unknown, nextValue: unknown): boolean => {
+  return deepImmerEquals(prevValue, nextValue);
+};
 
 // Memoize the component to prevent unnecessary re-renders
 const Goban = memo(
   GobanComponent,
   (prevProps: GobanProps, nextProps: GobanProps) => {
-    // Custom comparison function for better performance
+    // Custom comparison function for better performance with Immer
     const primitiveProps: (keyof GobanProps)[] = [
       "busy",
       "vertexSize",
@@ -416,7 +417,7 @@ const Goban = memo(
       }
     }
 
-    // Check array props
+    // Check array props with Immer-aware comparison
     const arrayProps: (keyof GobanProps)[] = [
       "rangeX",
       "rangeY",
@@ -425,39 +426,12 @@ const Goban = memo(
       "dimmedVertices",
     ];
     for (const prop of arrayProps) {
-      const prev = prevProps[prop] as unknown[];
-      const next = nextProps[prop] as unknown[];
-
-      if (prev !== next) {
-        if (!prev || !next || prev.length !== next.length) {
-          return false;
-        }
-
-        for (let i = 0; i < prev.length; i++) {
-          const prevItem = prev[i];
-          const nextItem = next[i];
-          if (Array.isArray(prevItem)) {
-            const prevArray = prevItem as unknown[];
-            const nextArray = nextItem as unknown[];
-            if (
-              !Array.isArray(nextArray) ||
-              prevArray.length !== nextArray.length
-            ) {
-              return false;
-            }
-            for (let j = 0; j < prevArray.length; j++) {
-              if (prevArray[j] !== nextArray[j]) {
-                return false;
-              }
-            }
-          } else if (prevItem !== nextItem) {
-            return false;
-          }
-        }
+      if (!compareProps(prevProps[prop], nextProps[prop])) {
+        return false;
       }
     }
 
-    // Check map props (2D arrays)
+    // Check map props (2D arrays) with Immer-aware comparison
     const mapProps: (keyof GobanProps)[] = [
       "signMap",
       "markerMap",
@@ -466,7 +440,7 @@ const Goban = memo(
       "heatMap",
     ];
     for (const prop of mapProps) {
-      if (prevProps[prop] !== nextProps[prop]) {
+      if (!compareProps(prevProps[prop], nextProps[prop])) {
         return false;
       }
     }
@@ -483,10 +457,10 @@ const Goban = memo(
       }
     }
 
-    // Check style and innerProps
+    // Check style and innerProps with Immer-aware comparison
     if (
-      prevProps.style !== nextProps.style ||
-      prevProps.innerProps !== nextProps.innerProps
+      !compareProps(prevProps.style, nextProps.style) ||
+      !compareProps(prevProps.innerProps, nextProps.innerProps)
     ) {
       return false;
     }

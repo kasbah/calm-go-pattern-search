@@ -8,6 +8,7 @@ import {
   formatRules,
   getPlayerName,
   rotationToString,
+  getPlayerAliases,
 } from "./utils/gameFormatters";
 
 import badgeInfoIcon from "@/assets/icons/badge-info.svg";
@@ -46,9 +47,13 @@ export function PlayerDisplay({
 
   const playerName = getPlayerName(player);
   const playerRank = formatRank(rank);
+  const playerAliases = getPlayerAliases(player).filter(
+    (alias) => alias.name !== playerName,
+  );
 
   const [isCircleHovered, setIsCircleHovered] = useState(false);
   const [isNameHovered, setIsNameHovered] = useState(false);
+  const [isAliasPopoverOpen, setAliasPopoverOpen] = useState(false);
 
   const handlePlayerNameClick = () => {
     if (onPlayerClick && player.Id) {
@@ -68,36 +73,69 @@ export function PlayerDisplay({
       className={cn("flex items-center gap-2", className)}
       style={maxWidth ? { maxWidth: `${maxWidth}px` } : undefined}
     >
-      <div
-        className={cn(
-          "flex items-center gap-2 rounded border",
-          isCircleHovered ? "border-gray-400" : "border-transparent",
+      <Popover open={isAliasPopoverOpen} onOpenChange={setAliasPopoverOpen}>
+        <PopoverTrigger asChild>
+          <div className="flex items-center gap-2">
+            <div
+              className={cn(
+                "flex items-center gap-2 rounded border",
+                isCircleHovered ? "border-gray-400" : "border-transparent",
+              )}
+            >
+              <div
+                className={cn(
+                  "w-7 h-7 flex-shrink-0 rounded flex items-center justify-center",
+                  onPlayerClick && player.Id && "cursor-pointer",
+                )}
+                onClick={handleCircleClick}
+                onMouseEnter={() => {
+                  setIsCircleHovered(true);
+                  if (playerAliases.length > 0) {
+                    setAliasPopoverOpen(true);
+                  }
+                }}
+                onMouseLeave={() => {
+                  setIsCircleHovered(false);
+                  setAliasPopoverOpen(false);
+                }}
+              >
+                <img src={icon} alt={alt} className="w-6 h-6" />
+              </div>
+              <span
+                className={cn(
+                  "font-medium rounded border",
+                  isNameHovered ? "border-gray-400" : "border-transparent",
+                  onPlayerClick && player.Id && "cursor-pointer",
+                )}
+                onClick={handlePlayerNameClick}
+                onMouseEnter={() => {
+                  setIsNameHovered(true);
+                  if (playerAliases.length > 0) {
+                    setAliasPopoverOpen(true);
+                  }
+                }}
+                onMouseLeave={() => {
+                  setIsNameHovered(false);
+                  setAliasPopoverOpen(false);
+                }}
+              >
+                {playerName},
+              </span>
+            </div>
+          </div>
+        </PopoverTrigger>
+        {playerAliases.length > 0 && (
+          <PopoverContent
+            className="w-80 text-sm"
+            side="bottom"
+            align="start"
+            onMouseEnter={() => setAliasPopoverOpen(true)}
+            onMouseLeave={() => setAliasPopoverOpen(false)}
+          >
+            {playerAliases.map((alias) => alias.name).join(", ")}
+          </PopoverContent>
         )}
-      >
-        <div
-          className={cn(
-            "w-7 h-7 flex-shrink-0 rounded flex items-center justify-center",
-            onPlayerClick && player.Id && "cursor-pointer",
-          )}
-          onClick={handleCircleClick}
-          onMouseEnter={() => setIsCircleHovered(true)}
-          onMouseLeave={() => setIsCircleHovered(false)}
-        >
-          <img src={icon} alt={alt} className="w-6 h-6" />
-        </div>
-        <span
-          className={cn(
-            "font-medium rounded border",
-            isNameHovered ? "border-gray-400" : "border-transparent",
-            onPlayerClick && player.Id && "cursor-pointer",
-          )}
-          onClick={handlePlayerNameClick}
-          onMouseEnter={() => setIsNameHovered(true)}
-          onMouseLeave={() => setIsNameHovered(false)}
-        >
-          {playerName},
-        </span>
-      </div>
+      </Popover>
       <span className="font-medium truncate min-w-0">{playerRank}</span>
     </div>
   );

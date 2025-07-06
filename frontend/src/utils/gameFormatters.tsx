@@ -147,3 +147,16 @@ export function getPlayerName(player: Player): string {
   }
   return player.Unknown || "Unknown";
 }
+
+export function getPlayerAliases(player: Player): PlayerAlias[] {
+  if (player.Id) {
+    const playerEntry = Object.entries(playerNames).find(
+      ([_, data]) => data.id === player.Id![0],
+    );
+    if (!playerEntry) return [];
+
+    const [_, data] = playerEntry;
+    return data.aliases || [];
+  }
+  return [];
+}
