@@ -149,6 +149,7 @@ fn get_next_moves(
             point: m.point,
             game_count: *count,
         })
+        .filter(|next_move| next_move.game_count >= 50)
         .collect()
 }
 
