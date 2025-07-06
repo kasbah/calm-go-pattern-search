@@ -322,7 +322,7 @@ function PlayerInput({
         <button
           className={cn(
             "w-full px-4 py-3 flex items-center gap-2 hover:bg-accent",
-            "transition-colors",
+            "transition-colors cursor-pointer",
           )}
           onClick={() => handleColorSelect("black")}
         >
@@ -332,7 +332,7 @@ function PlayerInput({
         <button
           className={cn(
             "w-full px-4 py-3 flex items-center gap-2 hover:bg-accent",
-            "transition-colors",
+            "transition-colors cursor-pointer",
           )}
           onClick={() => handleColorSelect("white")}
         >
@@ -342,7 +342,7 @@ function PlayerInput({
         <button
           className={cn(
             "w-full px-4 py-3 flex items-center gap-2 hover:bg-accent",
-            "transition-colors",
+            "transition-colors cursor-pointer",
           )}
           onClick={() => handleColorSelect("any")}
         >
