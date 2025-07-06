@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { cn } from "./lib/utils";
-import type { Game } from "./wasm-search-types";
+import { cn } from "@/utils";
+import type { Game } from "@/wasm-search-types";
 import {
   formatDate,
   formatResult,
@@ -9,7 +9,7 @@ import {
   getPlayerName,
   rotationToString,
   getPlayerAliases,
-} from "./utils/gameFormatters";
+} from "@/utils/gameFormatters";
 
 import badgeInfoIcon from "@/assets/icons/badge-info.svg";
 import circleBlackIcon from "@/assets/icons/circle-black.svg";
@@ -22,7 +22,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "./components/ui/popover";
+} from "./ui-primitives/popover";
 
 export type PlayerDisplayProps = {
   game: Game;

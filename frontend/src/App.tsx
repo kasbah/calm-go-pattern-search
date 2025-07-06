@@ -1,13 +1,13 @@
 import { useWindowSize } from "@reach/window-size";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useImmer } from "use-immer";
-import { Label } from "./components/ui/label";
-import { Separator } from "./components/ui/separator";
-import { Toggle } from "./components/ui/toggle";
+import { Label } from "./ui-primitives/label";
+import { Separator } from "./ui-primitives/separator";
+import { Toggle } from "./ui-primitives/toggle";
 import EditorGoban from "./EditorGoban";
 import GameInfo from "./GameInfo";
 import GamesList from "./GamesList";
-import { cn } from "./lib/utils";
+import { cn } from "@/utils";
 import NextMovesList from "./NextMovesList";
 import PlayerSearch, { type PlayerSearchRef } from "./PlayerSearch";
 import {
@@ -15,7 +15,7 @@ import {
   emptyBoard,
   SabakiColor,
   type BoardPosition,
-} from "./sabaki-types";
+} from "@/sabaki-types";
 import TinyEditorGoban from "./TinyEditorGoban";
 import ViewerGoban, { type GameSelection } from "./ViewerGoban";
 import {
@@ -24,7 +24,7 @@ import {
   type NextMove,
   type PlayerFilter,
   type SearchReturn,
-} from "./wasm-search-types";
+} from "@/wasm-search-types";
 
 import trophyCrossedOutSvg from "./assets/icons/trophy-crossed-out.svg";
 import trophySvg from "./assets/icons/trophy.svg";

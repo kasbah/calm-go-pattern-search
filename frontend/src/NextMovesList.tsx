@@ -1,6 +1,6 @@
-import { type NextMove } from "./wasm-search-types";
-import { SabakiColor } from "./sabaki-types";
-import { cn } from "./lib/utils";
+import { type NextMove } from "@/wasm-search-types";
+import { SabakiColor } from "@/sabaki-types";
+import { cn } from "@/utils";
 
 interface NextMovesListProps {
   nextMoves: NextMove[];

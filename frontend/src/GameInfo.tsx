@@ -1,4 +1,4 @@
-import type { Game } from "./wasm-search-types";
+import type { Game } from "@/wasm-search-types";
 import {
   PlayerDisplay,
   GameIcons,

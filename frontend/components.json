@@ -5,15 +5,15 @@
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "ts/index.css",
+    "css": "src/global.css",
     "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""
   },
   "aliases": {
     "components": "@/components",
-    "utils": "@/lib/utils",
-    "ui": "@/components/ui",
+    "utils": "@/utils",
+    "ui": "@/ui-primitives",
     "lib": "@/lib",
     "hooks": "@/hooks"
   },

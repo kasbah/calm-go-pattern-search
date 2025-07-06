@@ -5,10 +5,10 @@ import React, {
   useCallback,
   useReducer,
 } from "react";
-import { Input } from "./components/ui/input";
-import { cn } from "./lib/utils";
-import { playerSearchEngine, type PlayerSuggestion } from "./playerSearch";
-import type { PlayerFilter } from "./wasm-search-types";
+import { Input } from "./ui-primitives/input";
+import { cn } from "@/utils";
+import { playerSearchEngine, type PlayerSuggestion } from "@/playerSearch";
+import type { PlayerFilter } from "@/wasm-search-types";
 import cancelSvg from "@/assets/icons/cancel.svg";
 import circleBlackSvg from "@/assets/icons/circle-black.svg";
 import circleWhiteSvg from "@/assets/icons/circle-white.svg";

@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/ui-primitives/button";
 import { Goban, type Map, type Marker, type Vertex } from "./shudan";
 import "./shudan/css/goban.css";
 import SabakiGoBoard from "@sabaki/go-board";
@@ -19,7 +19,7 @@ import {
   SabakiColor,
   SabakiSign,
   type BoardPosition,
-} from "./sabaki-types";
+} from "@/sabaki-types";
 
 import "./EditorGoban.css";
 import "./goban-common.css";

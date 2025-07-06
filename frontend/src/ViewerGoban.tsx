@@ -3,14 +3,14 @@ import GoBoard from "@sabaki/go-board";
 import { forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
 import { useImmer } from "use-immer";
 
-import { Button } from "./components/ui/button";
-import { Input } from "./components/ui/input";
+import { Button } from "./ui-primitives/button";
+import { Input } from "./ui-primitives/input";
 import {
   emptyBoard,
   type BoardPosition,
   type SabakiMove,
-} from "./sabaki-types";
-import { toSabakiMove, type Game } from "./wasm-search-types";
+} from "@/sabaki-types";
+import { toSabakiMove, type Game } from "@/wasm-search-types";
 
 export type GameSelection = {
   game: Game;

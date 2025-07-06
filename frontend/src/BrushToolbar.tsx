@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Toggle } from "./components/ui/toggle";
-import { BrushMode, SabakiColor, SabakiSign } from "./sabaki-types";
+import { Toggle } from "./ui-primitives/toggle";
+import { BrushMode, SabakiColor, SabakiSign } from "@/sabaki-types";
 
 import circleBlackSvg from "./assets/icons/circle-black.svg";
 import circleWhiteSvg from "./assets/icons/circle-white.svg";

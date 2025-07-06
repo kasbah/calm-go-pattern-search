@@ -2,7 +2,7 @@ import {
   SabakiSign,
   type BoardPosition,
   type SabakiMove,
-} from "./sabaki-types";
+} from "@/sabaki-types";
 
 export type Point = {
   x: number;

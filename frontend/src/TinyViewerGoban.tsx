@@ -6,8 +6,8 @@ import {
   emptyBoard,
   type BoardPosition,
   type SabakiMove,
-} from "./sabaki-types";
-import { toSabakiMove, type Game } from "./wasm-search-types";
+} from "@/sabaki-types";
+import { toSabakiMove, type Game } from "@/wasm-search-types";
 
 import "./ViewerGoban.css";
 import "./goban-common.css";

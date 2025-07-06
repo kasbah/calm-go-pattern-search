@@ -1,7 +1,7 @@
 import initWasm, {
   WasmSearch,
 } from "../../rust/wasm-search/pkg/wasm_search.js";
-import type { PlayerFilter } from "./wasm-search-types.js";
+import type { PlayerFilter } from "@/wasm-search-types.js";
 
 let wasmInitialized = false;
 let queue: Array<{

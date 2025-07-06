@@ -1,9 +1,9 @@
 import { Goban } from "./shudan";
 import "./shudan/css/goban.css";
 import { useState } from "react";
-import type { BoardPosition } from "./sabaki-types";
-import { boardsEqual, emptyBoard } from "./sabaki-types";
-import { Button } from "./components/ui/button";
+import type { BoardPosition } from "@/sabaki-types";
+import { boardsEqual, emptyBoard } from "@/sabaki-types";
+import { Button } from "./ui-primitives/button";
 import trashSvg from "./assets/icons/trash.svg";
 
 import "./EditorGoban.css";
