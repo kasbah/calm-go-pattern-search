@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { Toggle } from "./ui-primitives/toggle";
+import { Toggle } from "@/ui-primitives/toggle";
 import { BrushMode, SabakiColor, SabakiSign } from "@/sabaki-types";
 
-import circleBlackSvg from "./assets/icons/circle-black.svg";
-import circleWhiteSvg from "./assets/icons/circle-white.svg";
-import eraserSvg from "./assets/icons/eraser.svg";
-import overlappingCirclesBlackSwitchedSvg from "./assets/icons/overlapping-circles-black-switched.svg";
-import overlappingCirclesBlackSvg from "./assets/icons/overlapping-circles-black.svg";
-import overlappingCirclesWhiteSwitchedSvg from "./assets/icons/overlapping-circles-white-switched.svg";
-import overlappingCirclesWhiteSvg from "./assets/icons/overlapping-circles-white.svg";
+import circleBlackSvg from "@/assets/icons/circle-black.svg";
+import circleWhiteSvg from "@/assets/icons/circle-white.svg";
+import eraserSvg from "@/assets/icons/eraser.svg";
+import overlappingCirclesBlackSwitchedSvg from "@/assets/icons/overlapping-circles-black-switched.svg";
+import overlappingCirclesBlackSvg from "@/assets/icons/overlapping-circles-black.svg";
+import overlappingCirclesWhiteSwitchedSvg from "@/assets/icons/overlapping-circles-white-switched.svg";
+import overlappingCirclesWhiteSvg from "@/assets/icons/overlapping-circles-white.svg";
 
 export type BrushToolbarProps = {
   brushMode: BrushMode;

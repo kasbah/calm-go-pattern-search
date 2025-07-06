@@ -5,9 +5,12 @@ import React, {
   useCallback,
   useReducer,
 } from "react";
-import { Input } from "./ui-primitives/input";
+import { Input } from "@/ui-primitives/input";
 import { cn } from "@/utils";
-import { playerSearchEngine, type PlayerSuggestion } from "./player-search-engine";
+import {
+  playerSearchEngine,
+  type PlayerSuggestion,
+} from "./player-search-engine";
 import type { PlayerFilter } from "@/wasm-search-types";
 import cancelSvg from "@/assets/icons/cancel.svg";
 import circleBlackSvg from "@/assets/icons/circle-black.svg";

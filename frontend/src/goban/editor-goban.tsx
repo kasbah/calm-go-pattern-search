@@ -24,9 +24,9 @@ import {
 import "./editor-goban.css";
 import "./goban-common.css";
 
-import redoSvg from "./assets/icons/redo.svg";
-import trashSvg from "./assets/icons/trash.svg";
-import undoSvg from "./assets/icons/undo.svg";
+import redoSvg from "@/assets/icons/redo.svg";
+import trashSvg from "@/assets/icons/trash.svg";
+import undoSvg from "@/assets/icons/undo.svg";
 
 type HistoryEntry = {
   board: BoardPosition;

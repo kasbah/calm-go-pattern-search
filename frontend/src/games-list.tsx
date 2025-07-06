@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import TinyViewerGoban from "./tiny-viewer-goban";
+import TinyViewerGoban from "@/goban/tiny-viewer-goban";
 import { cn } from "@/utils";
 import type { Game } from "@/wasm-search-types";
 import {
@@ -13,7 +13,7 @@ import {
   GameDateLocationList,
 } from "./game-display-components";
 
-import { Separator } from "./ui-primitives/separator";
+import { Separator } from "@/ui-primitives/separator";
 
 export type GamesListProps = {
   games: Array<Game>;

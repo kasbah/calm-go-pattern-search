@@ -3,8 +3,8 @@ import "./shudan/css/goban.css";
 import { useState } from "react";
 import type { BoardPosition } from "@/sabaki-types";
 import { boardsEqual, emptyBoard } from "@/sabaki-types";
-import { Button } from "./ui-primitives/button";
-import trashSvg from "./assets/icons/trash.svg";
+import { Button } from "@/ui-primitives/button";
+import trashSvg from "@/assets/icons/trash.svg";
 
 import "./editor-goban.css";
 import "./goban-common.css";

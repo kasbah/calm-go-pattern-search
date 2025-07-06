@@ -3,8 +3,8 @@ import GoBoard from "@sabaki/go-board";
 import { forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
 import { useImmer } from "use-immer";
 
-import { Button } from "./ui-primitives/button";
-import { Input } from "./ui-primitives/input";
+import { Button } from "@/ui-primitives/button";
+import { Input } from "@/ui-primitives/input";
 import {
   emptyBoard,
   type BoardPosition,
@@ -20,10 +20,10 @@ export type GameSelection = {
 import "./goban-common.css";
 import "./viewer-goban.css";
 
-import chevronFirstSvg from "./assets/icons/chevron-first.svg";
-import chevronLastSvg from "./assets/icons/chevron-last.svg";
-import chevronLeftSvg from "./assets/icons/chevron-left.svg";
-import chevronRightSvg from "./assets/icons/chevron-right.svg";
+import chevronFirstSvg from "@/assets/icons/chevron-first.svg";
+import chevronLastSvg from "@/assets/icons/chevron-last.svg";
+import chevronLeftSvg from "@/assets/icons/chevron-left.svg";
+import chevronRightSvg from "@/assets/icons/chevron-right.svg";
 
 function calculateBoardPosition(
   moves: Array<SabakiMove>,

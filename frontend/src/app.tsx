@@ -1,10 +1,10 @@
 import { useWindowSize } from "@reach/window-size";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useImmer } from "use-immer";
-import { Label } from "./ui-primitives/label";
-import { Separator } from "./ui-primitives/separator";
-import { Toggle } from "./ui-primitives/toggle";
-import EditorGoban from "./editor-goban";
+import { Label } from "@/ui-primitives/label";
+import { Separator } from "@/ui-primitives/separator";
+import { Toggle } from "@/ui-primitives/toggle";
+import EditorGoban from "@/goban/editor-goban";
 import GameInfo from "./game-info";
 import GamesList from "./games-list";
 import { cn } from "@/utils";
@@ -16,8 +16,8 @@ import {
   SabakiColor,
   type BoardPosition,
 } from "@/sabaki-types";
-import TinyEditorGoban from "./tiny-editor-goban";
-import ViewerGoban, { type GameSelection } from "./viewer-goban";
+import TinyEditorGoban from "@/goban/tiny-editor-goban";
+import ViewerGoban, { type GameSelection } from "@/goban/viewer-goban";
 import {
   toWasmSearch,
   type Game,

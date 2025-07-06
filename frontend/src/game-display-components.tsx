@@ -32,7 +32,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "./ui-primitives/popover";
+} from "@/ui-primitives/popover";
 
 // Formatter functions moved from game-formatters.tsx
 
