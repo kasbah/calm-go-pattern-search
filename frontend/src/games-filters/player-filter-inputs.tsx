@@ -438,143 +438,144 @@ function PlayerInput({
   );
 }
 
-export type PlayerSearchProps = {
+export type PlayerFilterInputsProps = {
   onPlayerSelect: (playerFilters: PlayerFilter[]) => void;
   playerCounts?: Record<number, number>;
   isLoading: boolean;
   onColorChange?: (colors: [PlayerColor, PlayerColor]) => void;
 };
 
-export type PlayerSearchRef = {
+export type PlayerFilterInputsRef = {
   addPlayer: (playerId: number, color?: "black" | "white" | "any") => void;
 };
 
-const PlayerSearch = React.forwardRef<PlayerSearchRef, PlayerSearchProps>(
-  ({ onPlayerSelect, playerCounts, isLoading, onColorChange }, ref) => {
-    const [state, dispatch] = useReducer(playerReducer, {
-      player1: null,
-      player2: null,
-      color1: "any",
-      color2: "any",
-      prevColor1: "any",
-      prevColor2: "any",
-      tempDeletedPlayer1: null,
-      tempDeletedPlayer2: null,
-    });
+const PlayerFilterInputs = React.forwardRef<
+  PlayerFilterInputsRef,
+  PlayerFilterInputsProps
+>(({ onPlayerSelect, playerCounts, isLoading, onColorChange }, ref) => {
+  const [state, dispatch] = useReducer(playerReducer, {
+    player1: null,
+    player2: null,
+    color1: "any",
+    color2: "any",
+    prevColor1: "any",
+    prevColor2: "any",
+    tempDeletedPlayer1: null,
+    tempDeletedPlayer2: null,
+  });
 
-    const addPlayer = useCallback(
-      (playerId: number, color: "black" | "white" | "any" = "any") => {
-        // Convert the player to a PlayerSuggestion
-        const existingPlayer = playerSearchEngine.getPlayerById(playerId);
-        if (existingPlayer) {
-          // Check if player is already selected and update their color
-          if (state.player1?.id === playerId) {
-            dispatch({ type: "SET_COLOR_1", color });
-            return;
-          }
-          if (state.player2?.id === playerId) {
-            dispatch({ type: "SET_COLOR_2", color });
-            return;
-          }
-
-          // Player is not selected, add them with the specified color
-          // Find the first empty slot, or replace player1 if both are filled
-          if (state.player1 === null) {
-            dispatch({ type: "SELECT_PLAYER_1", player: existingPlayer });
-            dispatch({ type: "SET_COLOR_1", color });
-          } else if (state.player2 === null) {
-            dispatch({ type: "SELECT_PLAYER_2", player: existingPlayer });
-            dispatch({ type: "SET_COLOR_2", color });
-          } else {
-            // Both slots are filled, replace player1
-            dispatch({ type: "SELECT_PLAYER_1", player: existingPlayer });
-            dispatch({ type: "SET_COLOR_1", color });
-          }
+  const addPlayer = useCallback(
+    (playerId: number, color: "black" | "white" | "any" = "any") => {
+      // Convert the player to a PlayerSuggestion
+      const existingPlayer = playerSearchEngine.getPlayerById(playerId);
+      if (existingPlayer) {
+        // Check if player is already selected and update their color
+        if (state.player1?.id === playerId) {
+          dispatch({ type: "SET_COLOR_1", color });
+          return;
         }
-      },
-      [state.player1, state.player2],
-    );
+        if (state.player2?.id === playerId) {
+          dispatch({ type: "SET_COLOR_2", color });
+          return;
+        }
 
-    React.useImperativeHandle(ref, () => ({
-      addPlayer,
-    }));
-
-    useEffect(() => {
-      const newPlayerFilters: PlayerFilter[] = [];
-      if (state.player1 != null) {
-        newPlayerFilters.push({
-          player_id: state.player1.id,
-          color:
-            state.color1 === "any"
-              ? null
-              : state.color1 === "black"
-                ? "Black"
-                : "White",
-        });
+        // Player is not selected, add them with the specified color
+        // Find the first empty slot, or replace player1 if both are filled
+        if (state.player1 === null) {
+          dispatch({ type: "SELECT_PLAYER_1", player: existingPlayer });
+          dispatch({ type: "SET_COLOR_1", color });
+        } else if (state.player2 === null) {
+          dispatch({ type: "SELECT_PLAYER_2", player: existingPlayer });
+          dispatch({ type: "SET_COLOR_2", color });
+        } else {
+          // Both slots are filled, replace player1
+          dispatch({ type: "SELECT_PLAYER_1", player: existingPlayer });
+          dispatch({ type: "SET_COLOR_1", color });
+        }
       }
-      if (state.player2 != null) {
-        newPlayerFilters.push({
-          player_id: state.player2.id,
-          color:
-            state.color2 === "any"
-              ? null
-              : state.color2 === "black"
-                ? "Black"
-                : "White",
-        });
-      }
-      onPlayerSelect(newPlayerFilters);
-    }, [
-      state.player1,
-      state.player2,
-      state.color1,
-      state.color2,
-      onPlayerSelect,
-    ]);
+    },
+    [state.player1, state.player2],
+  );
 
-    useEffect(() => {
-      onColorChange?.([state.color1, state.color2]);
-    }, [state.color1, state.color2, onColorChange]);
+  React.useImperativeHandle(ref, () => ({
+    addPlayer,
+  }));
 
-    return (
-      <div className="flex flex-col items-center justify-center mb-6 mr-50 mt-10">
-        <div className="w-full max-w-md space-y-4">
-          <PlayerInput
-            placeholder="Player 1"
-            selectedPlayer={state.player1}
-            onPlayerSelect={(player) =>
-              dispatch({ type: "SELECT_PLAYER_1", player })
-            }
-            playerCounts={playerCounts}
-            isLoading={isLoading}
-            color={state.color1}
-            onColorChange={(color) => dispatch({ type: "SET_COLOR_1", color })}
-            onTempDelete={() => dispatch({ type: "TEMP_DELETE_PLAYER_1" })}
-            onRestore={() => dispatch({ type: "RESTORE_PLAYER_1" })}
-          />
+  useEffect(() => {
+    const newPlayerFilters: PlayerFilter[] = [];
+    if (state.player1 != null) {
+      newPlayerFilters.push({
+        player_id: state.player1.id,
+        color:
+          state.color1 === "any"
+            ? null
+            : state.color1 === "black"
+              ? "Black"
+              : "White",
+      });
+    }
+    if (state.player2 != null) {
+      newPlayerFilters.push({
+        player_id: state.player2.id,
+        color:
+          state.color2 === "any"
+            ? null
+            : state.color2 === "black"
+              ? "Black"
+              : "White",
+      });
+    }
+    onPlayerSelect(newPlayerFilters);
+  }, [
+    state.player1,
+    state.player2,
+    state.color1,
+    state.color2,
+    onPlayerSelect,
+  ]);
 
-          <div className="text-lg font-medium text-foreground mb-4 text-center">
-            vs
-          </div>
-          <PlayerInput
-            placeholder="Player 2"
-            selectedPlayer={state.player2}
-            onPlayerSelect={(player) =>
-              dispatch({ type: "SELECT_PLAYER_2", player })
-            }
-            playerCounts={playerCounts}
-            isLoading={isLoading}
-            color={state.color2}
-            onColorChange={(color) => dispatch({ type: "SET_COLOR_2", color })}
-            onTempDelete={() => dispatch({ type: "TEMP_DELETE_PLAYER_2" })}
-            onRestore={() => dispatch({ type: "RESTORE_PLAYER_2" })}
-          />
+  useEffect(() => {
+    onColorChange?.([state.color1, state.color2]);
+  }, [state.color1, state.color2, onColorChange]);
+
+  return (
+    <div className="flex flex-col items-center justify-center mb-6 mr-50 mt-10">
+      <div className="w-full max-w-md space-y-4">
+        <PlayerInput
+          placeholder="Player 1"
+          selectedPlayer={state.player1}
+          onPlayerSelect={(player) =>
+            dispatch({ type: "SELECT_PLAYER_1", player })
+          }
+          playerCounts={playerCounts}
+          isLoading={isLoading}
+          color={state.color1}
+          onColorChange={(color) => dispatch({ type: "SET_COLOR_1", color })}
+          onTempDelete={() => dispatch({ type: "TEMP_DELETE_PLAYER_1" })}
+          onRestore={() => dispatch({ type: "RESTORE_PLAYER_1" })}
+        />
+
+        <div className="text-lg font-medium text-foreground mb-4 text-center">
+          vs
         </div>
+        <PlayerInput
+          placeholder="Player 2"
+          selectedPlayer={state.player2}
+          onPlayerSelect={(player) =>
+            dispatch({ type: "SELECT_PLAYER_2", player })
+          }
+          playerCounts={playerCounts}
+          isLoading={isLoading}
+          color={state.color2}
+          onColorChange={(color) => dispatch({ type: "SET_COLOR_2", color })}
+          onTempDelete={() => dispatch({ type: "TEMP_DELETE_PLAYER_2" })}
+          onRestore={() => dispatch({ type: "RESTORE_PLAYER_2" })}
+        />
       </div>
-    );
-  },
-);
+    </div>
+  );
+});
 
-PlayerSearch.displayName = "PlayerSearch";
+PlayerFilterInputs.displayName = "PlayerFilterInputs";
 
-export default PlayerSearch;
+export default PlayerFilterInputs;

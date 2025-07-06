@@ -9,7 +9,9 @@ import GameInfo from "@/games/game-info";
 import GamesList from "@/games/games-list";
 import { cn } from "@/utils";
 import NextMovesList from "@/next-moves-list";
-import PlayerSearch, { type PlayerSearchRef } from "@/player-search";
+import PlayerFilterInputs, {
+  type PlayerFilterInputsRef,
+} from "@/games-filters/player-filter-inputs";
 import {
   BrushMode,
   emptyBoard,
@@ -70,7 +72,7 @@ export default function App() {
     prevMove: () => void;
     nextMove: () => void;
   } | null>(null);
-  const playerSearchRef = useRef<PlayerSearchRef>(null);
+  const playerFilterInputsRef = useRef<PlayerFilterInputsRef>(null);
 
   const timer = useRef<NodeJS.Timeout | undefined>(undefined);
   useEffect(() => {
@@ -303,7 +305,7 @@ export default function App() {
 
   const handlePlayerClick = useCallback(
     (playerId: number, color?: "black" | "white" | "any") => {
-      playerSearchRef.current?.addPlayer(playerId, color);
+      playerFilterInputsRef.current?.addPlayer(playerId, color);
     },
     [],
   );
@@ -383,8 +385,8 @@ export default function App() {
               />
             )}
             <div className="flex flex-col justify-between">
-              <PlayerSearch
-                ref={playerSearchRef}
+              <PlayerFilterInputs
+                ref={playerFilterInputsRef}
                 onPlayerSelect={setSelectedPlayerFilters}
                 playerCounts={playerCounts}
                 isLoading={isSearching}
@@ -429,14 +431,14 @@ export default function App() {
 
         <GamesList
           games={games}
-          onSelectGame={(game) =>
+          onSelectGame={(game: Game | null) =>
             game &&
             setGameSelection(() => ({
               game,
               moveNumber: getCurrentMoveNumber(game),
             }))
           }
-          onSelectGameAtMove={(game, moveNumber) => {
+          onSelectGameAtMove={(game: Game, moveNumber: number) => {
             handleSetMoveNumber(game, moveNumber);
           }}
           selectedGame={gameSelection?.game || null}

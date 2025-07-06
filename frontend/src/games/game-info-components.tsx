@@ -8,7 +8,10 @@ import type {
   Rules,
   SgfDate,
 } from "@/wasm-search-types";
-import type { PlayerAlias, PlayerAliasLanguage } from "@/player-search-engine";
+import type {
+  PlayerAlias,
+  PlayerAliasLanguage,
+} from "@/games-filters/player-search-engine";
 import playerNamesData from "../../../rust/pack-games/python-player-name-aliases/player_names.json";
 
 type PlayerData = {

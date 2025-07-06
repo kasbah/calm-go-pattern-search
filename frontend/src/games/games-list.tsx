@@ -11,7 +11,7 @@ import {
   SGFDownload,
   GameEventInfoList,
   GameDateLocationList,
-} from "./game-display-components";
+} from "./game-info-components";
 
 import { Separator } from "@/ui-primitives/separator";
 
