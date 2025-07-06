@@ -41,11 +41,18 @@ export default function TinyEditorGoban({
           signMap={board}
         />
       </div>
-      <div className="ml-1 h-[230px]">
+      <div
+        className="ml-1 h-[230px]"
+        onClick={(e) => {
+          if (isBoardEmpty) {
+            e.stopPropagation();
+          }
+        }}
+      >
         <Button
           size="xl"
           variant="outline"
-          onClick={() => !isBoardEmpty && onClearBoard()}
+          onClick={() => onClearBoard()}
           title="Clear board"
           onMouseEnter={() => setIsTrashHovering(true)}
           onMouseLeave={() => setIsTrashHovering(false)}
