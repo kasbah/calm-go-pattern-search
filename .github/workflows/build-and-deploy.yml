@@ -97,4 +97,4 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
-        run: npx netlify deploy --dir=frontend/dist --prod
+        run: npx netlify deploy --no-build --dir=frontend/dist --prod
