@@ -1,5 +1,7 @@
 # Calm Go Pattern Search | [patterns.calmgo.games](https://patterns.calmgo.games)
 
+[![screenshot](./screenshot.png)](https://patterns.calmgo.games)
+
 🚧 _Work in Progress_ 🚧
 
 A pattern search for the ancient [game of Go](<https://en.wikipedia.org/wiki/Go_(game)>).
