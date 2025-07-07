@@ -15,7 +15,7 @@ export type GameInfoProps = {
   onSelectAtMove?: (game: Game, moveNumber: number) => void;
   showAllResults: boolean;
   vertexSize: number;
-  onPlayerClick?: (playerId: number, color?: "black" | "white" | "any") => void;
+  onPlayerClick?: (playerId: number, color: "Black" | "White" | "Any") => void;
 };
 
 export default function GameInfo({
@@ -41,13 +41,13 @@ export default function GameInfo({
         <div className="flex flex-col flex-shrink-0 justify-between min-w-0">
           <PlayerDisplay
             game={game}
-            color="black"
+            color="Black"
             maxWidth={maxPlayerWidth}
             onPlayerClick={onPlayerClick}
           />
           <PlayerDisplay
             game={game}
-            color="white"
+            color="White"
             className="mb-[6px]"
             maxWidth={maxPlayerWidth}
             onPlayerClick={onPlayerClick}

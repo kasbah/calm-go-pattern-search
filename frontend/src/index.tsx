@@ -2,6 +2,7 @@ import { Theme } from "@radix-ui/themes";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./app";
+import { getBoardFromUrl, getPlayerFiltersFromUrl } from "@/url-params";
 
 import "./global.css";
 
@@ -16,11 +17,14 @@ if (window.Worker) {
   console.error("Your browser doesn't support web workers.");
 }
 
+const initialBoard = getBoardFromUrl();
+const playerFilters = getPlayerFiltersFromUrl();
+
 const root = createRoot(document.getElementById("root") as HTMLElement);
 root.render(
   <React.StrictMode>
     <Theme>
-      <App />
+      <App initialBoard={initialBoard} initialPlayerFilters={playerFilters} />
     </Theme>
   </React.StrictMode>,
 );

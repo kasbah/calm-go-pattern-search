@@ -10,15 +10,10 @@ import GamesList from "@/games/display/games-list";
 import { cn } from "@/utils";
 import NextMovesList from "@/next-moves-list";
 import PlayerFilterInputs, {
+  type PlayerColor,
   type PlayerFilterInputsRef,
 } from "@/games/filters/player-filter-inputs";
-import {
-  boardsEqual,
-  BrushMode,
-  emptyBoard,
-  SabakiColor,
-  type BoardPosition,
-} from "@/sabaki-types";
+import { BrushMode, SabakiColor, type BoardPosition } from "@/sabaki-types";
 import TinyEditorGoban from "@/goban/tiny-editor-goban";
 import ViewerGoban, { type GameSelection } from "@/goban/viewer-goban";
 import {
@@ -28,18 +23,23 @@ import {
   type PlayerFilter,
   type SearchReturn,
 } from "@/wasm-search-types";
-import { getBoardFromUrl, updateUrlWithBoard } from "@/url-params";
+import { updateUrlParams } from "@/url-params";
 
 import trophyCrossedOutSvg from "./assets/icons/trophy-crossed-out.svg";
 import trophySvg from "./assets/icons/trophy.svg";
 
-export default function App() {
+export type AppProps = {
+  initialBoard: BoardPosition;
+  initialPlayerFilters: PlayerFilter[];
+};
+
+export default function App({ initialBoard, initialPlayerFilters }: AppProps) {
   const windowSize = useWindowSize();
   const vertexSize = Math.min(
     windowSize.height * 0.04,
     windowSize.width * 0.02,
   );
-  const [board, setBoard] = useImmer<BoardPosition>(emptyBoard);
+  const [board, setBoard] = useImmer<BoardPosition>(initialBoard);
   const [games, setGames] = useImmer<Array<Game>>([]);
   const [gameSelection, setGameSelection] = useImmer<GameSelection>(null);
   const [totalNumberOfGames, setTotalNumberOfGames] = useState(0);
@@ -50,9 +50,8 @@ export default function App() {
   const [brushMode, setBrushMode] = useState<BrushMode>(BrushMode.Alternate);
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  const [selectedPlayerFilters, setSelectedPlayerFilters] = useImmer<
-    PlayerFilter[]
-  >([]);
+  const [playerFilters, setPlayerFilters] =
+    useImmer<PlayerFilter[]>(initialPlayerFilters);
   const [playerCounts, setPlayerCounts] = useImmer<Record<number, number>>({});
   const [moveNumbers, setMoveNumbers] = useImmer<Record<string, number>>({});
   const [showResults, setShowResults] = useState(false);
@@ -73,20 +72,9 @@ export default function App() {
 
   const timer = useRef<NodeJS.Timeout | undefined>(undefined);
 
-  // Update URL when board changes
   useEffect(() => {
-    if (!boardsEqual(board, emptyBoard)) {
-      updateUrlWithBoard(board);
-    }
-  }, [board]);
-
-  // Load initial board state from URL on component mount
-  useEffect(() => {
-    const urlBoard = getBoardFromUrl();
-    if (!boardsEqual(emptyBoard, urlBoard)) {
-      editorGobanRef.current?.setBoard(urlBoard);
-    }
-  }, []);
+    updateUrlParams(board, playerFilters);
+  }, [board, playerFilters]);
 
   useEffect(() => {
     if (window.wasmSearchWorker !== undefined && !isClearingBoard) {
@@ -104,7 +92,7 @@ export default function App() {
               nextColor,
               page: 0,
               pageSize,
-              playerFilters: selectedPlayerFilters,
+              playerFilters: playerFilters,
             },
           },
           [positionBuf.buffer],
@@ -113,7 +101,7 @@ export default function App() {
         setHasMore(true);
       }, 300);
     }
-  }, [board, brushColor, selectedPlayerFilters, isClearingBoard]);
+  }, [board, brushColor, playerFilters, isClearingBoard]);
 
   const loadMore = () => {
     if (window.wasmSearchWorker !== undefined && !isSearching) {
@@ -129,7 +117,7 @@ export default function App() {
             nextColor,
             page: currentPage + 1,
             pageSize,
-            playerFilters: selectedPlayerFilters,
+            playerFilters: playerFilters,
           },
         },
         [positionBuf.buffer],
@@ -309,8 +297,6 @@ export default function App() {
       setPreviewStone(null);
       // Clear games to prevent showing stale results
       setGames([]);
-      // Update URL to remove board parameter
-      updateUrlWithBoard(emptyBoard);
       // Reset flag after a short delay to allow search to proceed
       setTimeout(() => {
         setIsClearingBoard(false);
@@ -319,7 +305,7 @@ export default function App() {
   };
 
   const handlePlayerClick = useCallback(
-    (playerId: number, color?: "black" | "white" | "any") => {
+    (playerId: number, color: PlayerColor) => {
       playerFilterInputsRef.current?.addPlayer(playerId, color);
     },
     [],
@@ -344,6 +330,7 @@ export default function App() {
               nextMoves={isSearching ? [] : nextMoves.map((move) => move.point)}
               previewStone={previewStone}
               onCommitMove={handleCommitMove}
+              initialBoard={initialBoard}
             />
           </div>
           <div
@@ -402,9 +389,10 @@ export default function App() {
             <div className="flex flex-col justify-between">
               <PlayerFilterInputs
                 ref={playerFilterInputsRef}
-                onPlayerSelect={setSelectedPlayerFilters}
+                onPlayerSelect={setPlayerFilters}
                 playerCounts={playerCounts}
                 isLoading={isSearching}
+                initialPlayerFilters={initialPlayerFilters}
               />
               <div className="flex items-center justify-end mt-2 space-x-3">
                 <Separator orientation="vertical" />

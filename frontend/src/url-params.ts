@@ -1,4 +1,5 @@
 import { type BoardPosition, emptyBoard, SabakiSign } from "@/sabaki-types";
+import { type PlayerFilter } from "@/wasm-search-types";
 
 /**
  * Serializes a board position to a compact URL-safe string
@@ -80,12 +81,76 @@ export function deserializeBoardFromUrl(urlString: string): BoardPosition {
 }
 
 /**
+ * Serializes player filters to a URL-safe string
+ * Format: "123b[vs]456w[vs]789a" where 123 is player_id, b/w/a is color (black/white/any)
+ */
+export function serializePlayerFiltersToUrl(filters: PlayerFilter[]): string {
+  if (!filters || filters.length === 0) {
+    return "";
+  }
+
+  return filters
+    .map((filter) => {
+      const colorCode =
+        filter.color === "Black" ? "b" : filter.color === "White" ? "w" : "a";
+      return `${filter.player_id}${colorCode}`;
+    })
+    .join("[vs]");
+}
+
+/**
+ * Deserializes player filters from a URL string
+ */
+export function deserializePlayerFiltersFromUrl(
+  urlString: string,
+): PlayerFilter[] {
+  if (!urlString || urlString === "") {
+    return [];
+  }
+
+  try {
+    const filters: PlayerFilter[] = [];
+    const parts = urlString.split("[vs]");
+
+    for (const part of parts) {
+      if (part.trim()) {
+        const colorCode = part.slice(-1);
+        const playerIdStr = part.slice(0, -1);
+
+        const playerId = parseInt(playerIdStr, 10);
+        if (isNaN(playerId)) continue;
+
+        const color =
+          colorCode === "b" ? "Black" : colorCode === "w" ? "White" : null;
+        filters.push({ player_id: playerId, color });
+      }
+    }
+
+    return filters;
+  } catch (error) {
+    console.warn("Failed to deserialize player filters from URL:", error);
+    return [];
+  }
+}
+
+/**
  * Gets the current board state from URL parameters
  */
 export function getBoardFromUrl(): BoardPosition {
   const urlParams = new URLSearchParams(window.location.search);
   const boardParam = urlParams.get("pattern");
   return boardParam ? deserializeBoardFromUrl(boardParam) : emptyBoard;
+}
+
+/**
+ * Gets player filters from URL parameters
+ */
+export function getPlayerFiltersFromUrl(): PlayerFilter[] {
+  const urlParams = new URLSearchParams(window.location.search);
+  const playerFiltersParam = urlParams.get("players");
+  return playerFiltersParam
+    ? deserializePlayerFiltersFromUrl(playerFiltersParam)
+    : [];
 }
 
 /**
@@ -104,6 +169,56 @@ export function updateUrlWithBoard(board: BoardPosition): void {
   } else {
     const serialized = serializeBoardToUrl(board);
     urlParams.set("pattern", serialized);
+  }
+
+  const newUrl = `${window.location.pathname}${urlParams.toString() ? "?" + urlParams.toString() : ""}`;
+  window.history.replaceState({}, "", newUrl);
+}
+
+/**
+ * Updates the URL with player filters
+ */
+export function updateUrlWithPlayerFilters(filters: PlayerFilter[]): void {
+  const urlParams = new URLSearchParams(window.location.search);
+
+  if (!filters || filters.length === 0) {
+    urlParams.delete("players");
+  } else {
+    const serialized = serializePlayerFiltersToUrl(filters);
+    urlParams.set("players", serialized);
+  }
+
+  const newUrl = `${window.location.pathname}${urlParams.toString() ? "?" + urlParams.toString() : ""}`;
+  window.history.replaceState({}, "", newUrl);
+}
+
+/**
+ * Updates the URL with both board state and player filters
+ */
+export function updateUrlParams(
+  board: BoardPosition,
+  filters: PlayerFilter[],
+): void {
+  const urlParams = new URLSearchParams(window.location.search);
+
+  // Handle board state
+  const isEmpty = board.every((row) =>
+    row.every((cell) => cell === SabakiSign.Empty),
+  );
+
+  if (isEmpty) {
+    urlParams.delete("pattern");
+  } else {
+    const serialized = serializeBoardToUrl(board);
+    urlParams.set("pattern", serialized);
+  }
+
+  // Handle player filters
+  if (!filters || filters.length === 0) {
+    urlParams.delete("players");
+  } else {
+    const serialized = serializePlayerFiltersToUrl(filters);
+    urlParams.set("players", serialized);
   }
 
   const newUrl = `${window.location.pathname}${urlParams.toString() ? "?" + urlParams.toString() : ""}`;

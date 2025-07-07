@@ -18,7 +18,7 @@ import circleWhiteSvg from "@/assets/icons/circle-white.svg";
 import circleBlackOrWhiteSvg from "@/assets/icons/circle-black-or-white.svg";
 import chevronDownSvg from "@/assets/icons/chevron-down.svg";
 
-type PlayerColor = "black" | "white" | "any";
+export type PlayerColor = "Black" | "White" | "Any";
 
 type PlayerState = {
   player1: PlayerSuggestion | null;
@@ -52,16 +52,16 @@ function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
         // Reset colors if player is cleared or both players are cleared
         ...(action.player === null
           ? {
-              color1: "any",
-              prevColor1: "any",
+              color1: "Any",
+              prevColor1: "Any",
               ...(state.player2 === null
                 ? {
-                    color2: "any",
-                    prevColor2: "any",
+                    color2: "Any",
+                    prevColor2: "Any",
                   }
-                : state.color2 !== "any"
+                : state.color2 !== "Any"
                   ? {
-                      color1: state.color2 === "black" ? "white" : "black",
+                      color1: state.color2 === "Black" ? "White" : "Black",
                     }
                   : {}),
             }
@@ -75,16 +75,16 @@ function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
         // Reset colors if player is cleared or both players are cleared
         ...(action.player === null
           ? {
-              color2: "any",
-              prevColor2: "any",
+              color2: "Any",
+              prevColor2: "Any",
               ...(state.player1 === null
                 ? {
-                    color1: "any",
-                    prevColor1: "any",
+                    color1: "Any",
+                    prevColor1: "Any",
                   }
-                : state.color1 !== "any"
+                : state.color1 !== "Any"
                   ? {
-                      color2: state.color1 === "black" ? "white" : "black",
+                      color2: state.color1 === "Black" ? "White" : "Black",
                     }
                   : {}),
             }
@@ -121,11 +121,11 @@ function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
         prevColor1: state.color1,
         // Update color2 based on color1
         color2:
-          action.color === "black"
-            ? "white"
-            : action.color === "white"
-              ? "black"
-              : "any",
+          action.color === "Black"
+            ? "White"
+            : action.color === "White"
+              ? "Black"
+              : "Any",
       };
     case "SET_COLOR_2":
       return {
@@ -134,19 +134,19 @@ function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
         prevColor2: state.color2,
         // Update color1 based on color2
         color1:
-          action.color === "black"
-            ? "white"
-            : action.color === "white"
-              ? "black"
-              : "any",
+          action.color === "Black"
+            ? "White"
+            : action.color === "White"
+              ? "Black"
+              : "Any",
       };
     case "RESET_COLORS":
       return {
         ...state,
-        color1: "any",
-        color2: "any",
-        prevColor1: "any",
-        prevColor2: "any",
+        color1: "Any",
+        color2: "Any",
+        prevColor1: "Any",
+        prevColor2: "Any",
       };
     default:
       return state;
@@ -175,7 +175,7 @@ function PlayerInput({
   onPlayerSelect,
   playerCounts,
   isLoading,
-  color = "any",
+  color = "Any",
   onColorChange,
   onTempDelete,
   onRestore,
@@ -334,7 +334,7 @@ function PlayerInput({
             "w-full px-4 py-3 flex items-center gap-2 hover:bg-accent/50",
             "transition-colors cursor-pointer",
           )}
-          onClick={() => handleColorSelect("black")}
+          onClick={() => handleColorSelect("Black")}
         >
           <img src={circleBlackSvg} alt="Black" className="h-6 w-6" />
           <span className="text-lg">Black</span>
@@ -344,7 +344,7 @@ function PlayerInput({
             "w-full px-4 py-3 flex items-center gap-2 hover:bg-accent/50",
             "transition-colors cursor-pointer",
           )}
-          onClick={() => handleColorSelect("white")}
+          onClick={() => handleColorSelect("White")}
         >
           <img src={circleWhiteSvg} alt="White" className="h-6 w-6" />
           <span className="text-lg">White</span>
@@ -354,7 +354,7 @@ function PlayerInput({
             "w-full px-4 py-3 flex items-center gap-2 hover:bg-accent/50",
             "transition-colors cursor-pointer",
           )}
-          onClick={() => handleColorSelect("any")}
+          onClick={() => handleColorSelect("Any")}
         >
           <img src={circleBlackOrWhiteSvg} alt="Any" className="h-6 w-6" />
           <span className="text-lg">Any</span>
@@ -386,9 +386,9 @@ function PlayerInput({
           />
           <img
             src={
-              color === "black"
+              color === "Black"
                 ? circleBlackSvg
-                : color === "white"
+                : color === "White"
                   ? circleWhiteSvg
                   : circleBlackOrWhiteSvg
             }
@@ -440,32 +440,46 @@ function PlayerInput({
 
 export type PlayerFilterInputsProps = {
   onPlayerSelect: (playerFilters: PlayerFilter[]) => void;
-  playerCounts?: Record<number, number>;
+  playerCounts: Record<number, number>;
   isLoading: boolean;
-  onColorChange?: (colors: [PlayerColor, PlayerColor]) => void;
+  initialPlayerFilters: PlayerFilter[];
 };
 
 export type PlayerFilterInputsRef = {
-  addPlayer: (playerId: number, color?: "black" | "white" | "any") => void;
+  addPlayer: (playerId: number, color?: PlayerColor) => void;
 };
-
 const PlayerFilterInputs = React.forwardRef<
   PlayerFilterInputsRef,
   PlayerFilterInputsProps
->(({ onPlayerSelect, playerCounts, isLoading, onColorChange }, ref) => {
+>(({ onPlayerSelect, playerCounts, isLoading, initialPlayerFilters }, ref) => {
+  const initialPlayer1 = playerFuzzyMatcher.getPlayerById(
+    initialPlayerFilters[0]?.player_id,
+  );
+  const initialPlayer2 = playerFuzzyMatcher.getPlayerById(
+    initialPlayerFilters[1]?.player_id,
+  );
+
+  const initialColor1 = initialPlayerFilters[0]?.color ?? "Any";
+  const initialColor2 =
+    initialColor1 === "Black"
+      ? "White"
+      : initialColor1 === "White"
+        ? "Black"
+        : (initialPlayerFilters[1]?.color ?? "Any");
+
   const [state, dispatch] = useReducer(playerReducer, {
-    player1: null,
-    player2: null,
-    color1: "any",
-    color2: "any",
-    prevColor1: "any",
-    prevColor2: "any",
+    player1: initialPlayer1,
+    player2: initialPlayer2,
+    color1: initialColor1,
+    color2: initialColor2,
+    prevColor1: "Any",
+    prevColor2: "Any",
     tempDeletedPlayer1: null,
     tempDeletedPlayer2: null,
   });
 
   const addPlayer = useCallback(
-    (playerId: number, color: "black" | "white" | "any" = "any") => {
+    (playerId: number, color: PlayerColor = "Any") => {
       // Convert the player to a PlayerSuggestion
       const existingPlayer = playerFuzzyMatcher.getPlayerById(playerId);
       if (existingPlayer) {
@@ -507,9 +521,9 @@ const PlayerFilterInputs = React.forwardRef<
       newPlayerFilters.push({
         player_id: state.player1.id,
         color:
-          state.color1 === "any"
+          state.color1 === "Any"
             ? null
-            : state.color1 === "black"
+            : state.color1 === "Black"
               ? "Black"
               : "White",
       });
@@ -518,9 +532,9 @@ const PlayerFilterInputs = React.forwardRef<
       newPlayerFilters.push({
         player_id: state.player2.id,
         color:
-          state.color2 === "any"
+          state.color2 === "Any"
             ? null
-            : state.color2 === "black"
+            : state.color2 === "Black"
               ? "Black"
               : "White",
       });
@@ -533,10 +547,6 @@ const PlayerFilterInputs = React.forwardRef<
     state.color2,
     onPlayerSelect,
   ]);
-
-  useEffect(() => {
-    onColorChange?.([state.color1, state.color2]);
-  }, [state.color1, state.color2, onColorChange]);
 
   return (
     <div className="flex flex-col items-center justify-center mb-6 mr-50 mt-10">

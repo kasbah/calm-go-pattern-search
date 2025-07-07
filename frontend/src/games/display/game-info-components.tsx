@@ -199,10 +199,10 @@ function getPlayerAliases(player: Player): PlayerAlias[] {
 
 export type PlayerDisplayProps = {
   game: Game;
-  color: "black" | "white";
+  color: "Black" | "White";
   className?: string;
   maxWidth?: number;
-  onPlayerClick?: (playerId: number, color?: "black" | "white" | "any") => void;
+  onPlayerClick?: (playerId: number, color: "Black" | "White" | "Any") => void;
 };
 
 export function PlayerDisplay({
@@ -212,7 +212,7 @@ export function PlayerDisplay({
   maxWidth,
   onPlayerClick,
 }: PlayerDisplayProps) {
-  const isBlack = color === "black";
+  const isBlack = color === "Black";
   const player = isBlack ? game.player_black : game.player_white;
   const rank = isBlack ? game.rank_black : game.rank_white;
   const icon = isBlack ? circleBlackIcon : circleWhiteIcon;
@@ -230,7 +230,7 @@ export function PlayerDisplay({
 
   const handlePlayerNameClick = () => {
     if (onPlayerClick && player.Id) {
-      onPlayerClick(player.Id[0], "any");
+      onPlayerClick(player.Id[0], "Any");
     }
   };
 

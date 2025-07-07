@@ -240,6 +240,7 @@ export type EditorGobanProps = {
   brushMode: BrushMode;
   previewStone?: { x: number; y: number } | null;
   onCommitMove?: (point: { x: number; y: number }) => void;
+  initialBoard: BoardPosition;
 };
 
 export type EditorGobanRef = {
@@ -247,7 +248,6 @@ export type EditorGobanRef = {
   redo: () => void;
   commitMove: (point: { x: number; y: number }) => void;
   clearBoard: () => void;
-  setBoard: (board: BoardPosition) => void;
 };
 
 const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
@@ -261,12 +261,17 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
       brushMode,
       previewStone,
       onCommitMove,
+      initialBoard,
     },
     ref,
   ) => {
-    const [state, dispatch] = useImmerReducer(editorGobanReducer, initialState);
+    const [state, dispatch] = useImmerReducer(editorGobanReducer, {
+      ...initialState,
+      board: initialBoard,
+    });
     const [dimmedVertices, setDimmedVertices] = useState<Array<Vertex>>([]);
-    const [displayBoard, setDisplayBoard] = useState<BoardPosition>(emptyBoard);
+    const [displayBoard, setDisplayBoard] =
+      useState<BoardPosition>(initialBoard);
     const [markerMap, setMarkerMap] = useState<Map<Marker | null>>(
       emptyBoard.map((row) => row.map(() => null)),
     );
@@ -301,13 +306,6 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
       dispatch({ type: "CLEAR_BOARD" });
     }, [dispatch]);
 
-    const setBoard = useCallback(
-      (board: BoardPosition) => {
-        dispatch({ type: "SET_BOARD", payload: board });
-      },
-      [dispatch],
-    );
-
     useImperativeHandle(
       ref,
       () => ({
@@ -315,9 +313,8 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
         redo,
         commitMove: handleCommitMove,
         clearBoard,
-        setBoard,
       }),
-      [undo, redo, handleCommitMove, clearBoard, setBoard],
+      [undo, redo, handleCommitMove, clearBoard],
     );
 
     useEffect(() => {

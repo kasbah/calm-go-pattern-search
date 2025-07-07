@@ -131,8 +131,8 @@ class PlayerFuzzyMatcher {
     return searchResults.map((r) => r.player);
   }
 
-  getPlayerById(id: number): PlayerSuggestion | undefined {
-    return this.players.find((player) => player.id === id);
+  getPlayerById(id: number): PlayerSuggestion | null {
+    return this.players.find((player) => player.id === id) ?? null;
   }
 
   getAllPlayers(): Array<PlayerSearchResult> {

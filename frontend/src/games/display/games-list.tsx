@@ -25,7 +25,7 @@ export type GamesListProps = {
   hasMore: boolean;
   showAllResults: boolean;
   moveNumbers: Record<string, number>;
-  onPlayerClick?: (playerId: number, color?: "black" | "white" | "any") => void;
+  onPlayerClick?: (playerId: number, color: "Black" | "White" | "Any") => void;
 };
 
 type GameItemProps = {
@@ -36,7 +36,7 @@ type GameItemProps = {
   onSelectAtMove?: (game: Game, moveNumber: number) => void;
   showAllResults: boolean;
   moveNumbers: Record<string, number>;
-  onPlayerClick?: (playerId: number, color?: "black" | "white" | "any") => void;
+  onPlayerClick?: (playerId: number, color: "Black" | "White" | "Any") => void;
 };
 
 function GameItem({
@@ -121,13 +121,13 @@ function GameItem({
                 <div className="flex flex-shrink-0 flex-col gap-2 text-lg font-medium">
                   <PlayerDisplay
                     game={game}
-                    color="black"
+                    color="Black"
                     className="whitespace-nowrap"
                     onPlayerClick={onPlayerClick}
                   />
                   <PlayerDisplay
                     game={game}
-                    color="white"
+                    color="White"
                     className="whitespace-nowrap"
                     onPlayerClick={onPlayerClick}
                   />
