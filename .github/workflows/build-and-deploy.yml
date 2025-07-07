@@ -43,9 +43,9 @@ jobs:
       - name: Pack games
         if: steps.cache-rust-artifacts.outputs.cache-hit != 'true'
         run: |
-          cd frontend/public/sgfs
+          cd sgfs/
           ./extract.sh
-          cd ../../../rust/pack-games/python-player-name-aliases
+          cd ../rust/pack-games/python-player-name-aliases
           gzip -d *.gz
           cd ../
           cargo run --release
@@ -78,7 +78,7 @@ jobs:
 
       - name: Unpack sgfs
         run: |
-          cd frontend/public/sgfs
+          cd sgfs/
           ./extract.sh
 
       - name: Unpack player_names.json
