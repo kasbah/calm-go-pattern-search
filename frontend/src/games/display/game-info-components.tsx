@@ -484,7 +484,7 @@ export type MoveInfoProps = {
 
 export function MoveInfo({ game, onSelectAtMove, className }: MoveInfoProps) {
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div className={cn("flex items-center gap-2 text-base", className)}>
       <span className="text-gray-500">Matched:</span>
       <span
         className="cursor-pointer hover:underline"

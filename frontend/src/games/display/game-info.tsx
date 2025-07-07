@@ -30,52 +30,53 @@ export default function GameInfo({
 
   return (
     <div
-      className="mt-2 text-lg ml-20 overflow-hidden"
+      className="mt-2 text-lg ml-20 overflow-hidden flex flex-wrap gap-6"
       style={{
         width: vertexSize * 19 + 70,
         maxHeight: `calc(95vh - ${vertexSize * 19 + 70}px)`,
       }}
     >
-      <div className="flex gap-6 min-w-0">
-        {/* Players */}
-        <div className="flex flex-col flex-shrink-0 justify-between min-w-0">
-          <PlayerDisplay
-            game={game}
-            color="Black"
-            maxWidth={maxPlayerWidth}
-            onPlayerClick={onPlayerClick}
-          />
-          <PlayerDisplay
-            game={game}
-            color="White"
-            className="mb-[6px]"
-            maxWidth={maxPlayerWidth}
-            onPlayerClick={onPlayerClick}
-          />
+      {/* Players */}
+      <div className="flex flex-col flex-shrink-0 justify-between">
+        <PlayerDisplay
+          game={game}
+          color="Black"
+          maxWidth={maxPlayerWidth}
+          onPlayerClick={onPlayerClick}
+        />
+        <PlayerDisplay
+          game={game}
+          color="White"
+          className="mb-[6px]"
+          maxWidth={maxPlayerWidth}
+          onPlayerClick={onPlayerClick}
+        />
+      </div>
+
+      {/* Event, Round and Move */}
+      <div className="flex flex-col flex-1 justify-between w-50">
+        <div className="min-w-0">
+          <GameEventInfo game={game} />
         </div>
+        <MoveInfo game={game} onSelectAtMove={onSelectAtMove} />
+      </div>
 
-        {/* Rest of info in two rows */}
-        <div className="flex flex-col flex-1 justify-between min-w-0">
-          {/* First row - Event/Date and Icons */}
-          <div className="flex items-center gap-2 justify-between">
-            <GameEventInfo game={game} />
-            <GameDateLocation game={game} />
-            <div className="flex items-center gap-2 w-[80px] min-w-[80px] justify-end mr-2">
-              <GameIcons game={game} />
-              <GameInfoPopover game={game} />
-            </div>
-          </div>
+      {/* Date, Location and Result */}
+      <div className="flex flex-col flex-1 justify-between">
+        <GameDateLocation game={game} />
+        <div className="flex items-center gap-2 text-base">
+          <GameResult game={game} showAllResults={showAllResults} />
+        </div>
+      </div>
 
-          {/* Second row - Move Information and Actions */}
-          <div className="flex items-center justify-between gap-4 text-base">
-            <MoveInfo game={game} onSelectAtMove={onSelectAtMove} />
-            <div className="flex items-center gap-2 text-base">
-              <GameResult game={game} showAllResults={showAllResults} />
-            </div>
-            <div className="flex items-center gap-2">
-              <SGFDownload game={game} />
-            </div>
-          </div>
+      {/* Icons and Download */}
+      <div className="flex flex-col justify-between items-end">
+        <div className="flex items-center gap-2">
+          <GameIcons game={game} />
+          <GameInfoPopover game={game} />
+        </div>
+        <div className="flex items-center gap-2">
+          <SGFDownload game={game} />
         </div>
       </div>
     </div>
