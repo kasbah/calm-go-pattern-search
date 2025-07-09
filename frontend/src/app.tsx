@@ -56,6 +56,7 @@ export default function App({
   const [isLoadingGameSelection, setLoadingGameSelection] = useState(
     initialGame != null,
   );
+  const [gameNotFound, setGameNotFound] = useState(false);
   const windowSize = useWindowSize();
   const vertexSize = Math.min(
     windowSize.height * 0.04,
@@ -125,6 +126,7 @@ export default function App({
   useEffect(() => {
     if (!isClearingBoard) {
       setIsSearching(true);
+      setGameNotFound(false);
       clearTimeout(timer.current);
       timer.current = setTimeout(() => {
         const position = toWasmSearch(board);
@@ -209,21 +211,37 @@ export default function App({
         setPlayerCounts(() => player_counts);
       }
       if (type === "searchResultByPath") {
-        const jsonText = new TextDecoder().decode(payload);
-        const game = JSON.parse(jsonText) as Game;
+        // Check if payload is empty (game not found)
+        if (payload.length === 0) {
+          console.warn("Game not found from URL");
+          setGameNotFound(true);
+          setLoadingGameSelection(false);
+          return;
+        }
 
-        // Handle both initial game load and back/forward navigation
-        const gameFromUrl = getSelectedGameFromUrl();
-        const moveNumber = gameFromUrl?.moveNumber ?? game.last_move_matched;
+        try {
+          const jsonText = new TextDecoder().decode(payload);
+          const game = JSON.parse(jsonText) as Game;
 
-        setGameSelection(() => ({
-          game,
-          moveNumber,
-        }));
-        setMoveNumbers((draft) => {
-          draft[game.path] = moveNumber;
-        });
-        setLoadingGameSelection(false);
+          // Handle both initial game load and back/forward navigation
+          const gameFromUrl = getSelectedGameFromUrl();
+          const moveNumber = gameFromUrl?.moveNumber ?? game.last_move_matched;
+
+          setGameSelection(() => ({
+            game,
+            moveNumber,
+          }));
+          setMoveNumbers((draft) => {
+            draft[game.path] = moveNumber;
+          });
+          setLoadingGameSelection(false);
+          setGameNotFound(false);
+        } catch (error) {
+          console.error("Failed to parse game data:", error);
+          setGameNotFound(true);
+          setLoadingGameSelection(false);
+          setGameSelection(() => null);
+        }
       }
     };
 
@@ -357,6 +375,7 @@ export default function App({
             setMoveNumbers((draft) => {
               draft[existingGame.path] = gameFromUrl.moveNumber;
             });
+            setGameNotFound(false);
           } else {
             // Need to load this game from web worker
             wasmSearchPostMessage({
@@ -370,6 +389,7 @@ export default function App({
         if (gameSelection) {
           setGameSelection(() => null);
         }
+        setGameNotFound(false);
       }
     };
 
@@ -390,6 +410,7 @@ export default function App({
     setMoveNumbers((draft) => {
       draft[game.path] = moveNumber;
     });
+    setGameNotFound(false);
   };
 
   const handleSetGameSelection = (newGameSelection: GameSelection) => {
@@ -398,6 +419,7 @@ export default function App({
       setMoveNumbers((draft) => {
         draft[newGameSelection.game.path] = newGameSelection.moveNumber;
       });
+      setGameNotFound(false);
     }
   };
 
@@ -478,7 +500,7 @@ export default function App({
               vertexSize={vertexSize}
               setGameSelection={handleSetGameSelection}
             />
-            {!isLoadingGameSelection && gameSelection && (
+            {!isLoadingGameSelection && !gameNotFound && gameSelection && (
               <GameInfo
                 game={gameSelection.game}
                 onSelectAtMove={handleSetMoveNumber}
@@ -486,6 +508,11 @@ export default function App({
                 vertexSize={vertexSize}
                 onPlayerClick={handlePlayerClick}
               />
+            )}
+            {!isLoadingGameSelection && gameNotFound && (
+              <div className="p-4 text-red-500 ml-20 text-lg">
+                Game not found: The requested game could not be loaded.
+              </div>
             )}
           </div>
         </div>
@@ -574,10 +601,12 @@ export default function App({
                 game,
                 moveNumber: getCurrentMoveNumber(game),
               }));
+              setGameNotFound(false);
             }
           }}
           onSelectGameAtMove={(game: Game, moveNumber: number) => {
             handleSetMoveNumber(game, moveNumber);
+            setGameNotFound(false);
           }}
           selectedGame={gameSelection?.game || null}
           isSearching={isSearching}
