@@ -2,7 +2,7 @@ import { Theme } from "@radix-ui/themes";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./app";
-import { getBoardFromUrl, getPlayerFiltersFromUrl } from "@/url-params";
+import { getBoardFromUrl, getPlayerFiltersFromUrl } from "@/urls";
 
 import "./global.css";
 

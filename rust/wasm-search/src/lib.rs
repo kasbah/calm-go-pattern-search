@@ -294,6 +294,61 @@ impl WasmSearch {
         Uint8Array::from(results_buf.as_slice())
     }
 
+    /// Get a SearchResult by its path, rotation, and mirroring. Returns the SearchResult as a JSON Uint8Array, or an empty array if not found.
+    ///
+    /// # Arguments
+    /// * `path` - The game path
+    /// * `rotation` - 0: none, 1: 90°, 2: 180°, 3: 270°
+    /// * `is_mirrored` - Whether to mirror the moves before rotation
+    #[wasm_bindgen]
+    pub fn get_search_result_by_path(
+        &self,
+        path: &str,
+        rotation: u8,
+        is_mirrored: bool,
+    ) -> Uint8Array {
+        if let Some(game) = self.game_data.get(path) {
+            let moves_transformed = if is_mirrored {
+                get_mirrored(&game.moves)
+            } else {
+                game.moves.clone()
+            };
+            let moves_transformed = match rotation {
+                1 => get_rotated(&moves_transformed, &Rotation::Degrees90),
+                2 => get_rotated(&moves_transformed, &Rotation::Degrees180),
+                3 => get_rotated(&moves_transformed, &Rotation::Degrees270),
+                _ => moves_transformed,
+            };
+            let result = SearchResult {
+                path: path.to_string(),
+                score: 0,
+                last_move_matched: 0,
+                rotation,
+                is_inverted: false,
+                is_mirrored,
+                all_empty_correctly_within: 0,
+                moves: game.moves.clone(),
+                moves_transformed,
+                event: game.event.clone(),
+                round: game.round.clone(),
+                location: game.location.clone(),
+                date: game.date.clone(),
+                player_black: game.player_black.clone(),
+                player_white: game.player_white.clone(),
+                rank_black: game.rank_black.clone(),
+                rank_white: game.rank_white.clone(),
+                komi: game.komi,
+                rules: game.rules.clone(),
+                result: game.result.clone(),
+            };
+            let result_json =
+                serde_json::to_vec(&result).expect("Failed to serialize SearchResult");
+            Uint8Array::from(result_json.as_slice())
+        } else {
+            Uint8Array::new(&wasm_bindgen::JsValue::NULL)
+        }
+    }
+
     fn match_position(&mut self, position: &[Placement]) -> Vec<SearchResult> {
         if let Some(results) = self.position_cache.get(&position.to_vec()) {
             return results.clone();

@@ -19,6 +19,18 @@ onmessage = (e) => {
     queue.push(payload);
     handleQueue();
   }
+  if (type === "getSearchResultByPath") {
+    const { path, rotation, isMirrored } = payload;
+    const result = wasmSearch.get_search_result_by_path(
+      path,
+      rotation,
+      isMirrored,
+    );
+    //@ts-expect-error postMessage for the worker doesn't have the correct type definition
+    self.postMessage({ type: "searchResultByPath", payload: result }, [
+      result.buffer,
+    ]);
+  }
 };
 
 console.info("Worker: Initializing wasm");

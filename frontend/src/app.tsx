@@ -23,7 +23,7 @@ import {
   type PlayerFilter,
   type SearchReturn,
 } from "@/wasm-search-types";
-import { updateUrlParams } from "@/url-params";
+import { updateUrlParams, updateUrlWithSelectedGame, type GameFromUrl } from "@/urls";
 
 import trophyCrossedOutSvg from "./assets/icons/trophy-crossed-out.svg";
 import trophySvg from "./assets/icons/trophy.svg";
@@ -31,9 +31,10 @@ import trophySvg from "./assets/icons/trophy.svg";
 export type AppProps = {
   initialBoard: BoardPosition;
   initialPlayerFilters: PlayerFilter[];
+  initialGame: GameFromUrl;
 };
 
-export default function App({ initialBoard, initialPlayerFilters }: AppProps) {
+export default function App({ initialBoard, initialPlayerFilters, initialGame }: AppProps) {
   const windowSize = useWindowSize();
   const vertexSize = Math.min(
     windowSize.height * 0.04,
@@ -75,6 +76,20 @@ export default function App({ initialBoard, initialPlayerFilters }: AppProps) {
   useEffect(() => {
     updateUrlParams(board, playerFilters);
   }, [board, playerFilters]);
+
+  useEffect(() => {
+    if (gameSelection) {
+      updateUrlWithSelectedGame(
+        gameSelection.game.path,
+        gameSelection.game.rotation ?? 0,
+        gameSelection.game.is_mirrored ?? false,
+        gameSelection.game.is_inverted ?? false,
+        gameSelection.moveNumber,
+      );
+    } else {
+      updateUrlWithSelectedGame("", 0, false, false, 0);
+    }
+  }, [gameSelection]);
 
   useEffect(() => {
     if (window.wasmSearchWorker !== undefined && !isClearingBoard) {
@@ -434,13 +449,14 @@ export default function App({ initialBoard, initialPlayerFilters }: AppProps) {
 
         <GamesList
           games={games}
-          onSelectGame={(game: Game | null) =>
-            game &&
-            setGameSelection(() => ({
-              game,
-              moveNumber: getCurrentMoveNumber(game),
-            }))
-          }
+          onSelectGame={(game: Game | null) => {
+            if (game) {
+              setGameSelection(() => ({
+                game,
+                moveNumber: getCurrentMoveNumber(game),
+              }));
+            }
+          }}
           onSelectGameAtMove={(game: Game, moveNumber: number) => {
             handleSetMoveNumber(game, moveNumber);
           }}
