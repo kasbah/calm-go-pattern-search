@@ -17,13 +17,19 @@ import { BrushMode, SabakiColor, type BoardPosition } from "@/sabaki-types";
 import TinyEditorGoban from "@/goban/tiny-editor-goban";
 import ViewerGoban, { type GameSelection } from "@/goban/viewer-goban";
 import {
+  emptyGame,
   toWasmSearch,
   type Game,
   type NextMove,
   type PlayerFilter,
   type SearchReturn,
+  type WasmSearchMessage,
 } from "@/wasm-search-types";
-import { updateUrlParams, updateUrlWithSelectedGame, type GameFromUrl } from "@/urls";
+import {
+  updateUrlParams,
+  updateUrlWithSelectedGame,
+  type GameFromUrl,
+} from "@/urls";
 
 import trophyCrossedOutSvg from "./assets/icons/trophy-crossed-out.svg";
 import trophySvg from "./assets/icons/trophy.svg";
@@ -31,10 +37,24 @@ import trophySvg from "./assets/icons/trophy.svg";
 export type AppProps = {
   initialBoard: BoardPosition;
   initialPlayerFilters: PlayerFilter[];
-  initialGame: GameFromUrl;
+  initialGame: GameFromUrl | null;
+  wasmSearchPostMessage: (message: WasmSearchMessage) => void;
+  wasmSearchOnMessage: (callback: (e: MessageEvent) => void) => void;
 };
 
-export default function App({ initialBoard, initialPlayerFilters, initialGame }: AppProps) {
+export default function App({
+  initialBoard,
+  initialPlayerFilters,
+  initialGame,
+  wasmSearchPostMessage,
+  wasmSearchOnMessage,
+}: AppProps) {
+  const initialGameSelection: GameSelection = initialGame
+    ? { game: emptyGame, moveNumber: initialGame?.lastMoveMatched ?? 0 }
+    : null;
+  const [isLoadingGameSelection, setLoadingGameSelection] = useState(
+    initialGame != null,
+  );
   const windowSize = useWindowSize();
   const vertexSize = Math.min(
     windowSize.height * 0.04,
@@ -42,7 +62,8 @@ export default function App({ initialBoard, initialPlayerFilters, initialGame }:
   );
   const [board, setBoard] = useImmer<BoardPosition>(initialBoard);
   const [games, setGames] = useImmer<Array<Game>>([]);
-  const [gameSelection, setGameSelection] = useImmer<GameSelection>(null);
+  const [gameSelection, setGameSelection] =
+    useImmer<GameSelection>(initialGameSelection);
   const [totalNumberOfGames, setTotalNumberOfGames] = useState(0);
   const [nextMoves, setNextMoves] = useImmer<Array<NextMove>>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -78,6 +99,9 @@ export default function App({ initialBoard, initialPlayerFilters, initialGame }:
   }, [board, playerFilters]);
 
   useEffect(() => {
+    if (isLoadingGameSelection) {
+      return;
+    }
     if (gameSelection) {
       updateUrlWithSelectedGame(
         gameSelection.game.path,
@@ -89,59 +113,68 @@ export default function App({ initialBoard, initialPlayerFilters, initialGame }:
     } else {
       updateUrlWithSelectedGame("", 0, false, false, 0);
     }
-  }, [gameSelection]);
+  }, [gameSelection, isLoadingGameSelection]);
 
   useEffect(() => {
-    if (window.wasmSearchWorker !== undefined && !isClearingBoard) {
+    if (!isClearingBoard) {
       setIsSearching(true);
       clearTimeout(timer.current);
       timer.current = setTimeout(() => {
         const position = toWasmSearch(board);
         const nextColor = brushColor === SabakiColor.Black ? 0 : 1;
         const positionBuf = new TextEncoder().encode(JSON.stringify(position));
-        window.wasmSearchWorker.postMessage(
-          {
-            type: "search",
-            payload: {
-              positionBuf,
-              nextColor,
-              page: 0,
-              pageSize,
-              playerFilters: playerFilters,
-            },
-          },
-          [positionBuf.buffer],
-        );
-        setCurrentPage(0);
-        setHasMore(true);
-      }, 300);
-    }
-  }, [board, brushColor, playerFilters, isClearingBoard]);
-
-  const loadMore = () => {
-    if (window.wasmSearchWorker !== undefined && !isSearching) {
-      setIsSearching(true);
-      const position = toWasmSearch(board);
-      const nextColor = brushColor === SabakiColor.Black ? 0 : 1;
-      const positionBuf = new TextEncoder().encode(JSON.stringify(position));
-      window.wasmSearchWorker.postMessage(
-        {
+        wasmSearchPostMessage({
           type: "search",
           payload: {
             positionBuf,
             nextColor,
-            page: currentPage + 1,
+            page: 0,
             pageSize,
-            playerFilters: playerFilters,
+            playerFilters,
           },
+        });
+      }, 500);
+    }
+  }, [
+    board,
+    brushColor,
+    playerFilters,
+    isClearingBoard,
+    pageSize,
+    wasmSearchPostMessage,
+  ]);
+
+  const loadMore = () => {
+    if (!isSearching) {
+      setIsSearching(true);
+      const position = toWasmSearch(board);
+      const nextColor = brushColor === SabakiColor.Black ? 0 : 1;
+      const positionBuf = new TextEncoder().encode(JSON.stringify(position));
+      wasmSearchPostMessage({
+        type: "search",
+        payload: {
+          positionBuf,
+          nextColor,
+          page: currentPage + 1,
+          pageSize,
+          playerFilters,
         },
-        [positionBuf.buffer],
-      );
+      });
     }
   };
 
   useEffect(() => {
-    window.wasmSearchWorker.onmessage = (e) => {
+    if (!initialGame) {
+      return;
+    }
+    wasmSearchPostMessage({
+      type: "getSearchResultByPath",
+      payload: initialGame,
+    });
+  }, [initialGame, wasmSearchPostMessage]);
+
+  useEffect(() => {
+    const handleWorkerMessage = (e: MessageEvent) => {
       const { type, payload } = e.data;
 
       if (type === "result") {
@@ -168,8 +201,35 @@ export default function App({ initialBoard, initialPlayerFilters, initialGame }:
         setHasMore(current_page < total_pages - 1);
         setPlayerCounts(() => player_counts);
       }
+      if (type === "searchResultByPath") {
+        if (initialGame == null) {
+          return;
+        }
+        const jsonText = new TextDecoder().decode(payload);
+        const game = JSON.parse(jsonText) as Game;
+        game.last_move_matched = initialGame.lastMoveMatched;
+        setGameSelection(() => ({
+          game,
+          moveNumber: initialGame.lastMoveMatched,
+        }));
+        setMoveNumbers((draft) => {
+          draft[game.path] = initialGame.lastMoveMatched;
+        });
+        setLoadingGameSelection(false);
+      }
     };
-  }, [setGames, setNextMoves, setPlayerCounts]);
+
+    wasmSearchOnMessage(handleWorkerMessage);
+  }, [
+    setGames,
+    setNextMoves,
+    setPlayerCounts,
+    wasmSearchOnMessage,
+    initialGame,
+    setGameSelection,
+    setMoveNumbers,
+    setLoadingGameSelection,
+  ]);
 
   const getCurrentMoveNumber = useCallback(
     (game: Game) => {
@@ -359,7 +419,7 @@ export default function App({ initialBoard, initialPlayerFilters, initialGame }:
               vertexSize={vertexSize}
               setGameSelection={handleSetGameSelection}
             />
-            {gameSelection && (
+            {!isLoadingGameSelection && gameSelection && (
               <GameInfo
                 game={gameSelection.game}
                 onSelectAtMove={handleSetMoveNumber}

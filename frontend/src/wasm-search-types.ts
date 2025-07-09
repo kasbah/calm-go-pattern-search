@@ -82,6 +82,41 @@ export type Game = {
   result: GameResult;
 };
 
+export const emptyGame: Game = {
+  path: "",
+  score: 0,
+  last_move_matched: 0,
+  rotation: 0,
+  is_inverted: false,
+  is_mirrored: false,
+  all_empty_correctly_within: 0,
+  moves: [],
+  moves_transformed: [],
+  event: "",
+  round: "",
+  location: "",
+  date: null,
+  player_black: {
+    Unknown: "",
+  },
+  player_white: {
+    Unknown: "",
+  },
+  rank_black: {
+    Custom: "",
+  },
+  rank_white: {
+    Custom: "",
+  },
+  result: {
+    Unknown: "",
+    Player: undefined,
+    Points: undefined,
+  },
+  komi: null,
+  rules: null,
+};
+
 export type NextMove = {
   point: { x: number; y: number };
   game_count: number;
@@ -117,8 +152,22 @@ export function toSabakiMove(move: Placement): SabakiMove {
   };
 }
 
-declare global {
-  interface Window {
-    wasmSearchWorker: Worker;
-  }
-}
+export type WasmSearchMessage =
+  | {
+      type: "search";
+      payload: {
+        positionBuf: Uint8Array;
+        nextColor: number;
+        page: number;
+        pageSize: number;
+        playerFilters: PlayerFilter[];
+      };
+    }
+  | {
+      type: "getSearchResultByPath";
+      payload: {
+        path: string;
+        rotation: number;
+        isMirrored: boolean;
+      };
+    };

@@ -13,13 +13,16 @@ let queue: Array<{
 }> = [];
 let isSearching = false;
 
-onmessage = (e) => {
+onmessage = async (e) => {
   const { type, payload } = e.data;
   if (type === "search") {
     queue.push(payload);
     handleQueue();
   }
   if (type === "getSearchResultByPath") {
+    while (!wasmInitialized) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
     const { path, rotation, isMirrored } = payload;
     const result = wasmSearch.get_search_result_by_path(
       path,
