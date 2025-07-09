@@ -30,7 +30,7 @@ export default function GameInfo({
 
   return (
     <div
-      className="mt-2 text-lg ml-20 overflow-hidden flex flex-wrap gap-6"
+      className="mt-2 text-lg ml-20 overflow-scroll flex flex-wrap gap-6"
       style={{
         width: vertexSize * 19 + 70,
         maxHeight: `calc(95vh - ${vertexSize * 19 + 70}px)`,

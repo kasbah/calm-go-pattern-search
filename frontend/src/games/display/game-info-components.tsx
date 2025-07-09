@@ -600,7 +600,10 @@ export function GameEventInfo({ game, className }: GameEventInfoProps) {
           {game.event}
         </div>
       )}
-      <div className="text-gray-500 text-sm">
+      <div
+        className="text-gray-500 text-sm truncate max-w-full"
+        title={`Round: ${game.round}`}
+      >
         {game.round ? `Round: ${game.round}` : "\u00A0"}
       </div>
     </div>
@@ -621,11 +624,11 @@ export function GameDateLocation({ game, className }: GameDateLocationProps) {
       )}
     >
       {game.date && (
-        <div className="font-medium">
+        <div className="font-medium truncate max-w-full">
           <FormattedDate date={game.date} />
         </div>
       )}
-      <div className="text-gray-500 text-sm">
+      <div className="text-gray-500 text-sm truncate max-w-full">
         {game.location ? `Location: ${game.location}` : "\u00A0"}
       </div>
     </div>
