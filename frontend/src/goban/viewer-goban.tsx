@@ -104,24 +104,26 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
 
     const prevMove = useCallback(() => {
       if (gameSelection) {
+        const newMoveNumber = clampMoveNumber(
+          gameSelection.moveNumber - 1,
+          gameSelection.game.moves_transformed.length,
+        );
         setGameSelection({
           game: gameSelection.game,
-          moveNumber: clampMoveNumber(
-            gameSelection.moveNumber - 1,
-            gameSelection.game.moves_transformed.length,
-          ),
+          moveNumber: newMoveNumber,
         });
       }
     }, [gameSelection, setGameSelection]);
 
     const nextMove = useCallback(() => {
       if (gameSelection) {
+        const newMoveNumber = clampMoveNumber(
+          gameSelection.moveNumber + 1,
+          gameSelection.game.moves_transformed.length,
+        );
         setGameSelection({
           game: gameSelection.game,
-          moveNumber: clampMoveNumber(
-            gameSelection.moveNumber + 1,
-            gameSelection.game.moves_transformed.length,
-          ),
+          moveNumber: newMoveNumber,
         });
       }
     }, [gameSelection, setGameSelection]);
@@ -160,12 +162,13 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                   value={(gameSelection?.moveNumber ?? -1) + 1}
                   onChange={(e) => {
                     if (gameSelection) {
+                      const newMoveNumber = clampMoveNumber(
+                        parseInt(e.target.value) - 1,
+                        gameSelection.game.moves_transformed.length,
+                      );
                       setGameSelection({
                         game: gameSelection.game,
-                        moveNumber: clampMoveNumber(
-                          parseInt(e.target.value) - 1,
-                          gameSelection.game.moves_transformed.length,
-                        ),
+                        moveNumber: newMoveNumber,
                       });
                     }
                   }}
@@ -178,12 +181,13 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                   disabled={!gameSelection || gameSelection.moveNumber === 0}
                   onClick={() => {
                     if (gameSelection) {
+                      const newMoveNumber = clampMoveNumber(
+                        0,
+                        gameSelection.game.moves_transformed.length,
+                      );
                       setGameSelection({
                         game: gameSelection.game,
-                        moveNumber: clampMoveNumber(
-                          0,
-                          gameSelection.game.moves_transformed.length,
-                        ),
+                        moveNumber: newMoveNumber,
                       });
                     }
                   }}
@@ -197,12 +201,13 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                   disabled={!gameSelection || gameSelection.moveNumber === 0}
                   onClick={() => {
                     if (gameSelection) {
+                      const newMoveNumber = clampMoveNumber(
+                        gameSelection.moveNumber - 1,
+                        gameSelection.game.moves_transformed.length,
+                      );
                       setGameSelection({
                         game: gameSelection.game,
-                        moveNumber: clampMoveNumber(
-                          gameSelection.moveNumber - 1,
-                          gameSelection.game.moves_transformed.length,
-                        ),
+                        moveNumber: newMoveNumber,
                       });
                     }
                   }}
@@ -220,12 +225,13 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                   }
                   onClick={() => {
                     if (gameSelection) {
+                      const newMoveNumber = clampMoveNumber(
+                        gameSelection.moveNumber + 1,
+                        gameSelection.game.moves_transformed.length,
+                      );
                       setGameSelection({
                         game: gameSelection.game,
-                        moveNumber: clampMoveNumber(
-                          gameSelection.moveNumber + 1,
-                          gameSelection.game.moves_transformed.length,
-                        ),
+                        moveNumber: newMoveNumber,
                       });
                     }
                   }}
@@ -243,12 +249,13 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                   }
                   onClick={() => {
                     if (gameSelection) {
+                      const newMoveNumber = clampMoveNumber(
+                        gameSelection.game.moves_transformed.length - 1,
+                        gameSelection.game.moves_transformed.length,
+                      );
                       setGameSelection({
                         game: gameSelection.game,
-                        moveNumber: clampMoveNumber(
-                          gameSelection.game.moves_transformed.length - 1,
-                          gameSelection.game.moves_transformed.length,
-                        ),
+                        moveNumber: newMoveNumber,
                       });
                     }
                   }}

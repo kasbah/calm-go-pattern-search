@@ -51,7 +51,7 @@ export default function App({
   wasmSearchOnMessage,
 }: AppProps) {
   const initialGameSelection: GameSelection = initialGame
-    ? { game: emptyGame, moveNumber: initialGame?.lastMoveMatched ?? 0 }
+    ? { game: emptyGame, moveNumber: initialGame?.moveNumber ?? 0 }
     : null;
   const [isLoadingGameSelection, setLoadingGameSelection] = useState(
     initialGame != null,
@@ -94,6 +94,7 @@ export default function App({
   const playerFilterInputsRef = useRef<PlayerFilterInputsRef>(null);
 
   const timer = useRef<NodeJS.Timeout | undefined>(undefined);
+  const prevGameSelection = useRef<GameSelection>(initialGameSelection);
 
   useEffect(() => {
     updateUrlParams(board, playerFilters);
@@ -103,17 +104,22 @@ export default function App({
     if (isLoadingGameSelection) {
       return;
     }
+
     if (gameSelection) {
       updateUrlWithSelectedGame(
         gameSelection.game.path,
         gameSelection.game.rotation ?? 0,
         gameSelection.game.is_mirrored ?? false,
         gameSelection.game.is_inverted ?? false,
+        gameSelection.game.last_move_matched,
         gameSelection.moveNumber,
       );
     } else {
-      updateUrlWithSelectedGame("", 0, false, false, 0);
+      updateUrlWithSelectedGame("", 0, false, false, 0, 0);
     }
+
+    // Update the previous game selection reference
+    prevGameSelection.current = gameSelection;
   }, [gameSelection, isLoadingGameSelection]);
 
   useEffect(() => {
@@ -208,10 +214,8 @@ export default function App({
 
         // Handle both initial game load and back/forward navigation
         const gameFromUrl = getSelectedGameFromUrl();
-        const moveNumber =
-          gameFromUrl?.lastMoveMatched ?? game.last_move_matched;
+        const moveNumber = gameFromUrl?.moveNumber ?? game.last_move_matched;
 
-        game.last_move_matched = moveNumber;
         setGameSelection(() => ({
           game,
           moveNumber,
@@ -340,7 +344,7 @@ export default function App({
         if (
           !gameSelection ||
           gameSelection.game.path !== gameFromUrl.path ||
-          gameSelection.moveNumber !== gameFromUrl.lastMoveMatched
+          gameSelection.moveNumber !== gameFromUrl.moveNumber
         ) {
           // Check if the game is already in the games list
           const existingGame = games.find((g) => g.path === gameFromUrl.path);
@@ -348,10 +352,10 @@ export default function App({
             // Use existing game data
             setGameSelection(() => ({
               game: existingGame,
-              moveNumber: gameFromUrl.lastMoveMatched,
+              moveNumber: gameFromUrl.moveNumber,
             }));
             setMoveNumbers((draft) => {
-              draft[existingGame.path] = gameFromUrl.lastMoveMatched;
+              draft[existingGame.path] = gameFromUrl.moveNumber;
             });
           } else {
             // Need to load this game from web worker

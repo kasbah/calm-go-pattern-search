@@ -231,10 +231,11 @@ export type GameFromUrl = {
   isMirrored: boolean;
   isInverted: boolean;
   lastMoveMatched: number;
+  moveNumber: number;
 };
 
 /**
- * Gets the selected game path, rotation, is_mirrored, colors inverted, and last move matched from URL
+ * Gets the selected game path, rotation, is_mirrored, colors inverted, last move matched, and move number from URL
  */
 export function getSelectedGameFromUrl(): GameFromUrl | null {
   console.log("getSelectedGameFromUrl");
@@ -245,7 +246,11 @@ export function getSelectedGameFromUrl(): GameFromUrl | null {
   const rotation = parseInt(urlParams.get("rotation") || "0", 10);
   const isMirrored = urlParams.get("mirrored") === "1";
   const isInverted = urlParams.get("inverted") === "1";
-  const lastMoveMatched = parseInt(urlParams.get("lastmove") || "0", 10);
+  const lastMoveMatched = parseInt(urlParams.get("matched_move") || "1", 10);
+  const moveNumber = parseInt(
+    urlParams.get("move") || urlParams.get("matched_move") || "1",
+    10,
+  );
   if (path == null) {
     return null;
   }
@@ -254,12 +259,13 @@ export function getSelectedGameFromUrl(): GameFromUrl | null {
     rotation: isNaN(rotation) ? 0 : rotation,
     isMirrored,
     isInverted,
-    lastMoveMatched: isNaN(lastMoveMatched) ? 0 : lastMoveMatched,
+    lastMoveMatched: isNaN(lastMoveMatched) ? 0 : lastMoveMatched - 1,
+    moveNumber: isNaN(moveNumber) ? 0 : moveNumber - 1,
   };
 }
 
 /**
- * Updates the URL with the selected game path, rotation, is_mirrored, colors inverted, and last move matched
+ * Updates the URL with the selected game path, rotation, is_mirrored, colors inverted, last move matched, and move number
  */
 export function updateUrlWithSelectedGame(
   path: string,
@@ -267,6 +273,7 @@ export function updateUrlWithSelectedGame(
   isMirrored: boolean,
   isInverted: boolean,
   lastMoveMatched: number,
+  moveNumber: number,
 ): void {
   const urlParams = new URLSearchParams(window.location.search);
   const originalPathname = window.location.pathname;
@@ -279,17 +286,22 @@ export function updateUrlWithSelectedGame(
     urlParams.set("rotation", rotation.toString());
     urlParams.set("mirrored", isMirrored ? "1" : "0");
     urlParams.set("inverted", isInverted ? "1" : "0");
-    urlParams.set("lastmove", lastMoveMatched.toString());
+    urlParams.set("matched_move", (lastMoveMatched + 1).toString());
+    urlParams.set("move", (moveNumber + 1).toString());
   } else {
     // Clear game-related query parameters when no game is selected
     urlParams.delete("rotation");
     urlParams.delete("mirrored");
     urlParams.delete("inverted");
-    urlParams.delete("lastmove");
+    urlParams.delete("matched_move");
+    urlParams.delete("move");
   }
 
+  const newUrl = `${newPathname}${urlParams.toString() ? "?" + urlParams.toString() : ""}`;
+
   if (newPathname !== originalPathname) {
-    const newUrl = `${newPathname}${urlParams.toString() ? "?" + urlParams.toString() : ""}`;
     window.history.pushState({}, "", newUrl);
+  } else {
+    window.history.replaceState({}, "", newUrl);
   }
 }
