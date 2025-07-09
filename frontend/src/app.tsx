@@ -28,6 +28,7 @@ import {
 import {
   updateUrlParams,
   updateUrlWithSelectedGame,
+  getSelectedGameFromUrl,
   type GameFromUrl,
 } from "@/urls";
 
@@ -202,18 +203,21 @@ export default function App({
         setPlayerCounts(() => player_counts);
       }
       if (type === "searchResultByPath") {
-        if (initialGame == null) {
-          return;
-        }
         const jsonText = new TextDecoder().decode(payload);
         const game = JSON.parse(jsonText) as Game;
-        game.last_move_matched = initialGame.lastMoveMatched;
+
+        // Handle both initial game load and back/forward navigation
+        const gameFromUrl = getSelectedGameFromUrl();
+        const moveNumber =
+          gameFromUrl?.lastMoveMatched ?? game.last_move_matched;
+
+        game.last_move_matched = moveNumber;
         setGameSelection(() => ({
           game,
-          moveNumber: initialGame.lastMoveMatched,
+          moveNumber,
         }));
         setMoveNumbers((draft) => {
-          draft[game.path] = initialGame.lastMoveMatched;
+          draft[game.path] = moveNumber;
         });
         setLoadingGameSelection(false);
       }
@@ -325,6 +329,57 @@ export default function App({
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [gameSelection, games, getCurrentMoveNumber, setGameSelection]);
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      const gameFromUrl = getSelectedGameFromUrl();
+
+      if (gameFromUrl) {
+        // A game is selected in the URL
+        if (
+          !gameSelection ||
+          gameSelection.game.path !== gameFromUrl.path ||
+          gameSelection.moveNumber !== gameFromUrl.lastMoveMatched
+        ) {
+          // Check if the game is already in the games list
+          const existingGame = games.find((g) => g.path === gameFromUrl.path);
+          if (existingGame) {
+            // Use existing game data
+            setGameSelection(() => ({
+              game: existingGame,
+              moveNumber: gameFromUrl.lastMoveMatched,
+            }));
+            setMoveNumbers((draft) => {
+              draft[existingGame.path] = gameFromUrl.lastMoveMatched;
+            });
+          } else {
+            // Need to load this game from web worker
+            wasmSearchPostMessage({
+              type: "getSearchResultByPath",
+              payload: gameFromUrl,
+            });
+          }
+        }
+      } else {
+        // No game selected in URL
+        if (gameSelection) {
+          setGameSelection(() => null);
+        }
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [
+    gameSelection,
+    games,
+    wasmSearchPostMessage,
+    setGameSelection,
+    setMoveNumbers,
+  ]);
 
   const handleSetMoveNumber = (game: Game, moveNumber: number) => {
     setGameSelection(() => ({ game, moveNumber }));
