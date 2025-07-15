@@ -224,6 +224,10 @@ export const PlayerDisplay = memo(function PlayerDisplay({
     (alias) => alias.name !== playerName,
   );
 
+  // Get the original name from the game record if different from player_names.json
+  const originalName = player.Id?.[1];
+  const showOriginalName = originalName && originalName !== playerName;
+
   const [isCircleHovered, setIsCircleHovered] = useState(false);
   const [isNameHovered, setIsNameHovered] = useState(false);
   const [isAliasPopoverOpen, setAliasPopoverOpen] = useState(false);
@@ -253,74 +257,81 @@ export const PlayerDisplay = memo(function PlayerDisplay({
   );
 
   return (
-    <div
-      className={cn("flex items-center gap-2", className)}
-      style={maxWidth ? { maxWidth } : undefined}
-    >
-      <Popover open={isAliasPopoverOpen} onOpenChange={setAliasPopoverOpen}>
-        <PopoverTrigger asChild>
-          <div className="flex items-center gap-2">
-            <div
-              className={cn(
-                "flex items-center gap-2 rounded border",
-                isCircleHovered ? "border-gray-400" : "border-transparent",
-              )}
-            >
+    <div className="flex flex-col">
+      <div
+        className={cn("flex items-center gap-2", className)}
+        style={maxWidth ? { maxWidth } : undefined}
+      >
+        <Popover open={isAliasPopoverOpen} onOpenChange={setAliasPopoverOpen}>
+          <PopoverTrigger asChild>
+            <div className="flex items-center gap-2">
               <div
                 className={cn(
-                  "w-7 h-7 flex-shrink-0 rounded flex items-center justify-center",
-                  onPlayerClick && player.Id && "cursor-pointer",
+                  "flex items-center gap-2 rounded border",
+                  isCircleHovered ? "border-gray-400" : "border-transparent",
                 )}
-                onClick={handleCircleClick}
-                onMouseEnter={() => {
-                  setIsCircleHovered(true);
-                  if (playerAliases.length > 0) {
-                    setAliasPopoverOpen(true);
-                  }
-                }}
-                onMouseLeave={() => {
-                  setIsCircleHovered(false);
-                  setAliasPopoverOpen(false);
-                }}
               >
-                <img src={icon} alt={alt} className="w-6 h-6" />
+                <div
+                  className={cn(
+                    "w-7 h-7 flex-shrink-0 rounded flex items-center justify-center",
+                    onPlayerClick && player.Id && "cursor-pointer",
+                  )}
+                  onClick={handleCircleClick}
+                  onMouseEnter={() => {
+                    setIsCircleHovered(true);
+                    if (playerAliases.length > 0) {
+                      setAliasPopoverOpen(true);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    setIsCircleHovered(false);
+                    setAliasPopoverOpen(false);
+                  }}
+                >
+                  <img src={icon} alt={alt} className="w-6 h-6" />
+                </div>
+                <span
+                  className={cn(
+                    "font-medium rounded border",
+                    isNameHovered ? "border-gray-400" : "border-transparent",
+                    onPlayerClick && player.Id && "cursor-pointer",
+                  )}
+                  onClick={handlePlayerNameClick}
+                  onMouseEnter={() => {
+                    setIsNameHovered(true);
+                    if (playerAliases.length > 0) {
+                      setAliasPopoverOpen(true);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    setIsNameHovered(false);
+                    setAliasPopoverOpen(false);
+                  }}
+                >
+                  {playerName},
+                </span>
               </div>
-              <span
-                className={cn(
-                  "font-medium rounded border",
-                  isNameHovered ? "border-gray-400" : "border-transparent",
-                  onPlayerClick && player.Id && "cursor-pointer",
-                )}
-                onClick={handlePlayerNameClick}
-                onMouseEnter={() => {
-                  setIsNameHovered(true);
-                  if (playerAliases.length > 0) {
-                    setAliasPopoverOpen(true);
-                  }
-                }}
-                onMouseLeave={() => {
-                  setIsNameHovered(false);
-                  setAliasPopoverOpen(false);
-                }}
-              >
-                {playerName},
-              </span>
             </div>
-          </div>
-        </PopoverTrigger>
-        {playerAliases.length > 0 && (
-          <PopoverContent
-            className="w-80 text-sm"
-            side="bottom"
-            align="start"
-            onMouseEnter={handleAliasPopoverMouseEnter}
-            onMouseLeave={handleAliasPopoverMouseLeave}
-          >
-            {playerAliases.map((alias) => alias.name).join(", ")}
-          </PopoverContent>
-        )}
-      </Popover>
-      <span className="font-medium truncate min-w-0">{playerRank}</span>
+          </PopoverTrigger>
+          {playerAliases.length > 0 && (
+            <PopoverContent
+              className="w-80 text-sm"
+              side="bottom"
+              align="start"
+              onMouseEnter={handleAliasPopoverMouseEnter}
+              onMouseLeave={handleAliasPopoverMouseLeave}
+            >
+              {playerAliases.map((alias) => alias.name).join(", ")}
+            </PopoverContent>
+          )}
+        </Popover>
+        <span className="font-medium truncate min-w-0">{playerRank}</span>
+      </div>
+      {showOriginalName && (
+        <div className="text-xs text-gray-600 leading-tight ml-9">
+          ({originalName})
+        </div>
+      )}
     </div>
   );
 });
