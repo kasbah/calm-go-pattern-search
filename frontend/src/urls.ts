@@ -1,5 +1,6 @@
 import { type BoardPosition, emptyBoard, SabakiSign } from "@/sabaki-types";
 import { type PlayerFilter } from "@/wasm-search-types";
+import { SortBy } from "../../rust/wasm-search/pkg/wasm_search";
 
 /**
  * Serializes a board position to a compact URL-safe string
@@ -198,6 +199,7 @@ export function updateUrlWithPlayerFilters(filters: PlayerFilter[]): void {
 export function updateUrlParams(
   board: BoardPosition,
   filters: PlayerFilter[],
+  sortBy: SortBy,
 ): void {
   const urlParams = new URLSearchParams(window.location.search);
 
@@ -219,6 +221,12 @@ export function updateUrlParams(
   } else {
     const serialized = serializePlayerFiltersToUrl(filters);
     urlParams.set("players", serialized);
+  }
+
+  if (sortBy === SortBy.SearchScore) {
+    urlParams.delete("sort_by");
+  } else {
+    urlParams.set("sort_by", "least_moves");
   }
 
   const newUrl = `${window.location.pathname}${urlParams.toString() ? "?" + urlParams.toString() : ""}`;
@@ -304,4 +312,13 @@ export function updateUrlWithSelectedGame(
   } else {
     window.history.replaceState({}, "", newUrl);
   }
+}
+
+export function getSortByFromUrl(): SortBy {
+  const urlParams = new URLSearchParams(window.location.search);
+  const sortByParam = urlParams.get("sort_by");
+  if (sortByParam === "least_moves") {
+    return SortBy.LastMove;
+  }
+  return SortBy.SearchScore;
 }

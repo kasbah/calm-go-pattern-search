@@ -47,6 +47,7 @@ export type AppProps = {
   initialBoard: BoardPosition;
   initialPlayerFilters: PlayerFilter[];
   initialGame: GameFromUrl | null;
+  initialSortBy: SortBy;
   wasmSearchPostMessage: (message: WasmSearchMessage) => void;
   wasmSearchOnMessage: (callback: (e: MessageEvent) => void) => void;
 };
@@ -55,6 +56,7 @@ export default function App({
   initialBoard,
   initialPlayerFilters,
   initialGame,
+  initialSortBy,
   wasmSearchPostMessage,
   wasmSearchOnMessage,
 }: AppProps) {
@@ -91,9 +93,7 @@ export default function App({
     x: number;
     y: number;
   } | null>(null);
-  const [sortResultsBy, setSortResultsBy] = useState<SortBy>(
-    SortBy.SearchScore,
-  );
+  const [sortResultsBy, setSortResultsBy] = useState<SortBy>(initialSortBy);
 
   const pageSize = 40;
 
@@ -110,8 +110,8 @@ export default function App({
   const prevGameSelection = useRef<GameSelection>(initialGameSelection);
 
   useEffect(() => {
-    updateUrlParams(board, playerFilters);
-  }, [board, playerFilters]);
+    updateUrlParams(board, playerFilters, sortResultsBy);
+  }, [board, playerFilters, sortResultsBy]);
 
   useEffect(() => {
     if (isLoadingGameSelection) {
@@ -577,7 +577,7 @@ export default function App({
                     value={`${sortResultsBy}`}
                     onValueChange={(s) => setSortResultsBy(parseInt(s, 10))}
                   >
-                    <SelectTrigger className="w-[240px]">
+                    <SelectTrigger className="w-[225px]">
                       <SelectValue placeholder="Theme" />
                     </SelectTrigger>
                     <SelectContent>

@@ -6,6 +6,7 @@ import {
   getBoardFromUrl,
   getPlayerFiltersFromUrl,
   getSelectedGameFromUrl,
+  getSortByFromUrl,
 } from "@/urls";
 import type { PlayerFilter, WasmSearchMessage } from "@/wasm-search-types";
 
@@ -42,6 +43,7 @@ const wasmSearchOnMessage = (callback: (e: MessageEvent) => void) => {
 const initialBoard = getBoardFromUrl();
 const initialPlayerFilter: PlayerFilter[] = getPlayerFiltersFromUrl();
 const initialGame = getSelectedGameFromUrl();
+const initialSortBy = getSortByFromUrl();
 
 console.log(initialGame?.path);
 
@@ -53,6 +55,7 @@ root.render(
         initialBoard={initialBoard}
         initialPlayerFilters={initialPlayerFilter}
         initialGame={initialGame}
+        initialSortBy={initialSortBy}
         wasmSearchPostMessage={wasmSearchPostMessage}
         wasmSearchOnMessage={wasmSearchOnMessage}
       />
