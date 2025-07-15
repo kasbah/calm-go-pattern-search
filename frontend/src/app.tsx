@@ -502,6 +502,7 @@ export default function App({
               previewStone={previewStone}
               onCommitMove={handleCommitMove}
               initialBoard={initialBoard}
+              isVisible={gameSelection === null}
             />
           </div>
           <div

@@ -241,6 +241,7 @@ export type EditorGobanProps = {
   previewStone?: { x: number; y: number } | null;
   onCommitMove?: (point: { x: number; y: number }) => void;
   initialBoard: BoardPosition;
+  isVisible: boolean;
 };
 
 export type EditorGobanRef = {
@@ -262,9 +263,11 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
       previewStone,
       onCommitMove,
       initialBoard,
+      isVisible,
     },
     ref,
   ) => {
+    if (!isVisible) return null;
     const [state, dispatch] = useImmerReducer(editorGobanReducer, {
       ...initialState,
       board: initialBoard,
