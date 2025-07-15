@@ -164,6 +164,13 @@ struct WasmSearchReturn {
 }
 
 #[wasm_bindgen]
+#[derive(Serialize, Deserialize, Clone, Eq, PartialEq)]
+pub enum SortBy {
+    SearchScore,
+    LastMove,
+}
+
+#[wasm_bindgen]
 impl WasmSearch {
     #[wasm_bindgen(constructor)]
     pub fn new() -> WasmSearch {
@@ -213,6 +220,7 @@ impl WasmSearch {
         page: usize,
         page_size: usize,
         player_filters_json: Uint8Array,
+        sort_by: SortBy,
     ) -> Uint8Array {
         let position_buf: Vec<u8> = position.to_vec();
         let position_decoded: Vec<Placement> = serde_json::from_slice(position_buf.as_slice())
@@ -224,6 +232,10 @@ impl WasmSearch {
                 .expect("Failed to deserialize player filters");
 
         let mut results = self.match_position(&position_decoded);
+
+        if sort_by == SortBy::LastMove {
+            results.sort_by(|a, b| a.last_move_matched.cmp(&b.last_move_matched));
+        }
 
         // Filter results by player filters if provided (empty array means no filter)
         // Games must contain ALL selected players with specified colors
@@ -693,7 +705,6 @@ impl WasmSearch {
         }
 
         results.sort_by(|a, b| b.score.cmp(&a.score));
-        results.sort_by(|a, b| a.last_move_matched.cmp(&b.last_move_matched));
 
         self.position_cache.put(position.to_vec(), results.clone());
 

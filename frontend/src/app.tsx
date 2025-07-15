@@ -34,6 +34,14 @@ import {
 
 import trophyCrossedOutSvg from "./assets/icons/trophy-crossed-out.svg";
 import trophySvg from "./assets/icons/trophy.svg";
+import { SortBy } from "../../rust/wasm-search/pkg/wasm_search";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui-primitives/select";
 
 export type AppProps = {
   initialBoard: BoardPosition;
@@ -83,6 +91,10 @@ export default function App({
     x: number;
     y: number;
   } | null>(null);
+  const [sortResultsBy, setSortResultsBy] = useState<SortBy>(
+    SortBy.SearchScore,
+  );
+
   const pageSize = 40;
 
   const tinyVertexSize = 12;
@@ -140,6 +152,7 @@ export default function App({
             page: 0,
             pageSize,
             playerFilters,
+            sortBy: sortResultsBy,
           },
         });
       }, 500);
@@ -151,6 +164,7 @@ export default function App({
     isClearingBoard,
     pageSize,
     wasmSearchPostMessage,
+    sortResultsBy,
   ]);
 
   const loadMore = () => {
@@ -167,6 +181,7 @@ export default function App({
           page: currentPage + 1,
           pageSize,
           playerFilters,
+          sortBy: sortResultsBy,
         },
       });
     }
@@ -555,7 +570,26 @@ export default function App({
                 isLoading={isSearching}
                 initialPlayerFilters={initialPlayerFilters}
               />
-              <div className="flex items-center justify-end mt-2 space-x-3">
+              <div className="flex items-center justify-end mt-2 space-x-3 font-medium">
+                <div className="flex items-center gap-2">
+                  <div className="text-gray-500 font-normal">Sort by:</div>
+                  <Select
+                    value={`${sortResultsBy}`}
+                    onValueChange={(s) => setSortResultsBy(parseInt(s, 10))}
+                  >
+                    <SelectTrigger className="w-[240px]">
+                      <SelectValue placeholder="Theme" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={`${SortBy.SearchScore}`}>
+                        Best match
+                      </SelectItem>
+                      <SelectItem value={`${SortBy.LastMove}`}>
+                        Least moves to match
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Separator orientation="vertical" />
                 <div
                   className="flex items-center cursor-pointer min-w-[160px]"

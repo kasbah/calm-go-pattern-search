@@ -3,6 +3,7 @@ import {
   type BoardPosition,
   type SabakiMove,
 } from "@/sabaki-types";
+import type { SortBy } from "../../rust/wasm-search/pkg/wasm_search";
 
 export type Point = {
   x: number;
@@ -161,6 +162,7 @@ export type WasmSearchMessage =
         page: number;
         pageSize: number;
         playerFilters: PlayerFilter[];
+        sortBy: SortBy;
       };
     }
   | {
