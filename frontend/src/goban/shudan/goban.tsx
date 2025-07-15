@@ -313,11 +313,6 @@ const GobanComponent: React.FC<GobanProps> = (props) => {
   );
 };
 
-// Simple shallow equality check
-const shallowEquals = (a: unknown, b: unknown): boolean => {
-  return a === b;
-};
-
 // Memoize the component to prevent unnecessary re-renders
 const Goban = memo(
   GobanComponent,
@@ -348,7 +343,7 @@ const Goban = memo(
     ] as (keyof GobanProps)[];
 
     for (const prop of allProps) {
-      if (!shallowEquals(prevProps[prop], nextProps[prop])) {
+      if (prevProps[prop] !== nextProps[prop]) {
         return false;
       }
     }
