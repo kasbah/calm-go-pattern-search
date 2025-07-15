@@ -142,7 +142,8 @@ const GobanComponent: React.FC<GobanProps> = (props) => {
 
       return {
         key: [x, y].join("-"),
-        position: [x, y] as Vertex,
+        positionX: x,
+        positionY: y,
 
         sign: signMap?.[y]?.[x],
 

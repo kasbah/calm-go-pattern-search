@@ -41,7 +41,8 @@ export interface HeatVertex {
 }
 
 interface VertexProps {
-  position: Vertex;
+  positionX: number;
+  positionY: number;
 
   sign?: number;
   heat?: HeatVertex | null;
@@ -80,8 +81,8 @@ interface VertexProps {
 // Memoize the vertex component to prevent unnecessary re-renders
 const VertexComponent = memo(function Vertex(props: VertexProps) {
   const {
-    position,
-
+    positionX,
+    positionY,
     sign,
     heat,
     paint,
@@ -146,13 +147,14 @@ const VertexComponent = memo(function Vertex(props: VertexProps) {
               evt: React.MouseEvent | React.PointerEvent,
               vertex: Vertex,
             ) => void
-          )(evt, position);
+          )(evt, [positionX, positionY]);
         };
       }
     }
     return handlers;
   }, [
-    position,
+    positionX,
+    positionY,
     onClick,
     onMouseDown,
     onMouseUp,
@@ -322,8 +324,8 @@ const VertexComponent = memo(function Vertex(props: VertexProps) {
 
   return (
     <div
-      data-x={position[0]}
-      data-y={position[1]}
+      data-x={positionX}
+      data-y={positionY}
       title={marker?.tooltip ?? marker?.label ?? undefined}
       style={relativeStyle}
       className={className}
@@ -388,7 +390,8 @@ const shallowEquals = (a: unknown, b: unknown): boolean => {
 function areEqual(prevProps: VertexProps, nextProps: VertexProps): boolean {
   // Simple shallow equality check for all props
   const allProps: (keyof VertexProps)[] = [
-    "position",
+    "positionX",
+    "positionY",
     "sign",
     "heat",
     "paint",
