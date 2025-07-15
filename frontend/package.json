@@ -50,6 +50,7 @@
     "@reach/window-size": "^0.18.0",
     "@sabaki/go-board": "^1.4.3",
     "class-variance-authority": "^0.7.1",
+    "classnames": "^2.5.1",
     "clsx": "^2.1.1",
     "fuse.js": "^7.1.0",
     "immer": "^10.1.1",
