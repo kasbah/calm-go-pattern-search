@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, memo } from "react";
 import TinyViewerGoban from "@/goban/tiny-viewer-goban";
 import { cn } from "@/utils";
 import type { Game } from "@/wasm-search-types";
@@ -39,7 +39,7 @@ type GameItemProps = {
   onPlayerClick?: (playerId: number, color: "Black" | "White" | "Any") => void;
 };
 
-function GameItem({
+const GameItem = memo(function GameItem({
   game,
   index,
   isSelected,
@@ -173,7 +173,7 @@ function GameItem({
       <Separator />
     </>
   );
-}
+});
 
 export default function GamesList({
   games,

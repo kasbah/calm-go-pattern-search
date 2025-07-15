@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, type JSX } from "react";
+import { useState, useEffect, useCallback, memo, type JSX } from "react";
 import { cn } from "@/utils";
 import type {
   Game,
@@ -205,7 +205,7 @@ export type PlayerDisplayProps = {
   onPlayerClick?: (playerId: number, color: "Black" | "White" | "Any") => void;
 };
 
-export function PlayerDisplay({
+export const PlayerDisplay = memo(function PlayerDisplay({
   game,
   color,
   className,
@@ -255,7 +255,7 @@ export function PlayerDisplay({
   return (
     <div
       className={cn("flex items-center gap-2", className)}
-      style={maxWidth ? { maxWidth: `${maxWidth}px` } : undefined}
+      style={maxWidth ? { maxWidth } : undefined}
     >
       <Popover open={isAliasPopoverOpen} onOpenChange={setAliasPopoverOpen}>
         <PopoverTrigger asChild>
@@ -323,7 +323,7 @@ export function PlayerDisplay({
       <span className="font-medium truncate min-w-0">{playerRank}</span>
     </div>
   );
-}
+});
 
 export type GameIconsProps = {
   game: Game;
