@@ -281,12 +281,13 @@ export default function App({
     setLoadingGameSelection,
   ]);
 
-  const getCurrentMoveNumber = useCallback(
-    (game: Game) => {
-      return moveNumbers[game.path] ?? game.last_move_matched;
-    },
-    [moveNumbers],
-  );
+  useEffect(() => {
+    if (selectedGame) {
+      setSelectedMoveNumber(
+        moveNumbers[selectedGame.path] ?? selectedGame.last_move_matched,
+      );
+    }
+  }, [selectedGame, setSelectedMoveNumber, moveNumbers]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -302,7 +303,6 @@ export default function App({
           // Select the first game if none is selected, or the next one if possible
           if (games.length > 0) {
             setSelectedGame(() => games[0]);
-            setSelectedMoveNumber(getCurrentMoveNumber(games[0]));
           }
         } else if (e.key === "ArrowUp") {
           e.preventDefault();
@@ -314,7 +314,6 @@ export default function App({
             );
             if (idx > 0) {
               setSelectedGame(() => games[idx - 1]);
-              setSelectedMoveNumber(getCurrentMoveNumber(games[idx - 1]));
             }
           }
         }
@@ -324,7 +323,6 @@ export default function App({
           e.preventDefault();
           if (games.length > 0) {
             setSelectedGame(() => games[0]);
-            setSelectedMoveNumber(getCurrentMoveNumber(games[0]));
           }
         }
       } else if (selectedGame != null && viewerGobanRef.current) {
@@ -341,7 +339,6 @@ export default function App({
             );
             if (idx !== -1 && idx < games.length - 1) {
               setSelectedGame(() => games[idx + 1]);
-              setSelectedMoveNumber(getCurrentMoveNumber(games[idx + 1]));
             }
           }
         } else if (e.key === "ArrowUp") {
@@ -353,7 +350,6 @@ export default function App({
             );
             if (idx > 0) {
               setSelectedGame(() => games[idx - 1]);
-              setSelectedMoveNumber(getCurrentMoveNumber(games[idx - 1]));
             }
           }
         }
@@ -368,7 +364,6 @@ export default function App({
     selectedGame,
     selectedMoveNumber,
     games,
-    getCurrentMoveNumber,
     setSelectedGame,
     setSelectedMoveNumber,
   ]);
@@ -536,11 +531,10 @@ export default function App({
     (game: Game | null) => {
       if (game) {
         setSelectedGame(() => game);
-        setSelectedMoveNumber(getCurrentMoveNumber(game));
         setGameNotFound(false);
       }
     },
-    [setSelectedGame, setSelectedMoveNumber, getCurrentMoveNumber],
+    [setSelectedGame, setSelectedMoveNumber, setGameNotFound],
   );
 
   const handleSelectGameAtMove = useCallback(
