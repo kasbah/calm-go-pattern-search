@@ -246,7 +246,6 @@ export type GameFromUrl = {
  * Gets the selected game path, rotation, is_mirrored, colors inverted, last move matched, and move number from URL
  */
 export function getSelectedGameFromUrl(): GameFromUrl | null {
-  console.log("getSelectedGameFromUrl");
   const urlParams = new URLSearchParams(window.location.search);
   const path = window.location.pathname.startsWith("/game/")
     ? window.location.pathname.replace(/^\/game\//, "")

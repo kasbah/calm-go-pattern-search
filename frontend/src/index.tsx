@@ -45,8 +45,6 @@ const initialPlayerFilter: PlayerFilter[] = getPlayerFiltersFromUrl();
 const initialGame = getSelectedGameFromUrl();
 const initialSortBy = getSortByFromUrl();
 
-console.log(initialGame?.path);
-
 const root = createRoot(document.getElementById("root") as HTMLElement);
 root.render(
   <React.StrictMode>
