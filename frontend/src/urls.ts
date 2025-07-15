@@ -223,7 +223,7 @@ export function updateUrlParams(
     urlParams.set("players", serialized);
   }
 
-  if (sortBy === SortBy.SearchScore) {
+  if (sortBy === SortBy.BestMatch) {
     urlParams.delete("sort_by");
   } else {
     urlParams.set("sort_by", "least_moves");
@@ -318,7 +318,7 @@ export function getSortByFromUrl(): SortBy {
   const urlParams = new URLSearchParams(window.location.search);
   const sortByParam = urlParams.get("sort_by");
   if (sortByParam === "least_moves") {
-    return SortBy.LastMove;
+    return SortBy.LeastMoves;
   }
-  return SortBy.SearchScore;
+  return SortBy.BestMatch;
 }

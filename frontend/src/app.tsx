@@ -581,10 +581,10 @@ export default function App({
                       <SelectValue placeholder="Theme" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={`${SortBy.SearchScore}`}>
+                      <SelectItem value={`${SortBy.BestMatch}`}>
                         Best match
                       </SelectItem>
-                      <SelectItem value={`${SortBy.LastMove}`}>
+                      <SelectItem value={`${SortBy.LeastMoves}`}>
                         Least moves to match
                       </SelectItem>
                     </SelectContent>

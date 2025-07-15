@@ -166,8 +166,8 @@ struct WasmSearchReturn {
 #[wasm_bindgen]
 #[derive(Serialize, Deserialize, Clone, Eq, PartialEq)]
 pub enum SortBy {
-    SearchScore,
-    LastMove,
+    BestMatch,
+    LeastMoves,
 }
 
 #[wasm_bindgen]
@@ -233,7 +233,7 @@ impl WasmSearch {
 
         let mut results = self.match_position(&position_decoded);
 
-        if sort_by == SortBy::LastMove {
+        if sort_by == SortBy::LeastMoves {
             results.sort_by(|a, b| a.last_move_matched.cmp(&b.last_move_matched));
         }
 

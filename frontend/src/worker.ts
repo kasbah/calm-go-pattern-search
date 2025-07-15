@@ -56,7 +56,7 @@ async function handleQueue() {
       page = 0,
       pageSize = 10,
       playerFilters = [],
-      sortBy = SortBy.SearchScore,
+      sortBy = SortBy.BestMatch,
     } = queue.pop()!;
     queue = [];
     const playerFiltersJson = new TextEncoder().encode(
