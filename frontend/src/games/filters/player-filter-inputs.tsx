@@ -317,6 +317,19 @@ function PlayerInput({
     );
   };
 
+  const handleSelectBlack = useCallback(
+    () => handleColorSelect("Black"),
+    [handleColorSelect],
+  );
+  const handleSelectWhite = useCallback(
+    () => handleColorSelect("White"),
+    [handleColorSelect],
+  );
+  const handleSelectAny = useCallback(
+    () => handleColorSelect("Any"),
+    [handleColorSelect],
+  );
+
   const renderColorDropdown = () => {
     if (!showColorDropdown) return null;
 
@@ -334,7 +347,7 @@ function PlayerInput({
             "w-full px-4 py-3 flex items-center gap-2 hover:bg-accent/50",
             "transition-colors cursor-pointer",
           )}
-          onClick={() => handleColorSelect("Black")}
+          onClick={handleSelectBlack}
         >
           <img src={circleBlackSvg} alt="Black" className="h-6 w-6" />
           <span className="text-lg">Black</span>
@@ -344,7 +357,7 @@ function PlayerInput({
             "w-full px-4 py-3 flex items-center gap-2 hover:bg-accent/50",
             "transition-colors cursor-pointer",
           )}
-          onClick={() => handleColorSelect("White")}
+          onClick={handleSelectWhite}
         >
           <img src={circleWhiteSvg} alt="White" className="h-6 w-6" />
           <span className="text-lg">White</span>
@@ -354,7 +367,7 @@ function PlayerInput({
             "w-full px-4 py-3 flex items-center gap-2 hover:bg-accent/50",
             "transition-colors cursor-pointer",
           )}
-          onClick={() => handleColorSelect("Any")}
+          onClick={handleSelectAny}
         >
           <img src={circleBlackOrWhiteSvg} alt="Any" className="h-6 w-6" />
           <span className="text-lg">Any</span>
@@ -363,11 +376,25 @@ function PlayerInput({
     );
   };
 
+  const toggleColorDropdown = useCallback(() => {
+    setShowColorDropdown(!showColorDropdown);
+  }, [showColorDropdown]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && suggestions.length > 0) {
+        handlePlayerSelect(suggestions[0]);
+        inputRef.current?.blur();
+      }
+    },
+    [suggestions, handlePlayerSelect],
+  );
+
   return (
     <div className="relative">
       <div className="relative flex items-center">
         <button
-          onClick={() => setShowColorDropdown(!showColorDropdown)}
+          onClick={toggleColorDropdown}
           className={cn(
             "absolute left-3 top-1/2 -translate-y-1/2",
             "h-8 w-10 rounded-sm opacity-70 hover:opacity-100",
@@ -403,12 +430,7 @@ function PlayerInput({
           value={selectedPlayer?.name ?? query}
           onChange={handleQueryChange}
           onFocus={handleInputFocus}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && suggestions.length > 0) {
-              handlePlayerSelect(suggestions[0]);
-              inputRef.current?.blur();
-            }
-          }}
+          onKeyDown={handleKeyDown}
           className={cn(
             "pl-14 pr-10 h-14 text-lg",
             selectedPlayer && "bg-accent/20 border-primary",
@@ -511,6 +533,48 @@ const PlayerFilterInputs = React.forwardRef<
     [state.player1, state.player2],
   );
 
+  const handlePlayer1Select = useCallback(
+    (player: PlayerSuggestion | null) =>
+      dispatch({ type: "SELECT_PLAYER_1", player }),
+    [dispatch],
+  );
+
+  const handlePlayer1ColorChange = useCallback(
+    (color: PlayerColor) => dispatch({ type: "SET_COLOR_1", color }),
+    [dispatch],
+  );
+
+  const handlePlayer1TempDelete = useCallback(
+    () => dispatch({ type: "TEMP_DELETE_PLAYER_1" }),
+    [dispatch],
+  );
+
+  const handlePlayer1Restore = useCallback(
+    () => dispatch({ type: "RESTORE_PLAYER_1" }),
+    [dispatch],
+  );
+
+  const handlePlayer2Select = useCallback(
+    (player: PlayerSuggestion | null) =>
+      dispatch({ type: "SELECT_PLAYER_2", player }),
+    [dispatch],
+  );
+
+  const handlePlayer2ColorChange = useCallback(
+    (color: PlayerColor) => dispatch({ type: "SET_COLOR_2", color }),
+    [dispatch],
+  );
+
+  const handlePlayer2TempDelete = useCallback(
+    () => dispatch({ type: "TEMP_DELETE_PLAYER_2" }),
+    [dispatch],
+  );
+
+  const handlePlayer2Restore = useCallback(
+    () => dispatch({ type: "RESTORE_PLAYER_2" }),
+    [dispatch],
+  );
+
   React.useImperativeHandle(ref, () => ({
     addPlayer,
   }));
@@ -554,15 +618,13 @@ const PlayerFilterInputs = React.forwardRef<
         <PlayerInput
           placeholder="Player 1"
           selectedPlayer={state.player1}
-          onPlayerSelect={(player) =>
-            dispatch({ type: "SELECT_PLAYER_1", player })
-          }
+          onPlayerSelect={handlePlayer1Select}
           playerCounts={playerCounts}
           isLoading={isLoading}
           color={state.color1}
-          onColorChange={(color) => dispatch({ type: "SET_COLOR_1", color })}
-          onTempDelete={() => dispatch({ type: "TEMP_DELETE_PLAYER_1" })}
-          onRestore={() => dispatch({ type: "RESTORE_PLAYER_1" })}
+          onColorChange={handlePlayer1ColorChange}
+          onTempDelete={handlePlayer1TempDelete}
+          onRestore={handlePlayer1Restore}
         />
 
         <div className="text-lg font-medium text-foreground mb-4 text-center">
@@ -571,15 +633,13 @@ const PlayerFilterInputs = React.forwardRef<
         <PlayerInput
           placeholder="Player 2"
           selectedPlayer={state.player2}
-          onPlayerSelect={(player) =>
-            dispatch({ type: "SELECT_PLAYER_2", player })
-          }
+          onPlayerSelect={handlePlayer2Select}
           playerCounts={playerCounts}
           isLoading={isLoading}
           color={state.color2}
-          onColorChange={(color) => dispatch({ type: "SET_COLOR_2", color })}
-          onTempDelete={() => dispatch({ type: "TEMP_DELETE_PLAYER_2" })}
-          onRestore={() => dispatch({ type: "RESTORE_PLAYER_2" })}
+          onColorChange={handlePlayer2ColorChange}
+          onTempDelete={handlePlayer2TempDelete}
+          onRestore={handlePlayer2Restore}
         />
       </div>
     </div>

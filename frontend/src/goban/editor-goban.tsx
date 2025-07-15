@@ -267,7 +267,6 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
     },
     ref,
   ) => {
-    if (!isVisible) return null;
     const [state, dispatch] = useImmerReducer(editorGobanReducer, {
       ...initialState,
       board: initialBoard,
@@ -448,6 +447,16 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
       dispatch({ type: "CLEAR_BOARD" });
     }, [dispatch]);
 
+    const handleTrashMouseEnter = useCallback(() => {
+      setIsTrashHovering(true);
+    }, []);
+
+    const handleTrashMouseLeave = useCallback(() => {
+      setIsTrashHovering(false);
+    }, []);
+
+    if (!isVisible) return null;
+
     const maxHeight = Math.min(window.innerHeight, window.innerWidth * 0.5);
 
     return (
@@ -491,8 +500,8 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
                 variant="outline"
                 onClick={handleClearBoard}
                 disabled={boardsEqual(state.board, emptyBoard)}
-                onMouseEnter={() => setIsTrashHovering(true)}
-                onMouseLeave={() => setIsTrashHovering(false)}
+                onMouseEnter={handleTrashMouseEnter}
+                onMouseLeave={handleTrashMouseLeave}
               >
                 <img src={trashSvg} width={24} height={24} />
               </Button>

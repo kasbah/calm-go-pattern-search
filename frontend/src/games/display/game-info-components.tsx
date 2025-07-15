@@ -1,4 +1,4 @@
-import { useState, useEffect, type JSX } from "react";
+import { useState, useEffect, useCallback, type JSX } from "react";
 import { cn } from "@/utils";
 import type {
   Game,
@@ -228,18 +228,29 @@ export function PlayerDisplay({
   const [isNameHovered, setIsNameHovered] = useState(false);
   const [isAliasPopoverOpen, setAliasPopoverOpen] = useState(false);
 
-  const handlePlayerNameClick = () => {
+  const handleAliasPopoverMouseEnter = useCallback(() => {
+    setAliasPopoverOpen(true);
+  }, []);
+
+  const handleAliasPopoverMouseLeave = useCallback(() => {
+    setAliasPopoverOpen(false);
+  }, []);
+
+  const handlePlayerNameClick = useCallback(() => {
     if (onPlayerClick && player.Id) {
       onPlayerClick(player.Id[0], "Any");
     }
-  };
+  }, [onPlayerClick, player.Id]);
 
-  const handleCircleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onPlayerClick && player.Id) {
-      onPlayerClick(player.Id[0], color);
-    }
-  };
+  const handleCircleClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (onPlayerClick && player.Id) {
+        onPlayerClick(player.Id[0], color);
+      }
+    },
+    [onPlayerClick, player.Id, color],
+  );
 
   return (
     <div
@@ -302,8 +313,8 @@ export function PlayerDisplay({
             className="w-80 text-sm"
             side="bottom"
             align="start"
-            onMouseEnter={() => setAliasPopoverOpen(true)}
-            onMouseLeave={() => setAliasPopoverOpen(false)}
+            onMouseEnter={handleAliasPopoverMouseEnter}
+            onMouseLeave={handleAliasPopoverMouseLeave}
           >
             {playerAliases.map((alias) => alias.name).join(", ")}
           </PopoverContent>
@@ -358,6 +369,29 @@ export function GameInfoPopover({
   const [isInfoPopoverOpen, setInfoPopOverOpen] = useState(false);
   const [isInfoPinned, setInfoPinned] = useState(false);
 
+  const handleInfoPopoverMouseEnter = useCallback(() => {
+    if (!isInfoPinned) setInfoPopOverOpen(true);
+  }, [isInfoPinned]);
+
+  const handleInfoPopoverMouseLeave = useCallback(() => {
+    if (!isInfoPinned) setInfoPopOverOpen(false);
+  }, [isInfoPinned]);
+
+  const handleInfoPopoverClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
+
+  const handleInfoClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const newPinnedState = !isInfoPinned;
+      setInfoPinned(newPinnedState);
+      setInfoPopOverOpen(true);
+    },
+    [isInfoPinned],
+  );
+
   return (
     <Popover
       open={isInfoPopoverOpen}
@@ -388,26 +422,16 @@ export function GameInfoPopover({
           onMouseLeave={() => {
             if (!isInfoPinned) setInfoPopOverOpen(false);
           }}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const newPinnedState = !isInfoPinned;
-            setInfoPinned(newPinnedState);
-            setInfoPopOverOpen(true);
-          }}
+          onClick={handleInfoClick}
         />
       </PopoverTrigger>
       <PopoverContent
         className="w-64 text-sm"
         align={align}
         side={side}
-        onMouseEnter={() => {
-          if (!isInfoPinned) setInfoPopOverOpen(true);
-        }}
-        onMouseLeave={() => {
-          if (!isInfoPinned) setInfoPopOverOpen(false);
-        }}
-        onClick={(e) => e.stopPropagation()}
+        onMouseEnter={handleInfoPopoverMouseEnter}
+        onMouseLeave={handleInfoPopoverMouseLeave}
+        onClick={handleInfoPopoverClick}
       >
         <div className="space-y-1">
           <div>
@@ -452,6 +476,10 @@ export function GameResult({
     setShouldShowResult(showAllResults);
   }, [showAllResults]);
 
+  const handleToggleResult = useCallback(() => {
+    setShouldShowResult(!shouldShowResult);
+  }, [shouldShowResult]);
+
   return (
     <button
       className={cn(
@@ -459,7 +487,7 @@ export function GameResult({
         className,
       )}
       title={`Click to ${shouldShowResult ? "hide" : "reveal"} result`}
-      onClick={() => setShouldShowResult(!shouldShowResult)}
+      onClick={handleToggleResult}
     >
       <span className="text-gray-600">Result:</span>
       {shouldShowResult ||
@@ -483,17 +511,32 @@ export type MoveInfoProps = {
 };
 
 export function MoveInfo({ game, onSelectAtMove, className }: MoveInfoProps) {
+  const handleMatchedMoveClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (onSelectAtMove) {
+        onSelectAtMove(game, game.last_move_matched);
+      }
+    },
+    [onSelectAtMove, game],
+  );
+
+  const handleLastMoveClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (onSelectAtMove) {
+        onSelectAtMove(game, game.moves.length - 1);
+      }
+    },
+    [onSelectAtMove, game],
+  );
+
   return (
     <div className={cn("flex items-center gap-2 text-base", className)}>
       <span className="text-gray-500">Matched:</span>
       <span
         className="cursor-pointer hover:underline"
-        onClick={(e) => {
-          e.stopPropagation();
-          if (onSelectAtMove) {
-            onSelectAtMove(game, game.last_move_matched);
-          }
-        }}
+        onClick={handleMatchedMoveClick}
         title="Click to view game at this move"
       >
         Move {game.last_move_matched + 1}
@@ -501,12 +544,7 @@ export function MoveInfo({ game, onSelectAtMove, className }: MoveInfoProps) {
       <span className="text-gray-300">/</span>
       <span
         className="cursor-pointer hover:underline"
-        onClick={(e) => {
-          e.stopPropagation();
-          if (onSelectAtMove) {
-            onSelectAtMove(game, game.moves.length - 1);
-          }
-        }}
+        onClick={handleLastMoveClick}
       >
         {game.moves.length}
       </span>
@@ -525,17 +563,32 @@ export function MoveInfoCompact({
   onSelectAtMove,
   className,
 }: MoveInfoCompactProps) {
+  const handleMatchedMoveClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (onSelectAtMove) {
+        onSelectAtMove(game, game.last_move_matched);
+      }
+    },
+    [onSelectAtMove, game],
+  );
+
+  const handleLastMoveClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (onSelectAtMove) {
+        onSelectAtMove(game, game.moves.length - 1);
+      }
+    },
+    [onSelectAtMove, game],
+  );
+
   return (
     <div className={className}>
       <span className="text-gray-500">Matched: </span>
       <span
         className="cursor-pointer hover:underline"
-        onClick={(e) => {
-          e.stopPropagation();
-          if (onSelectAtMove) {
-            onSelectAtMove(game, game.last_move_matched);
-          }
-        }}
+        onClick={handleMatchedMoveClick}
         title="Click to view game at this move"
       >
         Move {game.last_move_matched + 1}
@@ -548,12 +601,7 @@ export function MoveInfoCompact({
       </span>
       <span
         className="cursor-pointer hover:underline"
-        onClick={(e) => {
-          e.stopPropagation();
-          if (onSelectAtMove) {
-            onSelectAtMove(game, game.moves.length - 1);
-          }
-        }}
+        onClick={handleLastMoveClick}
       >
         {game.moves.length}
       </span>

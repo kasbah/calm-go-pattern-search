@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { type NextMove } from "@/wasm-search-types";
 import { SabakiColor } from "@/sabaki-types";
 import { cn } from "@/utils";
@@ -20,6 +21,24 @@ export default function NextMovesList({
   onMoveClick,
 }: NextMovesListProps) {
   const maxGameCount = Math.max(...nextMoves.map((move) => move.game_count));
+
+  const handleMoveHover = useCallback(
+    (point: { x: number; y: number }) => {
+      onMoveHover?.(point);
+    },
+    [onMoveHover],
+  );
+
+  const handleMoveUnhover = useCallback(() => {
+    onMoveUnhover?.();
+  }, [onMoveUnhover]);
+
+  const handleMoveClick = useCallback(
+    (point: { x: number; y: number }) => {
+      onMoveClick?.(point);
+    },
+    [onMoveClick],
+  );
 
   return (
     <div
@@ -67,9 +86,9 @@ export default function NextMovesList({
                 "bg-gray-50 rounded hover:bg-gray-100 transition-colors",
                 "w-[160px] max-w-[160px] max-h-[42px] cursor-pointer overflow-hidden",
               )}
-              onMouseEnter={() => onMoveHover?.(move.point)}
-              onMouseLeave={() => onMoveUnhover?.()}
-              onClick={() => onMoveClick?.(move.point)}
+              onMouseEnter={() => handleMoveHover(move.point)}
+              onMouseLeave={handleMoveUnhover}
+              onClick={() => handleMoveClick(move.point)}
             >
               <div
                 className={cn(

@@ -1,6 +1,6 @@
 import { Goban } from "./shudan";
 import "./shudan/css/goban.css";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import type { BoardPosition } from "@/sabaki-types";
 import { boardsEqual, emptyBoard } from "@/sabaki-types";
 import { Button } from "@/ui-primitives/button";
@@ -25,6 +25,37 @@ export default function TinyEditorGoban({
   const [isTrashHovering, setIsTrashHovering] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
   const isBoardEmpty = boardsEqual(board, emptyBoard);
+
+  const handleGobanMouseEnter = useCallback(() => {
+    setIsHovering(true);
+  }, []);
+
+  const handleGobanMouseLeave = useCallback(() => {
+    setIsHovering(false);
+  }, []);
+
+  const handleContainerClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (isBoardEmpty) {
+        e.stopPropagation();
+      }
+    },
+    [isBoardEmpty],
+  );
+
+  const handleClearClick = useCallback(() => {
+    setIsClearing(true);
+    onClearBoard();
+    setTimeout(() => setIsClearing(false), 50);
+  }, [onClearBoard]);
+
+  const handleTrashMouseEnter = useCallback(() => {
+    setIsTrashHovering(true);
+  }, []);
+
+  const handleTrashMouseLeave = useCallback(() => {
+    setIsTrashHovering(false);
+  }, []);
   return (
     <div
       className="TinyGoban EditorGoban flex items-center h-full"
@@ -34,8 +65,8 @@ export default function TinyEditorGoban({
     >
       <div
         className="tiny-goban-clickable h-full cursor-pointer"
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
+        onMouseEnter={handleGobanMouseEnter}
+        onMouseLeave={handleGobanMouseLeave}
       >
         <Goban
           vertexSize={vertexSize}
@@ -43,25 +74,14 @@ export default function TinyEditorGoban({
           signMap={board}
         />
       </div>
-      <div
-        className="ml-1 h-[230px]"
-        onClick={(e) => {
-          if (isBoardEmpty) {
-            e.stopPropagation();
-          }
-        }}
-      >
+      <div className="ml-1 h-[230px]" onClick={handleContainerClick}>
         <Button
           size="xl"
           variant="outline"
-          onClick={() => {
-            setIsClearing(true);
-            onClearBoard();
-            setTimeout(() => setIsClearing(false), 50);
-          }}
+          onClick={handleClearClick}
           title="Clear board"
-          onMouseEnter={() => setIsTrashHovering(true)}
-          onMouseLeave={() => setIsTrashHovering(false)}
+          onMouseEnter={handleTrashMouseEnter}
+          onMouseLeave={handleTrashMouseLeave}
           disabled={isBoardEmpty}
         >
           <img src={trashSvg} width={24} height={24} alt="Clear board" />

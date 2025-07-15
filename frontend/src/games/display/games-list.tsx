@@ -77,6 +77,14 @@ function GameItem({
     };
   }, []);
 
+  const handleGobanClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onSelect(game);
+    },
+    [onSelect, game],
+  );
+
   return (
     <>
       <div ref={itemRef}>
@@ -89,10 +97,7 @@ function GameItem({
           <div className="flex gap-4">
             <div
               className="flex-shrink-0 cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect(game);
-              }}
+              onClick={handleGobanClick}
             >
               {isVisible ? (
                 <TinyViewerGoban

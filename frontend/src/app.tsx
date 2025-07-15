@@ -167,7 +167,7 @@ export default function App({
     sortResultsBy,
   ]);
 
-  const loadMore = () => {
+  const loadMore = useCallback(() => {
     if (!isSearching) {
       setIsSearching(true);
       const position = toWasmSearch(board);
@@ -185,7 +185,16 @@ export default function App({
         },
       });
     }
-  };
+  }, [
+    isSearching,
+    board,
+    brushColor,
+    currentPage,
+    pageSize,
+    playerFilters,
+    sortResultsBy,
+    wasmSearchPostMessage,
+  ]);
 
   useEffect(() => {
     if (!initialGame) {
@@ -420,44 +429,59 @@ export default function App({
     setMoveNumbers,
   ]);
 
-  const handleSetMoveNumber = (game: Game, moveNumber: number) => {
-    setGameSelection(() => ({ game, moveNumber }));
-    setMoveNumbers((draft) => {
-      draft[game.path] = moveNumber;
-    });
-    setGameNotFound(false);
-  };
-
-  const handleSetGameSelection = (newGameSelection: GameSelection) => {
-    setGameSelection(() => newGameSelection);
-    if (newGameSelection) {
+  const handleSetMoveNumber = useCallback(
+    (game: Game, moveNumber: number) => {
+      setGameSelection(() => ({ game, moveNumber }));
       setMoveNumbers((draft) => {
-        draft[newGameSelection.game.path] = newGameSelection.moveNumber;
+        draft[game.path] = moveNumber;
       });
       setGameNotFound(false);
-    }
-  };
+    },
+    [setGameSelection, setMoveNumbers],
+  );
 
-  const handleMoveHover = (point: { x: number; y: number }) => {
-    setPreviewStone(() => point);
-  };
+  const handleSetGameSelection = useCallback(
+    (newGameSelection: GameSelection) => {
+      setGameSelection(() => newGameSelection);
+      if (newGameSelection) {
+        setMoveNumbers((draft) => {
+          draft[newGameSelection.game.path] = newGameSelection.moveNumber;
+        });
+        setGameNotFound(false);
+      }
+    },
+    [setGameSelection, setMoveNumbers],
+  );
 
-  const handleMoveUnhover = () => {
+  const handleMoveHover = useCallback(
+    (point: { x: number; y: number }) => {
+      setPreviewStone(() => point);
+    },
+    [setPreviewStone],
+  );
+
+  const handleMoveUnhover = useCallback(() => {
     setPreviewStone(() => null);
-  };
+  }, [setPreviewStone]);
 
-  const handleMoveClick = (point: { x: number; y: number }) => {
-    setPreviewStone(() => null);
-    if (editorGobanRef.current) {
-      editorGobanRef.current.commitMove(point);
-    }
-  };
+  const handleMoveClick = useCallback(
+    (point: { x: number; y: number }) => {
+      setPreviewStone(() => null);
+      if (editorGobanRef.current) {
+        editorGobanRef.current.commitMove(point);
+      }
+    },
+    [setPreviewStone],
+  );
 
-  const handleCommitMove = (_point: { x: number; y: number }) => {
-    setPreviewStone(() => null);
-  };
+  const handleCommitMove = useCallback(
+    (_point: { x: number; y: number }) => {
+      setPreviewStone(() => null);
+    },
+    [setPreviewStone],
+  );
 
-  const handleClearBoard = () => {
+  const handleClearBoard = useCallback(() => {
     if (editorGobanRef.current) {
       // Set flag to prevent search during clear
       setIsClearingBoard(true);
@@ -473,13 +497,62 @@ export default function App({
         setIsClearingBoard(false);
       }, 100);
     }
-  };
+  }, [setNextMoves, setPreviewStone, setGames]);
 
   const handlePlayerClick = useCallback(
     (playerId: number, color: PlayerColor) => {
       playerFilterInputsRef.current?.addPlayer(playerId, color);
     },
     [],
+  );
+
+  const handleUpdateBoard = useCallback(
+    (board: BoardPosition) => setBoard(() => board),
+    [setBoard],
+  );
+
+  const handleClearGameSelection = useCallback(
+    () => setGameSelection(() => null),
+    [setGameSelection],
+  );
+
+  const handlePlayerFiltersSelect = useCallback(
+    (filters: PlayerFilter[]) => setPlayerFilters(() => filters),
+    [setPlayerFilters],
+  );
+
+  const handleToggleShowResults = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      setShowResults((showResults) => !showResults);
+    },
+    [setShowResults],
+  );
+
+  const handleSelectGame = useCallback(
+    (game: Game | null) => {
+      if (game) {
+        setGameSelection(() => ({
+          game,
+          moveNumber: getCurrentMoveNumber(game),
+        }));
+        setGameNotFound(false);
+      }
+    },
+    [setGameSelection, getCurrentMoveNumber],
+  );
+
+  const handleSelectGameAtMove = useCallback(
+    (game: Game, moveNumber: number) => {
+      handleSetMoveNumber(game, moveNumber);
+      setGameNotFound(false);
+    },
+    [handleSetMoveNumber],
+  );
+
+  const handleSortByChange = useCallback(
+    (s: string) => setSortResultsBy(parseInt(s, 10)),
+    [setSortResultsBy],
   );
 
   return (
@@ -493,7 +566,7 @@ export default function App({
           >
             <EditorGoban
               ref={editorGobanRef}
-              onUpdateBoard={(board) => setBoard(() => board)}
+              onUpdateBoard={handleUpdateBoard}
               onChangeBrushColor={setBrushColor}
               onChangeBrushMode={setBrushMode}
               brushMode={brushMode}
@@ -544,7 +617,7 @@ export default function App({
                       ? "tiny-goban-visible"
                       : "next-moves-visible",
                   )}
-                  onClick={() => setGameSelection(() => null)}
+                  onClick={handleClearGameSelection}
                 >
                   <TinyEditorGoban
                     vertexSize={tinyVertexSize}
@@ -566,7 +639,7 @@ export default function App({
             <div className="flex flex-col justify-between">
               <PlayerFilterInputs
                 ref={playerFilterInputsRef}
-                onPlayerSelect={setPlayerFilters}
+                onPlayerSelect={handlePlayerFiltersSelect}
                 playerCounts={playerCounts}
                 isLoading={isSearching}
                 initialPlayerFilters={initialPlayerFilters}
@@ -576,7 +649,7 @@ export default function App({
                   <div className="text-gray-500 font-normal">Sort by:</div>
                   <Select
                     value={`${sortResultsBy}`}
-                    onValueChange={(s) => setSortResultsBy(parseInt(s, 10))}
+                    onValueChange={handleSortByChange}
                   >
                     <SelectTrigger className="w-[225px]">
                       <SelectValue placeholder="Theme" />
@@ -594,10 +667,7 @@ export default function App({
                 <Separator orientation="vertical" />
                 <div
                   className="flex items-center cursor-pointer min-w-[160px]"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setShowResults((showResults) => !showResults);
-                  }}
+                  onClick={handleToggleShowResults}
                 >
                   <div className="min-w-[120px] flex justify-right">
                     <Label htmlFor="results-toggle" className="cursor-pointer">
@@ -630,19 +700,8 @@ export default function App({
 
         <GamesList
           games={games}
-          onSelectGame={(game: Game | null) => {
-            if (game) {
-              setGameSelection(() => ({
-                game,
-                moveNumber: getCurrentMoveNumber(game),
-              }));
-              setGameNotFound(false);
-            }
-          }}
-          onSelectGameAtMove={(game: Game, moveNumber: number) => {
-            handleSetMoveNumber(game, moveNumber);
-            setGameNotFound(false);
-          }}
+          onSelectGame={handleSelectGame}
+          onSelectGameAtMove={handleSelectGameAtMove}
           selectedGame={gameSelection?.game || null}
           isSearching={isSearching}
           onLoadMore={loadMore}

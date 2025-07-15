@@ -1,6 +1,6 @@
 import { Goban, type Map, type Marker } from "./shudan";
 import "./shudan/css/goban.css";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { emptyBoard } from "@/sabaki-types";
 import { toSabakiMove, type Game } from "@/wasm-search-types";
 import { calculateBoardPosition } from "./calculate-board";
@@ -37,11 +37,19 @@ export default function TinyViewerGoban({
     return mm;
   }, [game.moves_transformed, moveNumber]);
 
+  const handleMouseEnter = useCallback(() => {
+    setIsHovering(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovering(false);
+  }, []);
+
   return (
     <div
       className="TinyGoban ViewerGoban"
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       data-hovering={isHovering}
     >
       <Goban

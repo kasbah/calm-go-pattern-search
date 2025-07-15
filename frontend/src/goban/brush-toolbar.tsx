@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Toggle } from "@/ui-primitives/toggle";
 import { BrushMode, SabakiColor, SabakiSign } from "@/sabaki-types";
 
@@ -26,23 +26,45 @@ function BrushToolbar({
   const [isHoveringAlternateBrush, setHoveringAlternateBrush] =
     useState<boolean>(false);
 
+  const handleAlternateToggleClick = useCallback(() => {
+    if (brushMode === BrushMode.Alternate) {
+      onToggleAlternateColor();
+    } else {
+      onSetBrushMode(BrushMode.Alternate);
+    }
+    setHoveringAlternateBrush(false);
+  }, [brushMode, onToggleAlternateColor, onSetBrushMode]);
+
+  const handleAlternateMouseEnter = useCallback(() => {
+    if (brushMode === BrushMode.Alternate) {
+      setHoveringAlternateBrush(true);
+    }
+  }, [brushMode]);
+
+  const handleAlternateMouseLeave = useCallback(() => {
+    setHoveringAlternateBrush(false);
+  }, []);
+
+  const handleBlackClick = useCallback(() => {
+    onSetBrushMode(BrushMode.Black);
+  }, [onSetBrushMode]);
+
+  const handleWhiteClick = useCallback(() => {
+    onSetBrushMode(BrushMode.White);
+  }, [onSetBrushMode]);
+
+  const handleRemoveClick = useCallback(() => {
+    onSetBrushMode(BrushMode.Remove);
+  }, [onSetBrushMode]);
+
   return (
     <div className="flex flex-col gap-1">
       <Toggle
         size="xl"
-        onClick={() => {
-          if (brushMode === BrushMode.Alternate) {
-            onToggleAlternateColor();
-          } else {
-            onSetBrushMode(BrushMode.Alternate);
-          }
-          setHoveringAlternateBrush(false);
-        }}
+        onClick={handleAlternateToggleClick}
         pressed={brushMode === BrushMode.Alternate}
-        onMouseEnter={() =>
-          brushMode === BrushMode.Alternate && setHoveringAlternateBrush(true)
-        }
-        onMouseLeave={() => setHoveringAlternateBrush(false)}
+        onMouseEnter={handleAlternateMouseEnter}
+        onMouseLeave={handleAlternateMouseLeave}
       >
         <img
           src={
@@ -60,21 +82,21 @@ function BrushToolbar({
       </Toggle>
       <Toggle
         size="xl"
-        onClick={() => onSetBrushMode(BrushMode.Black)}
+        onClick={handleBlackClick}
         pressed={brushMode === BrushMode.Black}
       >
         <img src={circleBlackSvg} width={32} height={32} />
       </Toggle>
       <Toggle
         size="xl"
-        onClick={() => onSetBrushMode(BrushMode.White)}
+        onClick={handleWhiteClick}
         pressed={brushMode === BrushMode.White}
       >
         <img src={circleWhiteSvg} width={32} height={32} />
       </Toggle>
       <Toggle
         size="xl"
-        onClick={() => onSetBrushMode(BrushMode.Remove)}
+        onClick={handleRemoveClick}
         pressed={brushMode === BrushMode.Remove}
       >
         <img src={eraserSvg} width={32} height={32} />

@@ -108,6 +108,74 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
       }
     }, [gameSelection, setGameSelection]);
 
+    const handleInputChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (gameSelection) {
+          const newMoveNumber = clampMoveNumber(
+            parseInt(e.target.value) - 1,
+            gameSelection.game.moves_transformed.length,
+          );
+          setGameSelection({
+            game: gameSelection.game,
+            moveNumber: newMoveNumber,
+          });
+        }
+      },
+      [gameSelection, setGameSelection],
+    );
+
+    const handleFirstMoveClick = useCallback(() => {
+      if (gameSelection) {
+        const newMoveNumber = clampMoveNumber(
+          0,
+          gameSelection.game.moves_transformed.length,
+        );
+        setGameSelection({
+          game: gameSelection.game,
+          moveNumber: newMoveNumber,
+        });
+      }
+    }, [gameSelection, setGameSelection]);
+
+    const handlePrevMoveClick = useCallback(() => {
+      if (gameSelection) {
+        const newMoveNumber = clampMoveNumber(
+          gameSelection.moveNumber - 1,
+          gameSelection.game.moves_transformed.length,
+        );
+        setGameSelection({
+          game: gameSelection.game,
+          moveNumber: newMoveNumber,
+        });
+      }
+    }, [gameSelection, setGameSelection]);
+
+    const handleNextMoveClick = useCallback(() => {
+      if (gameSelection) {
+        const newMoveNumber = clampMoveNumber(
+          gameSelection.moveNumber + 1,
+          gameSelection.game.moves_transformed.length,
+        );
+        setGameSelection({
+          game: gameSelection.game,
+          moveNumber: newMoveNumber,
+        });
+      }
+    }, [gameSelection, setGameSelection]);
+
+    const handleLastMoveClick = useCallback(() => {
+      if (gameSelection) {
+        const newMoveNumber = clampMoveNumber(
+          gameSelection.game.moves_transformed.length - 1,
+          gameSelection.game.moves_transformed.length,
+        );
+        setGameSelection({
+          game: gameSelection.game,
+          moveNumber: newMoveNumber,
+        });
+      }
+    }, [gameSelection, setGameSelection]);
+
     useImperativeHandle(
       ref,
       () => ({
@@ -140,18 +208,7 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                   max={gameSelection?.game.moves_transformed.length || 0}
                   step={1}
                   value={(gameSelection?.moveNumber ?? -1) + 1}
-                  onChange={(e) => {
-                    if (gameSelection) {
-                      const newMoveNumber = clampMoveNumber(
-                        parseInt(e.target.value) - 1,
-                        gameSelection.game.moves_transformed.length,
-                      );
-                      setGameSelection({
-                        game: gameSelection.game,
-                        moveNumber: newMoveNumber,
-                      });
-                    }
-                  }}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className="flex flex-col gap-1 mb-1">
@@ -159,18 +216,7 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                   size="xl"
                   variant="outline"
                   disabled={!gameSelection || gameSelection.moveNumber === 0}
-                  onClick={() => {
-                    if (gameSelection) {
-                      const newMoveNumber = clampMoveNumber(
-                        0,
-                        gameSelection.game.moves_transformed.length,
-                      );
-                      setGameSelection({
-                        game: gameSelection.game,
-                        moveNumber: newMoveNumber,
-                      });
-                    }
-                  }}
+                  onClick={handleFirstMoveClick}
                   title="Go to first move"
                 >
                   <img src={chevronFirstSvg} width={24} height={24} />
@@ -179,18 +225,7 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                   size="xl"
                   variant="outline"
                   disabled={!gameSelection || gameSelection.moveNumber === 0}
-                  onClick={() => {
-                    if (gameSelection) {
-                      const newMoveNumber = clampMoveNumber(
-                        gameSelection.moveNumber - 1,
-                        gameSelection.game.moves_transformed.length,
-                      );
-                      setGameSelection({
-                        game: gameSelection.game,
-                        moveNumber: newMoveNumber,
-                      });
-                    }
-                  }}
+                  onClick={handlePrevMoveClick}
                   title="Go to previous move"
                 >
                   <img src={chevronLeftSvg} width={24} height={24} />
@@ -203,18 +238,7 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                     gameSelection.moveNumber ===
                       gameSelection.game.moves_transformed.length - 1
                   }
-                  onClick={() => {
-                    if (gameSelection) {
-                      const newMoveNumber = clampMoveNumber(
-                        gameSelection.moveNumber + 1,
-                        gameSelection.game.moves_transformed.length,
-                      );
-                      setGameSelection({
-                        game: gameSelection.game,
-                        moveNumber: newMoveNumber,
-                      });
-                    }
-                  }}
+                  onClick={handleNextMoveClick}
                   title="Go to next move"
                 >
                   <img src={chevronRightSvg} width={24} height={24} />
@@ -227,18 +251,7 @@ const ViewerGoban = forwardRef<ViewerGobanRef, ViewerGobanProps>(
                     gameSelection.moveNumber ===
                       gameSelection.game.moves_transformed.length - 1
                   }
-                  onClick={() => {
-                    if (gameSelection) {
-                      const newMoveNumber = clampMoveNumber(
-                        gameSelection.game.moves_transformed.length - 1,
-                        gameSelection.game.moves_transformed.length,
-                      );
-                      setGameSelection({
-                        game: gameSelection.game,
-                        moveNumber: newMoveNumber,
-                      });
-                    }
-                  }}
+                  onClick={handleLastMoveClick}
                   title="Go to last move"
                 >
                   <img src={chevronLastSvg} width={24} height={24} />
