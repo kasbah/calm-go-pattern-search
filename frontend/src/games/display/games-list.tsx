@@ -35,7 +35,7 @@ type GameItemProps = {
   onSelect: (game: Game) => void;
   onSelectAtMove?: (game: Game, moveNumber: number) => void;
   showAllResults: boolean;
-  moveNumbers: Record<string, number>;
+  moveNumber: number;
   onPlayerClick?: (playerId: number, color: "Black" | "White" | "Any") => void;
 };
 
@@ -46,7 +46,7 @@ function GameItem({
   onSelect,
   onSelectAtMove,
   showAllResults,
-  moveNumbers,
+  moveNumber,
   onPlayerClick,
 }: GameItemProps) {
   const [isVisible, setIsVisible] = useState(false);
@@ -103,7 +103,7 @@ function GameItem({
                 <TinyViewerGoban
                   game={game}
                   vertexSize={11}
-                  moveNumber={moveNumbers[game.path] ?? game.last_move_matched}
+                  moveNumber={moveNumber}
                 />
               ) : (
                 <div
@@ -306,7 +306,7 @@ export default function GamesList({
                 onSelect={onSelectGame}
                 onSelectAtMove={onSelectGameAtMove}
                 showAllResults={showAllResults}
-                moveNumbers={moveNumbers}
+                moveNumber={moveNumbers[game.path] ?? game.last_move_matched}
                 onPlayerClick={onPlayerClick}
               />
             </div>

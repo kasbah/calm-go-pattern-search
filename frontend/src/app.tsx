@@ -286,6 +286,8 @@ export default function App({
       setSelectedMoveNumber(
         moveNumbers[selectedGame.path] ?? selectedGame.last_move_matched,
       );
+    } else {
+      setSelectedMoveNumber(0);
     }
   }, [selectedGame, setSelectedMoveNumber, moveNumbers]);
 
@@ -445,7 +447,6 @@ export default function App({
         setGameNotFound(false);
       } else {
         setSelectedGame(() => null);
-        setSelectedMoveNumber(0);
       }
     },
     [setSelectedGame, setSelectedMoveNumber, setMoveNumbers],
@@ -511,8 +512,7 @@ export default function App({
 
   const handleClearGameSelection = useCallback(() => {
     setSelectedGame(() => null);
-    setSelectedMoveNumber(0);
-  }, [setSelectedGame, setSelectedMoveNumber]);
+  }, [setSelectedGame]);
 
   const handlePlayerFiltersSelect = useCallback(
     (filters: PlayerFilter[]) => setPlayerFilters(() => filters),
@@ -534,7 +534,7 @@ export default function App({
         setGameNotFound(false);
       }
     },
-    [setSelectedGame, setSelectedMoveNumber, setGameNotFound],
+    [setSelectedGame, setGameNotFound],
   );
 
   const handleSelectGameAtMove = useCallback(
