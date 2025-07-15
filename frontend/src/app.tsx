@@ -17,7 +17,6 @@ import { BrushMode, SabakiColor, type BoardPosition } from "@/sabaki-types";
 import TinyEditorGoban from "@/goban/tiny-editor-goban";
 import ViewerGoban, { type GameSelection } from "@/goban/viewer-goban";
 import {
-  emptyGame,
   toWasmSearch,
   type Game,
   type NextMove,
@@ -60,9 +59,7 @@ export default function App({
   wasmSearchPostMessage,
   wasmSearchOnMessage,
 }: AppProps) {
-  const initialGameSelection: GameSelection = initialGame
-    ? { game: emptyGame, moveNumber: initialGame?.moveNumber ?? 0 }
-    : null;
+  const initialMoveNumber = initialGame?.moveNumber ?? 0;
   const [isLoadingGameSelection, setLoadingGameSelection] = useState(
     initialGame != null,
   );
@@ -74,8 +71,9 @@ export default function App({
   );
   const [board, setBoard] = useImmer<BoardPosition>(initialBoard);
   const [games, setGames] = useImmer<Array<Game>>([]);
-  const [gameSelection, setGameSelection] =
-    useImmer<GameSelection>(initialGameSelection);
+  const [selectedGame, setSelectedGame] = useImmer<Game | null>(null);
+  const [selectedMoveNumber, setSelectedMoveNumber] =
+    useState(initialMoveNumber);
   const [totalNumberOfGames, setTotalNumberOfGames] = useState(0);
   const [nextMoves, setNextMoves] = useImmer<Array<NextMove>>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -107,7 +105,8 @@ export default function App({
   const playerFilterInputsRef = useRef<PlayerFilterInputsRef>(null);
 
   const timer = useRef<NodeJS.Timeout | undefined>(undefined);
-  const prevGameSelection = useRef<GameSelection>(initialGameSelection);
+  const prevSelectedGame = useRef<Game | null>(null);
+  const prevSelectedMoveNumber = useRef<number>(initialMoveNumber);
 
   useEffect(() => {
     updateUrlParams(board, playerFilters, sortResultsBy);
@@ -118,22 +117,23 @@ export default function App({
       return;
     }
 
-    if (gameSelection) {
+    if (selectedGame) {
       updateUrlWithSelectedGame(
-        gameSelection.game.path,
-        gameSelection.game.rotation ?? 0,
-        gameSelection.game.is_mirrored ?? false,
-        gameSelection.game.is_inverted ?? false,
-        gameSelection.game.last_move_matched,
-        gameSelection.moveNumber,
+        selectedGame.path,
+        selectedGame.rotation ?? 0,
+        selectedGame.is_mirrored ?? false,
+        selectedGame.is_inverted ?? false,
+        selectedGame.last_move_matched,
+        selectedMoveNumber,
       );
     } else {
       updateUrlWithSelectedGame("", 0, false, false, 0, 0);
     }
 
     // Update the previous game selection reference
-    prevGameSelection.current = gameSelection;
-  }, [gameSelection, isLoadingGameSelection]);
+    prevSelectedGame.current = selectedGame;
+    prevSelectedMoveNumber.current = selectedMoveNumber;
+  }, [selectedGame, selectedMoveNumber, isLoadingGameSelection]);
 
   useEffect(() => {
     if (!isClearingBoard) {
@@ -251,10 +251,8 @@ export default function App({
           const gameFromUrl = getSelectedGameFromUrl();
           const moveNumber = gameFromUrl?.moveNumber ?? game.last_move_matched;
 
-          setGameSelection(() => ({
-            game,
-            moveNumber,
-          }));
+          setSelectedGame(() => game);
+          setSelectedMoveNumber(moveNumber);
           setMoveNumbers((draft) => {
             draft[game.path] = moveNumber;
           });
@@ -264,7 +262,8 @@ export default function App({
           console.error("Failed to parse game data:", error);
           setGameNotFound(true);
           setLoadingGameSelection(false);
-          setGameSelection(() => null);
+          setSelectedGame(() => null);
+          setSelectedMoveNumber(0);
         }
       }
     };
@@ -276,7 +275,8 @@ export default function App({
     setPlayerCounts,
     wasmSearchOnMessage,
     initialGame,
-    setGameSelection,
+    setSelectedGame,
+    setSelectedMoveNumber,
     setMoveNumbers,
     setLoadingGameSelection,
   ]);
@@ -290,7 +290,7 @@ export default function App({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (gameSelection === null && editorGobanRef.current) {
+      if (selectedGame === null && editorGobanRef.current) {
         if (e.key === "ArrowLeft" || (e.ctrlKey && e.key === "z")) {
           e.preventDefault(); // Prevent browser's default undo
           editorGobanRef.current.undo();
@@ -301,39 +301,33 @@ export default function App({
           e.preventDefault();
           // Select the first game if none is selected, or the next one if possible
           if (games.length > 0) {
-            setGameSelection(() => ({
-              game: games[0],
-              moveNumber: getCurrentMoveNumber(games[0]),
-            }));
+            setSelectedGame(() => games[0]);
+            setSelectedMoveNumber(getCurrentMoveNumber(games[0]));
           }
         } else if (e.key === "ArrowUp") {
           e.preventDefault();
           // If a game is selected, select the previous one if possible
-          if (gameSelection != null && games.length > 0) {
+          if (selectedGame != null && games.length > 0) {
             const idx = games.findIndex(
               // @ts-expect-error ts can't infer the right type for g
-              (g: Game) => g.path === gameSelection.game.path,
+              (g: Game) => g.path === selectedGame.path,
             );
             if (idx > 0) {
-              setGameSelection(() => ({
-                game: games[idx - 1],
-                moveNumber: getCurrentMoveNumber(games[idx - 1]),
-              }));
+              setSelectedGame(() => games[idx - 1]);
+              setSelectedMoveNumber(getCurrentMoveNumber(games[idx - 1]));
             }
           }
         }
-      } else if (gameSelection == null) {
+      } else if (selectedGame == null) {
         // If no game is selected and ArrowDown is pressed, select the first game
         if (e.key === "ArrowDown") {
           e.preventDefault();
           if (games.length > 0) {
-            setGameSelection(() => ({
-              game: games[0],
-              moveNumber: getCurrentMoveNumber(games[0]),
-            }));
+            setSelectedGame(() => games[0]);
+            setSelectedMoveNumber(getCurrentMoveNumber(games[0]));
           }
         }
-      } else if (gameSelection != null && viewerGobanRef.current) {
+      } else if (selectedGame != null && viewerGobanRef.current) {
         if (e.key === "ArrowLeft") {
           viewerGobanRef.current.prevMove();
         } else if (e.key === "ArrowRight") {
@@ -341,29 +335,25 @@ export default function App({
         } else if (e.key === "ArrowDown") {
           e.preventDefault();
           // Select the next game in the list, if any
-          if (gameSelection != null && games.length > 0) {
+          if (selectedGame != null && games.length > 0) {
             const idx = (games as Game[]).findIndex(
-              (g) => g.path === gameSelection.game.path,
+              (g) => g.path === selectedGame.path,
             );
             if (idx !== -1 && idx < games.length - 1) {
-              setGameSelection(() => ({
-                game: games[idx + 1],
-                moveNumber: getCurrentMoveNumber(games[idx + 1]),
-              }));
+              setSelectedGame(() => games[idx + 1]);
+              setSelectedMoveNumber(getCurrentMoveNumber(games[idx + 1]));
             }
           }
         } else if (e.key === "ArrowUp") {
           e.preventDefault();
           // Select the previous game in the list, if any
-          if (gameSelection !== null && games.length > 0) {
+          if (selectedGame !== null && games.length > 0) {
             const idx = (games as Game[]).findIndex(
-              (g) => g.path === gameSelection.game.path,
+              (g) => g.path === selectedGame.path,
             );
             if (idx > 0) {
-              setGameSelection(() => ({
-                game: games[idx - 1],
-                moveNumber: getCurrentMoveNumber(games[idx - 1]),
-              }));
+              setSelectedGame(() => games[idx - 1]);
+              setSelectedMoveNumber(getCurrentMoveNumber(games[idx - 1]));
             }
           }
         }
@@ -374,7 +364,14 @@ export default function App({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [gameSelection, games, getCurrentMoveNumber, setGameSelection]);
+  }, [
+    selectedGame,
+    selectedMoveNumber,
+    games,
+    getCurrentMoveNumber,
+    setSelectedGame,
+    setSelectedMoveNumber,
+  ]);
 
   // Handle browser back/forward buttons
   useEffect(() => {
@@ -384,18 +381,16 @@ export default function App({
       if (gameFromUrl) {
         // A game is selected in the URL
         if (
-          !gameSelection ||
-          gameSelection.game.path !== gameFromUrl.path ||
-          gameSelection.moveNumber !== gameFromUrl.moveNumber
+          !selectedGame ||
+          selectedGame.path !== gameFromUrl.path ||
+          selectedMoveNumber !== gameFromUrl.moveNumber
         ) {
           // Check if the game is already in the games list
           const existingGame = games.find((g) => g.path === gameFromUrl.path);
           if (existingGame) {
             // Use existing game data
-            setGameSelection(() => ({
-              game: existingGame,
-              moveNumber: gameFromUrl.moveNumber,
-            }));
+            setSelectedGame(() => existingGame);
+            setSelectedMoveNumber(gameFromUrl.moveNumber);
             setMoveNumbers((draft) => {
               draft[existingGame.path] = gameFromUrl.moveNumber;
             });
@@ -410,8 +405,9 @@ export default function App({
         }
       } else {
         // No game selected in URL
-        if (gameSelection) {
-          setGameSelection(() => null);
+        if (selectedGame) {
+          setSelectedGame(() => null);
+          setSelectedMoveNumber(0);
         }
         setGameNotFound(false);
       }
@@ -422,35 +418,42 @@ export default function App({
       window.removeEventListener("popstate", handlePopState);
     };
   }, [
-    gameSelection,
+    selectedGame,
+    selectedMoveNumber,
     games,
     wasmSearchPostMessage,
-    setGameSelection,
+    setSelectedGame,
+    setSelectedMoveNumber,
     setMoveNumbers,
   ]);
 
   const handleSetMoveNumber = useCallback(
     (game: Game, moveNumber: number) => {
-      setGameSelection(() => ({ game, moveNumber }));
+      setSelectedGame(() => game);
+      setSelectedMoveNumber(moveNumber);
       setMoveNumbers((draft) => {
         draft[game.path] = moveNumber;
       });
       setGameNotFound(false);
     },
-    [setGameSelection, setMoveNumbers],
+    [setSelectedGame, setSelectedMoveNumber, setMoveNumbers],
   );
 
   const handleSetGameSelection = useCallback(
     (newGameSelection: GameSelection) => {
-      setGameSelection(() => newGameSelection);
       if (newGameSelection) {
+        setSelectedGame(() => newGameSelection.game);
+        setSelectedMoveNumber(newGameSelection.moveNumber);
         setMoveNumbers((draft) => {
           draft[newGameSelection.game.path] = newGameSelection.moveNumber;
         });
         setGameNotFound(false);
+      } else {
+        setSelectedGame(() => null);
+        setSelectedMoveNumber(0);
       }
     },
-    [setGameSelection, setMoveNumbers],
+    [setSelectedGame, setSelectedMoveNumber, setMoveNumbers],
   );
 
   const handleMoveHover = useCallback(
@@ -511,10 +514,10 @@ export default function App({
     [setBoard],
   );
 
-  const handleClearGameSelection = useCallback(
-    () => setGameSelection(() => null),
-    [setGameSelection],
-  );
+  const handleClearGameSelection = useCallback(() => {
+    setSelectedGame(() => null);
+    setSelectedMoveNumber(0);
+  }, [setSelectedGame, setSelectedMoveNumber]);
 
   const handlePlayerFiltersSelect = useCallback(
     (filters: PlayerFilter[]) => setPlayerFilters(() => filters),
@@ -532,14 +535,12 @@ export default function App({
   const handleSelectGame = useCallback(
     (game: Game | null) => {
       if (game) {
-        setGameSelection(() => ({
-          game,
-          moveNumber: getCurrentMoveNumber(game),
-        }));
+        setSelectedGame(() => game);
+        setSelectedMoveNumber(getCurrentMoveNumber(game));
         setGameNotFound(false);
       }
     },
-    [setGameSelection, getCurrentMoveNumber],
+    [setSelectedGame, setSelectedMoveNumber, getCurrentMoveNumber],
   );
 
   const handleSelectGameAtMove = useCallback(
@@ -561,7 +562,7 @@ export default function App({
         <div className="goban-transition-container">
           <div
             className={`goban-editor-wrapper ${
-              gameSelection ? "goban-editor-hidden" : "goban-editor-visible"
+              selectedGame ? "goban-editor-hidden" : "goban-editor-visible"
             }`}
           >
             <EditorGoban
@@ -575,23 +576,27 @@ export default function App({
               previewStone={previewStone}
               onCommitMove={handleCommitMove}
               initialBoard={initialBoard}
-              isVisible={gameSelection === null}
+              isVisible={selectedGame === null}
             />
           </div>
           <div
             className={`goban-viewer-wrapper ${
-              gameSelection ? "goban-viewer-visible" : "goban-viewer-hidden"
+              selectedGame ? "goban-viewer-visible" : "goban-viewer-hidden"
             }`}
           >
             <ViewerGoban
               ref={viewerGobanRef}
-              gameSelection={gameSelection}
+              gameSelection={
+                selectedGame
+                  ? { game: selectedGame, moveNumber: selectedMoveNumber }
+                  : null
+              }
               vertexSize={vertexSize}
               setGameSelection={handleSetGameSelection}
             />
-            {!isLoadingGameSelection && !gameNotFound && gameSelection && (
+            {!isLoadingGameSelection && !gameNotFound && selectedGame && (
               <GameInfo
-                game={gameSelection.game}
+                game={selectedGame}
                 onSelectAtMove={handleSetMoveNumber}
                 showAllResults={showResults}
                 vertexSize={vertexSize}
@@ -609,11 +614,11 @@ export default function App({
       <div className="flex flex-col ml-4 w-full">
         <div className="sticky top-0 bg-white z-10 pt-4 mr-2">
           <div className="flex justify-between">
-            {gameSelection != null ? (
+            {selectedGame != null ? (
               <div className="flex items-center">
                 <div
                   className={cn(
-                    gameSelection != null
+                    selectedGame != null
                       ? "tiny-goban-visible"
                       : "next-moves-visible",
                   )}
@@ -702,7 +707,7 @@ export default function App({
           games={games}
           onSelectGame={handleSelectGame}
           onSelectGameAtMove={handleSelectGameAtMove}
-          selectedGame={gameSelection?.game || null}
+          selectedGame={selectedGame}
           isSearching={isSearching}
           onLoadMore={loadMore}
           hasMore={hasMore}

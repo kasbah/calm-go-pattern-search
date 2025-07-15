@@ -285,13 +285,6 @@ export default function GamesList({
     }
   }, [selectedGame, games]);
 
-  const handleSelectGame = useCallback(
-    (game: Game) => {
-      onSelectGame(game);
-    },
-    [onSelectGame],
-  );
-
   return (
     <div className="flex flex-col w-full">
       <div className="relative min-h-[600px]">
@@ -310,7 +303,7 @@ export default function GamesList({
                 game={game}
                 index={index}
                 isSelected={selectedGame?.path === game.path}
-                onSelect={handleSelectGame}
+                onSelect={onSelectGame}
                 onSelectAtMove={onSelectGameAtMove}
                 showAllResults={showAllResults}
                 moveNumbers={moveNumbers}
