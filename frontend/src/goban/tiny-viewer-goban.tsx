@@ -1,33 +1,13 @@
 import { Goban, type Map, type Marker } from "./shudan";
 import "./shudan/css/goban.css";
-import SabakiGoBoard from "@sabaki/go-board";
 import { useMemo, useState } from "react";
-import {
-  emptyBoard,
-  type BoardPosition,
-  type SabakiMove,
-} from "@/sabaki-types";
+import { emptyBoard } from "@/sabaki-types";
 import { toSabakiMove, type Game } from "@/wasm-search-types";
+import { calculateBoardPosition } from "./calculate-board";
 
 import "./viewer-goban.css";
 import "./goban-common.css";
 import "./tiny-viewer-goban.css";
-
-function calculateBoardPosition(
-  moves: Array<SabakiMove>,
-  moveNumber: number,
-): BoardPosition {
-  let sgb = new SabakiGoBoard(emptyBoard);
-  if (moveNumber < 0) {
-    return sgb.signMap;
-  }
-  for (let i = 0; i <= moveNumber; i++) {
-    const move = moves[i];
-    if (!move) break;
-    sgb = sgb.makeMove(move.color, [move.point.x, move.point.y]);
-  }
-  return sgb.signMap;
-}
 
 type TinyViewerGobanProps = {
   game: Game;

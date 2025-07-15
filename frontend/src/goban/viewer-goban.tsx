@@ -1,16 +1,13 @@
 import { Goban, type Map, type Marker } from "./shudan";
-import GoBoard from "@sabaki/go-board";
+
 import { forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
 import { useImmer } from "use-immer";
 
 import { Button } from "@/ui-primitives/button";
 import { Input } from "@/ui-primitives/input";
-import {
-  emptyBoard,
-  type BoardPosition,
-  type SabakiMove,
-} from "@/sabaki-types";
+import { emptyBoard, type BoardPosition } from "@/sabaki-types";
 import { toSabakiMove, type Game } from "@/wasm-search-types";
+import { calculateBoardPosition } from "./calculate-board";
 
 export type GameSelection = {
   game: Game;
@@ -24,23 +21,6 @@ import chevronFirstSvg from "@/assets/icons/chevron-first.svg";
 import chevronLastSvg from "@/assets/icons/chevron-last.svg";
 import chevronLeftSvg from "@/assets/icons/chevron-left.svg";
 import chevronRightSvg from "@/assets/icons/chevron-right.svg";
-
-function calculateBoardPosition(
-  moves: Array<SabakiMove>,
-  moveNumber: number,
-): BoardPosition {
-  let sgb = new GoBoard(emptyBoard);
-  // If moveNumber is -1, return empty board
-  if (moveNumber < 0) {
-    return sgb.signMap;
-  }
-  for (let i = 0; i <= moveNumber; i++) {
-    const move = moves[i];
-    if (!move) break;
-    sgb = sgb.makeMove(move.color, [move.point.x, move.point.y]);
-  }
-  return sgb.signMap;
-}
 
 export type ViewerGobanRef = {
   prevMove: () => void;
