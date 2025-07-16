@@ -8,6 +8,8 @@ import { Toggle } from "@/ui-primitives/toggle";
 import EditorGoban, { type EditorGobanRef } from "@/goban/editor-goban";
 import GameInfo from "@/games/display/game-info";
 import GamesList from "@/games/display/games-list";
+import { useTranslations } from "@/locale/use-translations";
+import LanguageSelector from "@/locale/language-selector";
 import { cn } from "@/utils";
 import NextMovesList from "@/next-moves-list";
 import PlayerFilterInputs, {
@@ -97,6 +99,8 @@ export default function App({
   const pageSize = 40;
 
   const tinyVertexSize = 12;
+
+  const { t, tc } = useTranslations();
 
   const editorGobanRef = useRef<EditorGobanRef | null>(null);
   const viewerGobanRef = useRef<{
@@ -238,7 +242,7 @@ export default function App({
       if (type === "searchResultByPath") {
         // Check if payload is empty (game not found)
         if (payload.length === 0) {
-          console.warn("Game not found from URL");
+          console.warn(t("error.gameNotFound"));
           setGameNotFound(true);
           setLoadingGameSelection(false);
           return;
@@ -280,6 +284,7 @@ export default function App({
     setSelectedMoveNumber,
     setMoveNumbers,
     setLoadingGameSelection,
+    t,
   ]);
 
   useEffect(() => {
@@ -552,7 +557,11 @@ export default function App({
   );
 
   return (
-    <div className="flex flex-gap-100">
+    <div className="flex flex-gap-100 relative">
+      {/* Floating language selector */}
+      <div className="fixed top-4 right-4 z-50">
+        <LanguageSelector />
+      </div>
       <div className="sticky top-0 h-screen pt-3">
         <div className="goban-transition-container">
           <div
@@ -646,32 +655,37 @@ export default function App({
               />
               <div className="flex items-center justify-end mt-2 space-x-3 font-medium">
                 <div className="flex items-center gap-2">
-                  <div className="text-gray-500 font-normal">Sort by:</div>
+                  <div className="text-gray-500 font-normal">
+                    {t("sort.label")}
+                  </div>
                   <Select
                     value={`${sortResultsBy}`}
                     onValueChange={handleSortByChange}
                   >
                     <SelectTrigger className="w-[225px]">
-                      <SelectValue placeholder="Theme" />
+                      <SelectValue placeholder={t("sort.placeholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={`${SortBy.BestMatch}`}>
-                        Best match
+                        {t("sort.bestMatch")}
                       </SelectItem>
                       <SelectItem value={`${SortBy.LeastMoves}`}>
-                        Least moves to match
+                        {t("sort.leastMoves")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <Separator orientation="vertical" />
                 <div
-                  className="flex items-center cursor-pointer min-w-[160px]"
+                  className="flex items-center cursor-pointer min-w-[170px]"
                   onClick={handleToggleShowResults}
                 >
                   <div className="min-w-[120px] flex justify-right">
-                    <Label htmlFor="results-toggle" className="cursor-pointer">
-                      {showResults ? "Results Shown" : "Results Hidden"}
+                    <Label
+                      htmlFor="results-toggle"
+                      className="cursor-pointer mr-2 whitespace-nowrap"
+                    >
+                      {showResults ? t("results.shown") : t("results.hidden")}
                     </Label>
                   </div>
                   <Toggle
@@ -684,13 +698,13 @@ export default function App({
                       src={showResults ? trophySvg : trophyCrossedOutSvg}
                       width={24}
                       height={24}
-                      alt="Trophy icon"
+                      alt={t("alt.trophy")}
                     />
                   </Toggle>
                 </div>
                 <Separator orientation="vertical" />
                 <Label className="min-w-[120px]">
-                  {totalNumberOfGames} Games
+                  {tc(totalNumberOfGames, "games.count")}
                 </Label>
               </div>
             </div>

@@ -355,7 +355,6 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
         mm[y][x] = {
           type: "circle-label",
           label: `${i + 1}`,
-          tooltip: "x",
           color: brushColor === SabakiColor.Black ? "#9b9b9b" : "whitesmoke",
         };
       });

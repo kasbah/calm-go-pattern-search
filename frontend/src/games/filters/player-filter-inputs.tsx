@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useReducer,
 } from "react";
+import { useTranslations } from "@/locale/use-translations";
 import { Input } from "@/ui-primitives/input";
 import { cn } from "@/utils";
 
@@ -16,7 +17,7 @@ import {
 import type { PlayerFilter } from "@/wasm-search-types";
 import cancelSvg from "@/assets/icons/cancel.svg";
 import { getPlayerNames } from "../get-player-names";
-import { useLocale } from "@/locale/locale-context";
+
 import circleBlackSvg from "@/assets/icons/circle-black.svg";
 import circleWhiteSvg from "@/assets/icons/circle-white.svg";
 import circleBlackOrWhiteSvg from "@/assets/icons/circle-black-or-white.svg";
@@ -34,7 +35,7 @@ function SuggestionItem({
   playerCounts?: Record<number, number>;
   onSelect: (player: PlayerSuggestion) => void;
 }) {
-  const { locale } = useLocale();
+  const { tc, locale } = useTranslations();
   const { name: localeAwareName, aliases: sortedAliases } = getPlayerNames(
     player.id,
     locale,
@@ -55,7 +56,12 @@ function SuggestionItem({
         <div className="font-medium text-lg">{localeAwareName}</div>
         <div className="text-base text-muted-foreground/60 ml-2 flex-shrink-0">
           {(playerCounts?.[player.id] ?? player.gamesCount) > 0 &&
-            `${playerCounts?.[player.id] ?? player.gamesCount} games`}
+            tc(
+              playerCounts?.[player.id] ?? player.gamesCount,
+              (playerCounts?.[player.id] ?? player.gamesCount) === 1
+                ? "game.singular"
+                : "games.count",
+            )}
         </div>
       </div>
       {sortedAliases.length > 0 ? (
@@ -231,6 +237,7 @@ function PlayerInput({
   onRestore,
 }: PlayerInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslations();
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const colorDropdownRef = useRef<HTMLDivElement>(null);
   const [suggestions, setSuggestions] = useState<PlayerSuggestion[]>([]);
@@ -238,7 +245,7 @@ function PlayerInput({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showColorDropdown, setShowColorDropdown] = useState(false);
 
-  const { locale } = useLocale();
+  const { locale } = useTranslations();
   const { name: selectedPlayerName } = selectedPlayer
     ? getPlayerNames(selectedPlayer.id, locale)
     : { name: "" };
@@ -385,8 +392,12 @@ function PlayerInput({
           )}
           onClick={handleSelectBlack}
         >
-          <img src={circleBlackSvg} alt="Black" className="h-6 w-6" />
-          <span className="text-lg">Black</span>
+          <img
+            src={circleBlackSvg}
+            alt={t("player.black")}
+            className="h-6 w-6"
+          />
+          <span className="text-lg">{t("player.black")}</span>
         </button>
         <button
           className={cn(
@@ -395,8 +406,12 @@ function PlayerInput({
           )}
           onClick={handleSelectWhite}
         >
-          <img src={circleWhiteSvg} alt="White" className="h-6 w-6" />
-          <span className="text-lg">White</span>
+          <img
+            src={circleWhiteSvg}
+            alt={t("player.white")}
+            className="h-6 w-6"
+          />
+          <span className="text-lg">{t("player.white")}</span>
         </button>
         <button
           className={cn(
@@ -405,8 +420,12 @@ function PlayerInput({
           )}
           onClick={handleSelectAny}
         >
-          <img src={circleBlackOrWhiteSvg} alt="Any" className="h-6 w-6" />
-          <span className="text-lg">Any</span>
+          <img
+            src={circleBlackOrWhiteSvg}
+            alt={t("player.any")}
+            className="h-6 w-6"
+          />
+          <span className="text-lg">{t("player.any")}</span>
         </button>
       </div>
     );
@@ -444,7 +463,7 @@ function PlayerInput({
         >
           <img
             src={chevronDownSvg}
-            alt="Dropdown"
+            alt={t("player.dropdown")}
             className="h-4 w-4 opacity-70"
           />
           <img

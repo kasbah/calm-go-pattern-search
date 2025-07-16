@@ -1,7 +1,11 @@
 import { useState, useEffect, useCallback, memo, type JSX } from "react";
 import { cn } from "@/utils";
 import { getPlayerNames } from "../get-player-names";
-import { useLocale } from "@/locale/locale-context";
+
+import {
+  useTranslations,
+  type TranslationKey,
+} from "@/locale/use-translations";
 
 import type {
   Game,
@@ -26,15 +30,18 @@ import {
 
 // Formatter functions moved from game-formatters.tsx
 
-function rotationToString(rotation: number) {
+function rotationToString(
+  rotation: number,
+  t: (key: TranslationKey) => string,
+) {
   if (rotation === 0) {
-    return "None";
+    return t("rotation.none");
   } else if (rotation === 1) {
-    return "90°";
+    return t("rotation.90");
   } else if (rotation === 2) {
-    return "180°";
+    return t("rotation.180");
   } else {
-    return "-90°";
+    return t("rotation.270");
   }
 }
 
@@ -45,50 +52,15 @@ export type FormattedDateProps = {
 export function FormattedDate({
   date,
 }: FormattedDateProps): JSX.Element | null {
+  const { formatDate, getMonthName } = useTranslations();
+
   if (!date) return null;
-
-  const getMonthName = (month: number): string => {
-    const monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-    return monthNames[month - 1] || month.toString();
-  };
-
-  const getOrdinalDay = (day: number): string => {
-    const suffix = (day: number): string => {
-      if (day >= 11 && day <= 13) return "th";
-      switch (day % 10) {
-        case 1:
-          return "st";
-        case 2:
-          return "nd";
-        case 3:
-          return "rd";
-        default:
-          return "th";
-      }
-    };
-    return `${day}${suffix(day)}`;
-  };
 
   if (date.YearMonthDay) {
     const [year, month, day] = date.YearMonthDay;
     return (
       <>
-        <span>
-          {getOrdinalDay(day)} of {getMonthName(month)}, {year}
-        </span>
+        <span>{formatDate(day, month, year)}</span>
       </>
     );
   }
@@ -105,11 +77,11 @@ export function FormattedDate({
   }
 
   if (date.Year) {
-    return <span>{date.Year.toString()}</span>;
-  }
-
-  if (date.Custom) {
-    return <span>{date.Custom}</span>;
+    return (
+      <>
+        <span>{date.Year}</span>
+      </>
+    );
   }
 
   return null;
@@ -142,14 +114,17 @@ function formatRank(rank: Rank | null): string {
   return "(?)";
 }
 
-function formatRules(rules: Rules | null): string {
-  if (!rules) return "Unknown";
-  if (rules.Chinese) return "Chinese";
-  if (rules.Japanese) return "Japanese";
-  if (rules.Korean) return "Korean";
-  if (rules.Ing) return "Ing";
+function formatRules(
+  rules: Rules | null,
+  t: (key: TranslationKey) => string,
+): string {
+  if (!rules) return t("rules.unknown");
+  if (rules.Chinese) return t("rules.chinese");
+  if (rules.Japanese) return t("rules.japanese");
+  if (rules.Korean) return t("rules.korean");
+  if (rules.Ing) return t("rules.ing");
   if (rules.Custom) return rules.Custom;
-  return "Unknown";
+  return t("rules.unknown");
 }
 
 export type PlayerDisplayProps = {
@@ -171,9 +146,9 @@ export const PlayerDisplay = memo(function PlayerDisplay({
   const player = isBlack ? game.player_black : game.player_white;
   const rank = isBlack ? game.rank_black : game.rank_white;
   const icon = isBlack ? circleBlackIcon : circleWhiteIcon;
-  const alt = isBlack ? "Black" : "White";
+  const { t, locale } = useTranslations();
+  const alt = isBlack ? t("alt.black") : t("alt.white");
 
-  const { locale } = useLocale();
   const { name: playerName, aliases: playerAliases } = player.Id
     ? getPlayerNames(player.Id[0], locale)
     : { name: player.Unknown || "Unknown", aliases: [] };
@@ -297,22 +272,24 @@ export type GameIconsProps = {
 };
 
 export function GameIcons({ game, className }: GameIconsProps) {
+  const { t } = useTranslations();
+
   return (
     <div className={cn("flex items-center gap-2", className)}>
       {game.is_mirrored && (
         <img
           src={flipHorizontalIcon}
-          alt="Mirrored"
+          alt={t("alt.mirrored")}
           className="w-5 h-5 text-gray-600"
-          title="The game is mirrored to match the pattern"
+          title={t("tooltip.mirrored")}
         />
       )}
       {game.is_inverted && (
         <img
           src={circleBlackSlashWhiteIcon}
-          alt="Colors inverted"
+          alt={t("alt.colorsInverted")}
           className="w-5 h-5 text-gray-600"
-          title="Colors are inverted to match the pattern"
+          title={t("tooltip.colorsInverted")}
         />
       )}
     </div>
@@ -332,6 +309,7 @@ export function GameInfoPopover({
   align = "start",
   side = "top",
 }: GameInfoPopoverProps) {
+  const { t } = useTranslations();
   const [isInfoPopoverOpen, setInfoPopOverOpen] = useState(false);
   const [isInfoPinned, setInfoPinned] = useState(false);
 
@@ -379,9 +357,7 @@ export function GameInfoPopover({
             isInfoPinned ? "text-blue-600" : "text-gray-600",
             className,
           )}
-          title={
-            isInfoPinned ? "Click to unpin" : "Hover for details, click to pin"
-          }
+          title={isInfoPinned ? t("info.clickToUnpin") : t("info.clickToPin")}
           onMouseEnter={() => {
             if (!isInfoPinned) setInfoPopOverOpen(true);
           }}
@@ -401,23 +377,25 @@ export function GameInfoPopover({
       >
         <div className="space-y-1">
           <div>
-            <strong>Komi:</strong> {game.komi !== null ? game.komi : "Unknown"}
+            <strong>{t("info.komi")}</strong>{" "}
+            {game.komi !== null ? game.komi : "Unknown"}
           </div>
           <div>
-            <strong>Rules:</strong> {formatRules(game.rules)}
+            <strong>{t("info.rules")}</strong> {formatRules(game.rules, t)}
           </div>
           <div>
-            <strong>SGF Source:</strong> {game.path}
+            <strong>{t("info.sgfSource")}</strong> {game.path}
           </div>
           <div>
-            <strong>Search Score:</strong> {game.score}
+            <strong>{t("info.searchScore")}</strong> {game.score}
           </div>
           <div>
-            <strong>Empty correctly within:</strong>{" "}
+            <strong>{t("info.emptyCorrectly")}</strong>{" "}
             {game.all_empty_correctly_within}
           </div>
           <div>
-            <strong>Rotation:</strong> {rotationToString(game.rotation)}
+            <strong>{t("info.rotation")}</strong>{" "}
+            {rotationToString(game.rotation, t)}
           </div>
         </div>
       </PopoverContent>
@@ -436,6 +414,7 @@ export function GameResult({
   showAllResults,
   className,
 }: GameResultProps) {
+  const { t } = useTranslations();
   const [shouldShowResult, setShouldShowResult] = useState(showAllResults);
 
   useEffect(() => {
@@ -452,17 +431,21 @@ export function GameResult({
         "flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded",
         className,
       )}
-      title={`Click to ${shouldShowResult ? "hide" : "reveal"} result`}
+      title={
+        shouldShowResult
+          ? t("info.clickToToggleResult")
+          : t("info.clickToShowResult")
+      }
       onClick={handleToggleResult}
     >
-      <span className="text-gray-600">Result:</span>
+      <span className="text-gray-600">{t("info.result")}</span>
       {shouldShowResult ||
       Object.prototype.hasOwnProperty.call(game.result, "Unknown") ? (
         <span className="font-medium">{formatResult(game.result)}</span>
       ) : (
         <img
           src={trophyCrossedOutIcon}
-          alt="Result"
+          alt={t("info.result")}
           className="w-5 h-5 text-gray-600"
         />
       )}
@@ -477,6 +460,8 @@ export type MoveInfoProps = {
 };
 
 export function MoveInfo({ game, onSelectAtMove, className }: MoveInfoProps) {
+  const { t } = useTranslations();
+
   const handleMatchedMoveClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -499,13 +484,13 @@ export function MoveInfo({ game, onSelectAtMove, className }: MoveInfoProps) {
 
   return (
     <div className={cn("flex items-center gap-2 text-base", className)}>
-      <span className="text-gray-500">Matched:</span>
+      <span className="text-gray-500">{t("info.matched")}</span>
       <span
         className="cursor-pointer hover:underline"
         onClick={handleMatchedMoveClick}
-        title="Click to view game at this move"
+        title={t("info.clickToView")}
       >
-        Move {game.last_move_matched + 1}
+        {t("info.move")} {game.last_move_matched + 1}
       </span>
       <span className="text-gray-300">/</span>
       <span
@@ -529,6 +514,8 @@ export function MoveInfoCompact({
   onSelectAtMove,
   className,
 }: MoveInfoCompactProps) {
+  const { t } = useTranslations();
+
   const handleMatchedMoveClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -551,13 +538,13 @@ export function MoveInfoCompact({
 
   return (
     <div className={className}>
-      <span className="text-gray-500">Matched: </span>
+      <span className="text-gray-500">{t("info.matched")} </span>
       <span
         className="cursor-pointer hover:underline"
         onClick={handleMatchedMoveClick}
-        title="Click to view game at this move"
+        title={t("info.clickToView")}
       >
-        Move {game.last_move_matched + 1}
+        {t("info.move")} {game.last_move_matched + 1}
       </span>
       <span
         className="text-gray-300 text-2xl"
@@ -581,6 +568,8 @@ export type SGFDownloadProps = {
 };
 
 export function SGFDownload({ game, className }: SGFDownloadProps) {
+  const { t } = useTranslations();
+
   return (
     <a
       href={`/sgfs/${game.path}.sgf`}
@@ -589,12 +578,12 @@ export function SGFDownload({ game, className }: SGFDownloadProps) {
         "flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded justify-end",
         className,
       )}
-      title="Download SGF game record"
+      title={t("info.downloadSgf")}
     >
-      <span>SGF</span>
+      <span>{t("info.sgf")}</span>
       <img
         src={fileDownIcon}
-        alt="Download icon"
+        alt={t("info.downloadIcon")}
         className="w-5 h-5 text-gray-600"
       />
     </a>
@@ -607,6 +596,8 @@ export type GameEventInfoProps = {
 };
 
 export function GameEventInfo({ game, className }: GameEventInfoProps) {
+  const { t } = useTranslations();
+
   return (
     <div className={cn("flex flex-col min-w-0 flex-1", className)}>
       {game.event && (
@@ -616,9 +607,9 @@ export function GameEventInfo({ game, className }: GameEventInfoProps) {
       )}
       <div
         className="text-gray-500 text-sm truncate max-w-full"
-        title={`Round: ${game.round}`}
+        title={`${t("info.round")} ${game.round}`}
       >
-        {game.round ? `Round: ${game.round}` : "\u00A0"}
+        {game.round ? `${t("info.round")} ${game.round}` : "\u00A0"}
       </div>
     </div>
   );
@@ -630,6 +621,8 @@ export type GameDateLocationProps = {
 };
 
 export function GameDateLocation({ game, className }: GameDateLocationProps) {
+  const { t } = useTranslations();
+
   return (
     <div
       className={cn(
@@ -643,7 +636,7 @@ export function GameDateLocation({ game, className }: GameDateLocationProps) {
         </div>
       )}
       <div className="text-gray-500 text-sm truncate max-w-full">
-        {game.location ? `Location: ${game.location}` : "\u00A0"}
+        {game.location ? `${t("info.location")} ${game.location}` : "\u00A0"}
       </div>
     </div>
   );
@@ -655,11 +648,13 @@ export type GameEventInfoListProps = {
 };
 
 export function GameEventInfoList({ game, className }: GameEventInfoListProps) {
+  const { t } = useTranslations();
+
   return (
     <div className={cn("flex flex-col", className)}>
       {game.event && <div className="text-lg font-medium">{game.event}</div>}
       <div className="text-gray-500 text-sm">
-        {game.round ? `Round: ${game.round}` : "\u00A0"}
+        {game.round ? `${t("info.round")} ${game.round}` : "\u00A0"}
       </div>
     </div>
   );
@@ -674,6 +669,8 @@ export function GameDateLocationList({
   game,
   className,
 }: GameDateLocationListProps) {
+  const { t } = useTranslations();
+
   return (
     <div className={cn("flex flex-col gap-1", className)}>
       {game.date && (
@@ -682,7 +679,7 @@ export function GameDateLocationList({
         </div>
       )}
       <div className="text-gray-500 text-sm">
-        {game.location ? `Location: ${game.location}` : "\u00A0"}
+        {game.location ? `${t("info.location")} ${game.location}` : "\u00A0"}
       </div>
     </div>
   );

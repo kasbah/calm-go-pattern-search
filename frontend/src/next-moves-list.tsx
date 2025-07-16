@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { type NextMove } from "@/wasm-search-types";
 import { SabakiColor } from "@/sabaki-types";
 import { cn } from "@/utils";
+import { useTranslations } from "@/locale/use-translations";
 
 interface NextMovesListProps {
   nextMoves: NextMove[];
@@ -20,6 +21,7 @@ export default function NextMovesList({
   onMoveUnhover,
   onMoveClick,
 }: NextMovesListProps) {
+  const { t, tc } = useTranslations();
   const maxGameCount = Math.max(...nextMoves.map((move) => move.game_count));
 
   const handleMoveHover = useCallback(
@@ -49,7 +51,7 @@ export default function NextMovesList({
     >
       {nextMoves.length > 0 && !isLoading && (
         <div className="text-lg font-bold text-gray-900 flex items-center pl-4">
-          Next moves
+          {t("nextMoves.title")}
         </div>
       )}
       {nextMoves.length > 0 &&
@@ -124,7 +126,10 @@ export default function NextMovesList({
                   "relative font-medium text-base text-gray-900 ml-1 z-10",
                 )}
               >
-                {move.game_count} game{move.game_count === 1 ? "" : "s"}
+                {tc(
+                  move.game_count,
+                  move.game_count === 1 ? "game.singular" : "games.count",
+                )}
               </span>
             </div>
           );

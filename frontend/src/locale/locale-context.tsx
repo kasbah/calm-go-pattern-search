@@ -1,38 +1,46 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
-
-export type LocaleContextType = {
-  locale: string;
-};
-
-export const LocaleContext = createContext<LocaleContextType>({
-  locale: "en",
-});
+import { useState, type ReactNode } from "react";
+import { LocaleContext } from "./locale-context-types";
+import { isSupportedLocale, type SupportedLocale } from "./translations";
 
 export type LocaleProviderProps = {
   children: ReactNode;
 };
 
 export function LocaleProvider({ children }: LocaleProviderProps) {
-  // Detect user locale
-  const [locale] = useState(() => {
-    // Get browser locale, fallback to 'en'
-    const browserLocale =
-      navigator.language || navigator.languages?.[0] || "en";
+  // Detect raw browser locale once (could be any language code)
+  const browserLocale = (() => {
+    const browserLang = navigator.language || navigator.languages?.[0] || "en";
     // Extract language code (e.g., 'en-US' -> 'en')
-    return browserLocale.split("-")[0];
+    return browserLang.split("-")[0];
+  })();
+
+  // Default to auto mode, check localStorage for saved preference
+  const [selectedLocale, setSelectedLocale] = useState<SupportedLocale>(() => {
+    // Check localStorage first for saved preference
+    const savedLocale = localStorage.getItem("locale");
+    if (savedLocale && isSupportedLocale(savedLocale)) {
+      return savedLocale;
+    }
+
+    // Default to auto mode
+    return "auto";
   });
 
+  // Save locale preference to localStorage when it changes
+  const handleSetSelectedLocale = (newLocale: SupportedLocale) => {
+    setSelectedLocale(newLocale);
+    localStorage.setItem("locale", newLocale);
+  };
+
   return (
-    <LocaleContext.Provider value={{ locale }}>
+    <LocaleContext.Provider
+      value={{
+        selectedLocale,
+        browserLocale,
+        setSelectedLocale: handleSetSelectedLocale,
+      }}
+    >
       {children}
     </LocaleContext.Provider>
   );
-}
-
-export function useLocale() {
-  const context = useContext(LocaleContext);
-  if (!context) {
-    throw new Error("useLocale must be used within a LocaleProvider");
-  }
-  return context;
 }
