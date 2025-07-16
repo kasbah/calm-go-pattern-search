@@ -428,7 +428,7 @@ export function GameResult({
   return (
     <button
       className={cn(
-        "flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded",
+        "flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-0 py-0 rounded",
         className,
       )}
       title={
@@ -483,18 +483,20 @@ export function MoveInfo({ game, onSelectAtMove, className }: MoveInfoProps) {
   );
 
   return (
-    <div className={cn("flex items-center gap-2 text-base", className)}>
-      <span className="text-gray-500">{t("info.matched")}</span>
+    <div className={cn("flex items-center gap-2 text-base ", className)}>
+      <span className="text-gray-500 whitespace-nowrap">
+        {t("info.matched")}
+      </span>
       <span
-        className="cursor-pointer hover:underline"
+        className="cursor-pointer hover:underline whitespace-nowrap"
         onClick={handleMatchedMoveClick}
         title={t("info.clickToView")}
       >
         {t("info.move")} {game.last_move_matched + 1}
       </span>
-      <span className="text-gray-300">/</span>
+      <span className="text-gray-300 whitespace-nowrap">/</span>
       <span
-        className="cursor-pointer hover:underline"
+        className="cursor-pointer hover:underline whitespace-nowrap"
         onClick={handleLastMoveClick}
       >
         {game.moves.length}
@@ -624,18 +626,18 @@ export function GameDateLocation({ game, className }: GameDateLocationProps) {
   const { t } = useTranslations();
 
   return (
-    <div
-      className={cn(
-        "flex flex-col text-left justify-left flex-shrink-0",
-        className,
-      )}
-    >
+    <div className={cn("flex flex-col flex-shrink-0", className)}>
       {game.date && (
-        <div className="font-medium truncate max-w-full">
+        <div className="font-medium truncate max-w-full text-left">
           <FormattedDate date={game.date} />
         </div>
       )}
-      <div className="text-gray-500 text-sm truncate max-w-full">
+      <div
+        className="text-gray-500 text-sm truncate max-w-full text-left"
+        title={
+          game.location ? `${t("info.location")} ${game.location}` : undefined
+        }
+      >
         {game.location ? `${t("info.location")} ${game.location}` : "\u00A0"}
       </div>
     </div>
@@ -678,7 +680,12 @@ export function GameDateLocationList({
           <FormattedDate date={game.date} />
         </div>
       )}
-      <div className="text-gray-500 text-sm">
+      <div
+        className="text-gray-500 text-sm truncate max-w-full"
+        title={
+          game.location ? `${t("info.location")} ${game.location}` : undefined
+        }
+      >
         {game.location ? `${t("info.location")} ${game.location}` : "\u00A0"}
       </div>
     </div>

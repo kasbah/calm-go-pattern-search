@@ -33,13 +33,8 @@ export default function ResultsControls({
   return (
     <div className="flex items-center justify-end mt-2 space-x-3 font-medium">
       <div className="flex items-center gap-2">
-        <div className="text-gray-500 font-normal">
-          {t("sort.label")}
-        </div>
-        <Select
-          value={`${sortResultsBy}`}
-          onValueChange={onSortByChange}
-        >
+        <div className="text-gray-500 font-normal">{t("sort.label")}</div>
+        <Select value={`${sortResultsBy}`} onValueChange={onSortByChange}>
           <SelectTrigger className="w-[225px]">
             <SelectValue placeholder={t("sort.placeholder")} />
           </SelectTrigger>
