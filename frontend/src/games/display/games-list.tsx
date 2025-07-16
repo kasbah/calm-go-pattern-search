@@ -91,81 +91,80 @@ const GameItem = memo(function GameItem({
         <div
           data-selected={isSelected}
           className={cn(
-            "bg-white hover:bg-accent/25 data-[selected=true]:bg-secondary p-4 pr-6",
+            "bg-white hover:bg-accent/25 data-[selected=true]:bg-secondary p-4 pr-6 flex flex-row gap-3",
           )}
         >
-          <div className="flex gap-4">
-            <div
-              className="flex-shrink-0 cursor-pointer"
-              onClick={handleGobanClick}
-            >
-              {isVisible ? (
-                <TinyViewerGoban
-                  game={game}
-                  vertexSize={11}
-                  moveNumber={moveNumber}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: 11 * 19 + 7.5,
-                    height: 11 * 19 + 9.75,
-                    backgroundColor: "#f3f4f6",
-                    borderRadius: "4px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#9ca3af",
-                    fontSize: "12px",
-                  }}
-                />
-              )}
-            </div>
-            <div className="flex-1 flex flex-col justify-between">
-              <div className="flex gap-5 justify-between items-start w-full h-full pb-3">
-                <div className="flex flex-shrink-0 flex-col gap-2 text-lg font-medium">
-                  <PlayerDisplay
-                    game={game}
-                    color="Black"
-                    className="whitespace-nowrap"
-                    onPlayerClick={onPlayerClick}
-                  />
-                  <PlayerDisplay
-                    game={game}
-                    color="White"
-                    className="whitespace-nowrap"
-                    onPlayerClick={onPlayerClick}
-                  />
-                </div>
-                <div className="flex flex-1 flex-col justify-between items-end text-right h-full">
-                  <GameEventInfoList game={game} />
-                  <GameDateLocationList game={game} className="mt-2" />
-                </div>
-                <div className="flex flex-none items-center justify-end gap-2 min-w-[100px] ml-3">
-                  <GameIcons game={game} />
-                  <GameInfoPopover game={game} />
-                  <div className="text-gray-500">{index + 1}</div>
-                </div>
-              </div>
+          {/* 1st child: tiny viewer goban */}
+          <div
+            className="flex-shrink-0 cursor-pointer self-start"
+            onClick={handleGobanClick}
+          >
+            {isVisible ? (
+              <TinyViewerGoban
+                game={game}
+                vertexSize={11}
+                moveNumber={moveNumber}
+              />
+            ) : (
+              <div
+                style={{
+                  width: 11 * 19 + 7.5,
+                  height: 11 * 19 + 9.75,
+                  backgroundColor: "#f3f4f6",
+                  borderRadius: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#9ca3af",
+                  fontSize: "12px",
+                }}
+              />
+            )}
+          </div>
 
-              <div className="mb-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <MoveInfoCompact
-                      game={game}
-                      onSelectAtMove={onSelectAtMove}
-                    />
-                  </div>
-                  <div className="flex justify-end items-center gap-2">
-                    <GameResult
-                      game={game}
-                      showAllResults={showAllResults}
-                      className="text-base"
-                    />
-                    <SGFDownload game={game} />
-                  </div>
-                </div>
-              </div>
+          {/* 2nd child: player display and moves matched */}
+          <div className="flex flex-col justify-between flex-1">
+            <div className="flex flex-col gap-2 text-lg font-medium">
+              <PlayerDisplay
+                game={game}
+                color="Black"
+                className="whitespace-nowrap"
+                onPlayerClick={onPlayerClick}
+              />
+              <PlayerDisplay
+                game={game}
+                color="White"
+                className="whitespace-nowrap"
+                onPlayerClick={onPlayerClick}
+              />
+            </div>
+            <MoveInfoCompact
+              game={game}
+              onSelectAtMove={onSelectAtMove}
+              className="whitespace-nowrap"
+            />
+          </div>
+
+          {/* 3rd child: event, round, date, location and result */}
+          <div className="flex flex-col gap-2 items-end text-right justify-between ml-auto">
+            <GameEventInfoList game={game} />
+            <GameDateLocationList game={game} />
+            <GameResult
+              game={game}
+              showAllResults={showAllResults}
+              className="text-base"
+            />
+          </div>
+
+          {/* 4th child: icons and result number and SGF download button */}
+          <div className="flex flex-col justify-between items-end min-w-[100px]">
+            <div className="flex items-center gap-2">
+              <GameIcons game={game} />
+              <GameInfoPopover game={game} />
+              <div className="text-gray-500">{index + 1}</div>
+            </div>
+            <div className="flex justify-end">
+              <SGFDownload game={game} />
             </div>
           </div>
         </div>
