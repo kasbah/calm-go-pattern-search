@@ -16,7 +16,7 @@ import {
 import type { PlayerFilter } from "@/wasm-search-types";
 import cancelSvg from "@/assets/icons/cancel.svg";
 import { getPlayerNames } from "../get-player-names";
-import { useLocale } from "@/contexts/locale-context";
+import { useLocale } from "@/locale/locale-context";
 import circleBlackSvg from "@/assets/icons/circle-black.svg";
 import circleWhiteSvg from "@/assets/icons/circle-white.svg";
 import circleBlackOrWhiteSvg from "@/assets/icons/circle-black-or-white.svg";

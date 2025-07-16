@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, memo, type JSX } from "react";
 import { cn } from "@/utils";
 import { getPlayerNames } from "../get-player-names";
-import { useLocale } from "@/contexts/locale-context";
+import { useLocale } from "@/locale/locale-context";
 
 import type {
   Game,

@@ -2,7 +2,7 @@ import { Theme } from "@radix-ui/themes";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./app";
-import { LocaleProvider } from "@/contexts/locale-context";
+import { LocaleProvider } from "@/locale/locale-context";
 import {
   getBoardFromUrl,
   getPlayerFiltersFromUrl,
