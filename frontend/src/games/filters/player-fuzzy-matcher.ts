@@ -12,7 +12,6 @@ export type PlayerAlias = {
 };
 
 type PlayerData = {
-  id: number;
   aliases: PlayerAlias[];
   games_count: number;
 };
@@ -54,10 +53,10 @@ class PlayerFuzzyMatcher {
   private transformPlayerData(): PlayerSuggestion[] {
     const players: PlayerSuggestion[] = [];
 
-    for (const [canonicalName, data] of Object.entries(playerNames)) {
-      const id = data.id;
+    for (const [playerIdStr, data] of Object.entries(playerNames)) {
+      const id = parseInt(playerIdStr, 10);
 
-      // Get the preferred English name if available, otherwise use canonical name
+      // Get the preferred English name if available, otherwise use first alias name
       const preferredName = data.aliases.find((alias: PlayerAlias) =>
         alias.languages.some(
           (lang: PlayerAliasLanguage) =>
@@ -65,7 +64,9 @@ class PlayerFuzzyMatcher {
         ),
       );
 
-      const displayName = preferredName ? preferredName.name : canonicalName;
+      const displayName = preferredName
+        ? preferredName.name
+        : data.aliases[0]?.name || `Player ${id}`;
 
       data.aliases.sort((a: PlayerAlias, _: PlayerAlias) => {
         if (
@@ -85,7 +86,7 @@ class PlayerFuzzyMatcher {
       players.push({
         id,
         name: displayName,
-        canonicalName,
+        canonicalName: displayName,
         aliases,
         gamesCount: data.games_count,
       });

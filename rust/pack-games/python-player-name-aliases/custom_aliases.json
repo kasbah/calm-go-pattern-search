@@ -526,9 +526,13 @@
   "Kishimoto Kazuo": [
     "Kirimoto Kazuo"
   ],
+  "Kisohachi": [
+    "Koike Kisohachi"
+  ],
   "Ko Geuntae": [
     "Ko Geun Tae",
     "Ko Keun-t'ae",
+    "Ko Geunate",
     "Ko Keuntae"
   ],
   "Ko Jaehee": [
@@ -538,7 +542,14 @@
     "Koichi Kobayashi",
     "小林光一八段",
     "小林光一九段",
+    "Kobayashi",
     "小林光一 挑战者"
+  ],
+  "Kogishi Soji": [
+    "Kogishi Soji (13 year old)"
+  ],
+  "Koh Juyong": [
+    "Juyong Koh"
   ],
   "Kono Rin": [
     "Kono RIn"
@@ -692,8 +703,6 @@
     "O Gyu Cheol"
   ],
   "O Rissei": [
-    "O Yuinin",
-    "O Yujin",
     "王立城"
   ],
   "Oba Junya": [
@@ -910,11 +919,8 @@
   "Viktor Bogdanov": [
     "Victor Bogdanov"
   ],
-  "Wang Lei": [
-    "Wang Lei (b)",
-    "Wang Lei (s)",
-    "Wang Lei Jr.",
-    "Wang Lei Sr."
+  "Wang Lei Sr." : [
+    "Wang Lei (b)"
   ],
   "Watanabe Kouki": [
     "Watanabe Koki"

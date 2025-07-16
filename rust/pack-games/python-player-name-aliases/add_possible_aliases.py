@@ -61,7 +61,13 @@ def load_possible_aliases() -> List[Tuple[int, int]]:
     """Load the possible aliases file."""
     try:
         with open("possible_aliases.txt", "r", encoding="utf-8") as f:
-            return [tuple(map(int, line.strip().split())) for line in f if line.strip()]
+            result = []
+            for line in f:
+                if line.strip():
+                    parts = list(map(int, line.strip().split()))
+                    if len(parts) >= 2:
+                        result.append((parts[0], parts[1]))
+            return result
     except FileNotFoundError:
         print("Error: possible_aliases.txt not found")
         sys.exit(1)
@@ -71,9 +77,14 @@ def find_known_aliases(
     known_alias_db: Dict, player_id: int
 ) -> Tuple[str | None, list[str]]:
     """Find a player by their ID in the database."""
-    for name, data in known_alias_db.items():
-        if data.get("id") == player_id:
-            return name, [alias["name"] for alias in data.get("aliases", [])]
+    player_key = str(player_id)
+    if player_key in known_alias_db:
+        player_data = known_alias_db[player_key]
+        aliases = player_data.get("aliases", [])
+        if aliases:
+            # Use the first alias as the main name
+            name = aliases[0]["name"]
+            return name, [alias["name"] for alias in aliases]
     return None, []
 
 

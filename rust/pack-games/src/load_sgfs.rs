@@ -87,15 +87,13 @@ fn load_player_aliases() -> HashMap<String, i16> {
     let reader = BufReader::new(file);
     let json: Value = serde_json::from_reader(reader).expect("Failed to parse player names JSON");
 
-    for (canonical_name, data) in json.as_object().expect("Expected object").iter() {
-        let id = data
-            .get("id")
-            .expect("Missing id")
-            .as_i64()
-            .expect("Expected id to be an integer") as i16;
-        aliases.insert(canonical_name.to_lowercase(), id);
+    let players_obj = json.as_object().expect("Expected object");
+    for (player_id_str, player_data) in players_obj.iter() {
+        let id = player_id_str
+            .parse::<i16>()
+            .expect("Failed to parse player ID");
 
-        if let Some(aliases_array) = data.get("aliases").and_then(|a| a.as_array()) {
+        if let Some(aliases_array) = player_data.get("aliases").and_then(|a| a.as_array()) {
             for alias in aliases_array {
                 if let Some(name) = alias.get("name").and_then(|n| n.as_str()) {
                     aliases.insert(name.to_lowercase(), id);

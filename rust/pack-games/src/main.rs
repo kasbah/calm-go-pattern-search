@@ -138,17 +138,15 @@ fn update_player_names_with_games_count(player_id_counts: &HashMap<i16, usize>) 
     let mut json: Value =
         serde_json::from_reader(reader).expect("Failed to parse player names JSON");
 
-    if let Some(players) = json.as_object_mut() {
-        for (_canonical_name, player_data) in players.iter_mut() {
-            if let Some(player_obj) = player_data.as_object_mut() {
-                if let Some(id_value) = player_obj.get("id") {
-                    if let Some(id) = id_value.as_i64() {
-                        let games_count = player_id_counts.get(&(id as i16)).unwrap_or(&0);
-                        player_obj.insert(
-                            "games_count".to_string(),
-                            Value::Number(serde_json::Number::from(*games_count)),
-                        );
-                    }
+    if let Some(players_obj) = json.as_object_mut() {
+        for (player_id_str, player_data) in players_obj.iter_mut() {
+            if let Ok(player_id) = player_id_str.parse::<i16>() {
+                if let Some(player_obj) = player_data.as_object_mut() {
+                    let games_count = player_id_counts.get(&player_id).unwrap_or(&0);
+                    player_obj.insert(
+                        "games_count".to_string(),
+                        Value::Number(serde_json::Number::from(*games_count)),
+                    );
                 }
             }
         }

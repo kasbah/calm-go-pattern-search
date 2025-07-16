@@ -3,3 +3,4 @@ playerdb-*.json
 player_names.json
 rejected_alias_pairs.json
 possible_aliases.txt
+__pycache__

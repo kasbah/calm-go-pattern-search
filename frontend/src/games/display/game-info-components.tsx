@@ -15,7 +15,6 @@ import type {
 import playerNamesData from "../../../../rust/pack-games/python-player-name-aliases/player_names.json";
 
 type PlayerData = {
-  id: number;
   aliases: PlayerAlias[];
   games_count: number;
 };
@@ -167,32 +166,28 @@ function formatRules(rules: Rules | null): string {
 
 function getPlayerName(player: Player): string {
   if (player.Id) {
-    const playerEntry = Object.entries(playerNames).find(
-      ([_, data]) => data.id === player.Id![0],
-    );
-    if (!playerEntry) return `Player ${player.Id![0]}`;
+    const playerId = player.Id[0].toString();
+    const playerData = playerNames[playerId];
+    if (!playerData) return `Player ${player.Id[0]}`;
 
-    const [name, data] = playerEntry;
-    const preferredName = data.aliases.find((alias: PlayerAlias) =>
+    const preferredName = playerData.aliases.find((alias: PlayerAlias) =>
       alias.languages.some(
         (lang: PlayerAliasLanguage) => lang.language === "en" && lang.preferred,
       ),
     );
 
-    return preferredName ? preferredName.name : name;
+    return preferredName ? preferredName.name : `Player ${player.Id[0]}`;
   }
   return player.Unknown || "Unknown";
 }
 
 function getPlayerAliases(player: Player): PlayerAlias[] {
   if (player.Id) {
-    const playerEntry = Object.entries(playerNames).find(
-      ([_, data]) => data.id === player.Id![0],
-    );
-    if (!playerEntry) return [];
+    const playerId = player.Id[0].toString();
+    const playerData = playerNames[playerId];
+    if (!playerData) return [];
 
-    const [_, data] = playerEntry;
-    return data.aliases || [];
+    return playerData.aliases || [];
   }
   return [];
 }
