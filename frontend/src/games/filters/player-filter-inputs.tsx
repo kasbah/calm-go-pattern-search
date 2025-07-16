@@ -8,121 +8,21 @@ import React, {
 import { Input } from "@/ui-primitives/input";
 import { cn } from "@/utils";
 
-import { useLocale } from "@/contexts/locale-context";
 import {
   playerFuzzyMatcher,
   type PlayerSuggestion,
-  type PlayerAlias,
-  type PlayerAliasLanguage,
 } from "./player-fuzzy-matcher";
-import playerNamesData from "@/../../rust/pack-games/python-player-name-aliases/player_names.json";
+
 import type { PlayerFilter } from "@/wasm-search-types";
 import cancelSvg from "@/assets/icons/cancel.svg";
+import { getPlayerNames } from "../get-player-names";
+import { useLocale } from "@/contexts/locale-context";
 import circleBlackSvg from "@/assets/icons/circle-black.svg";
 import circleWhiteSvg from "@/assets/icons/circle-white.svg";
 import circleBlackOrWhiteSvg from "@/assets/icons/circle-black-or-white.svg";
 import chevronDownSvg from "@/assets/icons/chevron-down.svg";
 
 export type PlayerColor = "Black" | "White" | "Any";
-
-type PlayerData = {
-  aliases: PlayerAlias[];
-  games_count: number;
-};
-
-type PlayerNamesData = Record<string, PlayerData>;
-
-const playerNames = playerNamesData as PlayerNamesData;
-
-// Function to sort aliases by locale preference
-function sortAliasesByLocale(
-  aliases: string[],
-  playerId: number,
-  locale: string,
-): string[] {
-  const playerData = playerNames[playerId.toString()];
-  if (!playerData) return aliases;
-
-  const aliasMap = new Map<string, PlayerAlias>();
-  playerData.aliases.forEach((alias) => {
-    aliasMap.set(alias.name, alias);
-  });
-
-  return aliases.sort((a, b) => {
-    const aliasA = aliasMap.get(a);
-    const aliasB = aliasMap.get(b);
-
-    if (!aliasA || !aliasB) return 0;
-
-    const aHasLocale = aliasA.languages.some(
-      (lang) => lang.language === locale,
-    );
-    const bHasLocale = aliasB.languages.some(
-      (lang) => lang.language === locale,
-    );
-
-    if (aHasLocale && !bHasLocale) return -1;
-    if (!aHasLocale && bHasLocale) return 1;
-
-    // Both have or don't have the locale, check for English
-    const aHasEnglish = aliasA.languages.some((lang) => lang.language === "en");
-    const bHasEnglish = aliasB.languages.some((lang) => lang.language === "en");
-
-    if (aHasEnglish && !bHasEnglish) return -1;
-    if (!aHasEnglish && bHasEnglish) return 1;
-
-    return 0;
-  });
-}
-
-// Hook to get locale-aware player name from PlayerSuggestion
-function usePlayerNameFromSuggestion(
-  playerSuggestion: PlayerSuggestion | null,
-): string {
-  const { locale } = useLocale();
-
-  if (!playerSuggestion) return "";
-
-  const playerData = playerNames[playerSuggestion.id.toString()];
-  if (!playerData) return playerSuggestion.name;
-
-  // 1. Try to find preferred name in the user's locale
-  let preferredName = playerData.aliases.find((alias: PlayerAlias) =>
-    alias.languages.some(
-      (lang: PlayerAliasLanguage) => lang.language === locale && lang.preferred,
-    ),
-  );
-
-  if (preferredName) {
-    return preferredName.name;
-  }
-
-  // 2. Try to find any name marked as preferred: false in the user's locale
-  preferredName = playerData.aliases.find((alias: PlayerAlias) =>
-    alias.languages.some(
-      (lang: PlayerAliasLanguage) =>
-        lang.language === locale && lang.preferred === false,
-    ),
-  );
-
-  if (preferredName) {
-    return preferredName.name;
-  }
-
-  // 3. Try to find any name in the user's locale (no preference specified)
-  preferredName = playerData.aliases.find((alias: PlayerAlias) =>
-    alias.languages.some(
-      (lang: PlayerAliasLanguage) => lang.language === locale,
-    ),
-  );
-
-  if (preferredName) {
-    return preferredName.name;
-  }
-
-  // 4. Fallback to the original name from PlayerSuggestion
-  return playerSuggestion.name;
-}
 
 // Component for rendering individual suggestion items with locale-aware names
 function SuggestionItem({
@@ -134,14 +34,11 @@ function SuggestionItem({
   playerCounts?: Record<number, number>;
   onSelect: (player: PlayerSuggestion) => void;
 }) {
-  const localeAwareName = usePlayerNameFromSuggestion(player);
   const { locale } = useLocale();
-
-  // Sort aliases to show user's locale first, excluding the main displayed name
-  const filteredAliases = player.aliases.filter(
-    (alias) => alias !== localeAwareName,
+  const { name: localeAwareName, aliases: sortedAliases } = getPlayerNames(
+    player.id,
+    locale,
   );
-  const sortedAliases = sortAliasesByLocale(filteredAliases, player.id, locale);
 
   return (
     <div
@@ -341,7 +238,10 @@ function PlayerInput({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showColorDropdown, setShowColorDropdown] = useState(false);
 
-  const selectedPlayerName = usePlayerNameFromSuggestion(selectedPlayer);
+  const { locale } = useLocale();
+  const { name: selectedPlayerName } = selectedPlayer
+    ? getPlayerNames(selectedPlayer.id, locale)
+    : { name: "" };
 
   const handlePlayerSelect = useCallback(
     (player: PlayerSuggestion | null) => {

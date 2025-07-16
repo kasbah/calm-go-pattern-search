@@ -1,26 +1,15 @@
 import { useState, useEffect, useCallback, memo, type JSX } from "react";
 import { cn } from "@/utils";
-import { usePlayerName } from "../use-player-names";
+import { getPlayerNames } from "../get-player-names";
 import { useLocale } from "@/contexts/locale-context";
+
 import type {
   Game,
   GameResult,
-  Player,
   Rank,
   Rules,
   SgfDate,
 } from "@/wasm-search-types";
-import type { PlayerAlias } from "@/games/filters/player-fuzzy-matcher";
-import playerNamesData from "../../../../rust/pack-games/python-player-name-aliases/player_names.json";
-
-type PlayerData = {
-  aliases: PlayerAlias[];
-  games_count: number;
-};
-
-type PlayerNamesData = Record<string, PlayerData>;
-
-const playerNames = playerNamesData as PlayerNamesData;
 
 import badgeInfoIcon from "@/assets/icons/badge-info.svg";
 import circleBlackIcon from "@/assets/icons/circle-black.svg";
@@ -163,27 +152,6 @@ function formatRules(rules: Rules | null): string {
   return "Unknown";
 }
 
-function getPlayerAliases(player: Player, locale: string): PlayerAlias[] {
-  if (player.Id) {
-    const playerId = player.Id[0].toString();
-    const playerData = playerNames[playerId];
-    if (!playerData) return [];
-
-    const aliases = playerData.aliases || [];
-
-    // Sort aliases to put locale aliases first
-    return aliases.sort((a, b) => {
-      const aHasLocale = a.languages.some((lang) => lang.language === locale);
-      const bHasLocale = b.languages.some((lang) => lang.language === locale);
-
-      if (aHasLocale && !bHasLocale) return -1;
-      if (!aHasLocale && bHasLocale) return 1;
-      return 0;
-    });
-  }
-  return [];
-}
-
 export type PlayerDisplayProps = {
   game: Game;
   color: "Black" | "White";
@@ -206,11 +174,10 @@ export const PlayerDisplay = memo(function PlayerDisplay({
   const alt = isBlack ? "Black" : "White";
 
   const { locale } = useLocale();
-  const playerName = usePlayerName(player);
+  const { name: playerName, aliases: playerAliases } = player.Id
+    ? getPlayerNames(player.Id[0], locale)
+    : { name: player.Unknown || "Unknown", aliases: [] };
   const playerRank = formatRank(rank);
-  const playerAliases = getPlayerAliases(player, locale).filter(
-    (alias) => alias.name !== playerName,
-  );
 
   // Get the original name from the game record if different from player_names.json
   const originalName = player.Id?.[1];
@@ -309,7 +276,7 @@ export const PlayerDisplay = memo(function PlayerDisplay({
               onMouseEnter={handleAliasPopoverMouseEnter}
               onMouseLeave={handleAliasPopoverMouseLeave}
             >
-              {playerAliases.map((alias) => alias.name).join(", ")}
+              {playerAliases.join(", ")}
             </PopoverContent>
           )}
         </Popover>
