@@ -634,22 +634,22 @@ export default function App({
                 onMoveClick={handleMoveClick}
               />
             )}
-            <div className="flex flex-col justify-between">
-              <PlayerFilterInputs
-                ref={playerFilterInputsRef}
-                onPlayerSelect={handlePlayerFiltersSelect}
-                playerCounts={playerCounts}
-                isLoading={isSearching}
-                initialPlayerFilters={initialPlayerFilters}
-              />
-              <ResultsControls
-                sortResultsBy={sortResultsBy}
-                onSortByChange={handleSortByChange}
-                showResults={showResults}
-                onToggleShowResults={handleToggleShowResults}
-                totalNumberOfGames={totalNumberOfGames}
-              />
-            </div>
+            <PlayerFilterInputs
+              ref={playerFilterInputsRef}
+              onPlayerSelect={handlePlayerFiltersSelect}
+              playerCounts={playerCounts}
+              isLoading={isSearching}
+              initialPlayerFilters={initialPlayerFilters}
+            />
+          </div>
+          <div className="flex justify-end mt-2">
+            <ResultsControls
+              sortResultsBy={sortResultsBy}
+              onSortByChange={handleSortByChange}
+              showResults={showResults}
+              onToggleShowResults={handleToggleShowResults}
+              totalNumberOfGames={totalNumberOfGames}
+            />
           </div>
           <Separator className="mt-2" />
         </div>
