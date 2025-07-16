@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, memo, type JSX } from "react";
 import { cn } from "@/utils";
+import { usePlayerName } from "../use-player-names";
+import { useLocale } from "@/contexts/locale-context";
 import type {
   Game,
   GameResult,
@@ -8,10 +10,7 @@ import type {
   Rules,
   SgfDate,
 } from "@/wasm-search-types";
-import type {
-  PlayerAlias,
-  PlayerAliasLanguage,
-} from "@/games/filters/player-fuzzy-matcher";
+import type { PlayerAlias } from "@/games/filters/player-fuzzy-matcher";
 import playerNamesData from "../../../../rust/pack-games/python-player-name-aliases/player_names.json";
 
 type PlayerData = {
@@ -164,30 +163,23 @@ function formatRules(rules: Rules | null): string {
   return "Unknown";
 }
 
-function getPlayerName(player: Player): string {
-  if (player.Id) {
-    const playerId = player.Id[0].toString();
-    const playerData = playerNames[playerId];
-    if (!playerData) return `Player ${player.Id[0]}`;
-
-    const preferredName = playerData.aliases.find((alias: PlayerAlias) =>
-      alias.languages.some(
-        (lang: PlayerAliasLanguage) => lang.language === "en" && lang.preferred,
-      ),
-    );
-
-    return preferredName ? preferredName.name : `Player ${player.Id[0]}`;
-  }
-  return player.Unknown || "Unknown";
-}
-
-function getPlayerAliases(player: Player): PlayerAlias[] {
+function getPlayerAliases(player: Player, locale: string): PlayerAlias[] {
   if (player.Id) {
     const playerId = player.Id[0].toString();
     const playerData = playerNames[playerId];
     if (!playerData) return [];
 
-    return playerData.aliases || [];
+    const aliases = playerData.aliases || [];
+
+    // Sort aliases to put locale aliases first
+    return aliases.sort((a, b) => {
+      const aHasLocale = a.languages.some((lang) => lang.language === locale);
+      const bHasLocale = b.languages.some((lang) => lang.language === locale);
+
+      if (aHasLocale && !bHasLocale) return -1;
+      if (!aHasLocale && bHasLocale) return 1;
+      return 0;
+    });
   }
   return [];
 }
@@ -213,9 +205,10 @@ export const PlayerDisplay = memo(function PlayerDisplay({
   const icon = isBlack ? circleBlackIcon : circleWhiteIcon;
   const alt = isBlack ? "Black" : "White";
 
-  const playerName = getPlayerName(player);
+  const { locale } = useLocale();
+  const playerName = usePlayerName(player);
   const playerRank = formatRank(rank);
-  const playerAliases = getPlayerAliases(player).filter(
+  const playerAliases = getPlayerAliases(player, locale).filter(
     (alias) => alias.name !== playerName,
   );
 

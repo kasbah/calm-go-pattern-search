@@ -7,10 +7,15 @@ import React, {
 } from "react";
 import { Input } from "@/ui-primitives/input";
 import { cn } from "@/utils";
+
+import { useLocale } from "@/contexts/locale-context";
 import {
   playerFuzzyMatcher,
   type PlayerSuggestion,
+  type PlayerAlias,
+  type PlayerAliasLanguage,
 } from "./player-fuzzy-matcher";
+import playerNamesData from "@/../../rust/pack-games/python-player-name-aliases/player_names.json";
 import type { PlayerFilter } from "@/wasm-search-types";
 import cancelSvg from "@/assets/icons/cancel.svg";
 import circleBlackSvg from "@/assets/icons/circle-black.svg";
@@ -19,6 +24,154 @@ import circleBlackOrWhiteSvg from "@/assets/icons/circle-black-or-white.svg";
 import chevronDownSvg from "@/assets/icons/chevron-down.svg";
 
 export type PlayerColor = "Black" | "White" | "Any";
+
+type PlayerData = {
+  aliases: PlayerAlias[];
+  games_count: number;
+};
+
+type PlayerNamesData = Record<string, PlayerData>;
+
+const playerNames = playerNamesData as PlayerNamesData;
+
+// Function to sort aliases by locale preference
+function sortAliasesByLocale(
+  aliases: string[],
+  playerId: number,
+  locale: string,
+): string[] {
+  const playerData = playerNames[playerId.toString()];
+  if (!playerData) return aliases;
+
+  const aliasMap = new Map<string, PlayerAlias>();
+  playerData.aliases.forEach((alias) => {
+    aliasMap.set(alias.name, alias);
+  });
+
+  return aliases.sort((a, b) => {
+    const aliasA = aliasMap.get(a);
+    const aliasB = aliasMap.get(b);
+
+    if (!aliasA || !aliasB) return 0;
+
+    const aHasLocale = aliasA.languages.some(
+      (lang) => lang.language === locale,
+    );
+    const bHasLocale = aliasB.languages.some(
+      (lang) => lang.language === locale,
+    );
+
+    if (aHasLocale && !bHasLocale) return -1;
+    if (!aHasLocale && bHasLocale) return 1;
+
+    // Both have or don't have the locale, check for English
+    const aHasEnglish = aliasA.languages.some((lang) => lang.language === "en");
+    const bHasEnglish = aliasB.languages.some((lang) => lang.language === "en");
+
+    if (aHasEnglish && !bHasEnglish) return -1;
+    if (!aHasEnglish && bHasEnglish) return 1;
+
+    return 0;
+  });
+}
+
+// Hook to get locale-aware player name from PlayerSuggestion
+function usePlayerNameFromSuggestion(
+  playerSuggestion: PlayerSuggestion | null,
+): string {
+  const { locale } = useLocale();
+
+  if (!playerSuggestion) return "";
+
+  const playerData = playerNames[playerSuggestion.id.toString()];
+  if (!playerData) return playerSuggestion.name;
+
+  // 1. Try to find preferred name in the user's locale
+  let preferredName = playerData.aliases.find((alias: PlayerAlias) =>
+    alias.languages.some(
+      (lang: PlayerAliasLanguage) => lang.language === locale && lang.preferred,
+    ),
+  );
+
+  if (preferredName) {
+    return preferredName.name;
+  }
+
+  // 2. Try to find any name marked as preferred: false in the user's locale
+  preferredName = playerData.aliases.find((alias: PlayerAlias) =>
+    alias.languages.some(
+      (lang: PlayerAliasLanguage) =>
+        lang.language === locale && lang.preferred === false,
+    ),
+  );
+
+  if (preferredName) {
+    return preferredName.name;
+  }
+
+  // 3. Try to find any name in the user's locale (no preference specified)
+  preferredName = playerData.aliases.find((alias: PlayerAlias) =>
+    alias.languages.some(
+      (lang: PlayerAliasLanguage) => lang.language === locale,
+    ),
+  );
+
+  if (preferredName) {
+    return preferredName.name;
+  }
+
+  // 4. Fallback to the original name from PlayerSuggestion
+  return playerSuggestion.name;
+}
+
+// Component for rendering individual suggestion items with locale-aware names
+function SuggestionItem({
+  player,
+  playerCounts,
+  onSelect,
+}: {
+  player: PlayerSuggestion;
+  playerCounts?: Record<number, number>;
+  onSelect: (player: PlayerSuggestion) => void;
+}) {
+  const localeAwareName = usePlayerNameFromSuggestion(player);
+  const { locale } = useLocale();
+
+  // Sort aliases to show user's locale first, excluding the main displayed name
+  const filteredAliases = player.aliases.filter(
+    (alias) => alias !== localeAwareName,
+  );
+  const sortedAliases = sortAliasesByLocale(filteredAliases, player.id, locale);
+
+  return (
+    <div
+      className={cn(
+        "px-4 py-3 cursor-pointer border-b last:border-b-0 transition-colors",
+        "hover:bg-accent/50 hover:text-accent-foreground",
+        "focus:bg-accent/50 focus:text-accent-foreground focus:outline-none",
+      )}
+      onClick={() => onSelect(player)}
+      role="option"
+      tabIndex={0}
+    >
+      <div className="flex items-center justify-between">
+        <div className="font-medium text-lg">{localeAwareName}</div>
+        <div className="text-base text-muted-foreground/60 ml-2 flex-shrink-0">
+          {(playerCounts?.[player.id] ?? player.gamesCount) > 0 &&
+            `${playerCounts?.[player.id] ?? player.gamesCount} games`}
+        </div>
+      </div>
+      {sortedAliases.length > 0 ? (
+        <div className="text-base text-muted-foreground/70 truncate">
+          {sortedAliases.slice(0, 10).join(", ")}
+          {sortedAliases.length > 10 && "..."}
+        </div>
+      ) : (
+        <div className="text-base text-muted-foreground/70">&nbsp;</div>
+      )}
+    </div>
+  );
+}
 
 type PlayerState = {
   player1: PlayerSuggestion | null;
@@ -188,6 +341,8 @@ function PlayerInput({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showColorDropdown, setShowColorDropdown] = useState(false);
 
+  const selectedPlayerName = usePlayerNameFromSuggestion(selectedPlayer);
+
   const handlePlayerSelect = useCallback(
     (player: PlayerSuggestion | null) => {
       onPlayerSelect(player);
@@ -287,31 +442,12 @@ function PlayerInput({
         )}
       >
         {suggestions.map((player) => (
-          <div
+          <SuggestionItem
             key={player.id}
-            className={cn(
-              "px-4 py-3 cursor-pointer border-b last:border-b-0 transition-colors",
-              "hover:bg-accent/50 hover:text-accent-foreground",
-              "focus:bg-accent/50 focus:text-accent-foreground focus:outline-none",
-            )}
-            onClick={() => handlePlayerSelect(player)}
-            role="option"
-            tabIndex={0}
-          >
-            <div className="flex items-center justify-between">
-              <div className="font-medium text-lg">{player.name}</div>
-              <div className="text-base text-muted-foreground/60 ml-2 flex-shrink-0">
-                {(playerCounts?.[player.id] ?? player.gamesCount) > 0 &&
-                  `${playerCounts?.[player.id] ?? player.gamesCount} games`}
-              </div>
-            </div>
-            {player.aliases.length > 1 && (
-              <div className="text-base text-muted-foreground/70 truncate">
-                {player.aliases.slice(0, 10).join(", ")}
-                {player.aliases.length > 10 && "..."}
-              </div>
-            )}
-          </div>
+            player={player}
+            playerCounts={playerCounts}
+            onSelect={handlePlayerSelect}
+          />
         ))}
       </div>
     );
@@ -427,7 +563,7 @@ function PlayerInput({
           ref={inputRef}
           type="text"
           placeholder={placeholder}
-          value={selectedPlayer?.name ?? query}
+          value={selectedPlayerName || query}
           onChange={handleQueryChange}
           onFocus={handleInputFocus}
           onKeyDown={handleKeyDown}

@@ -2,6 +2,7 @@ import { Theme } from "@radix-ui/themes";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./app";
+import { LocaleProvider } from "@/contexts/locale-context";
 import {
   getBoardFromUrl,
   getPlayerFiltersFromUrl,
@@ -49,14 +50,16 @@ const root = createRoot(document.getElementById("root") as HTMLElement);
 root.render(
   <React.StrictMode>
     <Theme>
-      <App
-        initialBoard={initialBoard}
-        initialPlayerFilters={initialPlayerFilter}
-        initialGame={initialGame}
-        initialSortBy={initialSortBy}
-        wasmSearchPostMessage={wasmSearchPostMessage}
-        wasmSearchOnMessage={wasmSearchOnMessage}
-      />
+      <LocaleProvider>
+        <App
+          initialBoard={initialBoard}
+          initialPlayerFilters={initialPlayerFilter}
+          initialGame={initialGame}
+          initialSortBy={initialSortBy}
+          wasmSearchPostMessage={wasmSearchPostMessage}
+          wasmSearchOnMessage={wasmSearchOnMessage}
+        />
+      </LocaleProvider>
     </Theme>
   </React.StrictMode>,
 );
