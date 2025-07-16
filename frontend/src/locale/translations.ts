@@ -14,24 +14,23 @@ export const translations = {
     "nextMoves.title": "Next moves",
 
     // Date formatting
-    "months.january": "Jan",
-    "months.february": "Feb",
-    "months.march": "Mar",
-    "months.april": "Apr",
+    "months.january": "Jan.",
+    "months.february": "Feb.",
+    "months.march": "Mar.",
+    "months.april": "Apr.",
     "months.may": "May",
-    "months.june": "Jun",
-    "months.july": "Jul",
-    "months.august": "Aug",
-    "months.september": "Sep",
-    "months.october": "Oct",
-    "months.november": "Nov",
-    "months.december": "Dec",
+    "months.june": "Jun.",
+    "months.july": "Jul.",
+    "months.august": "Aug.",
+    "months.september": "Sep.",
+    "months.october": "Oct.",
+    "months.november": "Nov.",
+    "months.december": "Dec.",
 
     "ordinal.st": "st",
     "ordinal.nd": "nd",
     "ordinal.rd": "rd",
     "ordinal.th": "th",
-    "date.of": "of",
 
     // Game information
     "color.black": "Black",
@@ -113,24 +112,23 @@ export const translations = {
     "nextMoves.title": "Nächste Züge",
 
     // Date formatting
-    "months.january": "Jan",
-    "months.february": "Feb",
-    "months.march": "Mär",
-    "months.april": "Apr",
+    "months.january": "Jan.",
+    "months.february": "Feb.",
+    "months.march": "Mär.",
+    "months.april": "Apr.",
     "months.may": "Mai",
-    "months.june": "Jun",
-    "months.july": "Jul",
-    "months.august": "Aug",
-    "months.september": "Sep",
-    "months.october": "Okt",
-    "months.november": "Nov",
-    "months.december": "Dez",
+    "months.june": "Jun.",
+    "months.july": "Jul.",
+    "months.august": "Aug.",
+    "months.september": "Sep.",
+    "months.october": "Okt.",
+    "months.november": "Nov.",
+    "months.december": "Dez.",
 
     "ordinal.st": ".",
     "ordinal.nd": ".",
     "ordinal.rd": ".",
     "ordinal.th": ".",
-    "date.of": "",
 
     // Game information
     "color.black": "Schwarz",
@@ -232,7 +230,6 @@ export const translations = {
     "ordinal.nd": "日",
     "ordinal.rd": "日",
     "ordinal.th": "日",
-    "date.of": "",
 
     // Game information
     "color.black": "黑棋",
@@ -331,7 +328,6 @@ export const translations = {
     "ordinal.nd": "日",
     "ordinal.rd": "日",
     "ordinal.th": "日",
-    "date.of": "",
 
     // Game information
     "color.black": "黒番",
@@ -430,7 +426,6 @@ export const translations = {
     "ordinal.nd": "일",
     "ordinal.rd": "일",
     "ordinal.th": "일",
-    "date.of": "",
 
     // Game information
     "color.black": "흑",
@@ -529,7 +524,6 @@ export const translations = {
     "ordinal.nd": "",
     "ordinal.rd": "",
     "ordinal.th": "",
-    "date.of": "",
 
     // Game information
     "color.black": "Чёрные",

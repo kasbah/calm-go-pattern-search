@@ -111,7 +111,6 @@ export function useTranslations() {
   const formatDate = (day: number, month: number, year: number): string => {
     const monthName = getMonthName(month);
     const ordinalSuffix = getOrdinalSuffix(day);
-    const ofWord = t("date.of");
 
     // Handle different date formats per language
     if (
@@ -125,10 +124,8 @@ export function useTranslations() {
       // Russian format: day month year
       return `${day} ${monthName} ${year}`;
     } else {
-      // English format: day of month, year
-      return ofWord && ofWord.trim() !== ""
-        ? `${day}${ordinalSuffix} ${ofWord} ${monthName}, ${year}`
-        : `${day}${ordinalSuffix} ${monthName}, ${year}`;
+      // English format: day month year
+      return `${day}${ordinalSuffix} ${monthName} ${year}`;
     }
   };
 
