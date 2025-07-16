@@ -123,7 +123,7 @@ const GameItem = memo(function GameItem({
           </div>
 
           {/* 2nd child: player display and moves matched */}
-          <div className="flex flex-col justify-between flex-1 min-w-0">
+          <div className="flex flex-col justify-between flex-[2] min-w-0">
             <div className="flex flex-col gap-2 text-lg font-medium">
               <PlayerDisplay
                 game={game}
@@ -146,7 +146,7 @@ const GameItem = memo(function GameItem({
           </div>
 
           {/* 3rd child: event, round, date, location and result */}
-          <div className="flex flex-col gap-2 items-end text-right justify-between ml-auto flex-shrink-0 min-w-0">
+          <div className="flex flex-col gap-2 items-end text-right justify-between ml-auto flex-1 min-w-0 max-w-[200px]">
             <GameEventInfoList game={game} />
             <GameDateLocationList game={game} />
             <GameResult

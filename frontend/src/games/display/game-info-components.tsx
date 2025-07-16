@@ -674,14 +674,14 @@ export function GameDateLocationList({
   const { t } = useTranslations();
 
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
+    <div className={cn("flex flex-col gap-1 truncate", className)}>
       {game.date && (
         <div className="text-lg font-medium">
           <FormattedDate date={game.date} />
         </div>
       )}
       <div
-        className="text-gray-500 text-sm truncate max-w-full"
+        className="text-gray-500 text-sm truncate w-100"
         title={
           game.location ? `${t("info.location")} ${game.location}` : undefined
         }
