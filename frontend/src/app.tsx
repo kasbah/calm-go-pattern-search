@@ -607,33 +607,35 @@ export default function App({
             <LanguageSelector />
           </div>
           <div className="flex justify-between">
-            {selectedGame != null ? (
-              <div className="flex items-center">
-                <div
-                  className={cn(
-                    selectedGame != null
-                      ? "tiny-goban-visible"
-                      : "next-moves-visible",
-                  )}
-                  onClick={handleClearGameSelection}
-                >
-                  <TinyEditorGoban
-                    vertexSize={tinyVertexSize}
-                    board={board}
-                    onClearBoard={handleClearBoard}
-                  />
+            <div className="h-[252px] w-[334px]">
+              {selectedGame != null ? (
+                <div className="flex items-center h-full">
+                  <div
+                    className={cn(
+                      selectedGame != null
+                        ? "tiny-goban-visible"
+                        : "next-moves-visible",
+                    )}
+                    onClick={handleClearGameSelection}
+                  >
+                    <TinyEditorGoban
+                      vertexSize={tinyVertexSize}
+                      board={board}
+                      onClearBoard={handleClearBoard}
+                    />
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <NextMovesList
-                nextMoves={nextMoves}
-                isLoading={isSearching}
-                brushColor={brushColor}
-                onMoveHover={handleMoveHover}
-                onMoveUnhover={handleMoveUnhover}
-                onMoveClick={handleMoveClick}
-              />
-            )}
+              ) : (
+                <NextMovesList
+                  nextMoves={nextMoves}
+                  isLoading={isSearching}
+                  brushColor={brushColor}
+                  onMoveHover={handleMoveHover}
+                  onMoveUnhover={handleMoveUnhover}
+                  onMoveClick={handleMoveClick}
+                />
+              )}
+            </div>
             <PlayerFilterInputs
               ref={playerFilterInputsRef}
               onPlayerSelect={handlePlayerFiltersSelect}
@@ -642,7 +644,7 @@ export default function App({
               initialPlayerFilters={initialPlayerFilters}
             />
           </div>
-          <div className="flex justify-end mt-2">
+          <div className="flex justify-end">
             <ResultsControls
               sortResultsBy={sortResultsBy}
               onSortByChange={handleSortByChange}
