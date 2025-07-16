@@ -37,12 +37,12 @@ export function useTranslations() {
   const t = (key: TranslationKey, fallback?: string): string => {
     // Try current locale
     const currentTranslation = translations[currentLocale]?.[key];
-    if (currentTranslation) return currentTranslation;
+    if (currentTranslation !== undefined) return currentTranslation;
 
     // Fallback to English if not current locale
     if (currentLocale !== "en") {
       const englishTranslation = translations.en[key];
-      if (englishTranslation) return englishTranslation;
+      if (englishTranslation !== undefined) return englishTranslation;
     }
 
     // Use provided fallback or key as last resort
@@ -126,7 +126,7 @@ export function useTranslations() {
       return `${day} ${monthName} ${year}`;
     } else {
       // English format: day of month, year
-      return ofWord
+      return ofWord && ofWord.trim() !== ""
         ? `${day}${ordinalSuffix} ${ofWord} ${monthName}, ${year}`
         : `${day}${ordinalSuffix} ${monthName}, ${year}`;
     }
