@@ -546,12 +546,9 @@ export default function App({
   );
 
   return (
-    <div className="flex flex-gap-100 relative">
+    <div className="flex flex-gap-100 relative w-full max-w-full">
       {/* Floating language selector */}
-      <div className="fixed top-4 right-4 z-50">
-        <LanguageSelector />
-      </div>
-      <div className="sticky top-0 h-screen pt-3">
+      <div className="sticky top-0 h-screen pt-3 flex-shrink-0">
         <div className="goban-transition-container">
           <div
             className={`goban-editor-wrapper ${
@@ -604,8 +601,11 @@ export default function App({
           </div>
         </div>
       </div>
-      <div className="flex flex-col ml-4 w-full">
+      <div className="flex flex-col ml-4 flex-1 min-w-0">
         <div className="sticky top-0 bg-white z-10 pt-4 mr-2">
+          <div className="absolute top-4 right-4 z-50">
+            <LanguageSelector />
+          </div>
           <div className="flex justify-between">
             {selectedGame != null ? (
               <div className="flex items-center">

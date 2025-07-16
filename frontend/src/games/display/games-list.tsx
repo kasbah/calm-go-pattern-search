@@ -91,7 +91,7 @@ const GameItem = memo(function GameItem({
         <div
           data-selected={isSelected}
           className={cn(
-            "bg-white hover:bg-accent/25 data-[selected=true]:bg-secondary p-4 pr-6 flex flex-row gap-3",
+            "bg-white hover:bg-accent/25 data-[selected=true]:bg-secondary p-4 pr-6 flex flex-row gap-3 overflow-hidden",
           )}
         >
           {/* 1st child: tiny viewer goban */}
@@ -123,30 +123,30 @@ const GameItem = memo(function GameItem({
           </div>
 
           {/* 2nd child: player display and moves matched */}
-          <div className="flex flex-col justify-between flex-1">
+          <div className="flex flex-col justify-between flex-1 min-w-0">
             <div className="flex flex-col gap-2 text-lg font-medium">
               <PlayerDisplay
                 game={game}
                 color="Black"
-                className="whitespace-nowrap"
+                className="truncate"
                 onPlayerClick={onPlayerClick}
               />
               <PlayerDisplay
                 game={game}
                 color="White"
-                className="whitespace-nowrap"
+                className="truncate"
                 onPlayerClick={onPlayerClick}
               />
             </div>
             <MoveInfoCompact
               game={game}
               onSelectAtMove={onSelectAtMove}
-              className="whitespace-nowrap"
+              className="truncate"
             />
           </div>
 
           {/* 3rd child: event, round, date, location and result */}
-          <div className="flex flex-col gap-2 items-end text-right justify-between ml-auto">
+          <div className="flex flex-col gap-2 items-end text-right justify-between ml-auto flex-shrink-0 min-w-0">
             <GameEventInfoList game={game} />
             <GameDateLocationList game={game} />
             <GameResult
@@ -157,7 +157,7 @@ const GameItem = memo(function GameItem({
           </div>
 
           {/* 4th child: icons and result number and SGF download button */}
-          <div className="flex flex-col justify-between items-end min-w-[100px]">
+          <div className="flex flex-col justify-between items-end min-w-[100px] flex-shrink-0">
             <div className="flex items-center gap-2">
               <GameIcons game={game} />
               <GameInfoPopover game={game} />
