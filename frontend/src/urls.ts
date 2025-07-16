@@ -2,26 +2,25 @@ import { type BoardPosition, emptyBoard, SabakiSign } from "@/sabaki-types";
 import { type PlayerFilter } from "@/wasm-search-types";
 import { SortBy } from "../../rust/wasm-search/pkg/wasm_search";
 
+const GO_BOARD_COLUMNS = "ABCDEFGHJKLMNOPQRST"; // (no I)
 /**
  * Serializes a board position to a compact URL-safe string
- * Only encodes non-empty positions in format "A19b" where A19 is position and b/w is stone color
  */
 export function serializeBoardToUrl(board: BoardPosition): string {
-  const nonEmptyPositions: string[] = [];
-  const columns = "ABCDEFGHJKLMNOPQRST"; // Go board columns (no I)
+  const positions: string[] = [];
 
   for (let y = 0; y < board.length; y++) {
     for (let x = 0; x < board[y].length; x++) {
       if (board[y][x] !== SabakiSign.Empty) {
-        const col = columns[x];
+        const col = GO_BOARD_COLUMNS[x];
         const row = (19 - y).toString(); // Go coordinates are bottom-up
         const value = board[y][x] === SabakiSign.Black ? "b" : "w";
-        nonEmptyPositions.push(`${col}${row}${value}`);
+        positions.push(`${col}${row}${value}`);
       }
     }
   }
 
-  return nonEmptyPositions.join("-");
+  return positions.join("-");
 }
 
 /**
@@ -38,14 +37,12 @@ export function deserializeBoardFromUrl(urlString: string): BoardPosition {
       .fill(null)
       .map(() => Array(19).fill(SabakiSign.Empty));
 
-    const columns = "ABCDEFGHJKLMNOPQRST"; // Go board columns (no I)
-
     // Parse positions separated by dashes
     const positions = urlString.split("-");
     for (const position of positions) {
       if (position.trim()) {
         const col = position[0];
-        const x = columns.indexOf(col);
+        const x = GO_BOARD_COLUMNS.indexOf(col);
 
         if (x === -1) continue;
 
@@ -83,7 +80,7 @@ export function deserializeBoardFromUrl(urlString: string): BoardPosition {
 
 /**
  * Serializes player filters to a URL-safe string
- * Format: "123b[vs]456w[vs]789a" where 123 is player_id, b/w/a is color (black/white/any)
+ * Format: "123b[vs]456w" where 123 is player_id, b/w/a is color (black/white/any)
  */
 export function serializePlayerFiltersToUrl(filters: PlayerFilter[]): string {
   if (!filters || filters.length === 0) {
