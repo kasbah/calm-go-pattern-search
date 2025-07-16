@@ -99,12 +99,114 @@ export const translations = {
     "language.auto": "Auto",
   },
 
+  de: {
+    // UI Controls
+    "results.shown": "Ergebnisse angezeigt",
+    "results.hidden": "Ergebnisse verborgen",
+    "sort.bestMatch": "Beste Übereinstimmung",
+    "sort.leastMoves": "Wenigste Züge zum Muster",
+    "sort.placeholder": "Sortierung",
+    "sort.label": "Sortierung:",
+    "games.count": "Spiele",
+    "game.singular": "Spiel",
+    loading: "Lädt...",
+    "nextMoves.title": "Nächste Züge",
+
+    // Date formatting
+    "months.january": "Januar",
+    "months.february": "Februar",
+    "months.march": "März",
+    "months.april": "April",
+    "months.may": "Mai",
+    "months.june": "Juni",
+    "months.july": "Juli",
+    "months.august": "August",
+    "months.september": "September",
+    "months.october": "Oktober",
+    "months.november": "November",
+    "months.december": "Dezember",
+
+    "ordinal.st": ".",
+    "ordinal.nd": ".",
+    "ordinal.rd": ".",
+    "ordinal.th": ".",
+    "date.of": "",
+
+    // Game information
+    "color.black": "Schwarz",
+    "color.white": "Weiß",
+
+    "rules.chinese": "Chinesische Regeln",
+    "rules.japanese": "Japanische Regeln",
+    "rules.korean": "Koreanische Regeln",
+    "rules.ing": "Ing-Regeln",
+    "rules.custom": "Benutzerdefiniert",
+    "rules.unknown": "Unbekannt",
+
+    "rotation.none": "Keine",
+    "rotation.90": "90°",
+    "rotation.180": "180°",
+    "rotation.270": "-90°",
+
+    // Tooltips and alt text
+    "tooltip.mirrored":
+      "Das Spiel ist gespiegelt, um dem Muster zu entsprechen",
+    "tooltip.colorsInverted":
+      "Die Farben sind invertiert, um dem Muster zu entsprechen",
+    "alt.trophy": "Pokal-Symbol",
+    "alt.black": "Schwarz",
+    "alt.white": "Weiß",
+    "alt.mirrored": "Gespiegelt",
+    "alt.colorsInverted": "Farben invertiert",
+
+    // Error messages
+    "error.gameNotFound": "Spiel aus URL nicht gefunden",
+    "error.noResults": "Keine Ergebnisse gefunden",
+
+    // Navigation/Controls
+    "nav.previousMove": "Vorheriger Zug",
+    "nav.nextMove": "Nächster Zug",
+    "nav.undo": "Rückgängig",
+    "nav.redo": "Wiederholen",
+
+    // Game info labels
+    "info.result": "Ergebnis:",
+    "info.matched": "Zum Muster:",
+    "info.move": "Zug",
+    "info.komi": "Komi:",
+    "info.rules": "Regeln:",
+    "info.sgfSource": "SGF-Quelle:",
+    "info.searchScore": "Such-Bewertung:",
+    "info.emptyCorrectly": "Korrekt leer innerhalb:",
+    "info.rotation": "Drehung:",
+    "info.clickToView": "Klicken Sie, um das Spiel bei diesem Zug anzuzeigen",
+    "info.clickToToggleResult": "Klicken Sie, um das Ergebnis zu verbergen",
+    "info.clickToShowResult": "Klicken Sie, um das Ergebnis anzuzeigen",
+    "info.clickToPin":
+      "Zum Anzeigen der Details schweben, zum Anheften klicken",
+    "info.clickToUnpin": "Klicken Sie zum Lösen",
+    "info.downloadSgf": "SGF-Spielaufzeichnung herunterladen",
+    "info.downloadIcon": "Download-Symbol",
+    "info.sgf": "SGF",
+    "info.round": "Runde:",
+    "info.location": "Ort:",
+
+    // Player filters
+    "player.black": "Schwarz",
+    "player.white": "Weiß",
+    "player.any": "Beliebig",
+    "player.dropdown": "Dropdown",
+
+    // Language selection
+    "language.auto": "Auto",
+  },
+
   zh: {
     // UI Controls
     "results.shown": "显示结果",
     "results.hidden": "隐藏结果",
     "sort.bestMatch": "最佳匹配",
-    "sort.leastMoves": "最少手数匹配",
+    "sort.leastMoves": "最少步数匹配",
     "sort.placeholder": "排序方式",
     "sort.label": "排序：",
     "games.count": "局棋谱",
@@ -203,7 +305,7 @@ export const translations = {
     "results.shown": "結果表示中",
     "results.hidden": "結果非表示",
     "sort.bestMatch": "最適マッチ",
-    "sort.leastMoves": "最少手数マッチ",
+    "sort.leastMoves": "最少手でマッチ",
     "sort.placeholder": "並び順",
     "sort.label": "並び替え：",
     "games.count": "局",
@@ -302,7 +404,7 @@ export const translations = {
     "results.shown": "결과 표시됨",
     "results.hidden": "결과 숨김",
     "sort.bestMatch": "최적 일치",
-    "sort.leastMoves": "최소 수순 일치",
+    "sort.leastMoves": "최소 수로 일치",
     "sort.placeholder": "정렬 기준",
     "sort.label": "정렬：",
     "games.count": "국",
@@ -401,7 +503,7 @@ export const translations = {
     "results.shown": "Результаты показаны",
     "results.hidden": "Результаты скрыты",
     "sort.bestMatch": "Лучшее совпадение",
-    "sort.leastMoves": "Наименьшее количество ходов",
+    "sort.leastMoves": "Наименьшее ходов до совпадения",
     "sort.placeholder": "Сортировать по",
     "sort.label": "Сортировать по:",
     "games.count": "партий",
@@ -502,6 +604,7 @@ export type SupportedLocale = keyof typeof translations | "auto";
 // Helper to get available locales
 export const supportedLocales: SupportedLocale[] = [
   "auto",
+  "de",
   "en",
   "zh",
   "ja",

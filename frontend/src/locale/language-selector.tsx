@@ -11,6 +11,7 @@ import {
 
 // Language display names in their native scripts
 const languageNames: Record<Exclude<SupportedLocale, "auto">, string> = {
+  de: "Deutsch",
   en: "English",
   zh: "中文",
   ja: "日本語",
