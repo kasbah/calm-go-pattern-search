@@ -88,7 +88,10 @@ export default function App({
     12,
     Math.min(Math.min(windowSize.height * 0.04, windowSize.width * 0.02), 40),
   );
-  const tinyVertexSize = Math.max(6, Math.min(windowSize.width * 0.007, 16));
+  const tinyVertexSize = Math.min(
+    windowSize.height * 0.011,
+    windowSize.width * 0.011,
+  );
 
   const editorGobanRef = useRef<EditorGobanRef | null>(null);
   const viewerGobanRef = useRef<{
