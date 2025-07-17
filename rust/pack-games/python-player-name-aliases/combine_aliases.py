@@ -108,7 +108,12 @@ def extend_playerdb(playerdb: dict) -> tuple[int, dict]:
                 playerdb[next_negative_id] = {
                     "id": next_negative_id,
                     "name": custom_alias_key,
-                    "aliases": [{"name": custom_alias_key, "languages": []}],
+                    "aliases": [
+                        {
+                            "name": custom_alias_key,
+                            "languages": [{"language": "en", "preferred": False}],
+                        }
+                    ],
                 }
                 for custom_alias in custom_aliases[custom_alias_key]:
                     playerdb[next_negative_id]["aliases"].append({
@@ -140,7 +145,9 @@ def main():
         if player_id:
             result[str(player_id)] = playerdb[player_id].copy()
         else:
-            result[str(next_negative_id)] = {"aliases": [{"name": name, "languages": []}]}
+            result[str(next_negative_id)] = {
+                "aliases": [{"name": name, "languages": []}]
+            }
             next_negative_id -= 1
 
     print(f"\nSaving result to {OUTPUT_FILE}...")
