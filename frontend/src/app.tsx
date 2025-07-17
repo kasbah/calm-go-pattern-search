@@ -57,10 +57,6 @@ export default function App({
   );
   const [gameNotFound, setGameNotFound] = useState(false);
   const windowSize = useWindowSize();
-  const vertexSize = Math.min(
-    windowSize.height * 0.04,
-    windowSize.width * 0.02,
-  );
   const [board, setBoard] = useImmer<BoardPosition>(initialBoard);
   const [games, setGames] = useImmer<Array<Game>>([]);
   const [selectedGame, setSelectedGame] = useImmer<Game | null>(null);
@@ -84,12 +80,15 @@ export default function App({
     y: number;
   } | null>(null);
   const [sortResultsBy, setSortResultsBy] = useState<SortBy>(initialSortBy);
+  const { t } = useTranslations();
 
   const pageSize = 40;
 
-  const tinyVertexSize = 12;
-
-  const { t } = useTranslations();
+  const vertexSize = Math.max(
+    12,
+    Math.min(Math.min(windowSize.height * 0.04, windowSize.width * 0.02), 40),
+  );
+  const tinyVertexSize = Math.max(6, Math.min(windowSize.width * 0.007, 16));
 
   const editorGobanRef = useRef<EditorGobanRef | null>(null);
   const viewerGobanRef = useRef<{
@@ -667,6 +666,7 @@ export default function App({
           showAllResults={showResults}
           moveNumbers={moveNumbers}
           onPlayerClick={handlePlayerClick}
+          tinyVertexSize={tinyVertexSize}
         />
       </div>
     </div>

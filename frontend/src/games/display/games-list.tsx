@@ -26,6 +26,7 @@ export type GamesListProps = {
   showAllResults: boolean;
   moveNumbers: Record<string, number>;
   onPlayerClick?: (playerId: number, color: "Black" | "White" | "Any") => void;
+  tinyVertexSize: number;
 };
 
 type GameItemProps = {
@@ -37,6 +38,7 @@ type GameItemProps = {
   showAllResults: boolean;
   moveNumber: number;
   onPlayerClick?: (playerId: number, color: "Black" | "White" | "Any") => void;
+  tinyVertexSize: number;
 };
 
 const GameItem = memo(function GameItem({
@@ -48,6 +50,7 @@ const GameItem = memo(function GameItem({
   showAllResults,
   moveNumber,
   onPlayerClick,
+  tinyVertexSize,
 }: GameItemProps) {
   const [isVisible, setIsVisible] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
@@ -102,14 +105,14 @@ const GameItem = memo(function GameItem({
             {isVisible ? (
               <TinyViewerGoban
                 game={game}
-                vertexSize={11}
+                vertexSize={tinyVertexSize}
                 moveNumber={moveNumber}
               />
             ) : (
               <div
                 style={{
-                  width: 11 * 19 + 7.5,
-                  height: 11 * 19 + 9.75,
+                  width: tinyVertexSize * 19 + 7.5,
+                  height: tinyVertexSize * 19 + 9.75,
                   backgroundColor: "#f3f4f6",
                   borderRadius: "4px",
                   display: "flex",
@@ -185,6 +188,7 @@ export default function GamesList({
   showAllResults,
   moveNumbers,
   onPlayerClick,
+  tinyVertexSize,
 }: GamesListProps) {
   const [showOverlay, setShowOverlay] = useState(false);
   const [overlayStartTime, setOverlayStartTime] = useState<number | null>(null);
@@ -307,6 +311,7 @@ export default function GamesList({
                 showAllResults={showAllResults}
                 moveNumber={moveNumbers[game.path] ?? game.last_move_matched}
                 onPlayerClick={onPlayerClick}
+                tinyVertexSize={tinyVertexSize}
               />
             </div>
           </div>
