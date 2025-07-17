@@ -668,7 +668,7 @@ const PlayerFilterInputs = React.forwardRef<
   ]);
 
   return (
-    <div className="flex flex-col items-center justify-center mb-6 mr-50 mt-10">
+    <div className="flex flex-col items-center justify-center align-center mb-6 mt-10 w-full">
       <div className="w-full max-w-md space-y-4">
         <PlayerInput
           placeholder="Player 1"

@@ -603,7 +603,7 @@ export default function App({
           <div className="absolute top-4 right-4 z-50">
             <LanguageSelector />
           </div>
-          <div className="flex justify-between">
+          <div className="flex flex-wrap xl:flex-nowrap">
             <div className="h-[252px] w-[334px]">
               {selectedGame != null ? (
                 <div className="flex items-center h-full">
