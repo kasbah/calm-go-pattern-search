@@ -47,7 +47,6 @@ export default function GameInfo({
         <PlayerDisplay
           game={game}
           color="White"
-          className="mb-[6px]"
           maxWidth={maxPlayerWidth}
           onPlayerClick={onPlayerClick}
         />

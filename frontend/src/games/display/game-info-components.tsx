@@ -189,7 +189,7 @@ export const PlayerDisplay = memo(function PlayerDisplay({
   return (
     <div className="flex flex-col">
       <div
-        className={cn("flex items-center gap-2", className)}
+        className={cn("flex flex-wrap items-center gap-1", className)}
         style={maxWidth ? { maxWidth } : undefined}
       >
         <Popover open={isAliasPopoverOpen} onOpenChange={setAliasPopoverOpen}>
@@ -483,7 +483,9 @@ export function MoveInfo({ game, onSelectAtMove, className }: MoveInfoProps) {
   );
 
   return (
-    <div className={cn("flex items-center gap-2 text-base ", className)}>
+    <div
+      className={cn("flex items-center gap-2 text-base justify-end", className)}
+    >
       <span className="text-gray-500 whitespace-nowrap">
         {t("info.matched")}
       </span>
