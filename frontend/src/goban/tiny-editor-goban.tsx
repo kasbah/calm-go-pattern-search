@@ -74,7 +74,7 @@ export default function TinyEditorGoban({
           signMap={board}
         />
       </div>
-      <div className="ml-1 h-[230px]" onClick={handleContainerClick}>
+      <div className="ml-1 h-[220px]" onClick={handleContainerClick}>
         <Button
           size="xl"
           variant="outline"

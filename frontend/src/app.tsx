@@ -88,10 +88,12 @@ export default function App({
     12,
     Math.min(Math.min(windowSize.height * 0.04, windowSize.width * 0.02), 40),
   );
-  const tinyVertexSize = Math.min(
-    windowSize.height * 0.011,
-    windowSize.width * 0.011,
+  const tinyViewerVertexSize = Math.min(
+    windowSize.height * 0.012,
+    windowSize.width * 0.012,
   );
+  const tinyEditorVertexSize =
+    tinyViewerVertexSize + tinyViewerVertexSize * 0.13;
 
   const editorGobanRef = useRef<EditorGobanRef | null>(null);
   const viewerGobanRef = useRef<{
@@ -604,7 +606,7 @@ export default function App({
             <LanguageSelector />
           </div>
           <div className="flex flex-wrap xl:flex-nowrap">
-            <div className="h-[252px] w-[334px]">
+            <div className="h-[252px] flex-grow-1 w-[50%] min-w-[50%]">
               {selectedGame != null ? (
                 <div className="flex items-center h-full">
                   <div
@@ -616,7 +618,7 @@ export default function App({
                     onClick={handleClearGameSelection}
                   >
                     <TinyEditorGoban
-                      vertexSize={tinyVertexSize}
+                      vertexSize={tinyEditorVertexSize}
                       board={board}
                       onClearBoard={handleClearBoard}
                     />
@@ -662,7 +664,7 @@ export default function App({
           showAllResults={showResults}
           moveNumbers={moveNumbers}
           onPlayerClick={handlePlayerClick}
-          tinyVertexSize={tinyVertexSize}
+          tinyVertexSize={tinyViewerVertexSize}
         />
       </div>
     </div>
