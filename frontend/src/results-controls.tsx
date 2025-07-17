@@ -1,8 +1,11 @@
+import { useTranslations } from "@/locale/use-translations";
 import { Label } from "@/ui-primitives/label";
 import { Separator } from "@/ui-primitives/separator";
 import { Toggle } from "@/ui-primitives/toggle";
-import { useTranslations } from "@/locale/use-translations";
-import { SortBy } from "../../rust/wasm-search/pkg/wasm_search";
+import { useCallback } from "react";
+import { SortBy } from "@/../../rust/wasm-search/pkg/wasm_search";
+import trophyCrossedOutSvg from "./assets/icons/trophy-crossed-out.svg";
+import trophySvg from "./assets/icons/trophy.svg";
 import {
   Select,
   SelectContent,
@@ -10,12 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui-primitives/select";
-import trophyCrossedOutSvg from "./assets/icons/trophy-crossed-out.svg";
-import trophySvg from "./assets/icons/trophy.svg";
 
 interface ResultsControlsProps {
-  sortResultsBy: number;
-  onSortByChange: (value: string) => void;
+  sortResultsBy: SortBy;
+  onSortByChange: (value: SortBy) => void;
   showResults: boolean;
   onToggleShowResults: (e: React.MouseEvent) => void;
   totalNumberOfGames: number;
@@ -30,11 +31,16 @@ export default function ResultsControls({
 }: ResultsControlsProps) {
   const { t, tc } = useTranslations();
 
+  const handleSortByChange = useCallback(
+    (s: string) => onSortByChange(parseInt(s, 10)),
+    [onSortByChange],
+  );
+
   return (
-    <div className="flex items-center justify-end mt-2 space-x-3 font-medium">
+    <div className="flex items-center justify-end space-x-3 font-medium flex-wrap">
       <div className="flex items-center gap-2">
         <div className="text-gray-500 font-normal">{t("sort.label")}</div>
-        <Select value={`${sortResultsBy}`} onValueChange={onSortByChange}>
+        <Select value={`${sortResultsBy}`} onValueChange={handleSortByChange}>
           <SelectTrigger className="w-[225px]">
             <SelectValue placeholder={t("sort.placeholder")} />
           </SelectTrigger>

@@ -542,11 +542,6 @@ export default function App({
     [handleSetMoveNumber],
   );
 
-  const handleSortByChange = useCallback(
-    (s: string) => setSortResultsBy(parseInt(s, 10)),
-    [setSortResultsBy],
-  );
-
   return (
     <div className="flex flex-gap-100 relative w-full max-w-full">
       {/* Floating language selector */}
@@ -649,7 +644,7 @@ export default function App({
           <div className="flex justify-end">
             <ResultsControls
               sortResultsBy={sortResultsBy}
-              onSortByChange={handleSortByChange}
+              onSortByChange={setSortResultsBy}
               showResults={showResults}
               onToggleShowResults={handleToggleShowResults}
               totalNumberOfGames={totalNumberOfGames}
