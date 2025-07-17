@@ -140,7 +140,7 @@ def main():
         if player_id:
             result[str(player_id)] = playerdb[player_id].copy()
         else:
-            result[str(next_negative_id)] = {"aliases": []}
+            result[str(next_negative_id)] = {"aliases": [{"name": name, "languages": []}]}
             next_negative_id -= 1
 
     print(f"\nSaving result to {OUTPUT_FILE}...")
