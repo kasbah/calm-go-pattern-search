@@ -37,8 +37,8 @@ export default function ResultsControls({
   );
 
   return (
-    <div className="flex items-center justify-end space-x-3 font-medium flex-wrap">
-      <div className="flex items-center gap-2">
+    <div className="flex space-x-3 font-medium flex-wrap justify-center flex-col items-center lg:justify-end xl:flex-row">
+      <div className="flex items-center gap-2 mb-2">
         <div className="text-gray-500 font-normal">{t("sort.label")}</div>
         <Select value={`${sortResultsBy}`} onValueChange={handleSortByChange}>
           <SelectTrigger className="w-[225px]">
@@ -54,12 +54,14 @@ export default function ResultsControls({
           </SelectContent>
         </Select>
       </div>
-      <Separator orientation="vertical" />
-      <div
-        className="flex items-center cursor-pointer min-w-[170px]"
-        onClick={onToggleShowResults}
-      >
-        <div className="min-w-[120px] flex justify-right">
+      <div className="flex">
+        <div className="min-w-1 min-h-full invisible xl:visible">
+          <Separator orientation="vertical" />
+        </div>
+        <div
+          onClick={onToggleShowResults}
+          className="min-w-[120px] flex justify-right m-2 cursor-pointer"
+        >
           <Label
             htmlFor="results-toggle"
             className="cursor-pointer mr-2 whitespace-nowrap"
@@ -81,10 +83,14 @@ export default function ResultsControls({
           />
         </Toggle>
       </div>
-      <Separator orientation="vertical" />
-      <Label className="min-w-[120px]">
-        {tc(totalNumberOfGames, "games.count")}
-      </Label>
+      <div className="flex">
+        <div className="min-w-1 min-h-full invisible xl:visible">
+          <Separator orientation="vertical" />
+        </div>
+        <div className="min-w-[120px] p-3">
+          {tc(totalNumberOfGames, "games.count")}
+        </div>
+      </div>
     </div>
   );
 }

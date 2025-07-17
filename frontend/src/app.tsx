@@ -641,15 +641,13 @@ export default function App({
               initialPlayerFilters={initialPlayerFilters}
             />
           </div>
-          <div className="flex justify-end">
-            <ResultsControls
-              sortResultsBy={sortResultsBy}
-              onSortByChange={setSortResultsBy}
-              showResults={showResults}
-              onToggleShowResults={handleToggleShowResults}
-              totalNumberOfGames={totalNumberOfGames}
-            />
-          </div>
+          <ResultsControls
+            sortResultsBy={sortResultsBy}
+            onSortByChange={setSortResultsBy}
+            showResults={showResults}
+            onToggleShowResults={handleToggleShowResults}
+            totalNumberOfGames={totalNumberOfGames}
+          />
           <Separator className="mt-2" />
         </div>
 
