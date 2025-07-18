@@ -58,10 +58,7 @@ export default function ResultsControls({
         <div className="min-w-1 min-h-full invisible xl:visible">
           <Separator orientation="vertical" />
         </div>
-        <div
-          onClick={onToggleShowResults}
-          className="min-w-[120px] flex justify-right m-2 cursor-pointer"
-        >
+        <div className="min-w-[120px] flex justify-right m-2 cursor-pointer">
           <Label
             htmlFor="results-toggle"
             className="cursor-pointer mr-2 whitespace-nowrap"
@@ -71,6 +68,7 @@ export default function ResultsControls({
         </div>
         <Toggle
           id="results-toggle"
+          onClick={onToggleShowResults}
           size="lg"
           pressed={!showResults}
           className="cursor-pointer"
