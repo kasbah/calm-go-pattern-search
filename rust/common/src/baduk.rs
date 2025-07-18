@@ -8,12 +8,39 @@ use std::fmt;
 
 pub const BOARD_SIZE: u8 = 19;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Ord, PartialOrd)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum SgfDate {
     YearMonthDay(u16, u8, u8),
     YearMonth(u16, u8),
     Year(u16),
     Custom(String),
+}
+
+impl PartialOrd for SgfDate {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for SgfDate {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        // Convert to a comparable tuple (year, month, day) for sorting
+        // Missing components get maximum values to sort properly
+        let to_tuple = |date: &SgfDate| -> (u16, u8, u8) {
+            match date {
+                SgfDate::YearMonthDay(y, m, d) => (*y, *m, *d),
+                SgfDate::YearMonth(y, m) => (*y, *m, 31), // Day 31 to sort after specific days
+                SgfDate::Year(y) => (*y, 12, 31), // Month 12, Day 31 to sort after specific months
+                SgfDate::Custom(_) => (0, 0, 0),  // Custom dates sort last (oldest)
+            }
+        };
+
+        let self_tuple = to_tuple(self);
+        let other_tuple = to_tuple(other);
+
+        // Reverse the ordering to get newest first
+        other_tuple.cmp(&self_tuple)
+    }
 }
 
 pub fn parse_sgf_date(date_str: &str) -> SgfDate {
@@ -933,6 +960,38 @@ impl GoBoard {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_sgf_date_sorting() {
+        let mut dates = vec![
+            None,                                         // No date - should be last
+            Some(SgfDate::Custom("unknown".to_string())), // Custom date - should be second to last
+            Some(SgfDate::Year(2020)),                    // Year only
+            Some(SgfDate::YearMonth(2020, 6)),            // Year and month
+            Some(SgfDate::YearMonthDay(2020, 6, 15)),     // Full date
+            Some(SgfDate::YearMonthDay(2024, 1, 1)),      // Newer full date
+            Some(SgfDate::YearMonth(2024, 12)),           // Newer year/month
+            Some(SgfDate::Year(2025)),                    // Newest year
+        ];
+
+        // Sort by date (newest first, no date last)
+        dates.sort_by(|a, b| match (a, b) {
+            (Some(date_a), Some(date_b)) => date_a.cmp(date_b),
+            (Some(_), None) => std::cmp::Ordering::Less,
+            (None, Some(_)) => std::cmp::Ordering::Greater,
+            (None, None) => std::cmp::Ordering::Equal,
+        });
+
+        // Check the order: newest dates first, then no dates
+        assert!(matches!(dates[0], Some(SgfDate::Year(2025))));
+        assert!(matches!(dates[1], Some(SgfDate::YearMonth(2024, 12))));
+        assert!(matches!(dates[2], Some(SgfDate::YearMonthDay(2024, 1, 1))));
+        assert!(matches!(dates[3], Some(SgfDate::Year(2020))));
+        assert!(matches!(dates[4], Some(SgfDate::YearMonth(2020, 6))));
+        assert!(matches!(dates[5], Some(SgfDate::YearMonthDay(2020, 6, 15))));
+        assert!(matches!(dates[6], Some(SgfDate::Custom(_))));
+        assert!(matches!(dates[7], None));
+    }
     use proptest::prelude::*;
 
     #[test]
