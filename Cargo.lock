@@ -58,6 +58,7 @@ name = "calm-go-patterns-common"
 version = "0.1.0"
 dependencies = [
  "bit-vec 0.6.3",
+ "indexmap",
  "proptest",
  "rmp-serde",
  "serde",
@@ -69,6 +70,7 @@ name = "calm-go-patterns-pack-games"
 version = "0.1.0"
 dependencies = [
  "calm-go-patterns-common",
+ "indexmap",
  "rayon",
  "serde_json",
  "sgf-parse",
@@ -203,6 +205,18 @@ dependencies = [
  "allocator-api2",
  "equivalent",
  "foldhash",
+]
+
+[[package]]
+name = "indexmap"
+version = "2.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fe4cd85333e22411419a0bcae1297d25e58c9443848b11dc6a86fefe8c78a661"
+dependencies = [
+ "equivalent",
+ "hashbrown",
+ "rayon",
+ "serde",
 ]
 
 [[package]]
@@ -713,6 +727,7 @@ dependencies = [
  "calm-go-patterns-common",
  "cfg-if 1.0.0",
  "console_error_panic_hook",
+ "indexmap",
  "lru",
  "serde",
  "serde_json",

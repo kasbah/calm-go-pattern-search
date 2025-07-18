@@ -9,6 +9,7 @@ use calm_go_patterns_common::baduk::{
     match_game, switch_colors, unpack_games,
 };
 use cfg_if::cfg_if;
+use indexmap::IndexMap;
 use lru::LruCache;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -32,7 +33,7 @@ extern "C" {
 
 #[wasm_bindgen]
 pub struct WasmSearch {
-    game_data: HashMap<String, Game>,
+    game_data: IndexMap<String, Game>,
     position_cache: LruCache<Vec<Placement>, Vec<SearchResult>>,
 }
 

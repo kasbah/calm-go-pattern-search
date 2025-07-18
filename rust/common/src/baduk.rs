@@ -1,4 +1,5 @@
 use bit_vec::BitVec;
+use indexmap::IndexMap;
 use rmp_serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
 use serde_bytes;
@@ -566,7 +567,7 @@ struct PackedGame {
     captures: Vec<u8>,
 }
 
-pub fn pack_games(games: &HashMap<String, Game>) -> Vec<u8> {
+pub fn pack_games(games: &IndexMap<String, Game>) -> Vec<u8> {
     let packed_games: Vec<PackedGame> = games
         .iter()
         .map(|(name, game)| PackedGame {
@@ -594,7 +595,7 @@ pub fn pack_games(games: &HashMap<String, Game>) -> Vec<u8> {
     buf
 }
 
-pub fn unpack_games(packed: &[u8]) -> HashMap<String, Game> {
+pub fn unpack_games(packed: &[u8]) -> IndexMap<String, Game> {
     let mut deserializer = Deserializer::new(packed);
     let packed_games: Vec<PackedGame> =
         Vec::<PackedGame>::deserialize(&mut deserializer).expect("Failed to deserialize games");
@@ -621,7 +622,7 @@ pub fn unpack_games(packed: &[u8]) -> HashMap<String, Game> {
                 },
             )
         })
-        .collect()
+        .collect::<IndexMap<String, Game>>()
 }
 
 pub fn check_within_one_quadrant(position: &[Placement]) -> bool {

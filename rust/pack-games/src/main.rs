@@ -1,3 +1,4 @@
+use indexmap::IndexMap;
 use rayon::prelude::*;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -52,7 +53,7 @@ fn main() {
 
     println!("Computing captures...");
 
-    let games = final_unique_games
+    let mut games: IndexMap<String, _> = final_unique_games
         .into_par_iter()
         .map(|(path, mut game)| {
             let mut captures = HashMap::new();
@@ -68,6 +69,15 @@ fn main() {
             (path, game)
         })
         .collect();
+
+    games.sort_by(|_ka, game_a, _kb, game_b| {
+        match (&game_a.date, &game_b.date) {
+            (Some(date_a), Some(date_b)) => date_a.cmp(date_b),
+            (Some(_), None) => std::cmp::Ordering::Less, // Games with dates come first
+            (None, Some(_)) => std::cmp::Ordering::Greater, // Games without dates come last
+            (None, None) => std::cmp::Ordering::Equal,   // Equal if both have no date
+        }
+    });
 
     println!("Writing games.pack...");
     let buf = pack_games(&games);
