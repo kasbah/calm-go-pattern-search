@@ -30,19 +30,31 @@ export function useTranslations() {
     return isSupportedLocale(nonAutoLocale) ? nonAutoLocale : "en";
   })();
 
+  const lookupTranslation = (
+    key: TranslationKey,
+    locale: string,
+  ): string | undefined => {
+    //@ts-expect-error - we want to use string keys and return undefined
+    return translations[locale]?.[key] ?? undefined;
+  };
+
   /**
    * Get translated text for a given key
    * Falls back to English, then to provided fallback, then to the key itself
    */
   const t = (key: TranslationKey, fallback?: string): string => {
     // Try current locale
-    const currentTranslation = translations[currentLocale]?.[key];
-    if (currentTranslation !== undefined) return currentTranslation;
+    const currentTranslation = lookupTranslation(key, currentLocale);
+    if (currentTranslation != null) {
+      return currentTranslation;
+    }
 
     // Fallback to English if not current locale
     if (currentLocale !== "en") {
       const englishTranslation = translations.en[key];
-      if (englishTranslation !== undefined) return englishTranslation;
+      if (englishTranslation != null) {
+        return englishTranslation;
+      }
     }
 
     // Use provided fallback or key as last resort
@@ -136,6 +148,7 @@ export function useTranslations() {
     getOrdinalSuffix,
     formatDate,
     locale: actualLocale,
+    lookupTranslation,
   };
 }
 

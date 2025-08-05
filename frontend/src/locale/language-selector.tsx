@@ -25,7 +25,7 @@ export type LanguageSelectorProps = {
 
 export function LanguageSelector({ className }: LanguageSelectorProps) {
   const { selectedLocale, browserLocale, setSelectedLocale } = useLocale();
-  const { t } = useTranslations();
+  const { lookupTranslation } = useTranslations();
 
   const handleLanguageChange = (value: string) => {
     const newLocale = value as SupportedLocale;
@@ -36,7 +36,7 @@ export function LanguageSelector({ className }: LanguageSelectorProps) {
 
   const getDisplayName = (localeValue: SupportedLocale): string => {
     if (localeValue === "auto") {
-      return `${t("language.auto")} (${browserLocale.toUpperCase()})`;
+      return `${lookupTranslation("language.auto", browserLocale) ?? "Auto"} (${browserLocale.toUpperCase()})`;
     }
     return languageNames[localeValue as Exclude<SupportedLocale, "auto">];
   };
