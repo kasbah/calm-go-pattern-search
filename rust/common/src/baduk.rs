@@ -964,7 +964,7 @@ mod tests {
 
     #[test]
     fn test_sgf_date_sorting() {
-        let mut dates = vec![
+        let mut dates = [
             None,                                         // No date - should be last
             Some(SgfDate::Custom("unknown".to_string())), // Custom date - should be second to last
             Some(SgfDate::Year(2020)),                    // Year only
@@ -991,7 +991,7 @@ mod tests {
         assert!(matches!(dates[4], Some(SgfDate::YearMonth(2020, 6))));
         assert!(matches!(dates[5], Some(SgfDate::YearMonthDay(2020, 6, 15))));
         assert!(matches!(dates[6], Some(SgfDate::Custom(_))));
-        assert!(matches!(dates[7], None));
+        assert!(dates[7].is_none());
     }
     use proptest::prelude::*;
 
@@ -1148,8 +1148,9 @@ mod tests {
                 moves,
                 captures: HashMap::new()
             })
-        }).collect::<HashMap<_, _>>())) {
-            let packed = pack_games(&games);
+        }).collect::<IndexMap<_, _>>())) {
+            let games_indexed: IndexMap<_, _> = games.iter().map(|(k, v)| (k.clone(), v.clone())).collect();
+            let packed = pack_games(&games_indexed);
             let unpacked = unpack_games(&packed);
             assert_eq!(games, unpacked);
         }
@@ -1186,8 +1187,9 @@ mod tests {
                 moves,
                 captures: HashMap::new()
             })
-        }).collect::<HashMap<_, _>>())) {
-            let packed = pack_games(&games);
+        }).collect::<IndexMap<_, _>>())) {
+            let games_indexed: IndexMap<_, _> = games.iter().map(|(k, v)| (k.clone(), v.clone())).collect();
+            let packed = pack_games(&games_indexed);
             let unpacked = unpack_games(&packed);
             assert_eq!(games, unpacked);
         }
@@ -1224,8 +1226,9 @@ mod tests {
                 moves,
                 captures: HashMap::new()
             })
-        }).collect::<HashMap<_, _>>())) {
-            let packed = pack_games(&games);
+        }).collect::<IndexMap<_, _>>())) {
+            let games_indexed: IndexMap<_, _> = games.iter().map(|(k, v)| (k.clone(), v.clone())).collect();
+            let packed = pack_games(&games_indexed);
             let unpacked = unpack_games(&packed);
             assert_eq!(games, unpacked);
         }
