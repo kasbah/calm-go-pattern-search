@@ -26,6 +26,7 @@ import TinyEditorGoban from "@/goban/tiny-editor-goban";
 import ViewerGoban, { type GameSelection } from "@/goban/viewer-goban";
 import { Button } from "@/ui-primitives/button";
 import trashSvg from "@/assets/icons/trash.svg";
+import arrowLeftSvg from "@/assets/icons/arrow-left.svg";
 import {
   toWasmSearch,
   type Game,
@@ -77,6 +78,7 @@ export default function App({
   const [brushColor, setBrushColor] = useState<SabakiColor>(SabakiColor.Black);
   const [brushMode, setBrushMode] = useState<BrushMode>(BrushMode.Alternate);
   const [isTrashHovering, setIsTrashHovering] = useState(false);
+  const [isEditorHovering, setIsEditorHovering] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [playerFilters, setPlayerFilters] =
@@ -520,6 +522,8 @@ export default function App({
 
   const handleClearGameSelection = useCallback(() => {
     setSelectedGame(() => null);
+    // Reset hover state when clearing game selection
+    setIsEditorHovering(false);
   }, [setSelectedGame]);
 
   const handlePlayerFiltersSelect = useCallback(
@@ -540,6 +544,8 @@ export default function App({
       if (game) {
         setSelectedGame(() => game);
         setGameNotFound(false);
+        // Reset hover state when selecting a game
+        setIsEditorHovering(false);
       }
     },
     [setSelectedGame, setGameNotFound],
@@ -617,7 +623,7 @@ export default function App({
           </div>
           <div className="flex flex-wrap xl:flex-nowrap">
             <div className="h-[252px] flex-grow-1 w-[50%] min-w-[50%] flex mb-4">
-              <div className="mr-[16px]">
+              <div className="mr-[16px] flex flex-col justify-between h-full">
                 <Button
                   size="xl"
                   variant="outline"
@@ -634,6 +640,24 @@ export default function App({
                     alt="Clear board"
                   />
                 </Button>
+                {selectedGame != null && (
+                  <Button
+                    size="xl"
+                    variant="outline"
+                    onClick={handleClearGameSelection}
+                    title="Back to board editor"
+                    onMouseEnter={() => setIsEditorHovering(true)}
+                    onMouseLeave={() => setIsEditorHovering(false)}
+                    onMouseDown={() => {
+                      setIsEditorHovering(false);
+                    }}
+                    className={
+                      isEditorHovering ? "bg-accent text-accent-foreground" : ""
+                    }
+                  >
+                    <img src={arrowLeftSvg} width={24} height={24} alt="Back" />
+                  </Button>
+                )}
               </div>
               <div className="flex-1">
                 {selectedGame != null ? (
@@ -650,6 +674,8 @@ export default function App({
                         vertexSize={tinyEditorVertexSize}
                         board={board}
                         isTrashHovering={isTrashHovering}
+                        isBackHovering={isEditorHovering}
+                        onHoverChange={setIsEditorHovering}
                       />
                     </div>
                   </div>
