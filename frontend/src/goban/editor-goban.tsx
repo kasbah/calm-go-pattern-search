@@ -25,7 +25,6 @@ import "./editor-goban.css";
 import "./goban-common.css";
 
 import redoSvg from "@/assets/icons/redo.svg";
-import trashSvg from "@/assets/icons/trash.svg";
 import undoSvg from "@/assets/icons/undo.svg";
 
 type HistoryEntry = {
@@ -242,6 +241,7 @@ export type EditorGobanProps = {
   onCommitMove?: (point: { x: number; y: number }) => void;
   initialBoard: BoardPosition;
   isVisible: boolean;
+  isTrashHovering?: boolean;
 };
 
 export type EditorGobanRef = {
@@ -264,6 +264,7 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
       onCommitMove,
       initialBoard,
       isVisible,
+      isTrashHovering = false,
     },
     ref,
   ) => {
@@ -280,7 +281,6 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
     const [brushColor, setBrushColor] = useState<SabakiColor>(
       SabakiColor.Black,
     );
-    const [isTrashHovering, setIsTrashHovering] = useState(false);
 
     const markerTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
       undefined,
@@ -442,18 +442,6 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
       [dispatch, previewStone, handleCommitMove],
     );
 
-    const handleClearBoard = useCallback(() => {
-      dispatch({ type: "CLEAR_BOARD" });
-    }, [dispatch]);
-
-    const handleTrashMouseEnter = useCallback(() => {
-      setIsTrashHovering(true);
-    }, []);
-
-    const handleTrashMouseLeave = useCallback(() => {
-      setIsTrashHovering(false);
-    }, []);
-
     if (!isVisible) return null;
 
     const maxHeight = Math.min(window.innerHeight, window.innerWidth * 0.5);
@@ -493,17 +481,6 @@ const EditorGoban = forwardRef<EditorGobanRef, EditorGobanProps>(
                   <img src={redoSvg} width={24} height={24} />
                 </Button>
               </div>
-              <Button
-                size="xl"
-                color="red"
-                variant="outline"
-                onClick={handleClearBoard}
-                disabled={boardsEqual(state.board, emptyBoard)}
-                onMouseEnter={handleTrashMouseEnter}
-                onMouseLeave={handleTrashMouseLeave}
-              >
-                <img src={trashSvg} width={24} height={24} />
-              </Button>
             </div>
           </div>
         </div>

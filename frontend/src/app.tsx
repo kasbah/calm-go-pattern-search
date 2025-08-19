@@ -15,9 +15,17 @@ import PlayerFilterInputs, {
   type PlayerColor,
   type PlayerFilterInputsRef,
 } from "@/games/filters/player-filter-inputs";
-import { BrushMode, SabakiColor, type BoardPosition } from "@/sabaki-types";
+import {
+  BrushMode,
+  SabakiColor,
+  type BoardPosition,
+  boardsEqual,
+  emptyBoard,
+} from "@/sabaki-types";
 import TinyEditorGoban from "@/goban/tiny-editor-goban";
 import ViewerGoban, { type GameSelection } from "@/goban/viewer-goban";
+import { Button } from "@/ui-primitives/button";
+import trashSvg from "@/assets/icons/trash.svg";
 import {
   toWasmSearch,
   type Game,
@@ -68,6 +76,7 @@ export default function App({
   const [isClearingBoard, setIsClearingBoard] = useState(false);
   const [brushColor, setBrushColor] = useState<SabakiColor>(SabakiColor.Black);
   const [brushMode, setBrushMode] = useState<BrushMode>(BrushMode.Alternate);
+  const [isTrashHovering, setIsTrashHovering] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [playerFilters, setPlayerFilters] =
@@ -310,7 +319,7 @@ export default function App({
           // If a game is selected, select the previous one if possible
           if (selectedGame != null && games.length > 0) {
             const idx = games.findIndex(
-              // @ts-expect-error ts can't infer the right type for g
+              // @ts-expect-error ts can't infer that selectedGame is not `never`
               (g: Game) => g.path === selectedGame.path,
             );
             if (idx > 0) {
@@ -566,6 +575,7 @@ export default function App({
               onCommitMove={handleCommitMove}
               initialBoard={initialBoard}
               isVisible={selectedGame === null}
+              isTrashHovering={isTrashHovering}
             />
           </div>
           <div
@@ -606,34 +616,56 @@ export default function App({
             <LanguageSelector />
           </div>
           <div className="flex flex-wrap xl:flex-nowrap">
-            <div className="h-[252px] flex-grow-1 w-[50%] min-w-[50%]">
-              {selectedGame != null ? (
-                <div className="flex items-center h-full">
-                  <div
-                    className={cn(
-                      selectedGame != null
-                        ? "tiny-goban-visible"
-                        : "next-moves-visible",
-                    )}
-                    onClick={handleClearGameSelection}
-                  >
-                    <TinyEditorGoban
-                      vertexSize={tinyEditorVertexSize}
-                      board={board}
-                      onClearBoard={handleClearBoard}
-                    />
+            <div className="h-[252px] flex-grow-1 w-[50%] min-w-[50%] flex mb-4">
+              <div className="mr-[16px]">
+                <Button
+                  size="xl"
+                  variant="outline"
+                  onClick={handleClearBoard}
+                  title="Clear board"
+                  disabled={boardsEqual(board, emptyBoard)}
+                  onMouseEnter={() => setIsTrashHovering(true)}
+                  onMouseLeave={() => setIsTrashHovering(false)}
+                >
+                  <img
+                    src={trashSvg}
+                    width={24}
+                    height={24}
+                    alt="Clear board"
+                  />
+                </Button>
+              </div>
+              <div className="flex-1">
+                {selectedGame != null ? (
+                  <div className="flex items-center h-full">
+                    <div
+                      className={cn(
+                        selectedGame != null
+                          ? "tiny-goban-visible"
+                          : "next-moves-visible",
+                      )}
+                      onClick={handleClearGameSelection}
+                    >
+                      <TinyEditorGoban
+                        vertexSize={tinyEditorVertexSize}
+                        board={board}
+                        isTrashHovering={isTrashHovering}
+                      />
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <NextMovesList
-                  nextMoves={nextMoves}
-                  isLoading={isSearching}
-                  brushColor={brushColor}
-                  onMoveHover={handleMoveHover}
-                  onMoveUnhover={handleMoveUnhover}
-                  onMoveClick={handleMoveClick}
-                />
-              )}
+                ) : (
+                  nextMoves.length > 0 && (
+                    <NextMovesList
+                      nextMoves={nextMoves}
+                      isLoading={isSearching}
+                      brushColor={brushColor}
+                      onMoveHover={handleMoveHover}
+                      onMoveUnhover={handleMoveUnhover}
+                      onMoveClick={handleMoveClick}
+                    />
+                  )
+                )}
+              </div>
             </div>
             <PlayerFilterInputs
               ref={playerFilterInputsRef}
